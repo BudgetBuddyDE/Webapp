@@ -48,7 +48,7 @@ export const theme = createTheme({
     divider: 'rgba(194, 224, 255, 0.08)',
     background: {
       default: '#001E3C',
-      paper: '#0A1929',
+      paper: '#001E3C',
     },
     common: {
       black: '#1D1D1D',
@@ -199,7 +199,6 @@ export const theme = createTheme({
       fontSize: '1.5rem',
       lineHeight: 1.5,
       letterSpacing: 0.1,
-      color: '#66B2FF',
       fontWeight: 400,
       scrollMarginTop: 'calc(var(--MuiDocs-header-height) + 32px)',
     },
