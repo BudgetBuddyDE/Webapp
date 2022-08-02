@@ -2,7 +2,6 @@ import { FormEvent, useContext, useState } from 'react';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import InputLabel from '@mui/material/InputLabel';
@@ -19,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase';
 import { AuthContext } from '../context/auth.context';
 import { SnackbarContext } from '../context/snackbar.context';
+import Card from '../components/card.component';
 
 export const SignIn = () => {
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ export const SignIn = () => {
   return (
     <Grid container spacing={3} justifyContent="center">
       <Grid item xs={12} sm={6} lg={4}>
-        <Paper
+        <Card
           sx={{
             py: 3,
             px: 4,
@@ -113,7 +113,7 @@ export const SignIn = () => {
           <Button sx={{ width: '100%' }} onClick={() => navigate('/sign-up', { replace: true })}>
             Don't have an account? Sign up...
           </Button>
-        </Paper>
+        </Card>
       </Grid>
     </Grid>
   );
