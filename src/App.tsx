@@ -8,13 +8,14 @@ import { Dashboard } from './routes/dashboard.route';
 import { SignIn } from './routes/sign-in.route';
 import { SignUp } from './routes/sign-up.route';
 import { ProtectedRoute } from './components/protected-route.component';
+import Drawer from './components/drawer.component';
 
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Box sx={{ display: 'flex' }}>
+        <Drawer />
         <Main
-          open={true}
           sx={{
             display: 'flex',
             flexDirection: 'column',

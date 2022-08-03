@@ -6,6 +6,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import { theme } from './theme/default.theme';
 import { AuthProvider } from './context/auth.context';
 import { SnackbarProvider } from './context/snackbar.context';
+import { StoreProvider } from './context/store.context';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
@@ -13,9 +14,11 @@ root.render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
-        <SnackbarProvider>
-          <App />
-        </SnackbarProvider>
+        <StoreProvider>
+          <SnackbarProvider>
+            <App />
+          </SnackbarProvider>
+        </StoreProvider>
       </AuthProvider>
     </ThemeProvider>
   </React.StrictMode>
