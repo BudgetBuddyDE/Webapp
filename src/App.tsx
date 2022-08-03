@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { Main } from './components/main.component';
 import { Copyright } from './components/copyright.component';
 import Box from '@mui/material/Box';
@@ -27,6 +27,14 @@ export const App: React.FC = () => {
         >
           <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
             <Routes>
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Navigate to="/dashboard" />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/dashboard"
                 element={
