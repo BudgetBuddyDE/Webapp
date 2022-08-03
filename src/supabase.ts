@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import credentials from './credentials.json';
 
-export const supabase = createClient(credentials.supabase.url, credentials.supabase.anon);
+export const supabase = createClient(
+  process.env.REACT_APP_SUPABASE_URL!,
+  process.env.REACT_APP_SUPABASE_ANON!
+);

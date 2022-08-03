@@ -8,14 +8,10 @@
 
 0. Create an Supabase project. For more steps follow [this](https://supabase.com/docs/guides/examples) guide.
 
-1. Create an `src/credentials.json` which stored our Supabase credentials like this
-   ```json
-   {
-     "supabase": {
-       "url": "<URL>",
-       "anon": "<ANON_KEY>"
-     }
-   }
+1. Create an `.env`-file which stored our Supabase credentials like this
+   ```
+   REACT_APP_SUPABASE_URL=
+   REACT_APP_SUPABASE_ANON=
    ```
 2. Install dependencies
 
