@@ -116,7 +116,10 @@ export const Dashboard = () => {
   return (
     <Grid container spacing={3}>
       <PageHeader
-        title={`Welcome, ${(session && session.user && session.user.email.split("@")[0]) || 'Username'}!`}
+        title={`Welcome, ${
+          (session && session.user && session.user.email && session.user.email.split('@')[0]) ||
+          'Username'
+        }!`}
         description="All in one page"
       />
       {StatsCards.map((props) => (
