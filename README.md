@@ -99,4 +99,5 @@ create policy "Users can update own profile." on profiles
 | ---------- | ----------------------- | -------------------------- |
 | MaterialUI | https://mui.com         | Frontend component library |
 | Supabase   | https://supabase.io     | Auth & Backend Provider    |
+| Netlify    | https://netlify.app     | Hosting                    |
 | AirBnB     | https://airbnb.io/visx/ | Chart Library              |
