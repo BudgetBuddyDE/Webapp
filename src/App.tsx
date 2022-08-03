@@ -5,6 +5,7 @@ import { Copyright } from './components/copyright.component';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import { Dashboard } from './routes/dashboard.route';
+import { PaymentMethods } from './routes/payment-method.route';
 import { SignIn } from './routes/sign-in.route';
 import { SignUp } from './routes/sign-up.route';
 import { ProtectedRoute } from './components/protected-route.component';
@@ -40,6 +41,14 @@ export const App: React.FC = () => {
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/payment-methods"
+                element={
+                  <ProtectedRoute>
+                    <PaymentMethods />
                   </ProtectedRoute>
                 }
               />

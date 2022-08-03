@@ -21,7 +21,11 @@ const Header: FC<PropsWithChildren> = ({ children }) => {
 };
 
 const HeaderActions: FC<PropsWithChildren> = ({ children }) => {
-  return <Box>{children}</Box>;
+  return (
+    <Box display="flex" flexDirection="row">
+      {children}
+    </Box>
+  );
 };
 
 const Title: FC<PropsWithChildren> = ({ children }) => {
