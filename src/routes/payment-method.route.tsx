@@ -17,11 +17,12 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
-import Paper from '@mui/material/Paper';
+import { CircularProgress } from '../components/progress.component';
 
 export const PaymentMethods = () => {
   const { session } = useContext(AuthContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
+  const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState('');
   const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
   const [shownPaymentMethods, setShownPaymentMethods] =
@@ -59,9 +60,8 @@ export const PaymentMethods = () => {
           setPaymentMethods(data);
         } else setPaymentMethods([]);
       })
-      .catch((error) => {
-        console.error(error);
-      });
+      .catch((error) => console.error(error))
+      .finally(() => setLoading(false));
   }, [session]);
 
   async function getPaymentMethods(): Promise<IPaymentMethod[] | null> {
@@ -93,45 +93,50 @@ export const PaymentMethods = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            <TableContainer>
-              <Table sx={{ minWidth: 650 }} aria-label="Payment Methods Table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Name</TableCell>
-                    <TableCell>Provider</TableCell>
-                    <TableCell>Address</TableCell>
-                    <TableCell>Description</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {shownPaymentMethods
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => (
-                      <TableRow
-                        key={row.id}
-                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                      >
-                        <TableCell>{row.name}</TableCell>
-                        <TableCell>{row.provider}</TableCell>
-                        <TableCell>{row.address}</TableCell>
-                        <TableCell>{row.description || 'No Description'}</TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            {loading ? (
+              <CircularProgress />
+            ) : (
+              <TableContainer>
+                <Table sx={{ minWidth: 650 }} aria-label="Payment Methods Table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Provider</TableCell>
+                      <TableCell>Address</TableCell>
+                      <TableCell>Description</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {shownPaymentMethods
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((row) => (
+                        <TableRow
+                          key={row.id}
+                          sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                        >
+                          <TableCell>{row.name}</TableCell>
+                          <TableCell>{row.provider}</TableCell>
+                          <TableCell>{row.address}</TableCell>
+                          <TableCell>{row.description || 'No Description'}</TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
           </Card.Body>
           <Card.Footer>
-            {/* TODO: Add pagination */}
-            <TablePagination
-              component="div"
-              count={shownPaymentMethods.length}
-              page={page}
-              onPageChange={handlePageChange}
-              labelRowsPerPage="Rows:"
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
+            {!loading && (
+              <TablePagination
+                component="div"
+                count={shownPaymentMethods.length}
+                page={page}
+                onPageChange={handlePageChange}
+                labelRowsPerPage="Rows:"
+                rowsPerPage={rowsPerPage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            )}
           </Card.Footer>
         </Card>
       </Grid>
