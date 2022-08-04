@@ -32,6 +32,14 @@ const FormStyle: SxProps<Theme> = {
   mb: 2,
 };
 
+export async function getCategories(): Promise<ICategory[] | null> {
+  return new Promise(async (res, rej) => {
+    const { data, error } = await supabase.from<ICategory>('categories').select('*');
+    if (error) rej(error);
+    res(data);
+  });
+}
+
 export const Categories = () => {
   const { session } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
@@ -72,7 +80,6 @@ export const Categories = () => {
 
       const { data, error } = await supabase
         .from('categories')
-        // FIXME: Why do we have to add created_by for the categories to pass RLS (not required for the payment-methods)
         // @ts-ignore
         .insert([{ ...addCategory, created_by: session?.user.id }]);
       if (error) throw error;
@@ -158,14 +165,6 @@ export const Categories = () => {
       .catch((error) => console.error(error))
       .finally(() => setLoading(false));
   }, [session]);
-
-  async function getCategories(): Promise<ICategory[] | null> {
-    return new Promise(async (res, rej) => {
-      const { data, error } = await supabase.from<ICategory>('categories').select('*');
-      if (error) rej(error);
-      res(data);
-    });
-  }
 
   return (
     <Grid container spacing={3}>

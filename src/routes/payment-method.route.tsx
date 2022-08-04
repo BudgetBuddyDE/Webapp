@@ -32,6 +32,14 @@ const FormStyle: SxProps<Theme> = {
   mb: 2,
 };
 
+export async function getPaymentMethods(): Promise<IPaymentMethod[] | null> {
+  return new Promise(async (res, rej) => {
+    const { data, error } = await supabase.from<IPaymentMethod>('paymentMethods').select('*');
+    if (error) rej(error);
+    res(data);
+  });
+}
+
 export const PaymentMethods = () => {
   const { session } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
@@ -169,14 +177,6 @@ export const PaymentMethods = () => {
       .catch((error) => console.error(error))
       .finally(() => setLoading(false));
   }, [session]);
-
-  async function getPaymentMethods(): Promise<IPaymentMethod[] | null> {
-    return new Promise(async (res, rej) => {
-      const { data, error } = await supabase.from<IPaymentMethod>('paymentMethods').select('*');
-      if (error) rej(error);
-      res(data);
-    });
-  }
 
   return (
     <Grid container spacing={3}>
