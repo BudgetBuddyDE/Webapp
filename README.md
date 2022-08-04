@@ -153,6 +153,13 @@ create policy "Users can update own payment method." on paymentMethods
   for update using (auth.uid() = created_by);
 ```
 
+###### Delete
+
+```sql
+create policy "Users can delete own payment method." on paymentMethods
+  for delete using (auth.uid() = created_by);
+```
+
 ---
 
 ## Credits
