@@ -1,12 +1,24 @@
-export interface ITransaction {
-  id: number;
-  category: ICategory;
-  paymentMethod: IPaymentMethod;
+export interface IBaseTransactionDTO {
+  id?: number;
+  category: number;
+  paymentMethod: number;
   receiver: string;
   amount: number;
   description: string | null;
   date: Date;
-  created_at: Date;
+}
+
+export interface IBaseTransaction {
+  categories: ICategory;
+  paymentMethods: IPaymentMethod;
+  receiver: string;
+  amount: number;
+  description: string | null;
+  date: Date;
+}
+
+export interface ITransaction extends IBaseTransaction {
+  id: number;
 }
 
 // TODO: Add budget to ICategories

@@ -42,24 +42,22 @@ const C2: ICategory = {
 
 export const T1: ITransaction = {
   id: 1,
-  category: C1,
-  paymentMethod: PM1,
+  categories: C1,
+  paymentMethods: PM1,
   receiver: 'Penny',
   amount: -25.99,
   description: null,
   date: new Date(),
-  created_at: new Date(),
 };
 
 export const T2: ITransaction = {
   id: 2,
-  category: C2,
-  paymentMethod: PM1,
+  categories: C2,
+  paymentMethods: PM1,
   receiver: 'IKEA',
   amount: -45.99,
   description: null,
   date: new Date(),
-  created_at: new Date(),
 };
 
 const StatsCards: StatsProps[] = [
