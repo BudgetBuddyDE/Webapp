@@ -85,9 +85,19 @@ const Header = () => {
   return (
     <DrawerHeader
       sx={{
-        justifyContent: { xs: 'flex-end', md: showDrawer ? 'flex-end' : 'center' },
+        justifyContent: { xs: 'space-between', md: showDrawer ? 'space-between' : 'center' },
       }}
     >
+      <Typography
+        sx={{
+          ml: '1.5rem',
+          display: { xs: 'unset', md: showDrawer ? 'unset' : 'none' },
+          fontWeight: 'bolder',
+          fontSize: '1.2rem',
+        }}
+      >
+        Budget-Buddy
+      </Typography>
       <IconButton onClick={() => setShowDrawer((prev) => !prev)}>
         <Hamburger open={showDrawer} />
       </IconButton>
