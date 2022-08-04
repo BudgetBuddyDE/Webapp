@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import { Dashboard } from './routes/dashboard.route';
 import { PaymentMethods } from './routes/payment-method.route';
+import { Categories } from './routes/categories.route';
 import { SignIn } from './routes/sign-in.route';
 import { SignUp } from './routes/sign-up.route';
 import { ProtectedRoute } from './components/protected-route.component';
@@ -49,6 +50,14 @@ export const App: React.FC = () => {
                 element={
                   <ProtectedRoute>
                     <PaymentMethods />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/categories"
+                element={
+                  <ProtectedRoute>
+                    <Categories />
                   </ProtectedRoute>
                 }
               />

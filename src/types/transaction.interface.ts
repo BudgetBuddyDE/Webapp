@@ -10,10 +10,13 @@ export interface ITransaction {
 }
 
 // TODO: Add budget to ICategories
-export interface ICategory {
-  id: number;
+export interface IBaseCategory {
   name: string;
   description: string | null;
+}
+
+export interface ICategory extends IBaseCategory {
+  id: number;
 }
 
 export interface IBasePaymentMethod {
