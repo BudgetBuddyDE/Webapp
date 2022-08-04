@@ -194,7 +194,7 @@ const Profile: React.FC<{ open: boolean }> = ({ open }) => {
           }}
           onClick={handleSignOut}
         >
-          <LogoutIcon />
+          <LogoutIcon sx={{ color: (theme) => theme.palette.text.primary }} />
         </Button>
       </Box>
     </Box>
