@@ -14,7 +14,7 @@ const Card: FC<ICardProps> = ({ children, sx }) => {
 
 const Header: FC<PropsWithChildren> = ({ children }) => {
   return (
-    <Box display="flex" alignItems="center" justifyContent="space-between">
+    <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap">
       {children}
     </Box>
   );
