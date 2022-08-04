@@ -30,13 +30,13 @@ const PM1: IPaymentMethod = {
 
 const C1: ICategory = {
   id: 1,
-  label: 'Lebensmittel',
+  name: 'Lebensmittel',
   description: null,
 };
 
 const C2: ICategory = {
   id: 2,
-  label: 'Haushalt',
+  name: 'Haushalt',
   description: null,
 };
 

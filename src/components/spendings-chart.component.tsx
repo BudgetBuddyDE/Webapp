@@ -14,7 +14,7 @@ function getAbsoluteAmount(transaction: ITransaction) {
 export const PieChart: FC<{ transactions: ITransaction[] }> = ({ transactions }) => {
   const screenSize = useScreenSize();
   const MARGIN = { top: 0, right: 0, bottom: 0, left: 0 };
-  const CATEGORY_NAMES = Object.entries(transactions).map(([key, value]) => value.category.label);
+  const CATEGORY_NAMES = Object.entries(transactions).map(([key, value]) => value.category.name);
   const COLOR_RANGE = transactions.map((transaction, index) => {
     return transactions.length > 1
       ? `rgba(255,255,255,${(0.7 / transactions.length) * (index + 1)})`
@@ -68,7 +68,7 @@ export const PieChart: FC<{ transactions: ITransaction[] }> = ({ transactions })
                           <g key={`pie-arc-${i}`}>
                             <path
                               d={pie.path(arc) || ''}
-                              fill={getCategoryColor(arc.data.category.label)}
+                              fill={getCategoryColor(arc.data.category.name)}
                             />
                             {hasSpaceForLabel && (
                               <g>
@@ -81,7 +81,7 @@ export const PieChart: FC<{ transactions: ITransaction[] }> = ({ transactions })
                                   textAnchor="middle"
                                   pointerEvents="none"
                                 >
-                                  {arc.data.category.label}
+                                  {arc.data.category.name}
                                 </text>
                                 <text
                                   fill="white"

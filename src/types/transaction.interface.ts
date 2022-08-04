@@ -12,7 +12,7 @@ export interface ITransaction {
 // TODO: Add budget to ICategories
 export interface ICategory {
   id: number;
-  label: string;
+  name: string;
   description: string | null;
 }
 
