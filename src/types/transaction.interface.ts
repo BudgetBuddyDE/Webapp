@@ -16,10 +16,13 @@ export interface ICategory {
   description: string | null;
 }
 
-export interface IPaymentMethod {
-  id: number;
+export interface IBasePaymentMethod {
   name: string;
   provider: string;
   address: string;
   description: string | null;
+}
+
+export interface IPaymentMethod extends IBasePaymentMethod {
+  id: number;
 }
