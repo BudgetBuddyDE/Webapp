@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Snackbar } from '@mui/material';
+import { darken, Snackbar } from '@mui/material';
 
 export interface IShowSnackbarProps {
   message: string;
@@ -55,6 +55,12 @@ export const SnackbarProvider: React.FC<React.PropsWithChildren> = ({ children }
     <SnackbarContext.Provider value={{ showSnackbar }}>
       {children}
       <Snackbar
+        sx={{
+          '& .MuiSnackbarContent-root': {
+            backgroundColor: (theme) => darken(theme.palette.background.default, 0.4),
+            color: 'white',
+          },
+        }}
         key={messageInfo ? messageInfo.key : undefined}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         open={open}
