@@ -17,15 +17,14 @@ import TextField from '@mui/material/TextField';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import InputAdornment from '@mui/material/InputAdornment';
+import Autocomplete from '@mui/material/Autocomplete';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
 import OutlinedInput from '@mui/material/OutlinedInput';
-import Select from '@mui/material/Select';
 import { SxProps, Theme } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -121,7 +120,7 @@ export const Transactions = () => {
       if (!date) setAddTransaction((prev) => ({ ...prev, date: new Date() }));
       if (!category) setAddTransaction((prev) => ({ ...prev, category: categories[0].id }));
       if (!paymentMethod)
-        setAddTransaction((prev) => ({ ...prev, paymentMethods: paymentMethods[0].id }));
+        setAddTransaction((prev) => ({ ...prev, paymentMethod: paymentMethods[0].id }));
       if (!receiver) throw new Error('Provide an valid receiver');
       if (!amount) throw new Error("'Provide an valid amount'");
 
@@ -166,7 +165,6 @@ export const Transactions = () => {
       });
     }
   };
-
 
   useEffect(() => setShownTransactions(transactions), [transactions]);
 
@@ -266,6 +264,11 @@ export const Transactions = () => {
                           <TableCell>{row.paymentMethods.name}</TableCell>
                           <TableCell>{row.description || 'No Information'}</TableCell>
                           <TableCell align="right">
+                            <Tooltip title="Edit" placement="top">
+                              <IconButton onClick={() => {}}>
+                                <EditIcon />
+                              </IconButton>
+                            </Tooltip>
                             <Tooltip title="Delete" placement="top">
                               <IconButton onClick={() => handleDelete(row.id)}>
                                 <DeleteIcon />
@@ -314,66 +317,56 @@ export const Transactions = () => {
               <MobileDatePicker
                 label="Date"
                 inputFormat="dd.MM.yy"
-                value={addTransaction.date}
-                // @ts-ignore
-                onChange={(value) => setAddTransaction((prev) => ({ ...prev, date: value }))}
+                value={new Date()}
+                onChange={(value) =>
+                  setAddTransaction((prev) => ({ ...prev, date: value || new Date() }))
+                }
                 renderInput={(params) => <TextField sx={FormStyle} {...params} />}
               />
             ) : (
               <DesktopDatePicker
                 label="Date"
                 inputFormat="dd.MM.yy"
-                value={addTransaction.date}
-                // @ts-ignore
-                onChange={(value) => setAddTransaction((prev) => ({ ...prev, date: value }))}
+                value={new Date()}
+                onChange={(value) =>
+                  setAddTransaction((prev) => ({ ...prev, date: value || new Date() }))
+                }
                 renderInput={(params) => <TextField sx={FormStyle} {...params} />}
               />
             )}
           </LocalizationProvider>
 
           {!loading && (
-            <Box>
-              <FormControl sx={{ width: '50%' }}>
-                <InputLabel id="add-category-label">Category</InputLabel>
-                <Select
-                  labelId="add-category-label"
-                  id="add-category"
-                  sx={{ mb: 2, mr: 2 }}
-                  // value={categories[0].id}
-                  label="Category"
-                  onChange={(e) =>
-                    setAddTransaction((prev) => ({ ...prev, category: Number(e.target.value) }))
-                  }
-                >
-                  {categories.map((category) => (
-                    <MenuItem key={category.id} value={category.id}>
-                      {category.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl sx={{ width: '50%' }}>
-                <InputLabel id="add-payment-method-label">Payment Method</InputLabel>
-                <Select
-                  labelId="add-payment-method-label"
-                  id="add-payment-method"
-                  sx={{ mb: 2 }}
-                  // value={categories[0].id}
-                  label="Payment Method"
-                  onChange={(e) =>
-                    setAddTransaction((prev) => ({
-                      ...prev,
-                      paymentMethod: Number(e.target.value),
-                    }))
-                  }
-                >
-                  {paymentMethods.map((category) => (
-                    <MenuItem key={category.id} value={category.id}>
-                      {category.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+            <Box display="flex" flexDirection="row" justifyContent="space-between">
+              <Autocomplete
+                id="add-category"
+                options={categories.map((item) => ({ label: item.name, value: item.id }))}
+                sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
+                onChange={(_event, value) => {
+                  setAddTransaction((prev) => ({
+                    ...prev,
+                    category: Number(value?.value),
+                  }));
+                }}
+                renderInput={(props) => <TextField {...props} label="Category" />}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+              />
+              <Autocomplete
+                id="add-payment-method"
+                options={paymentMethods.map((item) => ({
+                  label: `${item.name} • ${item.provider}`,
+                  value: item.id,
+                }))}
+                sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
+                onChange={(_event, value) => {
+                  setAddTransaction((prev) => ({
+                    ...prev,
+                    paymentMethod: Number(value?.value),
+                  }));
+                }}
+                renderInput={(props) => <TextField {...props} label="Payment Method" />}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+              />
             </Box>
           )}
 
@@ -382,10 +375,7 @@ export const Transactions = () => {
             variant="outlined"
             label="Receiver"
             sx={FormStyle}
-            onChange={(e) =>
-              // @ts-ignore
-              setAddTransaction((prev) => ({ ...prev, receiver: e.target.value }))
-            }
+            onChange={(e) => setAddTransaction((prev) => ({ ...prev, receiver: e.target.value }))}
           />
 
           <FormControl fullWidth sx={{ mb: 2 }}>
@@ -394,7 +384,6 @@ export const Transactions = () => {
               id="add-amount"
               type="number"
               onChange={(e) =>
-                // @ts-ignore
                 setAddTransaction((prev) => ({ ...prev, amount: Number(e.target.value) }))
               }
               label="Amount"
@@ -418,7 +407,6 @@ export const Transactions = () => {
           />
         </form>
       </FormDrawer>
-
     </Grid>
   );
 };
