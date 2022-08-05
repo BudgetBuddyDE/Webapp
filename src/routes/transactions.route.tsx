@@ -37,6 +37,7 @@ import {
   IBaseTransactionDTO,
   ICategory,
   IPaymentMethod,
+  ITransactioDTO,
   ITransaction,
 } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
@@ -45,6 +46,34 @@ import { FormDrawer } from '../components/form-drawer.component';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
 import { getCategories } from './categories.route';
 import { getPaymentMethods } from './payment-method.route';
+
+function getCategory(
+  categoryId: number,
+  categories: ICategory[]
+): { label: string; value: number } {
+  const match = categories.find((category) => category.id === categoryId);
+  if (!match) {
+    const { id, name } = categories[0]; // Fallback
+    return {
+      label: name,
+      value: id,
+    };
+  } else return { label: match?.name, value: match.id };
+}
+
+function getPaymentMethod(
+  paymentMethodId: number,
+  paymentMethods: IPaymentMethod[]
+): { label: string; value: number } {
+  const match = paymentMethods.find((paymentMethod) => paymentMethod.id === paymentMethodId);
+  if (!match) {
+    const { id, name, provider } = paymentMethods[0];
+    return {
+      label: `${name} • ${provider}`,
+      value: id,
+    };
+  } else return { label: `${match?.name} • ${match?.provider}`, value: match.id };
+}
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -62,6 +91,8 @@ export async function getTransactions(): Promise<ITransaction[] | null> {
           receiver,
           description, 
           date,
+          updated_at,
+          inserted_at,
           paymentMethods (
             id, name, address, provider, description
           ),
@@ -93,6 +124,7 @@ export const Transactions = () => {
   const [addTransaction, setAddTransaction] = useState({
     date: new Date(),
   } as IBaseTransactionDTO);
+  const [editTransaction, setEditTransaction] = useState<ITransactioDTO | null>(null);
 
   const handleOnSearch = (text: string) => setKeyword(text.toLowerCase());
 
@@ -141,6 +173,61 @@ export const Transactions = () => {
       handleAddFormClose();
       showSnackbar({
         message: 'Transaction added',
+      });
+    } catch (error) {
+      console.error(error);
+      setErrorMessage(typeof error === 'string' ? error : JSON.stringify(error));
+    }
+  };
+
+  const handleEditFormOpen = (transaction: ITransaction) => {
+    setEditTransaction({
+      ...transaction,
+      category: transaction.categories.id,
+      paymentMethod: transaction.paymentMethods.id,
+    });
+  };
+
+  const handleEditFormClose = () => {
+    setEditTransaction(null);
+    setErrorMessage('');
+  };
+
+  const handleEditFormSubmit = async () => {
+    try {
+      if (!editTransaction) throw new Error('No Transaction provided');
+
+      const { id, category, paymentMethod, amount, receiver, description, date } = editTransaction;
+      const { data, error } = await supabase.from('transactions').upsert({
+        id,
+        category,
+        paymentMethod,
+        amount,
+        receiver,
+        description,
+        date,
+        created_by: session?.user?.id,
+      });
+      if (error) throw error;
+
+      setTransactions((prev) => {
+        let updatedTransactions = prev;
+        const outdatedItemIndex = updatedTransactions.findIndex(
+          (transaction) => transaction.id === data[0].id
+        );
+        updatedTransactions[outdatedItemIndex] = {
+          ...data[0],
+          id: data[0].id!,
+          categories: categories.find((category) => category.id === data[0].category)!,
+          paymentMethods: paymentMethods.find(
+            (paymentMethod) => paymentMethod.id === data[0].paymentMethod
+          )!,
+        };
+        return updatedTransactions;
+      });
+      handleEditFormClose();
+      showSnackbar({
+        message: 'Transaction updated',
       });
     } catch (error) {
       console.error(error);
@@ -265,7 +352,7 @@ export const Transactions = () => {
                           <TableCell>{row.description || 'No Information'}</TableCell>
                           <TableCell align="right">
                             <Tooltip title="Edit" placement="top">
-                              <IconButton onClick={() => {}}>
+                              <IconButton onClick={() => handleEditFormOpen(row)}>
                                 <EditIcon />
                               </IconButton>
                             </Tooltip>
@@ -406,6 +493,123 @@ export const Transactions = () => {
             }
           />
         </form>
+      </FormDrawer>
+
+      {/* Edit Transaction */}
+      <FormDrawer
+        open={editTransaction !== null}
+        heading="Edit Transaction"
+        onClose={handleEditFormClose}
+        onSave={handleEditFormSubmit}
+      >
+        {errorMessage.length > 1 && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {errorMessage}
+          </Alert>
+        )}
+
+        {editTransaction && !loading && (
+          <form>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              {screenSize === 'small' ? (
+                <MobileDatePicker
+                  label="Date"
+                  inputFormat="dd.MM.yy"
+                  value={editTransaction.date}
+                  onChange={(value) =>
+                    setEditTransaction((prev) => ({ ...prev!, date: value || new Date() }))
+                  }
+                  renderInput={(params) => <TextField sx={FormStyle} {...params} />}
+                />
+              ) : (
+                <DesktopDatePicker
+                  label="Date"
+                  inputFormat="dd.MM.yy"
+                  value={editTransaction.date}
+                  onChange={(value) =>
+                    setEditTransaction((prev) => ({ ...prev!, date: value || new Date() }))
+                  }
+                  renderInput={(params) => <TextField sx={FormStyle} {...params} />}
+                />
+              )}
+            </LocalizationProvider>
+
+            <Box display="flex" flexDirection="row" justifyContent="space-between">
+              <Autocomplete
+                id="edit-category"
+                options={categories.map((item) => ({ label: item.name, value: item.id }))}
+                sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
+                defaultValue={getCategory(editTransaction.category, categories)}
+                onChange={(_event, value) => {
+                  setEditTransaction((prev) => ({
+                    ...prev!,
+                    category: Number(value?.value),
+                  }));
+                }}
+                renderInput={(props) => <TextField {...props} label="Category" />}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+              />
+              <Autocomplete
+                id="edit-payment-method"
+                sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
+                options={paymentMethods.map(({ id, name, provider }) => ({
+                  label: `${name} • ${provider}`,
+                  value: id,
+                }))}
+                defaultValue={getPaymentMethod(editTransaction.paymentMethod, paymentMethods)}
+                onChange={(_event, value) => {
+                  setEditTransaction((prev) => ({
+                    ...prev!,
+                    paymentMethod: Number(value?.value),
+                  }));
+                }}
+                renderInput={(props) => <TextField {...props} label="Payment Method" />}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+              />
+            </Box>
+
+            <TextField
+              id="edit-receiver"
+              variant="outlined"
+              label="Receiver"
+              sx={FormStyle}
+              defaultValue={editTransaction.receiver}
+              onChange={(e) =>
+                setEditTransaction((prev) => ({ ...prev!, receiver: e.target.value }))
+              }
+            />
+
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel htmlFor="edit-amount">Amount</InputLabel>
+              <OutlinedInput
+                id="add-amount"
+                type="number"
+                defaultValue={editTransaction.amount}
+                onChange={(e) =>
+                  setEditTransaction((prev) => ({ ...prev!, amount: Number(e.target.value) }))
+                }
+                label="Amount"
+                startAdornment={<InputAdornment position="start">€</InputAdornment>}
+              />
+            </FormControl>
+
+            <TextField
+              id="edit-information"
+              variant="outlined"
+              label="Information"
+              sx={{ ...FormStyle, mb: 0 }}
+              multiline
+              rows={3}
+              defaultValue={editTransaction.description}
+              onChange={(e) =>
+                setEditTransaction((prev) => ({
+                  ...prev!,
+                  description: e.target.value === '' ? null : e.target.value,
+                }))
+              }
+            />
+          </form>
+        )}
       </FormDrawer>
     </Grid>
   );

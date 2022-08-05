@@ -17,6 +17,11 @@ export interface IBaseTransaction {
   date: Date;
 }
 
+export interface ITransactioDTO extends ITransaction {
+  paymentMethod: number;
+  category: number;
+}
+
 export interface ITransaction extends IBaseTransaction {
   id: number;
   created_by?: string;
