@@ -122,8 +122,8 @@ export const Transactions = () => {
       if (!category) setAddTransaction((prev) => ({ ...prev, category: categories[0].id }));
       if (!paymentMethod)
         setAddTransaction((prev) => ({ ...prev, paymentMethods: paymentMethods[0].id }));
-      if (!receiver) throw 'Provide an valid receiver';
-      if (!amount) throw 'Provide an valid amount';
+      if (!receiver) throw new Error('Provide an valid receiver');
+      if (!amount) throw new Error("'Provide an valid amount'");
 
       const { data, error } = await supabase
         .from<IBaseTransactionDTO>('transactions')

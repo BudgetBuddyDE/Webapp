@@ -76,7 +76,7 @@ export const Categories = () => {
   const handleAddFormSubmit = async () => {
     try {
       const { name } = addCategory;
-      if (!name) throw 'Provide an valid name';
+      if (!name) throw new Error('Provide an valid name');
 
       const { data, error } = await supabase
         .from('categories')
@@ -122,10 +122,10 @@ export const Categories = () => {
 
   const handleEditFormSubmit = async () => {
     try {
-      if (!editCategory) throw 'No Category provided';
+      if (!editCategory) throw new Error('No Category provided');
       const { name } = editCategory;
 
-      if (!name) throw 'Provide an valid name';
+      if (!name) throw new Error('Provide an valid name');
 
       const { data, error } = await supabase.from<ICategory>('categories').upsert(editCategory);
       if (error) throw error;

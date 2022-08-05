@@ -78,9 +78,9 @@ export const PaymentMethods = () => {
     try {
       const { name, provider, address } = addPaymentMethod;
 
-      if (!name) throw 'Provide an valid name';
-      if (!provider) throw 'Provide an valid provider';
-      if (!address) throw 'Provide an valid address';
+      if (!name) throw new Error('Provide an valid name');
+      if (!provider) throw new Error('Provide an valid provider');
+      if (!address) throw new Error('Provide an valid address');
 
       const { data, error } = await supabase
         .from<IPaymentMethod>('paymentMethods')
@@ -125,12 +125,12 @@ export const PaymentMethods = () => {
 
   const handleEditFormSubmit = async () => {
     try {
-      if (!editPaymentMethod) throw 'No Payment Method provided';
+      if (!editPaymentMethod) throw new Error('No Payment Method provided');
       const { name, provider, address } = editPaymentMethod;
 
-      if (!name) throw 'Provide an valid name';
-      if (!provider) throw 'Provide an valid provider';
-      if (!address) throw 'Provide an valid address';
+      if (!name) throw new Error('Provide an valid name');
+      if (!provider) throw new Error('Provide an valid provider');
+      if (!address) throw new Error('Provide an valid address');
 
       const { data, error } = await supabase
         .from<IPaymentMethod>('paymentMethods')
