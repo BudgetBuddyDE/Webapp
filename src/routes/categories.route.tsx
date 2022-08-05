@@ -34,7 +34,10 @@ const FormStyle: SxProps<Theme> = {
 
 export async function getCategories(): Promise<ICategory[] | null> {
   return new Promise(async (res, rej) => {
-    const { data, error } = await supabase.from<ICategory>('categories').select('*');
+    const { data, error } = await supabase
+      .from<ICategory>('categories')
+      .select('*')
+      .order('name', { ascending: true });
     if (error) rej(error);
     res(data);
   });

@@ -34,7 +34,10 @@ const FormStyle: SxProps<Theme> = {
 
 export async function getPaymentMethods(): Promise<IPaymentMethod[] | null> {
   return new Promise(async (res, rej) => {
-    const { data, error } = await supabase.from<IPaymentMethod>('paymentMethods').select('*');
+    const { data, error } = await supabase
+      .from<IPaymentMethod>('paymentMethods')
+      .select('*')
+      .order('name', { ascending: true });
     if (error) rej(error);
     res(data);
   });
