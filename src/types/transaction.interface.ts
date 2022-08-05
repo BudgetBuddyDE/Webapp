@@ -19,6 +19,9 @@ export interface IBaseTransaction {
 
 export interface ITransaction extends IBaseTransaction {
   id: number;
+  created_by?: string;
+  updated_at?: Date;
+  inserted_at?: Date;
 }
 
 // TODO: Add budget to ICategories
@@ -29,6 +32,9 @@ export interface IBaseCategory {
 
 export interface ICategory extends IBaseCategory {
   id: number;
+  created_by?: string;
+  updated_at?: Date;
+  inserted_at?: Date;
 }
 
 export interface IBasePaymentMethod {
@@ -40,4 +46,7 @@ export interface IBasePaymentMethod {
 
 export interface IPaymentMethod extends IBasePaymentMethod {
   id: number;
+  created_by?: string;
+  updated_at?: Date;
+  inserted_at?: Date;
 }
