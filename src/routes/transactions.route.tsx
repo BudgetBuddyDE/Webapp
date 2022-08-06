@@ -100,7 +100,7 @@ export async function getTransactions(): Promise<ITransaction[] | null> {
             id, name, description
           )`
       )
-      .order('id', { ascending: false });
+      .order('date', { ascending: false });
     if (error) rej(error);
     res(data);
   });
