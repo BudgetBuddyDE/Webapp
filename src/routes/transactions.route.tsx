@@ -33,7 +33,7 @@ import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/search-input.component';
 import { supabase } from '../supabase';
 import { AuthContext } from '../context/auth.context';
-import {
+import type {
   IBaseTransactionDTO,
   ICategory,
   IPaymentMethod,

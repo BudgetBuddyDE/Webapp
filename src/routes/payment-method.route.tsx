@@ -23,7 +23,7 @@ import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/search-input.component';
 import { supabase } from '../supabase';
 import { AuthContext } from '../context/auth.context';
-import { IBasePaymentMethod, IPaymentMethod } from '../types/transaction.interface';
+import type { IBasePaymentMethod, IPaymentMethod } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
 import { FormDrawer } from '../components/form-drawer.component';
 
