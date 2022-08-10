@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.4](https://github.com/BudgetBuddyDE/Webapp/compare/v0.0.3...v0.0.4) (2022-08-10)
+
+
+### Features
+
+* Save drawer state ([4ad615d](https://github.com/BudgetBuddyDE/Webapp/commit/4ad615d4cf03a75db8660eab22f2bd174d8f0e60))
+
 ### [0.0.3](https://github.com/BudgetBuddyDE/Webapp/compare/v0.0.2...v0.0.3) (2022-08-10)
 
 
