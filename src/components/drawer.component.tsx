@@ -228,6 +228,7 @@ const Drawer = () => {
       <MuiDrawer
         variant="temporary"
         open={!showDrawer} /*For information about the inverted value see comment above*/
+        onClose={(ev, reason) => reason === 'backdropClick' && setShowDrawer(!showDrawer)}
         ModalProps={{
           keepMounted: true, // Better open performance on mobile.
         }}
