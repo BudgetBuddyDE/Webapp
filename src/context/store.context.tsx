@@ -16,7 +16,9 @@ export interface IStoreContext {
 export const StoreContext = createContext({} as IStoreContext);
 
 export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [showDrawer, setShowDrawer] = useState(true);
+  const [showDrawer, setShowDrawer] = useState(getSavedSidebarState());
+
+  useMemo(() => saveSidebarState(showDrawer), [showDrawer]);
 
   return (
     <StoreContext.Provider value={useMemo(() => ({ showDrawer, setShowDrawer }), [showDrawer])}>
@@ -24,3 +26,14 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
     </StoreContext.Provider>
   );
 };
+
+function getSavedSidebarState() {
+  const saved = localStorage.getItem('bb.sidebar.show');
+  if (saved === null) {
+    return true;
+  } else return saved === 'true';
+}
+
+function saveSidebarState(state: boolean) {
+  return localStorage.setItem('bb.sidebar.show', state.toString());
+}
