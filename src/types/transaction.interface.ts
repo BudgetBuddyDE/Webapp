@@ -55,3 +55,20 @@ export interface IPaymentMethod extends IBasePaymentMethod {
   updated_at?: Date;
   inserted_at?: Date;
 }
+
+export interface IBaseSubscription {
+  id?: number;
+  categories: ICategory;
+  paymentMethods: IPaymentMethod;
+  receiver: string;
+  amount: number;
+  description: string | null;
+  execute_at: number;
+}
+
+export interface ISubscription extends IBaseSubscription {
+  id: number;
+  created_by: string;
+  updated_at: Date;
+  inserted_at: Date;
+}

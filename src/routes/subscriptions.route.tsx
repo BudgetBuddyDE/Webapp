@@ -13,8 +13,8 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
 import Chip from '@mui/material/Chip';
+import TextField from '@mui/material/TextField';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -34,63 +34,30 @@ import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/search-input.component';
 import { supabase } from '../supabase';
 import { AuthContext } from '../context/auth.context';
-import type {
-  IBaseTransactionDTO,
-  ICategory,
-  IPaymentMethod,
-  ITransaction,
-} from '../types/transaction.interface';
+import type { ICategory, IPaymentMethod, ISubscription } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
-import { format } from 'date-fns';
 import { FormDrawer } from '../components/form-drawer.component';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
 import { getCategories } from './categories.route';
 import { getPaymentMethods } from './payment-method.route';
-
-export function getCategory(
-  categoryId: number,
-  categories: ICategory[]
-): { label: string; value: number } {
-  const match = categories.find((category) => category.id === categoryId);
-  if (!match) {
-    const { id, name } = categories[0]; // Fallback
-    return {
-      label: name,
-      value: id,
-    };
-  } else return { label: match?.name, value: match.id };
-}
-
-export function getPaymentMethod(
-  paymentMethodId: number,
-  paymentMethods: IPaymentMethod[]
-): { label: string; value: number } {
-  const match = paymentMethods.find((paymentMethod) => paymentMethod.id === paymentMethodId);
-  if (!match) {
-    const { id, name, provider } = paymentMethods[0];
-    return {
-      label: `${name} • ${provider}`,
-      value: id,
-    };
-  } else return { label: `${match?.name} • ${match?.provider}`, value: match.id };
-}
+import { DateService } from '../services/date.service';
+import { addMonths } from 'date-fns';
+import { getCategory, getPaymentMethod } from './transactions.route';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
   mb: 2,
 };
 
-export async function getTransactions(): Promise<ITransaction[] | null> {
+export async function getSubscriptions(): Promise<ISubscription[] | null> {
   return new Promise(async (res, rej) => {
-    const { data, error } = await supabase
-      .from<ITransaction>('transactions')
-      .select(
-        `
+    const { data, error } = await supabase.from<ISubscription>('subscriptions').select(
+      `
           id,
           amount,
           receiver,
           description, 
-          date,
+          execute_at,
           updated_at,
           inserted_at,
           paymentMethods (
@@ -99,28 +66,36 @@ export async function getTransactions(): Promise<ITransaction[] | null> {
           categories (
             id, name, description
           )`
-      )
-      .order('date', { ascending: false });
+    );
     if (error) rej(error);
     res(data);
   });
 }
 
-export const Transactions = () => {
+function determineNextExecution(executeAt: Number) {
+  const now = new Date();
+  const today = now.getDate();
+  if (executeAt >= today) {
+    return `${executeAt} ${DateService.shortMonthName(now)}.`;
+  } else return `${executeAt} ${DateService.shortMonthName(addMonths(now, 1))}.`;
+}
+
+export const Subscriptions = () => {
+  const screenSize = useScreenSize();
   const { session } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
-  const screenSize = useScreenSize();
   const rowsPerPageOptions = [10, 25, 50, 100];
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState('');
-  const [transactions, setTransactions] = useState<ITransaction[]>([]);
-  const [shownTransactions, setShownTransactions] = useState<readonly ITransaction[]>(transactions);
+  const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
+  const [shownSubscriptions, setShownSubscriptions] =
+    useState<readonly ISubscription[]>(subscriptions);
+  const [categories, setCategories] = useState<ICategory[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
   const [errorMessage, setErrorMessage] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
-  const [categories, setCategories] = useState<ICategory[]>([]);
-  const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
   const [addForm, setAddForm] = useState<Record<string, string | number | Date>>({});
   const [editForm, setEditForm] = useState<Record<string, string | number | Date>>({});
 
@@ -136,16 +111,14 @@ export const Transactions = () => {
   };
 
   const addFormHandler = {
-    open: () => {
-      setShowAddForm(true);
-    },
+    open: () => setShowAddForm(true),
     close: () => {
       setShowAddForm(false);
       setAddForm({});
       setErrorMessage('');
     },
     dateChange: (date: Date | null) => {
-      setAddForm((prev) => ({ ...prev, date: date || new Date() }));
+      setAddForm((prev) => ({ ...prev, execute_at: date || new Date() }));
     },
     autocompleteChange: (
       event: React.SyntheticEvent<Element, Event>,
@@ -161,33 +134,36 @@ export const Transactions = () => {
       try {
         const values = Object.keys(addForm);
         if (!values.includes('category')) throw new Error('Provide an category');
-        if (!values.includes('paymentMethod')) throw new Error('Provide an paymentMethod');
+        if (!values.includes('paymentMethod')) throw new Error('Provide an payment method');
         if (!values.includes('receiver')) throw new Error('Provide an receiver');
-        if (!values.includes('amount')) throw new Error('Provide an amount');
+        if (!values.includes('amount')) throw new Error('Provide an receiver');
 
-        const { data, error } = await supabase.from('transactions').insert({
-          date: addForm.date || new Date(),
-          category: addForm.category,
-          paymentMethod: addForm.paymentMethod,
-          receiver: addForm.receiver,
-          amount: typeof addForm.amount === 'string' ? Number(addForm.amount) : addForm.amount,
-          description: addForm.information || null,
-          // @ts-ignore
-          created_by: session?.user?.id,
-        });
+        const { data, error } = await supabase.from('subscriptions').insert([
+          {
+            // @ts-ignore
+            execute_at: addForm.execute_at.getDate() || new Date().getDate(),
+            category: addForm.category,
+            paymentMethod: addForm.paymentMethod,
+            receiver: addForm.receiver,
+            amount: Number(addForm.amount),
+            description: addForm.information || null,
+            // @ts-ignore
+            created_by: session?.user?.id,
+          },
+        ]);
         if (error) throw error;
 
-        setTransactions((prev) => [
+        setSubscriptions((prev) => [
+          ...prev,
           {
             ...data[0],
             categories: categories.find((value) => value.id === data[0].category),
             paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
-          } as ITransaction,
-          ...prev,
+          } as ISubscription,
         ]);
         addFormHandler.close();
         showSnackbar({
-          message: 'Transaction added',
+          message: 'Subscription added',
         });
       } catch (error) {
         console.error(error);
@@ -200,16 +176,18 @@ export const Transactions = () => {
   const editFormHandler = {
     open: ({
       id,
-      date,
+      execute_at,
       categories,
       paymentMethods,
       receiver,
       amount,
       description,
-    }: ITransaction) => {
+    }: ISubscription) => {
+      const execute = new Date();
+      execute.setDate(execute_at);
       setEditForm({
         id,
-        date,
+        execute_at: execute,
         category: categories.id,
         paymentMethod: paymentMethods.id,
         receiver,
@@ -222,7 +200,7 @@ export const Transactions = () => {
       setErrorMessage('');
     },
     dateChange: (date: Date | null) => {
-      setEditForm((prev) => ({ ...prev, date: date || new Date() }));
+      setEditForm((prev) => ({ ...prev, execute_at: date || new Date() }));
     },
     autocompleteChange: (
       event: React.SyntheticEvent<Element, Event>,
@@ -238,16 +216,16 @@ export const Transactions = () => {
       try {
         const values = Object.keys(editForm);
         if (!values.includes('id')) throw new Error('Provide an id');
-        if (!values.includes('date')) throw new Error('Provide an date');
+        if (!values.includes('execute_at')) throw new Error('Provide an category');
         if (!values.includes('category')) throw new Error('Provide an category');
         if (!values.includes('paymentMethod')) throw new Error('Provide an payment method');
         if (!values.includes('receiver')) throw new Error('Provide an receiver');
-        if (!values.includes('amount') || Number(editForm.amount) === 0)
-          throw new Error('Provide an amount');
+        if (!values.includes('amount')) throw new Error('Provide an receiver');
 
         const update = {
           id: editForm.id,
-          date: editForm.date,
+          // @ts-ignore
+          execute_at: editForm.execute_at.getDate() || new Date().getDate(),
           category: editForm.category,
           paymentMethod: editForm.paymentMethod,
           receiver: editForm.receiver,
@@ -258,17 +236,17 @@ export const Transactions = () => {
         };
 
         const { data, error } = await supabase
-          .from('transactions')
+          .from('subscriptions')
           .update(update)
           .match({ id: editForm.id });
         if (error) throw error;
 
         editFormHandler.close();
-        setTransactions((prev) =>
-          prev.map((transaction) => {
-            if (transaction.id === data[0].id) {
+        setSubscriptions((prev) =>
+          prev.map((subscription) => {
+            if (subscription.id === data[0].id) {
               return {
-                ...transaction,
+                ...subscription,
                 ...data[0],
                 categories: categories.find((category) => category.id === data[0].category),
                 paymentMethods: paymentMethods.find(
@@ -276,11 +254,11 @@ export const Transactions = () => {
                 ),
               };
             }
-            return transaction;
+            return subscription;
           })
         );
         showSnackbar({
-          message: 'Transaction updated',
+          message: 'Subscription updated',
         });
       } catch (error) {
         console.error(error);
@@ -292,13 +270,10 @@ export const Transactions = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const { data, error } = await supabase
-        .from<IBaseTransactionDTO>('transactions')
-        .delete()
-        .match({ id: id });
+      const { data, error } = await supabase.from('subscriptions').delete().match({ id: id });
       if (error) throw error;
-      setTransactions((prev) => prev.filter((transaction) => transaction.id !== id));
-      showSnackbar({ message: `Transaction ${data[0].receiver} deleted` });
+      setSubscriptions((prev) => prev.filter((subscription) => subscription.id !== id));
+      showSnackbar({ message: `Subscription ${data[0].receiver} deleted` });
     } catch (error) {
       console.error(error);
       showSnackbar({
@@ -308,26 +283,26 @@ export const Transactions = () => {
     }
   };
 
-  useEffect(() => setShownTransactions(transactions), [transactions]);
+  useEffect(() => setShownSubscriptions(subscriptions), [subscriptions]);
 
   useEffect(() => {
-    if (keyword === '') setShownTransactions(transactions);
-    setShownTransactions(
-      transactions.filter(
+    if (keyword === '') setShownSubscriptions(subscriptions);
+    setShownSubscriptions(
+      subscriptions.filter(
         (item) =>
           item.categories.name.toLowerCase().includes(keyword) ||
           item.paymentMethods.name.toLowerCase().includes(keyword) ||
           item.description?.toString().toLowerCase().includes(keyword)
       )
     );
-  }, [keyword, transactions]);
+  }, [keyword, subscriptions]);
 
   useEffect(() => {
-    Promise.all([getTransactions(), getCategories(), getPaymentMethods()])
-      .then(([getTransactions, getCategories, getPaymentMethods]) => {
-        if (getTransactions) {
-          setTransactions(getTransactions);
-        } else setTransactions([]);
+    Promise.all([getSubscriptions(), getCategories(), getPaymentMethods()])
+      .then(([getSubscriptions, getCategories, getPaymentMethods]) => {
+        if (getSubscriptions) {
+          setSubscriptions(getSubscriptions);
+        } else setSubscriptions([]);
 
         if (getCategories) {
           setCategories(getCategories);
@@ -343,19 +318,19 @@ export const Transactions = () => {
 
   return (
     <Grid container spacing={3}>
-      <PageHeader title="Transactions" description="What have you bought today?" />
+      <PageHeader title="Subscriptions" description="You got Disney+?" />
 
       <Grid item xs={12} md={12}>
         <Card>
           <Card.Header>
             <Box>
-              <Card.Title>Transactions</Card.Title>
-              <Card.Subtitle>Manage your transactions</Card.Subtitle>
+              <Card.Title>Subscriptions</Card.Title>
+              <Card.Subtitle>Manage your monthly subscriptions</Card.Subtitle>
             </Box>
             <Card.HeaderActions>
               <SearchInput sx={{ mr: '.5rem' }} onSearch={handleOnSearch} />
-              <Tooltip title="Add Transaction">
-                <IconButton aria-label="add-transactions" onClick={addFormHandler.open}>
+              <Tooltip title="Add Subscription">
+                <IconButton aria-label="add-subscription" onClick={addFormHandler.open}>
                   <AddIcon fontSize="inherit" />
                 </IconButton>
               </Tooltip>
@@ -366,10 +341,10 @@ export const Transactions = () => {
               <CircularProgress />
             ) : (
               <TableContainer>
-                <Table sx={{ minWidth: 650 }} aria-label="Transaction Table">
+                <Table sx={{ minWidth: 650 }} aria-label="Subscriptions Table">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Date</TableCell>
+                      <TableCell>Next execution</TableCell>
                       <TableCell>Category</TableCell>
                       <TableCell>Receiver</TableCell>
                       <TableCell>Amount</TableCell>
@@ -379,7 +354,7 @@ export const Transactions = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {shownTransactions
+                    {shownSubscriptions
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row) => (
                         <TableRow
@@ -390,10 +365,9 @@ export const Transactions = () => {
                           }}
                         >
                           <TableCell>
-                            <Typography fontWeight="bold">{`${format(
-                              new Date(row.date),
-                              'dd.MM.yy'
-                            )}`}</Typography>
+                            <Typography fontWeight="bold">
+                              {determineNextExecution(row.execute_at)}
+                            </Typography>
                           </TableCell>
                           <TableCell>
                             <Chip label={row.categories.name} variant="outlined" />
@@ -432,7 +406,7 @@ export const Transactions = () => {
             {!loading && (
               <TablePagination
                 component="div"
-                count={shownTransactions.length}
+                count={shownSubscriptions.length}
                 page={page}
                 onPageChange={handlePageChange}
                 labelRowsPerPage="Rows:"
@@ -444,10 +418,10 @@ export const Transactions = () => {
         </Card>
       </Grid>
 
-      {/* Add Transaction */}
+      {/* Add Subscription */}
       <FormDrawer
         open={showAddForm}
-        heading="Add Transaction"
+        heading="Add Subscription"
         onClose={addFormHandler.close}
         onSave={addFormHandler.save}
       >
@@ -461,17 +435,17 @@ export const Transactions = () => {
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             {screenSize === 'small' ? (
               <MobileDatePicker
-                label="Date"
+                label="Execute at"
                 inputFormat="dd.MM.yy"
-                value={addForm.date || new Date()}
+                value={addForm.execute_at || new Date()}
                 onChange={addFormHandler.dateChange}
                 renderInput={(params) => <TextField sx={FormStyle} {...params} />}
               />
             ) : (
               <DesktopDatePicker
-                label="Date"
+                label="Execute at"
                 inputFormat="dd.MM.yy"
-                value={addForm.date || new Date()}
+                value={addForm.execute_at || new Date()}
                 onChange={addFormHandler.dateChange}
                 renderInput={(params) => <TextField sx={FormStyle} {...params} />}
               />
@@ -541,10 +515,10 @@ export const Transactions = () => {
         </form>
       </FormDrawer>
 
-      {/* Edit Transaction */}
+      {/* Edit Subscription */}
       <FormDrawer
         open={Object.keys(editForm).length > 0}
-        heading="Edit Transaction"
+        heading="Edit Subscription"
         onClose={editFormHandler.close}
         onSave={editFormHandler.save}
       >
@@ -559,17 +533,17 @@ export const Transactions = () => {
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               {screenSize === 'small' ? (
                 <MobileDatePicker
-                  label="Date"
-                  inputFormat="dd.MM.yy"
-                  value={editForm.date}
+                  label="Execute at"
+                  inputFormat="dd"
+                  value={editForm.execute_at}
                   onChange={editFormHandler.dateChange}
                   renderInput={(params) => <TextField sx={FormStyle} {...params} />}
                 />
               ) : (
                 <DesktopDatePicker
-                  label="Date"
-                  inputFormat="dd.MM.yy"
-                  value={editForm.date}
+                  label="Execute at"
+                  inputFormat="dd"
+                  value={editForm.execute_at}
                   onChange={editFormHandler.dateChange}
                   renderInput={(params) => <TextField sx={FormStyle} {...params} />}
                 />
