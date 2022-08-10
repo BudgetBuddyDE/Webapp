@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3](https://github.com/BudgetBuddyDE/Webapp/compare/v0.0.2...v0.0.3) (2022-08-10)
+
+
+### Features
+
+* Add categories ([b5e133c](https://github.com/BudgetBuddyDE/Webapp/commit/b5e133c12cbee58ca55b72f8912162d80d74b564))
+* Add page for transactions ([9ee8f34](https://github.com/BudgetBuddyDE/Webapp/commit/9ee8f3415d43702af504259cb73c6553ca647261))
+* Add subscriptions ([7b0d0ca](https://github.com/BudgetBuddyDE/Webapp/commit/7b0d0ca317b815f16d7f82415bc6a770230cff3c))
+* Create `FormDrawer` ([71be504](https://github.com/BudgetBuddyDE/Webapp/commit/71be50407f8febe656986882a0d4b8948e619b84))
+* Make payment-methods editable & editable ([a486bb8](https://github.com/BudgetBuddyDE/Webapp/commit/a486bb8b621551babcae7220bff96f1842006b4e))
+* Make transactions editable ([2c2ba30](https://github.com/BudgetBuddyDE/Webapp/commit/2c2ba3017ddb3bd8d093d19403bdfa7494176d32))
+
+
+### Bug Fixes
+
+* Rename attribute of `ICategory` ([4586660](https://github.com/BudgetBuddyDE/Webapp/commit/45866602a63db45390509579165cf7e63bd65013))
+* Wrap content when there isn't enough space ([6aa2b1f](https://github.com/BudgetBuddyDE/Webapp/commit/6aa2b1f68931f3347f74e1eeaac62ba224d0c9a3))
+
 ### 0.0.2 (2022-08-03)
 
 
