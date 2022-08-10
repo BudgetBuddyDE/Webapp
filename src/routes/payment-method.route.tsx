@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { ChangeEvent, useContext, useEffect, useState } from 'react';
 import Grid from '@mui/material/Grid';
 import Card from '../components/card.component';
 import Box from '@mui/material/Box';
@@ -23,7 +23,7 @@ import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/search-input.component';
 import { supabase } from '../supabase';
 import { AuthContext } from '../context/auth.context';
-import type { IBasePaymentMethod, IPaymentMethod } from '../types/transaction.interface';
+import type { IPaymentMethod } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
 import { FormDrawer } from '../components/form-drawer.component';
 
@@ -56,8 +56,9 @@ export const PaymentMethods = () => {
     useState<readonly IPaymentMethod[]>(paymentMethods);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
-  const [addPaymentMethod, setAddPaymentMethod] = useState({} as IBasePaymentMethod);
-  const [editPaymentMethod, setEditPaymentMethod] = useState<null | IPaymentMethod>(null);
+
+  const [addForm, setAddForm] = useState<Record<string, string | number>>({});
+  const [editForm, setEditForm] = useState<Record<string, string | number>>({});
 
   const handleOnSearch = (text: string) => setKeyword(text.toLowerCase());
 
@@ -70,35 +71,107 @@ export const PaymentMethods = () => {
     setPage(0);
   };
 
-  const handleAddFormOpen = () => setShowAddForm(true);
+  const addFormHandler = {
+    open: () => setShowAddForm(true),
+    close: () => {
+      setShowAddForm(false);
+      setAddForm({});
+      setErrorMessage('');
+    },
+    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setAddForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    save: async () => {
+      try {
+        const values = Object.keys(addForm);
+        if (!values.includes('name')) throw new Error('Provide an name');
+        if (!values.includes('address')) throw new Error('Provide an address');
+        if (!values.includes('provider')) throw new Error('Provide an provider');
 
-  const handleAddFormClose = () => {
-    setShowAddForm(false);
-    setErrorMessage('');
+        const { data, error } = await supabase.from('paymentMethods').insert([
+          {
+            name: addForm.name,
+            address: addForm.address,
+            provider: addForm.provider,
+            description: addForm.description || null,
+            // @ts-ignore
+            created_by: session?.user.id,
+          },
+        ]);
+        if (error) throw error;
+
+        setPaymentMethods((prev) => [...prev, ...data]);
+        addFormHandler.close();
+        showSnackbar({
+          message: 'Payment Method added',
+        });
+      } catch (error) {
+        console.error(error);
+        // @ts-ignore
+        setErrorMessage(error.message || 'Unkown error');
+      }
+    },
   };
 
-  const handleAddFormSubmit = async () => {
-    try {
-      const { name, provider, address } = addPaymentMethod;
+  const editFormHandler = {
+    open: ({ id, name, address, provider, description }: IPaymentMethod) => {
+      setEditForm({ id, name, address, provider, description: description || '' });
+    },
+    close: () => {
+      setEditForm({});
+      setErrorMessage('');
+    },
+    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setEditForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    save: async () => {
+      try {
+        const values = Object.keys(editForm);
+        if (!values.includes('id')) throw new Error('Provide an id');
+        if (!values.includes('name')) throw new Error('Provide an name');
+        if (!values.includes('address')) throw new Error('Provide an address');
+        if (!values.includes('provider')) throw new Error('Provide an provider');
 
-      if (!name) throw new Error('Provide an valid name');
-      if (!provider) throw new Error('Provide an valid provider');
-      if (!address) throw new Error('Provide an valid address');
+        const update = {
+          name: editForm.name,
+          address: editForm.address,
+          provider: editForm.provider,
+          description: editForm.description || null,
+          // @ts-ignore
+          created_by: session?.user.id,
+        };
 
-      const { data, error } = await supabase
-        .from<IPaymentMethod>('paymentMethods')
-        .insert([addPaymentMethod]);
-      if (error) throw error;
+        const { data, error } = await supabase
+          .from<IPaymentMethod>('paymentMethods')
+          // @ts-ignore
+          .update(update)
+          .match({ id: editForm.id });
+        if (error) throw error;
 
-      setPaymentMethods((prev) => [...prev, ...data]);
-      handleAddFormClose();
-      showSnackbar({
-        message: 'Payment Method added',
-      });
-    } catch (error) {
-      console.error(error);
-      setErrorMessage(typeof error === 'string' ? error : JSON.stringify(error));
-    }
+        setPaymentMethods((prev) =>
+          prev.map((paymentMethod) => {
+            if (paymentMethod.id === data[0].id) {
+              return {
+                ...paymentMethod,
+                name: editForm.name.toString(),
+                address: editForm.address.toString(),
+                provider: editForm.provider.toString(),
+                description: editForm.description.toString(),
+              };
+            }
+            return paymentMethod;
+          })
+        );
+        editFormHandler.close();
+        showSnackbar({
+          message: 'Payment method updated',
+        });
+      } catch (error) {
+        console.error(error);
+        // @ts-ignore
+        setErrorMessage(error.message || 'Unkown error');
+      }
+    },
   };
 
   const handleDelete = async (id: number) => {
@@ -119,45 +192,6 @@ export const PaymentMethods = () => {
     }
   };
 
-  const handleEdit = (paymentMethod: IPaymentMethod) => setEditPaymentMethod(paymentMethod);
-
-  const handleEditFormClose = () => {
-    setEditPaymentMethod(null);
-    setErrorMessage('');
-  };
-
-  const handleEditFormSubmit = async () => {
-    try {
-      if (!editPaymentMethod) throw new Error('No Payment Method provided');
-      const { name, provider, address } = editPaymentMethod;
-
-      if (!name) throw new Error('Provide an valid name');
-      if (!provider) throw new Error('Provide an valid provider');
-      if (!address) throw new Error('Provide an valid address');
-
-      const { data, error } = await supabase
-        .from<IPaymentMethod>('paymentMethods')
-        .upsert(editPaymentMethod);
-      if (error) throw error;
-
-      setPaymentMethods((prev) => {
-        let updatedPaymentMethods = prev;
-        const outdatedItemIndex = updatedPaymentMethods.findIndex(
-          (paymentMethod) => paymentMethod.id === data[0].id
-        );
-        updatedPaymentMethods[outdatedItemIndex] = data[0];
-        return updatedPaymentMethods;
-      });
-      handleEditFormClose();
-      showSnackbar({
-        message: 'Payment Method updated',
-      });
-    } catch (error) {
-      console.error(error);
-      setErrorMessage(typeof error === 'string' ? error : JSON.stringify(error));
-    }
-  };
-
   useEffect(() => setShownPaymentMethods(paymentMethods), [paymentMethods]);
 
   useEffect(() => {
@@ -168,7 +202,7 @@ export const PaymentMethods = () => {
           item.name.toLowerCase().includes(keyword) || item.provider.toLowerCase().includes(keyword)
       )
     );
-  }, [keyword]);
+  }, [keyword, paymentMethods]);
 
   useEffect(() => {
     getPaymentMethods()
@@ -195,7 +229,7 @@ export const PaymentMethods = () => {
             <Card.HeaderActions>
               <SearchInput sx={{ mr: '.5rem' }} onSearch={handleOnSearch} />
               <Tooltip title="Add Payment Method">
-                <IconButton aria-label="add-payment-method" onClick={handleAddFormOpen}>
+                <IconButton aria-label="add-payment-method" onClick={addFormHandler.open}>
                   <AddIcon fontSize="inherit" />
                 </IconButton>
               </Tooltip>
@@ -233,7 +267,7 @@ export const PaymentMethods = () => {
                           <TableCell>{row.description || 'No Description'}</TableCell>
                           <TableCell align="right">
                             <Tooltip title="Edit" placement="top">
-                              <IconButton onClick={() => handleEdit(row)}>
+                              <IconButton onClick={() => editFormHandler.open(row)}>
                                 <EditIcon />
                               </IconButton>
                             </Tooltip>
@@ -270,8 +304,8 @@ export const PaymentMethods = () => {
       <FormDrawer
         open={showAddForm}
         heading="Add Payment Method"
-        onClose={handleAddFormClose}
-        onSave={handleAddFormSubmit}
+        onClose={addFormHandler.close}
+        onSave={addFormHandler.save}
       >
         {errorMessage.length > 1 && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -284,49 +318,48 @@ export const PaymentMethods = () => {
             id="add-pm-name"
             variant="outlined"
             label="Name"
+            name="name"
             sx={FormStyle}
-            onChange={(e) => setAddPaymentMethod((prev) => ({ ...prev, name: e.target.value }))}
+            onChange={addFormHandler.inputChange}
           />
 
           <TextField
             id="add-pm-provider"
             variant="outlined"
             label="Provider"
+            name="provider"
             sx={FormStyle}
-            onChange={(e) => setAddPaymentMethod((prev) => ({ ...prev, provider: e.target.value }))}
+            onChange={addFormHandler.inputChange}
           />
 
           <TextField
             id="add-pm-address"
             variant="outlined"
             label="Address"
+            name="address"
             sx={FormStyle}
-            onChange={(e) => setAddPaymentMethod((prev) => ({ ...prev, address: e.target.value }))}
+            onChange={addFormHandler.inputChange}
           />
 
           <TextField
             id="add-pm-description"
             variant="outlined"
             label="Description"
+            name="description"
             sx={{ ...FormStyle, mb: 0 }}
             multiline
             rows={3}
-            onChange={(e) =>
-              setAddPaymentMethod((prev) => ({
-                ...prev,
-                description: e.target.value === '' ? null : e.target.value,
-              }))
-            }
+            onChange={addFormHandler.inputChange}
           />
         </form>
       </FormDrawer>
 
       {/* Edit Payment Method */}
       <FormDrawer
-        open={editPaymentMethod !== null}
+        open={Object.keys(editForm).length > 0}
         heading="Edit Payment Method"
-        onClose={handleEditFormClose}
-        onSave={handleEditFormSubmit}
+        onClose={editFormHandler.close}
+        onSave={editFormHandler.save}
       >
         {errorMessage.length > 1 && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -334,60 +367,49 @@ export const PaymentMethods = () => {
           </Alert>
         )}
 
-        {editPaymentMethod && (
-          <form>
-            <TextField
-              id="add-pm-name"
-              variant="outlined"
-              label="Name"
-              sx={FormStyle}
-              defaultValue={editPaymentMethod?.name}
-              // @ts-ignore
-              onChange={(e) => setEditPaymentMethod((prev) => ({ ...prev, name: e.target.value }))}
-            />
+        <form>
+          <TextField
+            id="add-pm-name"
+            variant="outlined"
+            label="Name"
+            name="name"
+            sx={FormStyle}
+            defaultValue={editForm.name}
+            onChange={editFormHandler.inputChange}
+          />
 
-            <TextField
-              id="add-pm-provider"
-              variant="outlined"
-              label="Provider"
-              sx={FormStyle}
-              defaultValue={editPaymentMethod?.provider}
-              onChange={(e) =>
-                // @ts-ignore
-                setEditPaymentMethod((prev) => ({ ...prev, provider: e.target.value }))
-              }
-            />
+          <TextField
+            id="add-pm-provider"
+            variant="outlined"
+            label="Provider"
+            name="provider"
+            sx={FormStyle}
+            defaultValue={editForm.provider}
+            onChange={editFormHandler.inputChange}
+          />
 
-            <TextField
-              id="add-pm-address"
-              variant="outlined"
-              label="Address"
-              sx={FormStyle}
-              defaultValue={editPaymentMethod?.address}
-              onChange={(e) =>
-                // @ts-ignore
-                setEditPaymentMethod((prev) => ({ ...prev, address: e.target.value }))
-              }
-            />
+          <TextField
+            id="add-pm-address"
+            variant="outlined"
+            label="Address"
+            name="address"
+            sx={FormStyle}
+            defaultValue={editForm.address}
+            onChange={editFormHandler.inputChange}
+          />
 
-            <TextField
-              id="add-pm-description"
-              variant="outlined"
-              label="Description"
-              sx={{ ...FormStyle, mb: 0 }}
-              multiline
-              rows={3}
-              defaultValue={editPaymentMethod?.description}
-              onChange={(e) =>
-                // @ts-ignore
-                setEditPaymentMethod((prev) => ({
-                  ...prev,
-                  description: e.target.value === '' ? null : e.target.value,
-                }))
-              }
-            />
-          </form>
-        )}
+          <TextField
+            id="add-pm-description"
+            variant="outlined"
+            label="Description"
+            name="description"
+            sx={{ ...FormStyle, mb: 0 }}
+            multiline
+            rows={3}
+            defaultValue={editForm.description}
+            onChange={editFormHandler.inputChange}
+          />
+        </form>
       </FormDrawer>
     </Grid>
   );

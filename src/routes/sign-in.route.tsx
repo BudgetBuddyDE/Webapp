@@ -1,4 +1,4 @@
-import { FormEvent, useContext, useState } from 'react';
+import { ChangeEvent, FormEvent, useContext, useState } from 'react';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid';
@@ -24,30 +24,38 @@ export const SignIn = () => {
   const navigate = useNavigate();
   const { setSession } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
-  const [email, setEmail] = useState('');
+  const [form, setForm] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
-  const [password, setPassword] = useState('');
 
-  const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const formHandler = {
+    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    formSubmit: async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
 
-    try {
-      const { session, error } = await supabase.auth.signIn({
-        email: email,
-        password: password,
-      });
-      if (error) throw error;
-      setSession(session);
-      navigate('/dashboard', { replace: true });
-      showSnackbar({
-        message: 'Authentification successfull',
-        action: <Button onClick={async () => await supabase.auth.signOut()}>Sign out</Button>,
-      });
-    } catch (error) {
-      console.error(error);
-      // @ts-ignore
-      showSnackbar({ message: error.message || 'Authentification failed' });
-    }
+      try {
+        const values = Object.keys(form);
+        if (!values.includes('email')) throw new Error('Provide an email');
+        if (!values.includes('password')) throw new Error('Provide an password');
+
+        const { session, error } = await supabase.auth.signIn({
+          email: form.email,
+          password: form.password,
+        });
+        if (error) throw error;
+        setSession(session);
+        navigate('/dashboard', { replace: true });
+        showSnackbar({
+          message: 'Authentification successfull',
+          action: <Button onClick={async () => await supabase.auth.signOut()}>Sign out</Button>,
+        });
+      } catch (error) {
+        console.error(error);
+        // @ts-ignore
+        showSnackbar({ message: error.message || 'Authentification failed' });
+      }
+    },
   };
 
   return (
@@ -63,7 +71,7 @@ export const SignIn = () => {
             Sign In
           </Typography>
 
-          <form onSubmit={handleFormSubmit}>
+          <form onSubmit={formHandler.formSubmit}>
             <Box style={{ display: 'flex', flexDirection: 'column' }}>
               <TextField
                 sx={{
@@ -72,7 +80,8 @@ export const SignIn = () => {
                 variant="outlined"
                 type="email"
                 label="E-Mail"
-                onChange={(e) => setEmail(e.target.value)}
+                name="email"
+                onChange={formHandler.inputChange}
               />
 
               <FormControl
@@ -84,7 +93,9 @@ export const SignIn = () => {
                 <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
                 <OutlinedInput
                   type={showPassword ? 'text' : 'password'}
-                  onChange={(e) => setPassword(e.target.value)}
+                  name="password"
+                  onChange={formHandler.inputChange}
+                  label="Password"
                   endAdornment={
                     <InputAdornment position="end">
                       <IconButton
@@ -97,7 +108,6 @@ export const SignIn = () => {
                       </IconButton>
                     </InputAdornment>
                   }
-                  label="Password"
                 />
               </FormControl>
             </Box>

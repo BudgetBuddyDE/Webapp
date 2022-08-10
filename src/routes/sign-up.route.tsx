@@ -25,38 +25,46 @@ export const SignUp = () => {
   const navigate = useNavigate();
   const { setSession } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
+  const [form, setForm] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
   const registerUser = (email: string, password: string) => {
     return supabase.auth.signUp({ email: email, password: password });
   };
 
-  const registerUserProfile = (user: User, username: string) => {
+  const registerProfile = (user: User, username: string) => {
     return supabase.from('profiles').insert([{ id: user.id, username: username }]);
   };
 
-  const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const formHandler = {
+    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    formSubmit: async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
 
-    try {
-      const userRegistration = await registerUser(email, password);
-      if (userRegistration.error || !userRegistration.user) throw userRegistration.error;
-      const userProfileRegistration = await registerUserProfile(userRegistration.user, username);
-      if (userProfileRegistration.error) throw userProfileRegistration.error;
-      setSession(userRegistration.session);
-      navigate('/dashboard', { replace: true });
-      showSnackbar({
-        message: 'Registration successfull',
-        action: <Button onClick={async () => await supabase.auth.signOut()}>Sign out</Button>,
-      });
-    } catch (error) {
-      console.error(error);
-      // @ts-ignore
-      showSnackbar({ message: error.message || 'Registration failed' });
-    }
+      try {
+        const values = Object.keys(form);
+        if (!values.includes('username')) throw new Error('Provide an username');
+        if (!values.includes('email')) throw new Error('Provide an email');
+        if (!values.includes('password')) throw new Error('Provide an password');
+
+        const userRegistration = await registerUser(form.email, form.password);
+        if (userRegistration.error || !userRegistration.user) throw userRegistration.error;
+        const userProfileRegistration = await registerProfile(userRegistration.user, form.username);
+        if (userProfileRegistration.error) throw userProfileRegistration.error;
+        setSession(userRegistration.session);
+        navigate('/dashboard', { replace: true });
+        showSnackbar({
+          message: 'Registration successfull',
+          action: <Button onClick={async () => await supabase.auth.signOut()}>Sign out</Button>,
+        });
+      } catch (error) {
+        console.error(error);
+        // @ts-ignore
+        showSnackbar({ message: error.message || 'Registration failed' });
+      }
+    },
   };
 
   return (
@@ -72,7 +80,7 @@ export const SignUp = () => {
             Sign Up
           </Typography>
 
-          <form onSubmit={handleFormSubmit}>
+          <form onSubmit={formHandler.formSubmit}>
             <Box style={{ display: 'flex', flexDirection: 'column' }}>
               <TextField
                 sx={{
@@ -80,7 +88,8 @@ export const SignUp = () => {
                 }}
                 variant="outlined"
                 label="Username"
-                onChange={(e) => setUsername(e.target.value)}
+                name="username"
+                onChange={formHandler.inputChange}
               />
 
               <TextField
@@ -90,7 +99,8 @@ export const SignUp = () => {
                 variant="outlined"
                 type="email"
                 label="E-Mail"
-                onChange={(e) => setEmail(e.target.value)}
+                name="email"
+                onChange={formHandler.inputChange}
               />
 
               <FormControl
@@ -102,7 +112,8 @@ export const SignUp = () => {
                 <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
                 <OutlinedInput
                   type={showPassword ? 'text' : 'password'}
-                  onChange={(e) => setPassword(e.target.value)}
+                  name="password"
+                  onChange={formHandler.inputChange}
                   endAdornment={
                     <InputAdornment position="end">
                       <IconButton

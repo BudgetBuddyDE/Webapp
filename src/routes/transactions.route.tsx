@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { ChangeEvent, useContext, useEffect, useState } from 'react';
 import Grid from '@mui/material/Grid';
 import Card from '../components/card.component';
 import Box from '@mui/material/Box';
@@ -37,7 +37,6 @@ import type {
   IBaseTransactionDTO,
   ICategory,
   IPaymentMethod,
-  ITransactioDTO,
   ITransaction,
 } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
@@ -121,10 +120,8 @@ export const Transactions = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
-  const [addTransaction, setAddTransaction] = useState({
-    date: new Date(),
-  } as IBaseTransactionDTO);
-  const [editTransaction, setEditTransaction] = useState<ITransactioDTO | null>(null);
+  const [addForm, setAddForm] = useState<Record<string, string | number | Date>>({});
+  const [editForm, setEditForm] = useState<Record<string, string | number | Date>>({});
 
   const handleOnSearch = (text: string) => setKeyword(text.toLowerCase());
 
@@ -137,102 +134,161 @@ export const Transactions = () => {
     setPage(0);
   };
 
-  const handleAddFormOpen = () => setShowAddForm(true);
+  const addFormHandler = {
+    open: () => {
+      setShowAddForm(true);
+    },
+    close: () => {
+      setShowAddForm(false);
+      setAddForm({});
+      setErrorMessage('');
+    },
+    dateChange: (date: Date | null) => {
+      setAddForm((prev) => ({ ...prev, date: date || new Date() }));
+    },
+    autocompleteChange: (
+      event: React.SyntheticEvent<Element, Event>,
+      key: 'category' | 'paymentMethod',
+      value: string | number
+    ) => {
+      setAddForm((prev) => ({ ...prev, [key]: value }));
+    },
+    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setAddForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    save: async () => {
+      try {
+        const values = Object.keys(addForm);
+        if (!values.includes('category')) throw new Error('Provide an category');
+        if (!values.includes('paymentMethod')) throw new Error('Provide an paymentMethod');
+        if (!values.includes('receiver')) throw new Error('Provide an receiver');
+        if (!values.includes('amount')) throw new Error('Provide an amount');
 
-  const handleAddFormClose = () => {
-    setShowAddForm(false);
-    setAddTransaction({ date: new Date() } as IBaseTransactionDTO);
-    setErrorMessage('');
-  };
+        const { data, error } = await supabase.from('transactions').insert({
+          date: addForm.date || new Date(),
+          category: addForm.category,
+          paymentMethod: addForm.paymentMethod,
+          receiver: addForm.receiver,
+          amount: typeof addForm.amount === 'string' ? Number(addForm.amount) : addForm.amount,
+          description: addForm.information || null,
+          // @ts-ignore
+          created_by: session?.user?.id,
+        });
+        if (error) throw error;
 
-  const handleAddFormSubmit = async () => {
-    try {
-      const { category, paymentMethod, receiver, amount, date } = addTransaction;
-
-      if (!date) setAddTransaction((prev) => ({ ...prev, date: new Date() }));
-      if (!category) setAddTransaction((prev) => ({ ...prev, category: categories[0].id }));
-      if (!paymentMethod)
-        setAddTransaction((prev) => ({ ...prev, paymentMethod: paymentMethods[0].id }));
-      if (!receiver) throw new Error('Provide an valid receiver');
-      if (!amount) throw new Error("'Provide an valid amount'");
-
-      const { data, error } = await supabase
-        .from<IBaseTransactionDTO>('transactions')
+        setTransactions((prev) => [
+          {
+            ...data[0],
+            categories: categories.find((value) => value.id === data[0].category),
+            paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
+          } as ITransaction,
+          ...prev,
+        ]);
+        addFormHandler.close();
+        showSnackbar({
+          message: 'Transaction added',
+        });
+      } catch (error) {
+        console.error(error);
         // @ts-ignore
-        .insert([{ ...addTransaction, created_by: session.user?.id }]);
-      if (error) throw error;
-
-      setTransactions((prev) => [
-        {
-          ...data[0],
-          categories: categories.find((value) => value.id === data[0].category),
-          paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
-        } as ITransaction,
-        ...prev,
-      ]);
-      handleAddFormClose();
-      showSnackbar({
-        message: 'Transaction added',
-      });
-    } catch (error) {
-      console.error(error);
-      setErrorMessage(typeof error === 'string' ? error : JSON.stringify(error));
-    }
+        setErrorMessage(error.message || 'Unkown error');
+      }
+    },
   };
 
-  const handleEditFormOpen = (transaction: ITransaction) => {
-    setEditTransaction({
-      ...transaction,
-      category: transaction.categories.id,
-      paymentMethod: transaction.paymentMethods.id,
-    });
-  };
-
-  const handleEditFormClose = () => {
-    setEditTransaction(null);
-    setErrorMessage('');
-  };
-
-  const handleEditFormSubmit = async () => {
-    try {
-      if (!editTransaction) throw new Error('No Transaction provided');
-
-      const { id, category, paymentMethod, amount, receiver, description, date } = editTransaction;
-      const { data, error } = await supabase.from('transactions').upsert({
+  const editFormHandler = {
+    open: ({
+      id,
+      date,
+      categories,
+      paymentMethods,
+      receiver,
+      amount,
+      description,
+    }: ITransaction) => {
+      setEditForm({
         id,
-        category,
-        paymentMethod,
-        amount,
-        receiver,
-        description,
         date,
-        created_by: session?.user?.id,
+        category: categories.id,
+        paymentMethod: paymentMethods.id,
+        receiver,
+        amount,
+        description: description || '',
       });
-      if (error) throw error;
+    },
+    close: () => {
+      setEditForm({});
+      setErrorMessage('');
+    },
+    dateChange: (date: Date | null) => {
+      setEditForm((prev) => ({ ...prev, date: date || new Date() }));
+    },
+    autocompleteChange: (
+      event: React.SyntheticEvent<Element, Event>,
+      key: 'category' | 'paymentMethod',
+      value: string | number
+    ) => {
+      setEditForm((prev) => ({ ...prev, [key]: value }));
+    },
+    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setEditForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    save: async () => {
+      try {
+        const values = Object.keys(editForm);
+        if (!values.includes('id')) throw new Error('Provide an id');
+        if (!values.includes('date')) throw new Error('Provide an date');
+        if (!values.includes('category')) throw new Error('Provide an category');
+        if (!values.includes('paymentMethod')) throw new Error('Provide an payment method');
+        if (!values.includes('receiver')) throw new Error('Provide an receiver');
+        if (!values.includes('amount') || Number(editForm.amount) === 0)
+          throw new Error('Provide an amount');
 
-      setTransactions((prev) => {
-        let updatedTransactions = prev;
-        const outdatedItemIndex = updatedTransactions.findIndex(
-          (transaction) => transaction.id === data[0].id
-        );
-        updatedTransactions[outdatedItemIndex] = {
-          ...data[0],
-          id: data[0].id!,
-          categories: categories.find((category) => category.id === data[0].category)!,
-          paymentMethods: paymentMethods.find(
-            (paymentMethod) => paymentMethod.id === data[0].paymentMethod
-          )!,
+        const update = {
+          id: editForm.id,
+          date: editForm.date,
+          category: editForm.category,
+          paymentMethod: editForm.paymentMethod,
+          receiver: editForm.receiver,
+          amount: Number(editForm.amount),
+          description: editForm.information || null,
+          // @ts-ignore
+          created_by: session?.user?.id,
         };
-        return updatedTransactions;
-      });
-      handleEditFormClose();
-      showSnackbar({
-        message: 'Transaction updated',
-      });
-    } catch (error) {
-      console.error(error);
-      setErrorMessage(typeof error === 'string' ? error : JSON.stringify(error));
-    }
+
+        const { data, error } = await supabase
+          .from('transactions')
+          .update(update)
+          .match({ id: editForm.id });
+        if (error) throw error;
+
+        console.log(update);
+        console.log(data[0]);
+        editFormHandler.close();
+        setTransactions((prev) =>
+          prev.map((transaction) => {
+            if (transaction.id === data[0].id) {
+              return {
+                ...transaction,
+                ...data[0],
+                categories: categories.find((category) => category.id === data[0].category),
+                paymentMethods: paymentMethods.find(
+                  (paymentMethod) => paymentMethod.id === data[0].paymentMethod
+                ),
+              };
+            }
+            return transaction;
+          })
+        );
+        showSnackbar({
+          message: 'Transaction updated',
+        });
+      } catch (error) {
+        console.error(error);
+        // @ts-ignore
+        setErrorMessage(error.message || 'Unkown error');
+      }
+    },
   };
 
   const handleDelete = async (id: number) => {
@@ -265,7 +321,7 @@ export const Transactions = () => {
           item.description?.toString().toLowerCase().includes(keyword)
       )
     );
-  }, [keyword]);
+  }, [keyword, transactions]);
 
   useEffect(() => {
     Promise.all([getTransactions(), getCategories(), getPaymentMethods()])
@@ -300,7 +356,7 @@ export const Transactions = () => {
             <Card.HeaderActions>
               <SearchInput sx={{ mr: '.5rem' }} onSearch={handleOnSearch} />
               <Tooltip title="Add Transaction">
-                <IconButton aria-label="add-transactions" onClick={handleAddFormOpen}>
+                <IconButton aria-label="add-transactions" onClick={addFormHandler.open}>
                   <AddIcon fontSize="inherit" />
                 </IconButton>
               </Tooltip>
@@ -352,7 +408,7 @@ export const Transactions = () => {
                           <TableCell>{row.description || 'No Information'}</TableCell>
                           <TableCell align="right">
                             <Tooltip title="Edit" placement="top">
-                              <IconButton onClick={() => handleEditFormOpen(row)}>
+                              <IconButton onClick={() => editFormHandler.open(row)}>
                                 <EditIcon />
                               </IconButton>
                             </Tooltip>
@@ -389,8 +445,8 @@ export const Transactions = () => {
       <FormDrawer
         open={showAddForm}
         heading="Add Transaction"
-        onClose={handleAddFormClose}
-        onSave={handleAddFormSubmit}
+        onClose={addFormHandler.close}
+        onSave={addFormHandler.save}
       >
         {errorMessage.length > 1 && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -404,20 +460,16 @@ export const Transactions = () => {
               <MobileDatePicker
                 label="Date"
                 inputFormat="dd.MM.yy"
-                value={new Date()}
-                onChange={(value) =>
-                  setAddTransaction((prev) => ({ ...prev, date: value || new Date() }))
-                }
+                value={addForm.date || new Date()}
+                onChange={addFormHandler.dateChange}
                 renderInput={(params) => <TextField sx={FormStyle} {...params} />}
               />
             ) : (
               <DesktopDatePicker
                 label="Date"
                 inputFormat="dd.MM.yy"
-                value={new Date()}
-                onChange={(value) =>
-                  setAddTransaction((prev) => ({ ...prev, date: value || new Date() }))
-                }
+                value={addForm.date || new Date()}
+                onChange={addFormHandler.dateChange}
                 renderInput={(params) => <TextField sx={FormStyle} {...params} />}
               />
             )}
@@ -429,12 +481,9 @@ export const Transactions = () => {
                 id="add-category"
                 options={categories.map((item) => ({ label: item.name, value: item.id }))}
                 sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
-                onChange={(_event, value) => {
-                  setAddTransaction((prev) => ({
-                    ...prev,
-                    category: Number(value?.value),
-                  }));
-                }}
+                onChange={(event, value) =>
+                  addFormHandler.autocompleteChange(event, 'category', Number(value?.value))
+                }
                 renderInput={(props) => <TextField {...props} label="Category" />}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
               />
@@ -445,12 +494,9 @@ export const Transactions = () => {
                   value: item.id,
                 }))}
                 sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
-                onChange={(_event, value) => {
-                  setAddTransaction((prev) => ({
-                    ...prev,
-                    paymentMethod: Number(value?.value),
-                  }));
-                }}
+                onChange={(event, value) =>
+                  addFormHandler.autocompleteChange(event, 'paymentMethod', Number(value?.value))
+                }
                 renderInput={(props) => <TextField {...props} label="Payment Method" />}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
               />
@@ -461,8 +507,9 @@ export const Transactions = () => {
             id="add-receiver"
             variant="outlined"
             label="Receiver"
+            name="receiver"
             sx={FormStyle}
-            onChange={(e) => setAddTransaction((prev) => ({ ...prev, receiver: e.target.value }))}
+            onChange={addFormHandler.inputChange}
           />
 
           <FormControl fullWidth sx={{ mb: 2 }}>
@@ -470,10 +517,10 @@ export const Transactions = () => {
             <OutlinedInput
               id="add-amount"
               type="number"
-              onChange={(e) =>
-                setAddTransaction((prev) => ({ ...prev, amount: Number(e.target.value) }))
-              }
               label="Amount"
+              name="amount"
+              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+              onChange={addFormHandler.inputChange}
               startAdornment={<InputAdornment position="start">€</InputAdornment>}
             />
           </FormControl>
@@ -482,25 +529,21 @@ export const Transactions = () => {
             id="add-information"
             variant="outlined"
             label="Information"
+            name="information"
             sx={{ ...FormStyle, mb: 0 }}
             multiline
             rows={3}
-            onChange={(e) =>
-              setAddTransaction((prev) => ({
-                ...prev,
-                description: e.target.value === '' ? null : e.target.value,
-              }))
-            }
+            onChange={addFormHandler.inputChange}
           />
         </form>
       </FormDrawer>
 
       {/* Edit Transaction */}
       <FormDrawer
-        open={editTransaction !== null}
+        open={Object.keys(editForm).length > 0}
         heading="Edit Transaction"
-        onClose={handleEditFormClose}
-        onSave={handleEditFormSubmit}
+        onClose={editFormHandler.close}
+        onSave={editFormHandler.save}
       >
         {errorMessage.length > 1 && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -508,27 +551,23 @@ export const Transactions = () => {
           </Alert>
         )}
 
-        {editTransaction && !loading && (
+        {!loading && (
           <form>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               {screenSize === 'small' ? (
                 <MobileDatePicker
                   label="Date"
                   inputFormat="dd.MM.yy"
-                  value={editTransaction.date}
-                  onChange={(value) =>
-                    setEditTransaction((prev) => ({ ...prev!, date: value || new Date() }))
-                  }
+                  value={editForm.date}
+                  onChange={editFormHandler.dateChange}
                   renderInput={(params) => <TextField sx={FormStyle} {...params} />}
                 />
               ) : (
                 <DesktopDatePicker
                   label="Date"
                   inputFormat="dd.MM.yy"
-                  value={editTransaction.date}
-                  onChange={(value) =>
-                    setEditTransaction((prev) => ({ ...prev!, date: value || new Date() }))
-                  }
+                  value={editForm.date}
+                  onChange={editFormHandler.dateChange}
                   renderInput={(params) => <TextField sx={FormStyle} {...params} />}
                 />
               )}
@@ -539,13 +578,10 @@ export const Transactions = () => {
                 id="edit-category"
                 options={categories.map((item) => ({ label: item.name, value: item.id }))}
                 sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
-                defaultValue={getCategory(editTransaction.category, categories)}
-                onChange={(_event, value) => {
-                  setEditTransaction((prev) => ({
-                    ...prev!,
-                    category: Number(value?.value),
-                  }));
-                }}
+                defaultValue={getCategory(Number(editForm.category), categories)}
+                onChange={(event, value) =>
+                  editFormHandler.autocompleteChange(event, 'category', Number(value?.value))
+                }
                 renderInput={(props) => <TextField {...props} label="Category" />}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
               />
@@ -556,13 +592,10 @@ export const Transactions = () => {
                   label: `${name} • ${provider}`,
                   value: id,
                 }))}
-                defaultValue={getPaymentMethod(editTransaction.paymentMethod, paymentMethods)}
-                onChange={(_event, value) => {
-                  setEditTransaction((prev) => ({
-                    ...prev!,
-                    paymentMethod: Number(value?.value),
-                  }));
-                }}
+                defaultValue={getPaymentMethod(Number(editForm.paymentMethod), paymentMethods)}
+                onChange={(event, value) =>
+                  editFormHandler.autocompleteChange(event, 'paymentMethod', Number(value?.value))
+                }
                 renderInput={(props) => <TextField {...props} label="Payment Method" />}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
               />
@@ -572,11 +605,10 @@ export const Transactions = () => {
               id="edit-receiver"
               variant="outlined"
               label="Receiver"
+              name="receiver"
               sx={FormStyle}
-              defaultValue={editTransaction.receiver}
-              onChange={(e) =>
-                setEditTransaction((prev) => ({ ...prev!, receiver: e.target.value }))
-              }
+              defaultValue={editForm.receiver}
+              onChange={editFormHandler.inputChange}
             />
 
             <FormControl fullWidth sx={{ mb: 2 }}>
@@ -584,11 +616,11 @@ export const Transactions = () => {
               <OutlinedInput
                 id="add-amount"
                 type="number"
-                defaultValue={editTransaction.amount}
-                onChange={(e) =>
-                  setEditTransaction((prev) => ({ ...prev!, amount: Number(e.target.value) }))
-                }
+                name="amount"
                 label="Amount"
+                defaultValue={editForm.amount}
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                onChange={editFormHandler.inputChange}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
               />
             </FormControl>
@@ -597,16 +629,12 @@ export const Transactions = () => {
               id="edit-information"
               variant="outlined"
               label="Information"
+              name="information"
               sx={{ ...FormStyle, mb: 0 }}
               multiline
               rows={3}
-              defaultValue={editTransaction.description}
-              onChange={(e) =>
-                setEditTransaction((prev) => ({
-                  ...prev!,
-                  description: e.target.value === '' ? null : e.target.value,
-                }))
-              }
+              defaultValue={editForm.description}
+              onChange={editFormHandler.inputChange}
             />
           </form>
         )}

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { ChangeEvent, useContext, useEffect, useState } from 'react';
 import Grid from '@mui/material/Grid';
 import Card from '../components/card.component';
 import Box from '@mui/material/Box';
@@ -23,7 +23,7 @@ import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/search-input.component';
 import { supabase } from '../supabase';
 import { AuthContext } from '../context/auth.context';
-import type { IBaseCategory, ICategory } from '../types/transaction.interface';
+import type { ICategory } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
 import { FormDrawer } from '../components/form-drawer.component';
 
@@ -55,8 +55,8 @@ export const Categories = () => {
   const [shownCategories, setShownCategories] = useState<readonly ICategory[]>(categories);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
-  const [addCategory, setAddCategory] = useState({} as IBaseCategory);
-  const [editCategory, setEditCategory] = useState<null | ICategory>(null);
+  const [addForm, setAddForm] = useState<Record<string, string | number>>({});
+  const [editForm, setEditForm] = useState<Record<string, string | number>>({});
 
   const handleOnSearch = (text: string) => setKeyword(text.toLowerCase());
 
@@ -69,33 +69,97 @@ export const Categories = () => {
     setPage(0);
   };
 
-  const handleAddFormOpen = () => setShowAddForm(true);
+  const addFormHandler = {
+    open: () => setShowAddForm(true),
+    close: () => {
+      setShowAddForm(false);
+      setAddForm({});
+      setErrorMessage('');
+    },
+    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setAddForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    save: async () => {
+      try {
+        const values = Object.keys(addForm);
+        if (!values.includes('name')) throw new Error('Provide an name');
 
-  const handleAddFormClose = () => {
-    setShowAddForm(false);
-    setErrorMessage('');
+        const { data, error } = await supabase.from('categories').insert([
+          {
+            name: addForm.name,
+            description: addForm.description || null,
+            // @ts-ignore
+            created_by: session?.user.id,
+          },
+        ]);
+        if (error) throw error;
+
+        setCategories((prev) => [...prev, ...data]);
+        addFormHandler.close();
+        showSnackbar({
+          message: 'Category added',
+        });
+      } catch (error) {
+        console.error(error);
+        // @ts-ignore
+        setErrorMessage(error.message || 'Unkown error');
+      }
+    },
   };
 
-  const handleAddFormSubmit = async () => {
-    try {
-      const { name } = addCategory;
-      if (!name) throw new Error('Provide an valid name');
+  const editFormHandler = {
+    open: ({ id, name, description }: ICategory) => {
+      setEditForm({ id, name, description: description || '' });
+    },
+    close: () => {
+      setEditForm({});
+      setErrorMessage('');
+    },
+    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setEditForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    save: async () => {
+      try {
+        const values = Object.keys(editForm);
+        if (!values.includes('id')) throw new Error('Provide an id');
+        if (!values.includes('name')) throw new Error('Provide an name');
 
-      const { data, error } = await supabase
-        .from('categories')
+        const update = {
+          name: editForm.name,
+          description: editForm.description || null,
+          // @ts-ignore
+          created_by: session?.user.id,
+        };
+
+        const { data, error } = await supabase
+          .from<ICategory>('categories')
+          // @ts-ignore
+          .update(update)
+          .match({ id: editForm.id });
+        if (error) throw error;
+
+        setCategories((prev) =>
+          prev.map((category) => {
+            if (category.id === data[0].id) {
+              return {
+                ...category,
+                name: editForm.name.toString(),
+                description: editForm.description.toString(),
+              };
+            }
+            return category;
+          })
+        );
+        editFormHandler.close();
+        showSnackbar({
+          message: 'Category updated',
+        });
+      } catch (error) {
+        console.error(error);
         // @ts-ignore
-        .insert([{ ...addCategory, created_by: session?.user.id }]);
-      if (error) throw error;
-
-      setCategories((prev) => [...prev, ...data]);
-      handleAddFormClose();
-      showSnackbar({
-        message: 'Category added',
-      });
-    } catch (error) {
-      console.error(error);
-      setErrorMessage(typeof error === 'string' ? error : JSON.stringify(error));
-    }
+        setErrorMessage(error.message || 'Unkown error');
+      }
+    },
   };
 
   const handleDelete = async (id: number) => {
@@ -116,47 +180,12 @@ export const Categories = () => {
     }
   };
 
-  const handleEdit = (paymentMethod: ICategory) => setEditCategory(paymentMethod);
-
-  const handleEditFormClose = () => {
-    setEditCategory(null);
-    setErrorMessage('');
-  };
-
-  const handleEditFormSubmit = async () => {
-    try {
-      if (!editCategory) throw new Error('No Category provided');
-      const { name } = editCategory;
-
-      if (!name) throw new Error('Provide an valid name');
-
-      const { data, error } = await supabase.from<ICategory>('categories').upsert(editCategory);
-      if (error) throw error;
-
-      setCategories((prev) => {
-        let updatedCategories = prev;
-        const outdatedItemIndex = updatedCategories.findIndex(
-          (category) => category.id === data[0].id
-        );
-        updatedCategories[outdatedItemIndex] = data[0];
-        return updatedCategories;
-      });
-      handleEditFormClose();
-      showSnackbar({
-        message: 'Category updated',
-      });
-    } catch (error) {
-      console.error(error);
-      setErrorMessage(typeof error === 'string' ? error : JSON.stringify(error));
-    }
-  };
-
   useEffect(() => setShownCategories(categories), [categories]);
 
   useEffect(() => {
     if (keyword === '') setShownCategories(categories);
     setShownCategories(categories.filter((item) => item.name.toLowerCase().includes(keyword)));
-  }, [keyword]);
+  }, [keyword, categories]);
 
   useEffect(() => {
     getCategories()
@@ -183,7 +212,7 @@ export const Categories = () => {
             <Card.HeaderActions>
               <SearchInput sx={{ mr: '.5rem' }} onSearch={handleOnSearch} />
               <Tooltip title="Add Category">
-                <IconButton aria-label="add-category" onClick={handleAddFormOpen}>
+                <IconButton aria-label="add-category" onClick={addFormHandler.open}>
                   <AddIcon fontSize="inherit" />
                 </IconButton>
               </Tooltip>
@@ -217,7 +246,7 @@ export const Categories = () => {
                           <TableCell>{row.description || 'No Description'}</TableCell>
                           <TableCell align="right">
                             <Tooltip title="Edit" placement="top">
-                              <IconButton onClick={() => handleEdit(row)}>
+                              <IconButton onClick={() => editFormHandler.open(row)}>
                                 <EditIcon />
                               </IconButton>
                             </Tooltip>
@@ -254,8 +283,8 @@ export const Categories = () => {
       <FormDrawer
         open={showAddForm}
         heading="Add Category"
-        onClose={handleAddFormClose}
-        onSave={handleAddFormSubmit}
+        onClose={addFormHandler.close}
+        onSave={addFormHandler.save}
       >
         {errorMessage.length > 1 && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -268,33 +297,30 @@ export const Categories = () => {
             id="add-category-name"
             variant="outlined"
             label="Name"
+            name="name"
             sx={FormStyle}
-            onChange={(e) => setAddCategory((prev) => ({ ...prev, name: e.target.value }))}
+            onChange={addFormHandler.inputChange}
           />
 
           <TextField
             id="add-category-description"
             variant="outlined"
             label="Description"
+            name="description"
             sx={{ ...FormStyle, mb: 0 }}
             multiline
             rows={3}
-            onChange={(e) =>
-              setAddCategory((prev) => ({
-                ...prev,
-                description: e.target.value === '' ? null : e.target.value,
-              }))
-            }
+            onChange={addFormHandler.inputChange}
           />
         </form>
       </FormDrawer>
 
       {/* Edit Category */}
       <FormDrawer
-        open={editCategory !== null}
+        open={Object.keys(editForm).length > 0}
         heading="Edit Category"
-        onClose={handleEditFormClose}
-        onSave={handleEditFormSubmit}
+        onClose={editFormHandler.close}
+        onSave={editFormHandler.save}
       >
         {errorMessage.length > 1 && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -302,36 +328,29 @@ export const Categories = () => {
           </Alert>
         )}
 
-        {editCategory && (
-          <form>
-            <TextField
-              id="add-category-name"
-              variant="outlined"
-              label="Name"
-              sx={FormStyle}
-              defaultValue={editCategory?.name}
-              // @ts-ignore
-              onChange={(e) => setEditCategory((prev) => ({ ...prev, name: e.target.value }))}
-            />
+        <form>
+          <TextField
+            id="add-category-name"
+            variant="outlined"
+            label="Name"
+            name="name"
+            sx={FormStyle}
+            defaultValue={editForm.name}
+            onChange={editFormHandler.inputChange}
+          />
 
-            <TextField
-              id="add-category-description"
-              variant="outlined"
-              label="Description"
-              sx={{ ...FormStyle, mb: 0 }}
-              multiline
-              rows={3}
-              defaultValue={editCategory?.description}
-              onChange={(e) =>
-                // @ts-ignore
-                setEditCategory((prev) => ({
-                  ...prev,
-                  description: e.target.value === '' ? null : e.target.value,
-                }))
-              }
-            />
-          </form>
-        )}
+          <TextField
+            id="add-category-description"
+            variant="outlined"
+            label="Description"
+            name="description"
+            sx={{ ...FormStyle, mb: 0 }}
+            multiline
+            rows={3}
+            defaultValue={editForm.description}
+            onChange={editFormHandler.inputChange}
+          />
+        </form>
       </FormDrawer>
     </Grid>
   );
