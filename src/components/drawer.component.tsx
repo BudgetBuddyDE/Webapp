@@ -233,7 +233,13 @@ const Drawer = () => {
         }}
         sx={{
           display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth * 1.1 },
+          '& .MuiDrawer-paper': { width: '80%' },
+        }}
+        PaperProps={{
+          elevation: 0,
+          sx: {
+            backgroundColor: '#001E3C',
+          },
         }}
       >
         <Header />
