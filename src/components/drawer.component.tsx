@@ -220,8 +220,15 @@ const Drawer = () => {
 
   const toggleDrawer = () => setShowDrawer((prev) => !prev);
 
-  // We don't want the drawer to show up on the sign-in or sign-up route
-  if (location.pathname === '/sign-in' || location.pathname === '/sign-up') return null;
+  // We don't want the drawer to show up on the sign-in, request-reset, reset-password or sign-up route
+  if (
+    location.pathname === '/sign-in' ||
+    location.pathname === '/request-reset' ||
+    location.pathname === '/reset-password' ||
+    location.pathname === '/sign-up'
+  ) {
+    return null;
+  }
   return (
     <>
       {/* Mobile */}

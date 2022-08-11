@@ -1,32 +1,19 @@
 import { ChangeEvent, FormEvent, useContext, useState } from 'react';
 import Box from '@mui/material/Box';
-import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import InputLabel from '@mui/material/InputLabel';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
-import {
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-} from '@mui/icons-material';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase';
-import { AuthContext } from '../context/auth.context';
 import { SnackbarContext } from '../context/snackbar.context';
 import Card from '../components/card.component';
-import { Link } from '@mui/material';
 
-export const SignIn = () => {
+export const RequestReset = () => {
   const navigate = useNavigate();
-  const { setSession } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
   const [form, setForm] = useState<Record<string, string>>({});
-  const [showPassword, setShowPassword] = useState(false);
 
   const formHandler = {
     inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -36,20 +23,13 @@ export const SignIn = () => {
       event.preventDefault();
 
       try {
-        const values = Object.keys(form);
-        if (!values.includes('email')) throw new Error('Provide an email');
-        if (!values.includes('password')) throw new Error('Provide an password');
-
-        const { session, error } = await supabase.auth.signIn({
-          email: form.email,
-          password: form.password,
+        const { error } = await supabase.auth.api.resetPasswordForEmail(form.email, {
+          redirectTo: `${window.location.origin}/reset-password`,
         });
         if (error) throw error;
-        setSession(session);
-        navigate('/dashboard', { replace: true });
+
         showSnackbar({
-          message: 'Authentification successfull',
-          action: <Button onClick={async () => await supabase.auth.signOut()}>Sign out</Button>,
+          message: 'Password reset requested',
         });
       } catch (error) {
         console.error(error);
@@ -69,7 +49,7 @@ export const SignIn = () => {
           }}
         >
           <Typography textAlign="center" variant="h4" fontWeight={600}>
-            Sign In
+            Request Password Reset
           </Typography>
 
           <form onSubmit={formHandler.formSubmit}>
@@ -83,38 +63,12 @@ export const SignIn = () => {
                 label="E-Mail"
                 name="email"
                 onChange={formHandler.inputChange}
+                required
               />
-
-              <FormControl
-                variant="outlined"
-                sx={{
-                  mt: 3,
-                }}
-              >
-                <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-                <OutlinedInput
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  onChange={formHandler.inputChange}
-                  label="Password"
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={() => setShowPassword((prev) => !prev)}
-                        onMouseDown={() => setShowPassword((prev) => !prev)}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                />
-              </FormControl>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               <Button type="submit" variant="contained" sx={{ mt: 3 }}>
-                Sign in
+                Request reset
               </Button>
             </Box>
           </form>
@@ -123,9 +77,9 @@ export const SignIn = () => {
 
           <Button
             sx={{ width: '100%', mb: 2 }}
-            onClick={() => navigate('/request-reset', { replace: true })}
+            onClick={() => navigate('/sign-in', { replace: true })}
           >
-            Reset password?
+            Wanna sign in?
           </Button>
 
           <Button sx={{ width: '100%' }} onClick={() => navigate('/sign-up', { replace: true })}>

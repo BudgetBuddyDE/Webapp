@@ -13,6 +13,8 @@ import { SignIn } from './routes/sign-in.route';
 import { SignUp } from './routes/sign-up.route';
 import { ProtectedRoute } from './components/protected-route.component';
 import Drawer from './components/drawer.component';
+import { RequestReset } from './routes/request-reset';
+import { ResetPassword } from './routes/reset-password.route';
 
 export const App: React.FC = () => {
   return (
@@ -80,6 +82,8 @@ export const App: React.FC = () => {
                 }
               />
               <Route path="/sign-in" element={<SignIn />} />
+              <Route path="/request-reset" element={<RequestReset />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/sign-up" element={<SignUp />} />
             </Routes>
           </Container>
