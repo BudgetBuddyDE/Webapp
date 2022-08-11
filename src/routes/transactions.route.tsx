@@ -1,34 +1,33 @@
 import { ChangeEvent, useContext, useEffect, useState } from 'react';
-import Grid from '@mui/material/Grid';
-import Card from '../components/card.component';
-import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
-import AddIcon from '@mui/icons-material/Add';
-import TablePagination from '@mui/material/TablePagination';
-import TableContainer from '@mui/material/TableContainer';
-import Table from '@mui/material/Table';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
-import TableBody from '@mui/material/TableBody';
-import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
-import Chip from '@mui/material/Chip';
-import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
-import InputAdornment from '@mui/material/InputAdornment';
-import Autocomplete from '@mui/material/Autocomplete';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import {
+  Grid,
+  Box,
+  Tooltip,
+  IconButton,
+  TablePagination,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Typography,
+  TextField,
+  Chip,
+  Alert,
+  Button,
+  InputAdornment,
+  Autocomplete,
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  AlertTitle,
+} from '@mui/material';
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { LocalizationProvider, DesktopDatePicker, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import { SxProps, Theme } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import Card from '../components/card.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/search-input.component';
@@ -41,11 +40,11 @@ import type {
   ITransaction,
 } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
-import { format } from 'date-fns';
 import { FormDrawer } from '../components/form-drawer.component';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
 import { getCategories } from './categories.route';
 import { getPaymentMethods } from './payment-method.route';
+import { format } from 'date-fns';
 
 export function getCategory(
   categoryId: number,
@@ -457,28 +456,44 @@ export const Transactions = () => {
           </Alert>
         )}
 
-        <form>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            {screenSize === 'small' ? (
-              <MobileDatePicker
-                label="Date"
-                inputFormat="dd.MM.yy"
-                value={addForm.date || new Date()}
-                onChange={addFormHandler.dateChange}
-                renderInput={(params) => <TextField sx={FormStyle} {...params} />}
-              />
-            ) : (
-              <DesktopDatePicker
-                label="Date"
-                inputFormat="dd.MM.yy"
-                value={addForm.date || new Date()}
-                onChange={addFormHandler.dateChange}
-                renderInput={(params) => <TextField sx={FormStyle} {...params} />}
-              />
-            )}
-          </LocalizationProvider>
+        {categories.length === 0 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <AlertTitle>Info</AlertTitle>
+            To be able to create a transaction you have to create a category under{' '}
+            <strong>Categories {'>'} Add Category</strong> before.{' '}
+          </Alert>
+        )}
 
-          {!loading && (
+        {paymentMethods.length === 0 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <AlertTitle>Info</AlertTitle>
+            To be able to create a transaction you have to create a payment method under{' '}
+            <strong>Payment Methods {'>'} Add Payment Method</strong> before.{' '}
+          </Alert>
+        )}
+
+        {!loading && categories.length > 0 && paymentMethods.length > 0 && (
+          <form>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              {screenSize === 'small' ? (
+                <MobileDatePicker
+                  label="Date"
+                  inputFormat="dd.MM.yy"
+                  value={addForm.date || new Date()}
+                  onChange={addFormHandler.dateChange}
+                  renderInput={(params) => <TextField sx={FormStyle} {...params} />}
+                />
+              ) : (
+                <DesktopDatePicker
+                  label="Date"
+                  inputFormat="dd.MM.yy"
+                  value={addForm.date || new Date()}
+                  onChange={addFormHandler.dateChange}
+                  renderInput={(params) => <TextField sx={FormStyle} {...params} />}
+                />
+              )}
+            </LocalizationProvider>
+
             <Box display="flex" flexDirection="row" justifyContent="space-between">
               <Autocomplete
                 id="add-category"
@@ -504,41 +519,41 @@ export const Transactions = () => {
                 isOptionEqualToValue={(option, value) => option.value === value.value}
               />
             </Box>
-          )}
 
-          <TextField
-            id="add-receiver"
-            variant="outlined"
-            label="Receiver"
-            name="receiver"
-            sx={FormStyle}
-            onChange={addFormHandler.inputChange}
-          />
-
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel htmlFor="add-amount">Amount</InputLabel>
-            <OutlinedInput
-              id="add-amount"
-              type="number"
-              label="Amount"
-              name="amount"
-              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+            <TextField
+              id="add-receiver"
+              variant="outlined"
+              label="Receiver"
+              name="receiver"
+              sx={FormStyle}
               onChange={addFormHandler.inputChange}
-              startAdornment={<InputAdornment position="start">€</InputAdornment>}
             />
-          </FormControl>
 
-          <TextField
-            id="add-information"
-            variant="outlined"
-            label="Information"
-            name="information"
-            sx={{ ...FormStyle, mb: 0 }}
-            multiline
-            rows={3}
-            onChange={addFormHandler.inputChange}
-          />
-        </form>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel htmlFor="add-amount">Amount</InputLabel>
+              <OutlinedInput
+                id="add-amount"
+                type="number"
+                label="Amount"
+                name="amount"
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                onChange={addFormHandler.inputChange}
+                startAdornment={<InputAdornment position="start">€</InputAdornment>}
+              />
+            </FormControl>
+
+            <TextField
+              id="add-information"
+              variant="outlined"
+              label="Information"
+              name="information"
+              sx={{ ...FormStyle, mb: 0 }}
+              multiline
+              rows={3}
+              onChange={addFormHandler.inputChange}
+            />
+          </form>
+        )}
       </FormDrawer>
 
       {/* Edit Transaction */}
@@ -554,7 +569,23 @@ export const Transactions = () => {
           </Alert>
         )}
 
-        {!loading && (
+        {categories.length === 0 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <AlertTitle>Info</AlertTitle>
+            To be able to create a transaction you have to create a category under{' '}
+            <strong>Categories {'>'} Add Category</strong> before.{' '}
+          </Alert>
+        )}
+
+        {paymentMethods.length === 0 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <AlertTitle>Info</AlertTitle>
+            To be able to create a transaction you have to create a payment method under{' '}
+            <strong>Payment Methods {'>'} Add Payment Method</strong> before.{' '}
+          </Alert>
+        )}
+
+        {!loading && categories.length > 0 && paymentMethods.length > 0 && (
           <form>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               {screenSize === 'small' ? (
