@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.5](https://github.com/BudgetBuddyDE/Webapp/compare/v0.0.4...v0.0.5) (2022-08-11)
+
+
+### Features
+
+* Add password-reset using Supabase ([385bcb4](https://github.com/BudgetBuddyDE/Webapp/commit/385bcb487f3f6eab62f0af5d03a15480096c8a70))
+
 ### [0.0.4](https://github.com/BudgetBuddyDE/Webapp/compare/v0.0.3...v0.0.4) (2022-08-10)
 
 
