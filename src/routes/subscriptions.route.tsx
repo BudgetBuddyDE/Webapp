@@ -140,7 +140,7 @@ export const Subscriptions = () => {
         const { data, error } = await supabase.from('subscriptions').insert([
           {
             // @ts-ignore
-            execute_at: addForm.execute_at.getDate() || new Date().getDate(),
+            execute_at: addForm.execute_at ? addForm.execute_at.getDate() : new Date().getDate(),
             category: addForm.category,
             paymentMethod: addForm.paymentMethod,
             receiver: addForm.receiver,
@@ -453,7 +453,7 @@ export const Subscriptions = () => {
               {screenSize === 'small' ? (
                 <MobileDatePicker
                   label="Execute at"
-                  inputFormat="dd.MM.yy"
+                  inputFormat="dd"
                   value={addForm.execute_at || new Date()}
                   onChange={addFormHandler.dateChange}
                   renderInput={(params) => <TextField sx={FormStyle} {...params} />}
@@ -461,7 +461,7 @@ export const Subscriptions = () => {
               ) : (
                 <DesktopDatePicker
                   label="Execute at"
-                  inputFormat="dd.MM.yy"
+                  inputFormat="dd"
                   value={addForm.execute_at || new Date()}
                   onChange={addFormHandler.dateChange}
                   renderInput={(params) => <TextField sx={FormStyle} {...params} />}
