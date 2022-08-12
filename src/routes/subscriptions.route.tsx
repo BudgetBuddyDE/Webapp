@@ -71,7 +71,7 @@ export async function getSubscriptions(): Promise<ISubscription[] | null> {
   });
 }
 
-function determineNextExecution(executeAt: Number) {
+export function determineNextExecution(executeAt: Number) {
   const now = new Date();
   const today = now.getDate();
   if (executeAt >= today) {

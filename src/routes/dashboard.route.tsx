@@ -1,6 +1,6 @@
 import Grid from '@mui/material/Grid';
 import { PageHeader } from '../components/page-header.component';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from '../context/auth.context';
 import { Stats, StatsProps, StatsIconStyle } from '../components/stats-card.component';
 import ReceiptIcon from '@mui/icons-material/Receipt';
@@ -14,9 +14,16 @@ import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import { PieChart } from '../components/spendings-chart.component';
-import type { ICategory, IPaymentMethod, ITransaction } from '../types/transaction.interface';
+import type {
+  ICategory,
+  IPaymentMethod,
+  ISubscription,
+  ITransaction,
+} from '../types/transaction.interface';
 import { DateService } from '../services/date.service';
-
+import { determineNextExecution, getSubscriptions } from '../routes/subscriptions.route';
+import { getTransactions } from '../routes/transactions.route';
+import { isSameMonth } from 'date-fns';
 /**
  * Mock Data
  */
@@ -110,6 +117,33 @@ const Transactions: TransactionProps[] = new Array(6).fill(
 export const Dashboard = () => {
   const { session } = useContext(AuthContext);
   const [chart, setChart] = useState<'MONTH' | 'ALL'>('MONTH');
+  const [loading, setLoading] = useState(true);
+  const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
+  const [transactions, setTransactions] = useState<ITransaction[]>([]);
+
+  const currentMonth = useMemo(
+    () =>
+      transactions.filter(
+        ({ date, amount }) =>
+          amount < 0 && new Date(date) <= new Date() && isSameMonth(new Date(date), new Date())
+      ),
+    [transactions]
+  );
+
+  useEffect(() => {
+    Promise.all([getSubscriptions(), getTransactions()])
+      .then(([getSubscriptions, getTransactions]) => {
+        if (getSubscriptions) {
+          setSubscriptions(getSubscriptions);
+        } else setSubscriptions([]);
+
+        if (getTransactions) {
+          setTransactions(getTransactions);
+        } else setTransactions([]);
+      })
+      .catch((error) => console.error(error))
+      .finally(() => setLoading(false));
+  }, [session?.user?.id]);
 
   return (
     <Grid container spacing={3}>
@@ -142,8 +176,14 @@ export const Dashboard = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            {Subscriptions.map((props, index) => (
-              <Transaction key={index + props.date.getTime()} {...props} />
+            {subscriptions.slice(0, 6).map(({ id, categories, receiver, amount, execute_at }) => (
+              <Transaction
+                key={id}
+                category={categories.name}
+                date={determineNextExecution(execute_at)}
+                receiver={receiver}
+                amount={amount}
+              />
             ))}
           </Card.Body>
         </Card>
@@ -186,7 +226,7 @@ export const Dashboard = () => {
           <Card.Body>
             <Box sx={{ display: 'flex', flex: 1, mt: '1rem' }}>
               {chart === 'MONTH' ? (
-                <PieChart transactions={[T1]} />
+                <PieChart transactions={currentMonth} />
               ) : (
                 <PieChart transactions={[T1, T2]} />
               )}
@@ -211,9 +251,18 @@ export const Dashboard = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            {Transactions.map((props, index) => (
-              <Transaction key={index + props.date.getTime()} {...props} />
-            ))}
+            {transactions
+              .filter(({ date }) => new Date(date) <= new Date())
+              .slice(0, 6)
+              .map(({ id, categories, receiver, amount, date }, index) => (
+                <Transaction
+                  key={id}
+                  category={categories.name}
+                  date={new Date(date)}
+                  receiver={receiver}
+                  amount={amount}
+                />
+              ))}
           </Card.Body>
         </Card>
       </Grid>

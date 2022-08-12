@@ -7,7 +7,7 @@ import format from 'date-fns/format';
 export interface TransactionProps {
   category: string;
   receiver: string;
-  date: Date;
+  date: Date | string;
   amount: number;
   icon?: JSX.Element;
 }
@@ -50,7 +50,7 @@ export const Transaction: FC<TransactionProps> = ({
         <Typography fontWeight="bold">
           {category} @ {receiver}
         </Typography>
-        <Typography>{format(date, 'dd.MM.yyyy')}</Typography>
+        <Typography>{typeof date === 'string' ? date : format(date, 'dd.MM.yyyy')}</Typography>
       </Box>
       <Box sx={{ ml: 'auto' }}>
         <Typography fontWeight="bold">
