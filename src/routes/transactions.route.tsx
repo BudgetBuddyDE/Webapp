@@ -310,6 +310,7 @@ export const Transactions = () => {
   useEffect(() => setShownTransactions(transactions), [transactions]);
 
   useEffect(() => {
+    if (transactions.length === 0) return;
     if (keyword === '') setShownTransactions(transactions);
     setShownTransactions(
       transactions.filter(

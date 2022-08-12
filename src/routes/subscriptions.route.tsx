@@ -285,6 +285,7 @@ export const Subscriptions = () => {
   useEffect(() => setShownSubscriptions(subscriptions), [subscriptions]);
 
   useEffect(() => {
+    if (subscriptions.length === 0) return;
     if (keyword === '') setShownSubscriptions(subscriptions);
     setShownSubscriptions(
       subscriptions.filter(
