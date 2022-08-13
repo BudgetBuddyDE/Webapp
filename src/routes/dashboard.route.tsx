@@ -318,7 +318,7 @@ export const Dashboard = () => {
             </div>
             <Card.HeaderActions>
               <Tooltip title="Add Subscription">
-                <IconButton aria-label="add-subscription">
+                <IconButton aria-label="add-subscription" onClick={addSubscriptionFormHandler.open}>
                   <AddIcon fontSize="inherit" />
                 </IconButton>
               </Tooltip>
