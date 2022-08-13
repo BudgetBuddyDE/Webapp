@@ -514,7 +514,8 @@ export const Transactions = () => {
                 id="add-amount"
                 label="Amount"
                 name="amount"
-                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                // type="number"
+                // inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                 onChange={addFormHandler.inputChange}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
               />
@@ -630,7 +631,8 @@ export const Transactions = () => {
                 name="amount"
                 label="Amount"
                 defaultValue={editForm.amount}
-                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                // type="number"
+                // inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                 onChange={editFormHandler.inputChange}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
               />
