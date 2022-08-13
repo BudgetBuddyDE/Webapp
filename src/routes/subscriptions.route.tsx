@@ -507,7 +507,6 @@ export const Subscriptions = () => {
               <InputLabel htmlFor="add-amount">Amount</InputLabel>
               <OutlinedInput
                 id="add-amount"
-                type="number"
                 label="Amount"
                 name="amount"
                 inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
@@ -623,7 +622,6 @@ export const Subscriptions = () => {
               <InputLabel htmlFor="edit-amount">Amount</InputLabel>
               <OutlinedInput
                 id="add-amount"
-                type="number"
                 name="amount"
                 label="Amount"
                 defaultValue={editForm.amount}
