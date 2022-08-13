@@ -26,6 +26,7 @@ import { AuthContext } from '../context/auth.context';
 import type { IPaymentMethod } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
 import { FormDrawer } from '../components/form-drawer.component';
+import { StoreContext } from '../context/store.context';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -46,12 +47,11 @@ export async function getPaymentMethods(): Promise<IPaymentMethod[] | null> {
 export const PaymentMethods = () => {
   const { session } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
+  const { loading, paymentMethods, setPaymentMethods } = useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
-  const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [keyword, setKeyword] = useState('');
-  const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
   const [shownPaymentMethods, setShownPaymentMethods] =
     useState<readonly IPaymentMethod[]>(paymentMethods);
   const [page, setPage] = useState(0);
@@ -203,17 +203,6 @@ export const PaymentMethods = () => {
       )
     );
   }, [keyword, paymentMethods]);
-
-  useEffect(() => {
-    getPaymentMethods()
-      .then((data) => {
-        if (data) {
-          setPaymentMethods(data);
-        } else setPaymentMethods([]);
-      })
-      .catch((error) => console.error(error))
-      .finally(() => setLoading(false));
-  }, [session]);
 
   return (
     <Grid container spacing={3}>

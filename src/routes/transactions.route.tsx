@@ -42,9 +42,8 @@ import type {
 import { CircularProgress } from '../components/progress.component';
 import { FormDrawer } from '../components/form-drawer.component';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
-import { getCategories } from './categories.route';
-import { getPaymentMethods } from './payment-method.route';
 import { format } from 'date-fns';
+import { StoreContext } from '../context/store.context';
 
 export function getCategory(
   categoryId: number,
@@ -108,18 +107,16 @@ export async function getTransactions(): Promise<ITransaction[] | null> {
 export const Transactions = () => {
   const { session } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
+  const { loading, transactions, setTransactions, categories, paymentMethods } =
+    useContext(StoreContext);
   const screenSize = useScreenSize();
   const rowsPerPageOptions = [10, 25, 50, 100];
-  const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState('');
-  const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [shownTransactions, setShownTransactions] = useState<readonly ITransaction[]>(transactions);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
   const [errorMessage, setErrorMessage] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
-  const [categories, setCategories] = useState<ICategory[]>([]);
-  const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
   const [addForm, setAddForm] = useState<Record<string, string | number | Date>>({});
   const [editForm, setEditForm] = useState<Record<string, string | number | Date>>({});
 
@@ -320,25 +317,6 @@ export const Transactions = () => {
       )
     );
   }, [keyword, transactions]);
-
-  useEffect(() => {
-    Promise.all([getTransactions(), getCategories(), getPaymentMethods()])
-      .then(([getTransactions, getCategories, getPaymentMethods]) => {
-        if (getTransactions) {
-          setTransactions(getTransactions);
-        } else setTransactions([]);
-
-        if (getCategories) {
-          setCategories(getCategories);
-        } else setCategories([]);
-
-        if (getPaymentMethods) {
-          setPaymentMethods(getPaymentMethods);
-        } else setPaymentMethods([]);
-      })
-      .catch((error) => console.error(error))
-      .finally(() => setLoading(false));
-  }, [session]);
 
   return (
     <Grid container spacing={3}>

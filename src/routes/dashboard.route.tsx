@@ -29,24 +29,16 @@ import { Stats, StatsProps, StatsIconStyle } from '../components/stats-card.comp
 import { Transaction } from '../components/transaction.component';
 import Card from '../components/card.component';
 import { PieChart } from '../components/spendings-chart.component';
-import type {
-  ICategory,
-  IExpense,
-  IPaymentMethod,
-  ISubscription,
-  ITransaction,
-} from '../types/transaction.interface';
+import type { IExpense, ISubscription, ITransaction } from '../types/transaction.interface';
+import { FormDrawer } from '../components/form-drawer.component';
 import { DateService } from '../services/date.service';
-import { determineNextExecution, getSubscriptions } from '../routes/subscriptions.route';
-import { getTransactions } from '../routes/transactions.route';
+import { determineNextExecution } from '../routes/subscriptions.route';
 import { supabase } from '../supabase';
 import { CircularProgress } from '../components/progress.component';
 import { isSameMonth } from 'date-fns/esm';
-import { getCategories } from './categories.route';
-import { getPaymentMethods } from './payment-method.route';
-import { FormDrawer } from '../components/form-drawer.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
+import { StoreContext } from '../context/store.context';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -55,14 +47,19 @@ const FormStyle: SxProps<Theme> = {
 
 export const Dashboard = () => {
   const { session } = useContext(AuthContext);
+  const {
+    loading,
+    setLoading,
+    subscriptions,
+    setSubscriptions,
+    transactions,
+    setTransactions,
+    categories,
+    paymentMethods,
+  } = useContext(StoreContext);
   const { showSnackbar } = useContext(SnackbarContext);
   const screenSize = useScreenSize();
   const [chart, setChart] = useState<'MONTH' | 'ALL'>('MONTH');
-  const [loading, setLoading] = useState(true);
-  const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
-  const [transactions, setTransactions] = useState<ITransaction[]>([]);
-  const [categories, setCategories] = useState<ICategory[]>([]);
-  const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
   const [currentMonthExpenses, setCurrentMonthExpenses] = useState<IExpense[]>([]);
   const [allTimeExpenses, setAllTimeExpenses] = useState<IExpense[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
@@ -270,11 +267,8 @@ export const Dashboard = () => {
   ];
 
   useEffect(() => {
+    setLoading(false);
     Promise.all([
-      getSubscriptions(),
-      getTransactions(),
-      getCategories(),
-      getPaymentMethods(),
       supabase
         .from<IExpense>('CurrentMonthExpenses')
         .select('*')
@@ -286,40 +280,15 @@ export const Dashboard = () => {
         // @ts-ignore
         .eq('created_by', session?.user?.id),
     ])
-      .then(
-        ([
-          getSubscriptions,
-          getTransactions,
-          getCategories,
-          getPaymentMethods,
-          getCurrentMonthExpenses,
-          getAllTimeExpenses,
-        ]) => {
-          if (getSubscriptions) {
-            setSubscriptions(getSubscriptions);
-          } else setSubscriptions([]);
+      .then(([getCurrentMonthExpenses, getAllTimeExpenses]) => {
+        if (getCurrentMonthExpenses.data) {
+          setCurrentMonthExpenses(getCurrentMonthExpenses.data);
+        } else setCurrentMonthExpenses([]);
 
-          if (getTransactions) {
-            setTransactions(getTransactions);
-          } else setTransactions([]);
-
-          if (getCategories) {
-            setCategories(getCategories);
-          } else setCategories([]);
-
-          if (getPaymentMethods) {
-            setPaymentMethods(getPaymentMethods);
-          } else setPaymentMethods([]);
-
-          if (getCurrentMonthExpenses.data) {
-            setCurrentMonthExpenses(getCurrentMonthExpenses.data);
-          } else setCurrentMonthExpenses([]);
-
-          if (getAllTimeExpenses.data) {
-            setAllTimeExpenses(getAllTimeExpenses.data);
-          } else setAllTimeExpenses([]);
-        }
-      )
+        if (getAllTimeExpenses.data) {
+          setAllTimeExpenses(getAllTimeExpenses.data);
+        } else setAllTimeExpenses([]);
+      })
       .catch((error) => console.error(error))
       .finally(() => setLoading(false));
   }, [session?.user?.id]);
