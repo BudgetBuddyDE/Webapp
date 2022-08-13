@@ -117,14 +117,25 @@ export const Dashboard = () => {
         });
         if (error) throw error;
 
-        setTransactions((prev) => [
-          {
-            ...data[0],
-            categories: categories.find((value) => value.id === data[0].category),
-            paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
-          } as ITransaction,
-          ...prev,
-        ]);
+        const newTransaction = {
+          ...data[0],
+          categories: categories.find((value) => value.id === data[0].category),
+          paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
+        } as ITransaction;
+
+        setTransactions((prev) => [newTransaction, ...prev]);
+        // Refresh displayed spendings chart
+        if (
+          isSameMonth(new Date(newTransaction.date), new Date()) &&
+          new Date(newTransaction.date) <= new Date()
+        ) {
+          addTransactionToExpenses(newTransaction, currentMonthExpenses, (updatedExpenses) =>
+            setCurrentMonthExpenses(updatedExpenses)
+          );
+        }
+        addTransactionToExpenses(newTransaction, allTimeExpenses, (updatedExpenses) =>
+          setAllTimeExpenses(updatedExpenses)
+        );
         addTransactionFormHandler.close();
         showSnackbar({
           message: 'Transaction added',
@@ -674,3 +685,34 @@ export const Dashboard = () => {
     </Grid>
   );
 };
+
+function addTransactionToExpenses(
+  transaction: ITransaction,
+  expenses: IExpense[],
+  updateExpenses: (updatedExpenses: IExpense[]) => void
+) {
+  if (transaction.amount > 0) return;
+
+  const index = expenses.findIndex((expense) => expense.category.id === transaction.categories.id);
+  if (index > 0) {
+    const outdated = expenses[index];
+    expenses[index] = {
+      ...outdated,
+      sum: Math.abs(outdated.sum) + Math.abs(transaction.amount),
+    };
+
+    updateExpenses(expenses);
+  } else
+    updateExpenses([
+      ...expenses,
+      {
+        sum: transaction.amount,
+        category: {
+          id: transaction.categories.id,
+          name: transaction.categories.name,
+          description: transaction.categories.description,
+        },
+        created_by: transaction.created_by,
+      } as IExpense,
+    ]);
+}
