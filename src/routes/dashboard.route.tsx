@@ -1,5 +1,22 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { Grid, Tooltip, IconButton, Button, Box } from '@mui/material';
+import { ChangeEvent, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  Grid,
+  Box,
+  Tooltip,
+  IconButton,
+  TextField,
+  Alert,
+  Button,
+  InputAdornment,
+  Autocomplete,
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  AlertTitle,
+} from '@mui/material';
+import { SxProps, Theme } from '@mui/material';
+import { LocalizationProvider, DesktopDatePicker, MobileDatePicker } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import {
   Receipt as ReceiptIcon,
   Payments as PaymentsIcon,
@@ -13,8 +30,8 @@ import { Transaction } from '../components/transaction.component';
 import Card from '../components/card.component';
 import { PieChart } from '../components/spendings-chart.component';
 import type {
-  IExpense,
   ICategory,
+  IExpense,
   IPaymentMethod,
   ISubscription,
   ITransaction,
@@ -25,61 +42,166 @@ import { getTransactions } from '../routes/transactions.route';
 import { supabase } from '../supabase';
 import { CircularProgress } from '../components/progress.component';
 import { isSameMonth } from 'date-fns/esm';
+import { getCategories } from './categories.route';
+import { getPaymentMethods } from './payment-method.route';
+import { FormDrawer } from '../components/form-drawer.component';
+import { SnackbarContext } from '../context/snackbar.context';
+import { useScreenSize } from '../hooks/useScreenSize.hook';
 
-/**
- * Mock Data
- */
-const PM1: IPaymentMethod = {
-  id: 1,
-  name: 'PayPal N26 (Hauptkonto)',
-  provider: 'PayPal',
-  address: 'DE-IBAN',
-  description: null,
+const FormStyle: SxProps<Theme> = {
+  width: '100%',
+  mb: 2,
 };
-
-const C1: ICategory = {
-  id: 1,
-  name: 'Lebensmittel',
-  description: null,
-};
-
-const C2: ICategory = {
-  id: 2,
-  name: 'Haushalt',
-  description: null,
-};
-
-export const T1: ITransaction = {
-  id: 1,
-  categories: C1,
-  paymentMethods: PM1,
-  receiver: 'Penny',
-  amount: -25.99,
-  description: null,
-  date: new Date(),
-};
-
-export const T2: ITransaction = {
-  id: 2,
-  categories: C2,
-  paymentMethods: PM1,
-  receiver: 'IKEA',
-  amount: -45.99,
-  description: null,
-  date: new Date(),
-};
-/**
- * ./Mock Data
- */
 
 export const Dashboard = () => {
   const { session } = useContext(AuthContext);
+  const { showSnackbar } = useContext(SnackbarContext);
+  const screenSize = useScreenSize();
   const [chart, setChart] = useState<'MONTH' | 'ALL'>('MONTH');
   const [loading, setLoading] = useState(true);
   const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
+  const [categories, setCategories] = useState<ICategory[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
   const [currentMonthExpenses, setCurrentMonthExpenses] = useState<IExpense[]>([]);
   const [allTimeExpenses, setAllTimeExpenses] = useState<IExpense[]>([]);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [addTransactionForm, setAddTransactionForm] = useState<
+    Record<string, string | number | Date>
+  >({});
+  const [addSubscriptionForm, setAddSubscriptionForm] = useState<
+    Record<string, string | number | Date>
+  >({});
+  const [showAddTransactionForm, setShowAddTransactionForm] = useState(false);
+  const [showSubscriptionForm, setShowSubscriptionForm] = useState(false);
+
+  const addTransactionFormHandler = {
+    open: () => {
+      setShowAddTransactionForm(true);
+    },
+    close: () => {
+      setShowAddTransactionForm(false);
+      setAddTransactionForm({});
+      setErrorMessage('');
+    },
+    dateChange: (date: Date | null) => {
+      setAddTransactionForm((prev) => ({ ...prev, date: date || new Date() }));
+    },
+    autocompleteChange: (
+      event: React.SyntheticEvent<Element, Event>,
+      key: 'category' | 'paymentMethod',
+      value: string | number
+    ) => {
+      setAddTransactionForm((prev) => ({ ...prev, [key]: value }));
+    },
+    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setAddTransactionForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    save: async () => {
+      try {
+        const values = Object.keys(addTransactionForm);
+        if (!values.includes('category')) throw new Error('Provide an category');
+        if (!values.includes('paymentMethod')) throw new Error('Provide an paymentMethod');
+        if (!values.includes('receiver')) throw new Error('Provide an receiver');
+        if (!values.includes('amount')) throw new Error('Provide an amount');
+
+        const { data, error } = await supabase.from('transactions').insert({
+          date: addTransactionForm.date || new Date(),
+          category: addTransactionForm.category,
+          paymentMethod: addTransactionForm.paymentMethod,
+          receiver: addTransactionForm.receiver,
+          amount:
+            typeof addTransactionForm.amount === 'string'
+              ? Number(addTransactionForm.amount)
+              : addTransactionForm.amount,
+          description: addTransactionForm.information || null,
+          // @ts-ignore
+          created_by: session?.user?.id,
+        });
+        if (error) throw error;
+
+        setTransactions((prev) => [
+          {
+            ...data[0],
+            categories: categories.find((value) => value.id === data[0].category),
+            paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
+          } as ITransaction,
+          ...prev,
+        ]);
+        addTransactionFormHandler.close();
+        showSnackbar({
+          message: 'Transaction added',
+        });
+      } catch (error) {
+        console.error(error);
+        // @ts-ignore
+        setErrorMessage(error.message || 'Unkown error');
+      }
+    },
+  };
+
+  const addSubscriptionFormHandler = {
+    open: () => setShowSubscriptionForm(true),
+    close: () => {
+      setShowSubscriptionForm(false);
+      setAddSubscriptionForm({});
+      setErrorMessage('');
+    },
+    dateChange: (date: Date | null) => {
+      setAddSubscriptionForm((prev) => ({ ...prev, execute_at: date || new Date() }));
+    },
+    autocompleteChange: (
+      event: React.SyntheticEvent<Element, Event>,
+      key: 'category' | 'paymentMethod',
+      value: string | number
+    ) => {
+      setAddSubscriptionForm((prev) => ({ ...prev, [key]: value }));
+    },
+    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setAddSubscriptionForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    save: async () => {
+      try {
+        const values = Object.keys(addSubscriptionForm);
+        if (!values.includes('category')) throw new Error('Provide an category');
+        if (!values.includes('paymentMethod')) throw new Error('Provide an payment method');
+        if (!values.includes('receiver')) throw new Error('Provide an receiver');
+        if (!values.includes('amount')) throw new Error('Provide an receiver');
+
+        const { data, error } = await supabase.from('subscriptions').insert([
+          {
+            // @ts-ignore
+            execute_at: addSubscriptionForm.execute_at.getDate() || new Date().getDate(),
+            category: addSubscriptionForm.category,
+            paymentMethod: addSubscriptionForm.paymentMethod,
+            receiver: addSubscriptionForm.receiver,
+            amount: Number(addSubscriptionForm.amount),
+            description: addSubscriptionForm.information || null,
+            // @ts-ignore
+            created_by: session?.user?.id,
+          },
+        ]);
+        if (error) throw error;
+
+        setSubscriptions((prev) => [
+          ...prev,
+          {
+            ...data[0],
+            categories: categories.find((value) => value.id === data[0].category),
+            paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
+          } as ISubscription,
+        ]);
+        addSubscriptionFormHandler.close();
+        showSnackbar({
+          message: 'Subscription added',
+        });
+      } catch (error) {
+        console.error(error);
+        // @ts-ignore
+        setErrorMessage(error.message || 'Unkown error');
+      }
+    },
+  };
 
   const StatsCards: StatsProps[] = [
     {
@@ -151,6 +273,8 @@ export const Dashboard = () => {
     Promise.all([
       getSubscriptions(),
       getTransactions(),
+      getCategories(),
+      getPaymentMethods(),
       supabase
         .from<IExpense>('CurrentMonthExpenses')
         .select('*')
@@ -162,23 +286,40 @@ export const Dashboard = () => {
         // @ts-ignore
         .eq('created_by', session?.user?.id),
     ])
-      .then(([getSubscriptions, getTransactions, getCurrentMonthExpenses, getAllTimeExpenses]) => {
-        if (getSubscriptions) {
-          setSubscriptions(getSubscriptions);
-        } else setSubscriptions([]);
+      .then(
+        ([
+          getSubscriptions,
+          getTransactions,
+          getCategories,
+          getPaymentMethods,
+          getCurrentMonthExpenses,
+          getAllTimeExpenses,
+        ]) => {
+          if (getSubscriptions) {
+            setSubscriptions(getSubscriptions);
+          } else setSubscriptions([]);
 
-        if (getTransactions) {
-          setTransactions(getTransactions);
-        } else setTransactions([]);
+          if (getTransactions) {
+            setTransactions(getTransactions);
+          } else setTransactions([]);
 
-        if (getCurrentMonthExpenses.data) {
-          setCurrentMonthExpenses(getCurrentMonthExpenses.data);
-        } else setCurrentMonthExpenses([]);
+          if (getCategories) {
+            setCategories(getCategories);
+          } else setCategories([]);
 
-        if (getAllTimeExpenses.data) {
-          setAllTimeExpenses(getAllTimeExpenses.data);
-        } else setAllTimeExpenses([]);
-      })
+          if (getPaymentMethods) {
+            setPaymentMethods(getPaymentMethods);
+          } else setPaymentMethods([]);
+
+          if (getCurrentMonthExpenses.data) {
+            setCurrentMonthExpenses(getCurrentMonthExpenses.data);
+          } else setCurrentMonthExpenses([]);
+
+          if (getAllTimeExpenses.data) {
+            setAllTimeExpenses(getAllTimeExpenses.data);
+          } else setAllTimeExpenses([]);
+        }
+      )
       .catch((error) => console.error(error))
       .finally(() => setLoading(false));
   }, [session?.user?.id]);
@@ -293,7 +434,7 @@ export const Dashboard = () => {
             </div>
             <Card.HeaderActions>
               <Tooltip title="Add Transaction">
-                <IconButton aria-label="add-transaction">
+                <IconButton aria-label="add-transaction" onClick={addTransactionFormHandler.open}>
                   <AddIcon fontSize="inherit" />
                 </IconButton>
               </Tooltip>
@@ -319,6 +460,246 @@ export const Dashboard = () => {
           </Card.Body>
         </Card>
       </Grid>
+
+      {/* Add Transaction */}
+      <FormDrawer
+        open={showAddTransactionForm}
+        heading="Add Transaction"
+        onClose={addTransactionFormHandler.close}
+        onSave={addTransactionFormHandler.save}
+      >
+        {errorMessage.length > 1 && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {errorMessage}
+          </Alert>
+        )}
+
+        {categories.length === 0 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <AlertTitle>Info</AlertTitle>
+            To be able to create a transaction you have to create a category under{' '}
+            <strong>Categories {'>'} Add Category</strong> before.{' '}
+          </Alert>
+        )}
+
+        {paymentMethods.length === 0 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <AlertTitle>Info</AlertTitle>
+            To be able to create a transaction you have to create a payment method under{' '}
+            <strong>Payment Methods {'>'} Add Payment Method</strong> before.{' '}
+          </Alert>
+        )}
+
+        {!loading && categories.length > 0 && paymentMethods.length > 0 && (
+          <form>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              {screenSize === 'small' ? (
+                <MobileDatePicker
+                  label="Date"
+                  inputFormat="dd.MM.yy"
+                  value={addTransactionForm.date || new Date()}
+                  onChange={addTransactionFormHandler.dateChange}
+                  renderInput={(params) => <TextField sx={FormStyle} {...params} />}
+                />
+              ) : (
+                <DesktopDatePicker
+                  label="Date"
+                  inputFormat="dd.MM.yy"
+                  value={addTransactionForm.date || new Date()}
+                  onChange={addTransactionFormHandler.dateChange}
+                  renderInput={(params) => <TextField sx={FormStyle} {...params} />}
+                />
+              )}
+            </LocalizationProvider>
+
+            <Box display="flex" flexDirection="row" justifyContent="space-between">
+              <Autocomplete
+                id="add-category"
+                options={categories.map((item) => ({ label: item.name, value: item.id }))}
+                sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
+                onChange={(event, value) =>
+                  addTransactionFormHandler.autocompleteChange(
+                    event,
+                    'category',
+                    Number(value?.value)
+                  )
+                }
+                renderInput={(props) => <TextField {...props} label="Category" />}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+              />
+              <Autocomplete
+                id="add-payment-method"
+                options={paymentMethods.map((item) => ({
+                  label: `${item.name} • ${item.provider}`,
+                  value: item.id,
+                }))}
+                sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
+                onChange={(event, value) =>
+                  addTransactionFormHandler.autocompleteChange(
+                    event,
+                    'paymentMethod',
+                    Number(value?.value)
+                  )
+                }
+                renderInput={(props) => <TextField {...props} label="Payment Method" />}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+              />
+            </Box>
+
+            <TextField
+              id="add-receiver"
+              variant="outlined"
+              label="Receiver"
+              name="receiver"
+              sx={FormStyle}
+              onChange={addTransactionFormHandler.inputChange}
+            />
+
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel htmlFor="add-amount">Amount</InputLabel>
+              <OutlinedInput
+                id="add-amount"
+                label="Amount"
+                name="amount"
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                onChange={addTransactionFormHandler.inputChange}
+                startAdornment={<InputAdornment position="start">€</InputAdornment>}
+              />
+            </FormControl>
+
+            <TextField
+              id="add-information"
+              variant="outlined"
+              label="Information"
+              name="information"
+              sx={{ ...FormStyle, mb: 0 }}
+              multiline
+              rows={3}
+              onChange={addTransactionFormHandler.inputChange}
+            />
+          </form>
+        )}
+      </FormDrawer>
+
+      {/* Add Subscription */}
+      <FormDrawer
+        open={showSubscriptionForm}
+        heading="Add Subscription"
+        onClose={addSubscriptionFormHandler.close}
+        onSave={addSubscriptionFormHandler.save}
+      >
+        {errorMessage.length > 1 && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {errorMessage}
+          </Alert>
+        )}
+
+        {categories.length === 0 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <AlertTitle>Info</AlertTitle>
+            To be able to create a transaction you have to create a category under{' '}
+            <strong>Categories {'>'} Add Category</strong> before.{' '}
+          </Alert>
+        )}
+
+        {paymentMethods.length === 0 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <AlertTitle>Info</AlertTitle>
+            To be able to create a transaction you have to create a payment method under{' '}
+            <strong>Payment Methods {'>'} Add Payment Method</strong> before.{' '}
+          </Alert>
+        )}
+
+        {!loading && categories.length > 0 && paymentMethods.length > 0 && (
+          <form>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              {screenSize === 'small' ? (
+                <MobileDatePicker
+                  label="Execute at"
+                  inputFormat="dd.MM.yy"
+                  value={addSubscriptionForm.execute_at || new Date()}
+                  onChange={addSubscriptionFormHandler.dateChange}
+                  renderInput={(params) => <TextField sx={FormStyle} {...params} />}
+                />
+              ) : (
+                <DesktopDatePicker
+                  label="Execute at"
+                  inputFormat="dd.MM.yy"
+                  value={addSubscriptionForm.execute_at || new Date()}
+                  onChange={addSubscriptionFormHandler.dateChange}
+                  renderInput={(params) => <TextField sx={FormStyle} {...params} />}
+                />
+              )}
+            </LocalizationProvider>
+
+            <Box display="flex" flexDirection="row" justifyContent="space-between">
+              <Autocomplete
+                id="add-category"
+                options={categories.map((item) => ({ label: item.name, value: item.id }))}
+                sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
+                onChange={(event, value) =>
+                  addSubscriptionFormHandler.autocompleteChange(
+                    event,
+                    'category',
+                    Number(value?.value)
+                  )
+                }
+                renderInput={(props) => <TextField {...props} label="Category" />}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+              />
+              <Autocomplete
+                id="add-payment-method"
+                options={paymentMethods.map((item) => ({
+                  label: `${item.name} • ${item.provider}`,
+                  value: item.id,
+                }))}
+                sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
+                onChange={(event, value) =>
+                  addSubscriptionFormHandler.autocompleteChange(
+                    event,
+                    'paymentMethod',
+                    Number(value?.value)
+                  )
+                }
+                renderInput={(props) => <TextField {...props} label="Payment Method" />}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+              />
+            </Box>
+
+            <TextField
+              id="add-receiver"
+              variant="outlined"
+              label="Receiver"
+              name="receiver"
+              sx={FormStyle}
+              onChange={addSubscriptionFormHandler.inputChange}
+            />
+
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel htmlFor="add-amount">Amount</InputLabel>
+              <OutlinedInput
+                id="add-amount"
+                label="Amount"
+                name="amount"
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                onChange={addSubscriptionFormHandler.inputChange}
+                startAdornment={<InputAdornment position="start">€</InputAdornment>}
+              />
+            </FormControl>
+
+            <TextField
+              id="add-information"
+              variant="outlined"
+              label="Information"
+              name="information"
+              sx={{ ...FormStyle, mb: 0 }}
+              multiline
+              rows={3}
+              onChange={addSubscriptionFormHandler.inputChange}
+            />
+          </form>
+        )}
+      </FormDrawer>
     </Grid>
   );
 };
