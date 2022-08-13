@@ -15,6 +15,7 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import { PieChart } from '../components/spendings-chart.component';
 import type {
+  IExpense,
   ICategory,
   IPaymentMethod,
   ISubscription,
@@ -24,6 +25,10 @@ import { DateService } from '../services/date.service';
 import { determineNextExecution, getSubscriptions } from '../routes/subscriptions.route';
 import { getTransactions } from '../routes/transactions.route';
 import { isSameMonth } from 'date-fns';
+import { supabase } from '../supabase';
+import { CircularProgress } from '../components/progress.component';
+import { isSameMonth } from 'date-fns/esm';
+
 /**
  * Mock Data
  */
@@ -66,50 +71,6 @@ export const T2: ITransaction = {
   description: null,
   date: new Date(),
 };
-
-const StatsCards: StatsProps[] = [
-  {
-    title: '000.00 €',
-    subtitle: 'Payed Subscriptions',
-    icon: <ReceiptIcon sx={StatsIconStyle} />,
-  },
-  {
-    title: '000.00 €',
-    subtitle: 'Upcoming Payments',
-    icon: <PaymentsIcon sx={StatsIconStyle} />,
-  },
-  {
-    title: '000.00 €',
-    subtitle: 'Upcoming Earnings',
-    icon: <ScheduleIcon sx={StatsIconStyle} />,
-  },
-  {
-    title: '000.00 €',
-    subtitle: 'Received Earnings',
-  },
-];
-
-const Subscriptions: TransactionProps[] = new Array(6).fill(
-  {
-    category: 'Finance Management',
-    receiver: 'Budget-Buddy.de',
-    amount: 10,
-    date: new Date(),
-  },
-  0,
-  6
-);
-
-const Transactions: TransactionProps[] = new Array(6).fill(
-  {
-    category: 'Finance Management',
-    receiver: 'Budget-Buddy.de',
-    amount: 10,
-    date: new Date(),
-  },
-  0,
-  6
-);
 /**
  * ./Mock Data
  */
@@ -120,19 +81,91 @@ export const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
+  const [currentMonthExpenses, setCurrentMonthExpenses] = useState<IExpense[]>([]);
+  const [allTimeExpenses, setAllTimeExpenses] = useState<IExpense[]>([]);
 
-  const currentMonth = useMemo(
-    () =>
-      transactions.filter(
-        ({ date, amount }) =>
-          amount < 0 && new Date(date) <= new Date() && isSameMonth(new Date(date), new Date())
+  const StatsCards: StatsProps[] = [
+    {
+      title: useMemo(
+        () =>
+          Math.abs(
+            subscriptions
+              .filter(
+                (subscription) =>
+                  subscription.amount < 0 && subscription.execute_at <= new Date().getDate()
+              )
+              .reduce((prev, cur) => prev + cur.amount, 0)
+          ).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }),
+        [subscriptions]
       ),
-    [transactions]
-  );
+      subtitle: 'Payed Subscriptions',
+      icon: <ReceiptIcon sx={StatsIconStyle} />,
+    },
+    {
+      title: useMemo(
+        () =>
+          Math.abs(
+            subscriptions
+              .filter(
+                (subscription) =>
+                  subscription.amount < 0 && subscription.execute_at > new Date().getDate()
+              )
+              .reduce((prev, cur) => prev + cur.amount, 0)
+          ),
+        [subscriptions]
+      ).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }),
+      subtitle: 'Upcoming Payments',
+      icon: <PaymentsIcon sx={StatsIconStyle} />,
+    },
+    {
+      title: useMemo(
+        () =>
+          Math.abs(
+            subscriptions
+              .filter(
+                (subscription) =>
+                  subscription.amount > 0 && subscription.execute_at > new Date().getDate()
+              )
+              .reduce((prev, cur) => prev + cur.amount, 0)
+          ),
+        [subscriptions]
+      ).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }),
+      subtitle: 'Upcoming Earnings',
+      icon: <ScheduleIcon sx={StatsIconStyle} />,
+    },
+    {
+      title: useMemo(
+        () =>
+          Math.abs(
+            transactions
+              .filter(
+                (transaction) =>
+                  transaction.amount > 0 && isSameMonth(new Date(transaction.date), new Date())
+              )
+              .reduce((prev, cur) => prev + cur.amount, 0)
+          ),
+        [transactions]
+      ).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }),
+      subtitle: 'Received Earnings',
+    },
+  ];
 
   useEffect(() => {
-    Promise.all([getSubscriptions(), getTransactions()])
-      .then(([getSubscriptions, getTransactions]) => {
+    Promise.all([
+      getSubscriptions(),
+      getTransactions(),
+      supabase
+        .from<IExpense>('CurrentMonthExpenses')
+        .select('*')
+        // @ts-ignore
+        .eq('created_by', session?.user?.id),
+      supabase
+        .from<IExpense>('AllTimeExpenses')
+        .select('*')
+        // @ts-ignore
+        .eq('created_by', session?.user?.id),
+    ])
+      .then(([getSubscriptions, getTransactions, getCurrentMonthExpenses, getAllTimeExpenses]) => {
         if (getSubscriptions) {
           setSubscriptions(getSubscriptions);
         } else setSubscriptions([]);
@@ -140,6 +173,14 @@ export const Dashboard = () => {
         if (getTransactions) {
           setTransactions(getTransactions);
         } else setTransactions([]);
+
+        if (getCurrentMonthExpenses.data) {
+          setCurrentMonthExpenses(getCurrentMonthExpenses.data);
+        } else setCurrentMonthExpenses([]);
+
+        if (getAllTimeExpenses.data) {
+          setAllTimeExpenses(getAllTimeExpenses.data);
+        } else setAllTimeExpenses([]);
       })
       .catch((error) => console.error(error))
       .finally(() => setLoading(false));
@@ -154,6 +195,7 @@ export const Dashboard = () => {
         }!`}
         description="All in one page"
       />
+
       {StatsCards.map((props) => (
         <Grid item xs={6} md={6} lg={3}>
           <Stats {...props} />
@@ -176,15 +218,21 @@ export const Dashboard = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            {subscriptions.slice(0, 6).map(({ id, categories, receiver, amount, execute_at }) => (
-              <Transaction
-                key={id}
-                category={categories.name}
-                date={determineNextExecution(execute_at)}
-                receiver={receiver}
-                amount={amount}
-              />
-            ))}
+            {loading ? (
+              <CircularProgress />
+            ) : (
+              subscriptions
+                .slice(0, 6)
+                .map(({ id, categories, receiver, amount, execute_at }) => (
+                  <Transaction
+                    key={id}
+                    category={categories.name}
+                    date={determineNextExecution(execute_at)}
+                    receiver={receiver}
+                    amount={amount}
+                  />
+                ))
+            )}
           </Card.Body>
         </Card>
       </Grid>
@@ -224,13 +272,17 @@ export const Dashboard = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            <Box sx={{ display: 'flex', flex: 1, mt: '1rem' }}>
-              {chart === 'MONTH' ? (
-                <PieChart transactions={currentMonth} />
-              ) : (
-                <PieChart transactions={[T1, T2]} />
-              )}
-            </Box>
+            {loading ? (
+              <CircularProgress />
+            ) : (
+              <Box sx={{ display: 'flex', flex: 1, mt: '1rem' }}>
+                {chart === 'MONTH' ? (
+                  <PieChart expenses={currentMonthExpenses} />
+                ) : (
+                  <PieChart expenses={allTimeExpenses} />
+                )}
+              </Box>
+            )}
           </Card.Body>
         </Card>
       </Grid>
@@ -251,18 +303,22 @@ export const Dashboard = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            {transactions
-              .filter(({ date }) => new Date(date) <= new Date())
-              .slice(0, 6)
-              .map(({ id, categories, receiver, amount, date }, index) => (
-                <Transaction
-                  key={id}
-                  category={categories.name}
-                  date={new Date(date)}
-                  receiver={receiver}
-                  amount={amount}
-                />
-              ))}
+            {loading ? (
+              <CircularProgress />
+            ) : (
+              transactions
+                .filter(({ date }) => new Date(date) <= new Date())
+                .slice(0, 6)
+                .map(({ id, categories, receiver, amount, date }, index) => (
+                  <Transaction
+                    key={id}
+                    category={categories.name}
+                    date={new Date(date)}
+                    receiver={receiver}
+                    amount={amount}
+                  />
+                ))
+            )}
           </Card.Body>
         </Card>
       </Grid>

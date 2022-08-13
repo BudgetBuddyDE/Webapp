@@ -4,25 +4,25 @@ import { Pie } from '@visx/shape';
 import { Group } from '@visx/group';
 import { scaleOrdinal } from '@visx/scale';
 import ParentSize from '@visx/responsive/lib/components/ParentSizeModern';
-import type { ITransaction } from '../types/transaction.interface';
+import type { IExpense } from '../types/transaction.interface';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
 
-function getAbsoluteAmount(transaction: ITransaction) {
-  return Math.abs(transaction.amount);
+function getAbsoluteAmount(expense: IExpense) {
+  return Math.abs(expense.sum);
 }
 
-export const PieChart: FC<{ transactions: ITransaction[] }> = ({ transactions }) => {
+export const PieChart: FC<{ expenses: IExpense[] }> = ({ expenses }) => {
   const screenSize = useScreenSize();
   const MARGIN = { top: 0, right: 0, bottom: 0, left: 0 };
-  const CATEGORY_NAMES = Object.entries(transactions).map(([key, value]) => value.categories.name);
-  const COLOR_RANGE = transactions.map((transaction, index) => {
-    return transactions.length > 1
-      ? `rgba(255,255,255,${(0.7 / transactions.length) * (index + 1)})`
+  const CATEGORY_NAMES = Object.entries(expenses).map(([key, value]) => value.category.name);
+  const COLOR_RANGE = expenses.map((expense, index) => {
+    return expenses.length > 1
+      ? `rgba(255,255,255,${(0.7 / expenses.length) * (index + 1)})`
       : `rgba(255,255,255, 0.8)`;
   });
 
   const DONUT_THICKNESS = screenSize === 'small' ? 75 : 100;
-  const TOTAL_SPENDINGS = transactions.map(getAbsoluteAmount).reduce((prev, cur) => prev + cur, 0);
+  const TOTAL_SPENDINGS = expenses.map(getAbsoluteAmount).reduce((prev, cur) => prev + cur, 0);
   const CURRENCY = '€';
 
   const getCategoryColor = scaleOrdinal({
@@ -46,7 +46,7 @@ export const PieChart: FC<{ transactions: ITransaction[] }> = ({ transactions })
           <svg width={width} height={width}>
             <Group top={axis.y + MARGIN.top} left={axis.x + MARGIN.left}>
               <Pie
-                data={transactions}
+                data={expenses}
                 pieValue={getAbsoluteAmount}
                 outerRadius={radius}
                 innerRadius={radius - DONUT_THICKNESS}
@@ -68,7 +68,7 @@ export const PieChart: FC<{ transactions: ITransaction[] }> = ({ transactions })
                           <g key={`pie-arc-${i}`}>
                             <path
                               d={pie.path(arc) || ''}
-                              fill={getCategoryColor(arc.data.categories.name)}
+                              fill={getCategoryColor(arc.data.category.name)}
                             />
                             {hasSpaceForLabel && (
                               <g>
@@ -81,7 +81,7 @@ export const PieChart: FC<{ transactions: ITransaction[] }> = ({ transactions })
                                   textAnchor="middle"
                                   pointerEvents="none"
                                 >
-                                  {arc.data.categories.name}
+                                  {arc.data.category.name}
                                 </text>
                                 <text
                                   fill="white"
@@ -92,7 +92,7 @@ export const PieChart: FC<{ transactions: ITransaction[] }> = ({ transactions })
                                   textAnchor="middle"
                                   pointerEvents="none"
                                 >
-                                  {Math.abs(arc.data.amount).toFixed(2) + ' ' + CURRENCY}
+                                  {Math.abs(arc.data.sum).toFixed(2) + ' ' + CURRENCY}
                                 </text>
                                 <text
                                   fill="white"
@@ -102,7 +102,7 @@ export const PieChart: FC<{ transactions: ITransaction[] }> = ({ transactions })
                                   fontSize={screenSize === 'small' ? 10 : 12}
                                   textAnchor="middle"
                                 >
-                                  {Math.abs((arc.data.amount * 100) / TOTAL_SPENDINGS).toFixed(2)} %
+                                  {Math.abs((arc.data.sum * 100) / TOTAL_SPENDINGS).toFixed(2)} %
                                 </text>
                               </g>
                             )}
