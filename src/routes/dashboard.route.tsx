@@ -1,18 +1,16 @@
-import Grid from '@mui/material/Grid';
-import { PageHeader } from '../components/page-header.component';
 import { useContext, useEffect, useMemo, useState } from 'react';
+import { Grid, Tooltip, IconButton, Button, Box } from '@mui/material';
+import {
+  Receipt as ReceiptIcon,
+  Payments as PaymentsIcon,
+  Schedule as ScheduleIcon,
+  Add as AddIcon,
+} from '@mui/icons-material';
+import { PageHeader } from '../components/page-header.component';
 import { AuthContext } from '../context/auth.context';
 import { Stats, StatsProps, StatsIconStyle } from '../components/stats-card.component';
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import PaymentsIcon from '@mui/icons-material/Payments';
-import ScheduleIcon from '@mui/icons-material/Schedule';
-import { Transaction, TransactionProps } from '../components/transaction.component';
+import { Transaction } from '../components/transaction.component';
 import Card from '../components/card.component';
-import Tooltip from '@mui/material/Tooltip';
-import AddIcon from '@mui/icons-material/Add';
-import IconButton from '@mui/material/IconButton';
-import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
 import { PieChart } from '../components/spendings-chart.component';
 import type {
   IExpense,
@@ -24,7 +22,6 @@ import type {
 import { DateService } from '../services/date.service';
 import { determineNextExecution, getSubscriptions } from '../routes/subscriptions.route';
 import { getTransactions } from '../routes/transactions.route';
-import { isSameMonth } from 'date-fns';
 import { supabase } from '../supabase';
 import { CircularProgress } from '../components/progress.component';
 import { isSameMonth } from 'date-fns/esm';
