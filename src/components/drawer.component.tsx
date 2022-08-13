@@ -1,27 +1,31 @@
 import * as React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import MuiDrawer from '@mui/material/Drawer';
-import Tooltip from '@mui/material/Tooltip';
-import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import { CSSObject, styled, Theme, useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Fab from '@mui/material/Fab';
-import MenuIcon from '@mui/icons-material/Menu';
-import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import {
+  Drawer as MuiDrawer,
+  Tooltip,
+  List,
+  Divider,
+  IconButton,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Box,
+  Fab,
+  Avatar,
+  Button,
+  Typography,
+} from '@mui/material';
+import {
+  Menu as MenuIcon,
+  MenuOpen as MenuOpenIcon,
+  Logout as LogoutIcon,
+} from '@mui/icons-material';
+import { CSSObject, styled, Theme } from '@mui/material/styles';
 import { DrawerLinks } from '../constants/drawer-items.constant';
 import { StoreContext } from '../context/store.context';
 import { drawerWidth } from '../theme/default.theme';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 import { AuthContext } from '../context/auth.context';
-import LogoutIcon from '@mui/icons-material/Logout';
 import { supabase } from '../supabase';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
 

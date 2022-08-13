@@ -1,12 +1,7 @@
 import { FC, PropsWithChildren } from 'react';
-import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import Drawer from '@mui/material/Drawer';
+import { Box, IconButton, Drawer, Divider, Typography, Button } from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
 import { drawerWidth } from '../theme/default.theme';
-import Divider from '@mui/material/Divider';
-import Typography from '@mui/material/Typography';
-import CloseIcon from '@mui/icons-material/Close';
-import Button from '@mui/material/Button';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
 
 export interface IFormDrawerProps extends PropsWithChildren {
@@ -23,6 +18,7 @@ export const FormDrawer: FC<IFormDrawerProps> = ({ open, heading, onClose, onSav
     <Drawer
       anchor={screenSize === 'small' ? 'bottom' : 'right'}
       open={open}
+      onClose={(ev, reason) => reason === 'backdropClick' && onClose()}
       PaperProps={{
         elevation: 0,
         sx: {
