@@ -26,6 +26,7 @@ import { AuthContext } from '../context/auth.context';
 import type { ICategory } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
 import { FormDrawer } from '../components/form-drawer.component';
+import { StoreContext } from '../context/store.context';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -46,12 +47,11 @@ export async function getCategories(): Promise<ICategory[] | null> {
 export const Categories = () => {
   const { session } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
+  const { loading, categories, setCategories } = useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
-  const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [keyword, setKeyword] = useState('');
-  const [categories, setCategories] = useState<ICategory[]>([]);
   const [shownCategories, setShownCategories] = useState<readonly ICategory[]>(categories);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
@@ -186,17 +186,6 @@ export const Categories = () => {
     if (keyword === '') setShownCategories(categories);
     setShownCategories(categories.filter((item) => item.name.toLowerCase().includes(keyword)));
   }, [keyword, categories]);
-
-  useEffect(() => {
-    getCategories()
-      .then((data) => {
-        if (data) {
-          setCategories(data);
-        } else setCategories([]);
-      })
-      .catch((error) => console.error(error))
-      .finally(() => setLoading(false));
-  }, [session]);
 
   return (
     <Grid container spacing={3}>

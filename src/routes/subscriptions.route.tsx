@@ -33,15 +33,14 @@ import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/search-input.component';
 import { supabase } from '../supabase';
 import { AuthContext } from '../context/auth.context';
-import type { ICategory, IPaymentMethod, ISubscription } from '../types/transaction.interface';
+import type { ISubscription } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
 import { FormDrawer } from '../components/form-drawer.component';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
-import { getCategories } from './categories.route';
-import { getPaymentMethods } from './payment-method.route';
 import { DateService } from '../services/date.service';
 import { addMonths } from 'date-fns';
 import { getCategory, getPaymentMethod } from './transactions.route';
+import { StoreContext } from '../context/store.context';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -71,7 +70,7 @@ export async function getSubscriptions(): Promise<ISubscription[] | null> {
   });
 }
 
-function determineNextExecution(executeAt: Number) {
+export function determineNextExecution(executeAt: Number) {
   const now = new Date();
   const today = now.getDate();
   if (executeAt >= today) {
@@ -83,14 +82,12 @@ export const Subscriptions = () => {
   const screenSize = useScreenSize();
   const { session } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
+  const { loading, subscriptions, setSubscriptions, categories, paymentMethods } =
+    useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
-  const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState('');
-  const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
   const [shownSubscriptions, setShownSubscriptions] =
     useState<readonly ISubscription[]>(subscriptions);
-  const [categories, setCategories] = useState<ICategory[]>([]);
-  const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
   const [errorMessage, setErrorMessage] = useState('');
@@ -297,25 +294,6 @@ export const Subscriptions = () => {
     );
   }, [keyword, subscriptions]);
 
-  useEffect(() => {
-    Promise.all([getSubscriptions(), getCategories(), getPaymentMethods()])
-      .then(([getSubscriptions, getCategories, getPaymentMethods]) => {
-        if (getSubscriptions) {
-          setSubscriptions(getSubscriptions);
-        } else setSubscriptions([]);
-
-        if (getCategories) {
-          setCategories(getCategories);
-        } else setCategories([]);
-
-        if (getPaymentMethods) {
-          setPaymentMethods(getPaymentMethods);
-        } else setPaymentMethods([]);
-      })
-      .catch((error) => console.error(error))
-      .finally(() => setLoading(false));
-  }, [session]);
-
   return (
     <Grid container spacing={3}>
       <PageHeader title="Subscriptions" description="You got Disney+?" />
@@ -508,7 +486,6 @@ export const Subscriptions = () => {
               <InputLabel htmlFor="add-amount">Amount</InputLabel>
               <OutlinedInput
                 id="add-amount"
-                type="number"
                 label="Amount"
                 name="amount"
                 inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
@@ -624,7 +601,6 @@ export const Subscriptions = () => {
               <InputLabel htmlFor="edit-amount">Amount</InputLabel>
               <OutlinedInput
                 id="add-amount"
-                type="number"
                 name="amount"
                 label="Amount"
                 defaultValue={editForm.amount}
