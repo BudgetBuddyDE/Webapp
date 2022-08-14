@@ -1,4 +1,4 @@
-import { ChangeEvent, useContext, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
 import {
   Grid,
   Box,
@@ -70,8 +70,9 @@ export const PaymentMethods = () => {
     inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setAddForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    save: async () => {
+    save: async (event: FormEvent<HTMLFormElement>) => {
       try {
+        event.preventDefault();
         const values = Object.keys(addForm);
         if (!values.includes('name')) throw new Error('Provide an name');
         if (!values.includes('address')) throw new Error('Provide an address');
@@ -113,8 +114,9 @@ export const PaymentMethods = () => {
     inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setEditForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    save: async () => {
+    save: async (event: FormEvent<HTMLFormElement>) => {
       try {
+        event.preventDefault();
         const values = Object.keys(editForm);
         if (!values.includes('id')) throw new Error('Provide an id');
         if (!values.includes('name')) throw new Error('Provide an name');
@@ -279,7 +281,9 @@ export const PaymentMethods = () => {
         open={showAddForm}
         heading="Add Payment Method"
         onClose={addFormHandler.close}
-        onSave={addFormHandler.save}
+        onSubmit={addFormHandler.save}
+        saveLabel="Create"
+        closeLabel=""
       >
         {errorMessage.length > 1 && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -287,7 +291,7 @@ export const PaymentMethods = () => {
           </Alert>
         )}
 
-        <form>
+        <>
           <TextField
             id="add-pm-name"
             variant="outlined"
@@ -325,7 +329,7 @@ export const PaymentMethods = () => {
             rows={3}
             onChange={addFormHandler.inputChange}
           />
-        </form>
+        </>
       </FormDrawer>
 
       {/* Edit Payment Method */}
@@ -333,7 +337,8 @@ export const PaymentMethods = () => {
         open={Object.keys(editForm).length > 0}
         heading="Edit Payment Method"
         onClose={editFormHandler.close}
-        onSave={editFormHandler.save}
+        onSubmit={editFormHandler.save}
+        closeOnBackdropClick
       >
         {errorMessage.length > 1 && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -341,7 +346,7 @@ export const PaymentMethods = () => {
           </Alert>
         )}
 
-        <form>
+        <>
           <TextField
             id="add-pm-name"
             variant="outlined"
@@ -383,7 +388,7 @@ export const PaymentMethods = () => {
             defaultValue={editForm.description}
             onChange={editFormHandler.inputChange}
           />
-        </form>
+        </>
       </FormDrawer>
     </Grid>
   );

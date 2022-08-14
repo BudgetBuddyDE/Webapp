@@ -1,4 +1,4 @@
-import { ChangeEvent, useContext, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, FormEvent, useContext, useEffect, useMemo, useState } from 'react';
 import {
   Grid,
   Box,
@@ -47,6 +47,7 @@ import { useScreenSize } from '../hooks/useScreenSize.hook';
 import { StoreContext } from '../context/store.context';
 import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
+import { transformBalance } from '../utils/transformBalance';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -80,7 +81,7 @@ export const Dashboard = () => {
   const [showAddTransactionForm, setShowAddTransactionForm] = useState(false);
   const [showSubscriptionForm, setShowSubscriptionForm] = useState(false);
 
-  const addTransactionFormHandler = {
+  const transactionFormHandler = {
     open: () => {
       setShowAddTransactionForm(true);
     },
@@ -102,8 +103,9 @@ export const Dashboard = () => {
     inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setAddTransactionForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    save: async () => {
+    onSubmit: async (event: FormEvent<HTMLFormElement>) => {
       try {
+        event.preventDefault();
         const values = Object.keys(addTransactionForm);
         if (!values.includes('category')) throw new Error('Provide an category');
         if (!values.includes('paymentMethod')) throw new Error('Provide an paymentMethod');
@@ -116,10 +118,7 @@ export const Dashboard = () => {
             category: addTransactionForm.category,
             paymentMethod: addTransactionForm.paymentMethod,
             receiver: addTransactionForm.receiver,
-            amount:
-              typeof addTransactionForm.amount === 'string'
-                ? Number(addTransactionForm.amount)
-                : addTransactionForm.amount,
+            amount: transformBalance(addTransactionForm.amount.toString()),
             description: addTransactionForm.information || null,
             // @ts-ignore
             created_by: session?.user?.id,
@@ -146,7 +145,7 @@ export const Dashboard = () => {
         addTransactionToExpenses(newTransaction, allTimeExpenses, (updatedExpenses) =>
           setAllTimeExpenses(updatedExpenses)
         );
-        addTransactionFormHandler.close();
+        transactionFormHandler.close();
         showSnackbar({
           message: 'Transaction added',
         });
@@ -158,7 +157,7 @@ export const Dashboard = () => {
     },
   };
 
-  const addSubscriptionFormHandler = {
+  const subscriptionFormHandler = {
     open: () => setShowSubscriptionForm(true),
     close: () => {
       setShowSubscriptionForm(false);
@@ -178,8 +177,9 @@ export const Dashboard = () => {
     inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setAddSubscriptionForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    save: async () => {
+    onSubmit: async (event: FormEvent<HTMLFormElement>) => {
       try {
+        event.preventDefault();
         const values = Object.keys(addSubscriptionForm);
         if (!values.includes('category')) throw new Error('Provide an category');
         if (!values.includes('paymentMethod')) throw new Error('Provide an payment method');
@@ -189,11 +189,11 @@ export const Dashboard = () => {
         const data = await SubscriptionService.createSubscriptions([
           {
             // @ts-ignore
-            execute_at: addSubscriptionForm.execute_at.getDate() || new Date().getDate(),
+            execute_at: addForm.execute_at ? addForm.execute_at.getDate() : new Date().getDate(),
             category: addSubscriptionForm.category,
             paymentMethod: addSubscriptionForm.paymentMethod,
             receiver: addSubscriptionForm.receiver,
-            amount: Number(addSubscriptionForm.amount),
+            amount: transformBalance(addSubscriptionForm.amount.toString()),
             description: addSubscriptionForm.information || null,
             // @ts-ignore
             created_by: session?.user?.id,
@@ -210,7 +210,7 @@ export const Dashboard = () => {
             paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
           } as ISubscription,
         ]);
-        addSubscriptionFormHandler.close();
+        subscriptionFormHandler.close();
         showSnackbar({
           message: 'Subscription added',
         });
@@ -340,7 +340,7 @@ export const Dashboard = () => {
             </div>
             <Card.HeaderActions>
               <Tooltip title="Add Subscription">
-                <IconButton aria-label="add-subscription" onClick={addSubscriptionFormHandler.open}>
+                <IconButton aria-label="add-subscription" onClick={subscriptionFormHandler.open}>
                   <AddIcon fontSize="inherit" />
                 </IconButton>
               </Tooltip>
@@ -425,7 +425,7 @@ export const Dashboard = () => {
             </div>
             <Card.HeaderActions>
               <Tooltip title="Add Transaction">
-                <IconButton aria-label="add-transaction" onClick={addTransactionFormHandler.open}>
+                <IconButton aria-label="add-transaction" onClick={transactionFormHandler.open}>
                   <AddIcon fontSize="inherit" />
                 </IconButton>
               </Tooltip>
@@ -456,8 +456,10 @@ export const Dashboard = () => {
       <FormDrawer
         open={showAddTransactionForm}
         heading="Add Transaction"
-        onClose={addTransactionFormHandler.close}
-        onSave={addTransactionFormHandler.save}
+        onClose={transactionFormHandler.close}
+        onSubmit={transactionFormHandler.onSubmit}
+        saveLabel="Create"
+        closeOnBackdropClick
       >
         {errorMessage.length > 1 && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -482,14 +484,14 @@ export const Dashboard = () => {
         )}
 
         {!loading && categories.length > 0 && paymentMethods.length > 0 && (
-          <form>
+          <>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               {screenSize === 'small' ? (
                 <MobileDatePicker
                   label="Date"
                   inputFormat="dd.MM.yy"
                   value={addTransactionForm.date || new Date()}
-                  onChange={addTransactionFormHandler.dateChange}
+                  onChange={transactionFormHandler.dateChange}
                   renderInput={(params) => <TextField sx={FormStyle} {...params} />}
                 />
               ) : (
@@ -497,7 +499,7 @@ export const Dashboard = () => {
                   label="Date"
                   inputFormat="dd.MM.yy"
                   value={addTransactionForm.date || new Date()}
-                  onChange={addTransactionFormHandler.dateChange}
+                  onChange={transactionFormHandler.dateChange}
                   renderInput={(params) => <TextField sx={FormStyle} {...params} />}
                 />
               )}
@@ -509,11 +511,7 @@ export const Dashboard = () => {
                 options={categories.map((item) => ({ label: item.name, value: item.id }))}
                 sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
                 onChange={(event, value) =>
-                  addTransactionFormHandler.autocompleteChange(
-                    event,
-                    'category',
-                    Number(value?.value)
-                  )
+                  transactionFormHandler.autocompleteChange(event, 'category', Number(value?.value))
                 }
                 renderInput={(props) => <TextField {...props} label="Category" />}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
@@ -526,7 +524,7 @@ export const Dashboard = () => {
                 }))}
                 sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
                 onChange={(event, value) =>
-                  addTransactionFormHandler.autocompleteChange(
+                  transactionFormHandler.autocompleteChange(
                     event,
                     'paymentMethod',
                     Number(value?.value)
@@ -543,7 +541,7 @@ export const Dashboard = () => {
               label="Receiver"
               name="receiver"
               sx={FormStyle}
-              onChange={addTransactionFormHandler.inputChange}
+              onChange={transactionFormHandler.inputChange}
             />
 
             <FormControl fullWidth sx={{ mb: 2 }}>
@@ -552,9 +550,8 @@ export const Dashboard = () => {
                 id="add-amount"
                 label="Amount"
                 name="amount"
-                // type="number"
-                // inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                onChange={addTransactionFormHandler.inputChange}
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                onChange={transactionFormHandler.inputChange}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
               />
             </FormControl>
@@ -567,9 +564,9 @@ export const Dashboard = () => {
               sx={{ ...FormStyle, mb: 0 }}
               multiline
               rows={3}
-              onChange={addTransactionFormHandler.inputChange}
+              onChange={transactionFormHandler.inputChange}
             />
-          </form>
+          </>
         )}
       </FormDrawer>
 
@@ -577,8 +574,10 @@ export const Dashboard = () => {
       <FormDrawer
         open={showSubscriptionForm}
         heading="Add Subscription"
-        onClose={addSubscriptionFormHandler.close}
-        onSave={addSubscriptionFormHandler.save}
+        onClose={subscriptionFormHandler.close}
+        onSubmit={subscriptionFormHandler.onSubmit}
+        saveLabel="Create"
+        closeOnBackdropClick
       >
         {errorMessage.length > 1 && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -603,22 +602,22 @@ export const Dashboard = () => {
         )}
 
         {!loading && categories.length > 0 && paymentMethods.length > 0 && (
-          <form>
+          <>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               {screenSize === 'small' ? (
                 <MobileDatePicker
                   label="Execute at"
-                  inputFormat="dd.MM.yy"
+                  inputFormat="dd"
                   value={addSubscriptionForm.execute_at || new Date()}
-                  onChange={addSubscriptionFormHandler.dateChange}
+                  onChange={subscriptionFormHandler.dateChange}
                   renderInput={(params) => <TextField sx={FormStyle} {...params} />}
                 />
               ) : (
                 <DesktopDatePicker
                   label="Execute at"
-                  inputFormat="dd.MM.yy"
+                  inputFormat="dd"
                   value={addSubscriptionForm.execute_at || new Date()}
-                  onChange={addSubscriptionFormHandler.dateChange}
+                  onChange={subscriptionFormHandler.dateChange}
                   renderInput={(params) => <TextField sx={FormStyle} {...params} />}
                 />
               )}
@@ -630,7 +629,7 @@ export const Dashboard = () => {
                 options={categories.map((item) => ({ label: item.name, value: item.id }))}
                 sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
                 onChange={(event, value) =>
-                  addSubscriptionFormHandler.autocompleteChange(
+                  subscriptionFormHandler.autocompleteChange(
                     event,
                     'category',
                     Number(value?.value)
@@ -647,7 +646,7 @@ export const Dashboard = () => {
                 }))}
                 sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
                 onChange={(event, value) =>
-                  addSubscriptionFormHandler.autocompleteChange(
+                  subscriptionFormHandler.autocompleteChange(
                     event,
                     'paymentMethod',
                     Number(value?.value)
@@ -664,7 +663,7 @@ export const Dashboard = () => {
               label="Receiver"
               name="receiver"
               sx={FormStyle}
-              onChange={addSubscriptionFormHandler.inputChange}
+              onChange={subscriptionFormHandler.inputChange}
             />
 
             <FormControl fullWidth sx={{ mb: 2 }}>
@@ -673,9 +672,8 @@ export const Dashboard = () => {
                 id="add-amount"
                 label="Amount"
                 name="amount"
-                // type="number"
-                // inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                onChange={addSubscriptionFormHandler.inputChange}
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                onChange={subscriptionFormHandler.inputChange}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
               />
             </FormControl>
@@ -688,9 +686,9 @@ export const Dashboard = () => {
               sx={{ ...FormStyle, mb: 0 }}
               multiline
               rows={3}
-              onChange={addSubscriptionFormHandler.inputChange}
+              onChange={subscriptionFormHandler.inputChange}
             />
-          </form>
+          </>
         )}
       </FormDrawer>
     </Grid>

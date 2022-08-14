@@ -1,4 +1,4 @@
-import { ChangeEvent, useContext, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
 import {
   Grid,
   Box,
@@ -42,6 +42,7 @@ import { StoreContext } from '../context/store.context';
 import { getCategoryFromList } from '../utils/getCategoryFromList';
 import { getPaymentMethodFromList } from '../utils/getPaymentMethodFromList';
 import { SubscriptionService } from '../services/subscription.service';
+import { transformBalance } from '../utils/transformBalance';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -104,8 +105,9 @@ export const Subscriptions = () => {
     inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setAddForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    save: async () => {
+    save: async (event: FormEvent<HTMLFormElement>) => {
       try {
+        event.preventDefault();
         const values = Object.keys(addForm);
         if (!values.includes('category')) throw new Error('Provide an category');
         if (!values.includes('paymentMethod')) throw new Error('Provide an payment method');
@@ -119,7 +121,7 @@ export const Subscriptions = () => {
             category: addForm.category,
             paymentMethod: addForm.paymentMethod,
             receiver: addForm.receiver,
-            amount: Number(addForm.amount),
+            amount: transformBalance(addForm.amount.toString()),
             description: addForm.information || null,
             // @ts-ignore
             created_by: session?.user?.id,
@@ -187,8 +189,9 @@ export const Subscriptions = () => {
     inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setEditForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    save: async () => {
+    save: async (event: FormEvent<HTMLFormElement>) => {
       try {
+        event.preventDefault();
         const values = Object.keys(editForm);
         if (!values.includes('id')) throw new Error('Provide an id');
         if (!values.includes('execute_at')) throw new Error('Provide an category');
@@ -204,7 +207,7 @@ export const Subscriptions = () => {
           category: editForm.category,
           paymentMethod: editForm.paymentMethod,
           receiver: editForm.receiver,
-          amount: Number(editForm.amount),
+          amount: transformBalance(editForm.amount.toString()),
           description: editForm.information || null,
           // @ts-ignore
           created_by: session?.user?.id,
@@ -381,7 +384,9 @@ export const Subscriptions = () => {
         open={showAddForm}
         heading="Add Subscription"
         onClose={addFormHandler.close}
-        onSave={addFormHandler.save}
+        onSubmit={addFormHandler.save}
+        saveLabel="Create"
+        closeOnBackdropClick
       >
         {errorMessage.length > 1 && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -406,7 +411,7 @@ export const Subscriptions = () => {
         )}
 
         {!loading && categories.length > 0 && paymentMethods.length > 0 && (
-          <form>
+          <>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               {screenSize === 'small' ? (
                 <MobileDatePicker
@@ -468,8 +473,7 @@ export const Subscriptions = () => {
                 id="add-amount"
                 label="Amount"
                 name="amount"
-                // type="number"
-                // inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                 onChange={addFormHandler.inputChange}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
               />
@@ -485,7 +489,7 @@ export const Subscriptions = () => {
               rows={3}
               onChange={addFormHandler.inputChange}
             />
-          </form>
+          </>
         )}
       </FormDrawer>
 
@@ -494,7 +498,10 @@ export const Subscriptions = () => {
         open={Object.keys(editForm).length > 0}
         heading="Edit Subscription"
         onClose={editFormHandler.close}
-        onSave={editFormHandler.save}
+        onSubmit={editFormHandler.save}
+        saveLabel="Save"
+        closeLabel="Dismiss"
+        closeOnBackdropClick
       >
         {errorMessage.length > 1 && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -588,8 +595,7 @@ export const Subscriptions = () => {
                 name="amount"
                 label="Amount"
                 defaultValue={editForm.amount}
-                // type="number"
-                // inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                 onChange={editFormHandler.inputChange}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
               />

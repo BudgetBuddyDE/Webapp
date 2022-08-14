@@ -1,24 +1,36 @@
 import { FC, PropsWithChildren } from 'react';
-import { Box, IconButton, Drawer, Divider, Typography, Button } from '@mui/material';
+import { Drawer, Box, Typography, IconButton, Divider, Button } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
-import { drawerWidth } from '../theme/default.theme';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
+import { drawerWidth } from '../theme/default.theme';
 
 export interface IFormDrawerProps extends PropsWithChildren {
   open: boolean;
   heading: string;
   onClose: () => void;
-  onSave: () => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  closeLabel?: string;
+  saveLabel?: string;
+  closeOnBackdropClick?: boolean;
 }
 
-export const FormDrawer: FC<IFormDrawerProps> = ({ open, heading, onClose, onSave, children }) => {
+export const FormDrawer: FC<IFormDrawerProps> = ({
+  open,
+  heading,
+  onClose,
+  onSubmit,
+  closeLabel = 'Close',
+  saveLabel = 'Save',
+  closeOnBackdropClick,
+  children,
+}) => {
   const screenSize = useScreenSize();
 
   return (
     <Drawer
       anchor={screenSize === 'small' ? 'bottom' : 'right'}
       open={open}
-      onClose={(ev, reason) => reason === 'backdropClick' && onClose()}
+      onClose={(ev, reason) => reason === 'backdropClick' && closeOnBackdropClick && onClose()}
       PaperProps={{
         elevation: 0,
         sx: {
@@ -43,26 +55,28 @@ export const FormDrawer: FC<IFormDrawerProps> = ({ open, heading, onClose, onSav
         </IconButton>
       </Box>
       <Divider />
-      <Box sx={{ p: 2 }}>{children}</Box>
-      <Box
-        sx={{
-          mt: 'auto',
-        }}
-      >
-        <Divider />
+      <form onSubmit={onSubmit}>
+        <Box sx={{ p: 2 }}>{children}</Box>
         <Box
           sx={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            p: 2,
+            mt: 'auto',
           }}
         >
-          <Button onClick={onClose}>Close</Button>
-          <Button variant="contained" onClick={onSave}>
-            Save
-          </Button>
+          <Divider />
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              p: 2,
+            }}
+          >
+            <Button onClick={onClose}>{closeLabel}</Button>
+            <Button type="submit" variant="contained">
+              {saveLabel}
+            </Button>
+          </Box>
         </Box>
-      </Box>
+      </form>
     </Drawer>
   );
 };

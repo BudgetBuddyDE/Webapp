@@ -1,4 +1,4 @@
-import { ChangeEvent, useContext, useEffect, useState } from 'react';
+import { ChangeEvent, useContext, useEffect, useState, FormEvent } from 'react';
 import {
   Grid,
   Box,
@@ -42,6 +42,7 @@ import { StoreContext } from '../context/store.context';
 import { getCategoryFromList } from '../utils/getCategoryFromList';
 import { getPaymentMethodFromList } from '../utils/getPaymentMethodFromList';
 import { TransactionService } from '../services/transaction.service';
+import { transformBalance } from '../utils/transformBalance';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -123,8 +124,9 @@ export const Transactions = () => {
     inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setAddForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    save: async () => {
+    save: async (event: FormEvent<HTMLFormElement>) => {
       try {
+        event.preventDefault();
         const values = Object.keys(addForm);
         if (!values.includes('category')) throw new Error('Provide an category');
         if (!values.includes('paymentMethod')) throw new Error('Provide an paymentMethod');
@@ -137,7 +139,7 @@ export const Transactions = () => {
             category: addForm.category,
             paymentMethod: addForm.paymentMethod,
             receiver: addForm.receiver,
-            amount: typeof addForm.amount === 'string' ? Number(addForm.amount) : addForm.amount,
+            amount: transformBalance(addForm.amount.toString()),
             description: addForm.information || null,
             // @ts-ignore
             created_by: session?.user?.id,
@@ -202,8 +204,9 @@ export const Transactions = () => {
     inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setEditForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    save: async () => {
+    save: async (event: FormEvent<HTMLFormElement>) => {
       try {
+        event.preventDefault();
         const values = Object.keys(editForm);
         if (!values.includes('id')) throw new Error('Provide an id');
         if (!values.includes('date')) throw new Error('Provide an date');
@@ -219,7 +222,7 @@ export const Transactions = () => {
           category: editForm.category,
           paymentMethod: editForm.paymentMethod,
           receiver: editForm.receiver,
-          amount: Number(editForm.amount),
+          amount: transformBalance(editForm.amount.toString()),
           description: editForm.information || null,
           // @ts-ignore
           created_by: session?.user?.id,
@@ -397,7 +400,9 @@ export const Transactions = () => {
         open={showAddForm}
         heading="Add Transaction"
         onClose={addFormHandler.close}
-        onSave={addFormHandler.save}
+        onSubmit={addFormHandler.save}
+        saveLabel="Create"
+        closeOnBackdropClick
       >
         {errorMessage.length > 1 && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -422,7 +427,7 @@ export const Transactions = () => {
         )}
 
         {!loading && categories.length > 0 && paymentMethods.length > 0 && (
-          <form>
+          <>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               {screenSize === 'small' ? (
                 <MobileDatePicker
@@ -484,8 +489,7 @@ export const Transactions = () => {
                 id="add-amount"
                 label="Amount"
                 name="amount"
-                // type="number"
-                // inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                 onChange={addFormHandler.inputChange}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
               />
@@ -501,7 +505,7 @@ export const Transactions = () => {
               rows={3}
               onChange={addFormHandler.inputChange}
             />
-          </form>
+          </>
         )}
       </FormDrawer>
 
@@ -510,7 +514,8 @@ export const Transactions = () => {
         open={Object.keys(editForm).length > 0}
         heading="Edit Transaction"
         onClose={editFormHandler.close}
-        onSave={editFormHandler.save}
+        onSubmit={editFormHandler.save}
+        closeOnBackdropClick
       >
         {errorMessage.length > 1 && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -535,7 +540,7 @@ export const Transactions = () => {
         )}
 
         {!loading && categories.length > 0 && paymentMethods.length > 0 && (
-          <form>
+          <>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               {screenSize === 'small' ? (
                 <MobileDatePicker
@@ -604,8 +609,7 @@ export const Transactions = () => {
                 name="amount"
                 label="Amount"
                 defaultValue={editForm.amount}
-                // type="number"
-                // inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                 onChange={editFormHandler.inputChange}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
               />
@@ -622,7 +626,7 @@ export const Transactions = () => {
               defaultValue={editForm.description}
               onChange={editFormHandler.inputChange}
             />
-          </form>
+          </>
         )}
       </FormDrawer>
     </Grid>
