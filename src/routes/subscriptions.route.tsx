@@ -167,7 +167,7 @@ export const Subscriptions = () => {
         paymentMethod: paymentMethods.id,
         receiver,
         amount,
-        description: description || '',
+        information: description || '',
       });
     },
     close: () => {
