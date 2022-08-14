@@ -31,44 +31,22 @@ import Card from '../components/card.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/search-input.component';
-import { supabase } from '../supabase';
 import { AuthContext } from '../context/auth.context';
-import type { ISubscription } from '../types/transaction.interface';
+import type { IBaseSubscriptionDTO, ISubscription } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
 import { FormDrawer } from '../components/form-drawer.component';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
 import { DateService } from '../services/date.service';
 import { addMonths } from 'date-fns';
-import { getCategory, getPaymentMethod } from './transactions.route';
 import { StoreContext } from '../context/store.context';
+import { getCategoryFromList } from '../utils/getCategoryFromList';
+import { getPaymentMethodFromList } from '../utils/getPaymentMethodFromList';
+import { SubscriptionService } from '../services/subscription.service';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
   mb: 2,
 };
-
-export async function getSubscriptions(): Promise<ISubscription[] | null> {
-  return new Promise(async (res, rej) => {
-    const { data, error } = await supabase.from<ISubscription>('subscriptions').select(
-      `
-          id,
-          amount,
-          receiver,
-          description, 
-          execute_at,
-          updated_at,
-          inserted_at,
-          paymentMethods (
-            id, name, address, provider, description
-          ),
-          categories (
-            id, name, description
-          )`
-    );
-    if (error) rej(error);
-    res(data);
-  });
-}
 
 export function determineNextExecution(executeAt: Number) {
   const now = new Date();
@@ -134,7 +112,7 @@ export const Subscriptions = () => {
         if (!values.includes('receiver')) throw new Error('Provide an receiver');
         if (!values.includes('amount')) throw new Error('Provide an receiver');
 
-        const { data, error } = await supabase.from('subscriptions').insert([
+        const data = await SubscriptionService.createSubscriptions([
           {
             // @ts-ignore
             execute_at: addForm.execute_at ? addForm.execute_at.getDate() : new Date().getDate(),
@@ -145,12 +123,13 @@ export const Subscriptions = () => {
             description: addForm.information || null,
             // @ts-ignore
             created_by: session?.user?.id,
-          },
+          } as IBaseSubscriptionDTO,
         ]);
-        if (error) throw error;
+        if (data === null) throw new Error('No subscriptions created');
 
         setSubscriptions((prev) => [
           ...prev,
+          // @ts-ignore
           {
             ...data[0],
             categories: categories.find((value) => value.id === data[0].category),
@@ -231,13 +210,14 @@ export const Subscriptions = () => {
           created_by: session?.user?.id,
         };
 
-        const { data, error } = await supabase
-          .from('subscriptions')
-          .update(update)
-          .match({ id: editForm.id });
-        if (error) throw error;
+        const data = await SubscriptionService.updateSubscription(
+          Number(editForm.id),
+          update as IBaseSubscriptionDTO
+        );
+        if (data === null) throw new Error('No subscription updated');
 
         editFormHandler.close();
+        // @ts-ignore
         setSubscriptions((prev) =>
           prev.map((subscription) => {
             if (subscription.id === data[0].id) {
@@ -266,8 +246,8 @@ export const Subscriptions = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const { data, error } = await supabase.from('subscriptions').delete().match({ id: id });
-      if (error) throw error;
+      const data = await SubscriptionService.deleteSubscriptionById(id);
+      if (data === null) throw new Error('No subscription deleted');
       setSubscriptions((prev) => prev.filter((subscription) => subscription.id !== id));
       showSnackbar({ message: `Subscription ${data[0].receiver} deleted` });
     } catch (error) {
@@ -565,7 +545,7 @@ export const Subscriptions = () => {
                 id="edit-category"
                 options={categories.map((item) => ({ label: item.name, value: item.id }))}
                 sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
-                defaultValue={getCategory(Number(editForm.category), categories)}
+                defaultValue={getCategoryFromList(Number(editForm.category), categories)}
                 onChange={(event, value) =>
                   editFormHandler.autocompleteChange(event, 'category', Number(value?.value))
                 }
@@ -579,7 +559,10 @@ export const Subscriptions = () => {
                   label: `${name} • ${provider}`,
                   value: id,
                 }))}
-                defaultValue={getPaymentMethod(Number(editForm.paymentMethod), paymentMethods)}
+                defaultValue={getPaymentMethodFromList(
+                  Number(editForm.paymentMethod),
+                  paymentMethods
+                )}
                 onChange={(event, value) =>
                   editFormHandler.autocompleteChange(event, 'paymentMethod', Number(value?.value))
                 }

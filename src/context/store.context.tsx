@@ -9,10 +9,10 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { getCategories } from '../routes/categories.route';
-import { getPaymentMethods } from '../routes/payment-method.route';
-import { getSubscriptions } from '../routes/subscriptions.route';
-import { getTransactions } from '../routes/transactions.route';
+import { CategoryService } from '../services/category.service';
+import { PaymentMethodService } from '../services/payment-method.service';
+import { SubscriptionService } from '../services/subscription.service';
+import { TransactionService } from '../services/transaction.service';
 import type {
   ICategory,
   IPaymentMethod,
@@ -51,7 +51,12 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([getSubscriptions(), getTransactions(), getCategories(), getPaymentMethods()])
+    Promise.all([
+      SubscriptionService.getSubscriptions(),
+      TransactionService.getTransactions(),
+      CategoryService.getCategories(),
+      PaymentMethodService.getPaymentMethods(),
+    ])
       .then(([getSubscriptions, getTransactions, getCategories, getPaymentMethods]) => {
         if (getSubscriptions) {
           setSubscriptions(getSubscriptions);

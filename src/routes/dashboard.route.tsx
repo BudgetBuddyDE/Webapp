@@ -29,7 +29,13 @@ import { Stats, StatsProps, StatsIconStyle } from '../components/stats-card.comp
 import { Transaction } from '../components/transaction.component';
 import Card from '../components/card.component';
 import { PieChart } from '../components/spendings-chart.component';
-import type { IExpense, ISubscription, ITransaction } from '../types/transaction.interface';
+import type {
+  IBaseTransactionDTO,
+  IBaseSubscriptionDTO,
+  IExpense,
+  ISubscription,
+  ITransaction,
+} from '../types/transaction.interface';
 import { FormDrawer } from '../components/form-drawer.component';
 import { DateService } from '../services/date.service';
 import { determineNextExecution } from '../routes/subscriptions.route';
@@ -39,6 +45,8 @@ import { isSameMonth } from 'date-fns/esm';
 import { SnackbarContext } from '../context/snackbar.context';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
 import { StoreContext } from '../context/store.context';
+import { SubscriptionService } from '../services/subscription.service';
+import { TransactionService } from '../services/transaction.service';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -102,20 +110,22 @@ export const Dashboard = () => {
         if (!values.includes('receiver')) throw new Error('Provide an receiver');
         if (!values.includes('amount')) throw new Error('Provide an amount');
 
-        const { data, error } = await supabase.from('transactions').insert({
-          date: addTransactionForm.date || new Date(),
-          category: addTransactionForm.category,
-          paymentMethod: addTransactionForm.paymentMethod,
-          receiver: addTransactionForm.receiver,
-          amount:
-            typeof addTransactionForm.amount === 'string'
-              ? Number(addTransactionForm.amount)
-              : addTransactionForm.amount,
-          description: addTransactionForm.information || null,
-          // @ts-ignore
-          created_by: session?.user?.id,
-        });
-        if (error) throw error;
+        const data = await TransactionService.createTransactions([
+          {
+            date: addTransactionForm.date || new Date(),
+            category: addTransactionForm.category,
+            paymentMethod: addTransactionForm.paymentMethod,
+            receiver: addTransactionForm.receiver,
+            amount:
+              typeof addTransactionForm.amount === 'string'
+                ? Number(addTransactionForm.amount)
+                : addTransactionForm.amount,
+            description: addTransactionForm.information || null,
+            // @ts-ignore
+            created_by: session?.user?.id,
+          } as IBaseTransactionDTO,
+        ]);
+        if (data === null) throw new Error('No transaction created');
 
         const newTransaction = {
           ...data[0],
@@ -176,7 +186,7 @@ export const Dashboard = () => {
         if (!values.includes('receiver')) throw new Error('Provide an receiver');
         if (!values.includes('amount')) throw new Error('Provide an receiver');
 
-        const { data, error } = await supabase.from('subscriptions').insert([
+        const data = await SubscriptionService.createSubscriptions([
           {
             // @ts-ignore
             execute_at: addSubscriptionForm.execute_at.getDate() || new Date().getDate(),
@@ -187,12 +197,13 @@ export const Dashboard = () => {
             description: addSubscriptionForm.information || null,
             // @ts-ignore
             created_by: session?.user?.id,
-          },
+          } as IBaseSubscriptionDTO,
         ]);
-        if (error) throw error;
+        if (data === null) throw new Error('No subscription created');
 
         setSubscriptions((prev) => [
           ...prev,
+          // @ts-ignore
           {
             ...data[0],
             categories: categories.find((value) => value.id === data[0].category),

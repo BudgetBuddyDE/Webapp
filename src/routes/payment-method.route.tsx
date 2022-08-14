@@ -1,48 +1,37 @@
 import { ChangeEvent, useContext, useEffect, useState } from 'react';
-import Grid from '@mui/material/Grid';
-import Card from '../components/card.component';
-import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
-import AddIcon from '@mui/icons-material/Add';
-import TablePagination from '@mui/material/TablePagination';
-import TableContainer from '@mui/material/TableContainer';
-import Table from '@mui/material/Table';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
-import TableBody from '@mui/material/TableBody';
-import TextField from '@mui/material/TextField';
-import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
+import {
+  Grid,
+  Box,
+  Tooltip,
+  IconButton,
+  TablePagination,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  TextField,
+  Alert,
+  Button,
+} from '@mui/material';
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { SxProps, Theme } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import Card from '../components/card.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/search-input.component';
-import { supabase } from '../supabase';
 import { AuthContext } from '../context/auth.context';
 import type { IPaymentMethod } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
 import { FormDrawer } from '../components/form-drawer.component';
 import { StoreContext } from '../context/store.context';
+import { PaymentMethodService } from '../services/payment-method.service';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
   mb: 2,
 };
-
-export async function getPaymentMethods(): Promise<IPaymentMethod[] | null> {
-  return new Promise(async (res, rej) => {
-    const { data, error } = await supabase
-      .from<IPaymentMethod>('paymentMethods')
-      .select('*')
-      .order('name', { ascending: true });
-    if (error) rej(error);
-    res(data);
-  });
-}
 
 export const PaymentMethods = () => {
   const { session } = useContext(AuthContext);
@@ -88,7 +77,7 @@ export const PaymentMethods = () => {
         if (!values.includes('address')) throw new Error('Provide an address');
         if (!values.includes('provider')) throw new Error('Provide an provider');
 
-        const { data, error } = await supabase.from('paymentMethods').insert([
+        const data = await PaymentMethodService.createPaymentMethods([
           {
             name: addForm.name,
             address: addForm.address,
@@ -96,9 +85,9 @@ export const PaymentMethods = () => {
             description: addForm.description || null,
             // @ts-ignore
             created_by: session?.user.id,
-          },
+          } as IPaymentMethod,
         ]);
-        if (error) throw error;
+        if (data === null) throw new Error('No payment-method created');
 
         setPaymentMethods((prev) => [...prev, ...data]);
         addFormHandler.close();
@@ -141,12 +130,11 @@ export const PaymentMethods = () => {
           created_by: session?.user.id,
         };
 
-        const { data, error } = await supabase
-          .from<IPaymentMethod>('paymentMethods')
-          // @ts-ignore
-          .update(update)
-          .match({ id: editForm.id });
-        if (error) throw error;
+        const data = await PaymentMethodService.updatePaymentMethod(
+          Number(editForm.id),
+          update as Partial<IPaymentMethod>
+        );
+        if (data === null) throw new Error('No payment-method updated');
 
         setPaymentMethods((prev) =>
           prev.map((paymentMethod) => {
@@ -176,11 +164,8 @@ export const PaymentMethods = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const { data, error } = await supabase
-        .from<IPaymentMethod>('paymentMethods')
-        .delete()
-        .match({ id: id });
-      if (error) throw error;
+      const data = await PaymentMethodService.deletePaymentMethodById(id);
+      if (data === null) throw new Error('No payment-method deleted');
       setPaymentMethods((prev) => prev.filter((paymentMethod) => paymentMethod.id !== id));
       showSnackbar({ message: `Payment Method ${data[0].name} deleted` });
     } catch (error) {

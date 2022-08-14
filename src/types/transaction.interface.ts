@@ -71,6 +71,15 @@ export interface IBaseSubscription {
   description: string | null;
   execute_at: number;
 }
+export interface IBaseSubscriptionDTO {
+  id?: number;
+  category: number;
+  paymentMethod: number;
+  receiver: string;
+  amount: number;
+  description: string | null;
+  execute_at: number;
+}
 
 export interface ISubscription extends IBaseSubscription {
   id: number;

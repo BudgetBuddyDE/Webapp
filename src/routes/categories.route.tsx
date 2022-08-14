@@ -1,48 +1,37 @@
 import { ChangeEvent, useContext, useEffect, useState } from 'react';
-import Grid from '@mui/material/Grid';
-import Card from '../components/card.component';
-import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
-import AddIcon from '@mui/icons-material/Add';
-import TablePagination from '@mui/material/TablePagination';
-import TableContainer from '@mui/material/TableContainer';
-import Table from '@mui/material/Table';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
-import TableBody from '@mui/material/TableBody';
-import TextField from '@mui/material/TextField';
-import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
+import {
+  Grid,
+  Box,
+  Tooltip,
+  IconButton,
+  TablePagination,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  TextField,
+  Alert,
+  Button,
+} from '@mui/material';
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { SxProps, Theme } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import Card from '../components/card.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/search-input.component';
-import { supabase } from '../supabase';
 import { AuthContext } from '../context/auth.context';
 import type { ICategory } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
 import { FormDrawer } from '../components/form-drawer.component';
 import { StoreContext } from '../context/store.context';
+import { CategoryService } from '../services/category.service';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
   mb: 2,
 };
-
-export async function getCategories(): Promise<ICategory[] | null> {
-  return new Promise(async (res, rej) => {
-    const { data, error } = await supabase
-      .from<ICategory>('categories')
-      .select('*')
-      .order('name', { ascending: true });
-    if (error) rej(error);
-    res(data);
-  });
-}
 
 export const Categories = () => {
   const { session } = useContext(AuthContext);
@@ -84,15 +73,15 @@ export const Categories = () => {
         const values = Object.keys(addForm);
         if (!values.includes('name')) throw new Error('Provide an name');
 
-        const { data, error } = await supabase.from('categories').insert([
+        const data = await CategoryService.createCategories([
           {
             name: addForm.name,
             description: addForm.description || null,
             // @ts-ignore
             created_by: session?.user.id,
-          },
+          } as ICategory,
         ]);
-        if (error) throw error;
+        if (data === null) throw new Error('No category created');
 
         setCategories((prev) => [...prev, ...data]);
         addFormHandler.close();
@@ -131,12 +120,11 @@ export const Categories = () => {
           created_by: session?.user.id,
         };
 
-        const { data, error } = await supabase
-          .from<ICategory>('categories')
-          // @ts-ignore
-          .update(update)
-          .match({ id: editForm.id });
-        if (error) throw error;
+        const data = await CategoryService.updateCategory(
+          Number(editForm.id),
+          update as Partial<ICategory>
+        );
+        if (data === null) throw new Error('No category updated');
 
         setCategories((prev) =>
           prev.map((category) => {
@@ -164,11 +152,8 @@ export const Categories = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const { data, error } = await supabase
-        .from<ICategory>('categories')
-        .delete()
-        .match({ id: id });
-      if (error) throw error;
+      const data = await CategoryService.deleteCategoryById(id);
+      if (data === null) throw new Error('No category deleted');
       setCategories((prev) => prev.filter((category) => category.id !== id));
       showSnackbar({ message: `Category ${data[0].name} deleted` });
     } catch (error) {

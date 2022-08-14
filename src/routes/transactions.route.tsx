@@ -33,45 +33,15 @@ import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/search-input.component';
 import { supabase } from '../supabase';
 import { AuthContext } from '../context/auth.context';
-import type {
-  IBaseTransactionDTO,
-  ICategory,
-  IPaymentMethod,
-  ITransaction,
-} from '../types/transaction.interface';
+import type { IBaseTransactionDTO, ITransaction } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
 import { FormDrawer } from '../components/form-drawer.component';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
 import { format } from 'date-fns';
 import { StoreContext } from '../context/store.context';
-
-export function getCategory(
-  categoryId: number,
-  categories: ICategory[]
-): { label: string; value: number } {
-  const match = categories.find((category) => category.id === categoryId);
-  if (!match) {
-    const { id, name } = categories[0]; // Fallback
-    return {
-      label: name,
-      value: id,
-    };
-  } else return { label: match?.name, value: match.id };
-}
-
-export function getPaymentMethod(
-  paymentMethodId: number,
-  paymentMethods: IPaymentMethod[]
-): { label: string; value: number } {
-  const match = paymentMethods.find((paymentMethod) => paymentMethod.id === paymentMethodId);
-  if (!match) {
-    const { id, name, provider } = paymentMethods[0];
-    return {
-      label: `${name} • ${provider}`,
-      value: id,
-    };
-  } else return { label: `${match?.name} • ${match?.provider}`, value: match.id };
-}
+import { getCategoryFromList } from '../utils/getCategoryFromList';
+import { getPaymentMethodFromList } from '../utils/getPaymentMethodFromList';
+import { TransactionService } from '../services/transaction.service';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -161,17 +131,19 @@ export const Transactions = () => {
         if (!values.includes('receiver')) throw new Error('Provide an receiver');
         if (!values.includes('amount')) throw new Error('Provide an amount');
 
-        const { data, error } = await supabase.from('transactions').insert({
-          date: addForm.date || new Date(),
-          category: addForm.category,
-          paymentMethod: addForm.paymentMethod,
-          receiver: addForm.receiver,
-          amount: typeof addForm.amount === 'string' ? Number(addForm.amount) : addForm.amount,
-          description: addForm.information || null,
-          // @ts-ignore
-          created_by: session?.user?.id,
-        });
-        if (error) throw error;
+        const data = await TransactionService.createTransactions([
+          {
+            date: addForm.date || new Date(),
+            category: addForm.category,
+            paymentMethod: addForm.paymentMethod,
+            receiver: addForm.receiver,
+            amount: typeof addForm.amount === 'string' ? Number(addForm.amount) : addForm.amount,
+            description: addForm.information || null,
+            // @ts-ignore
+            created_by: session?.user?.id,
+          } as IBaseTransactionDTO,
+        ]);
+        if (data === null) throw new Error('No transaction created');
 
         setTransactions((prev) => [
           {
@@ -253,13 +225,14 @@ export const Transactions = () => {
           created_by: session?.user?.id,
         };
 
-        const { data, error } = await supabase
-          .from('transactions')
-          .update(update)
-          .match({ id: editForm.id });
-        if (error) throw error;
+        const data = await TransactionService.updateTransaction(
+          Number(editForm.id),
+          update as IBaseTransactionDTO
+        );
+        if (data === null) throw new Error('No transaction updated');
 
         editFormHandler.close();
+        // @ts-ignore
         setTransactions((prev) =>
           prev.map((transaction) => {
             if (transaction.id === data[0].id) {
@@ -288,11 +261,8 @@ export const Transactions = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const { data, error } = await supabase
-        .from<IBaseTransactionDTO>('transactions')
-        .delete()
-        .match({ id: id });
-      if (error) throw error;
+      const data = await TransactionService.deleteTransactionById(id);
+      if (data === null) throw new Error('No transaction deleted');
       setTransactions((prev) => prev.filter((transaction) => transaction.id !== id));
       showSnackbar({ message: `Transaction ${data[0].receiver} deleted` });
     } catch (error) {
@@ -591,7 +561,7 @@ export const Transactions = () => {
                 id="edit-category"
                 options={categories.map((item) => ({ label: item.name, value: item.id }))}
                 sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
-                defaultValue={getCategory(Number(editForm.category), categories)}
+                defaultValue={getCategoryFromList(Number(editForm.category), categories)}
                 onChange={(event, value) =>
                   editFormHandler.autocompleteChange(event, 'category', Number(value?.value))
                 }
@@ -605,7 +575,10 @@ export const Transactions = () => {
                   label: `${name} • ${provider}`,
                   value: id,
                 }))}
-                defaultValue={getPaymentMethod(Number(editForm.paymentMethod), paymentMethods)}
+                defaultValue={getPaymentMethodFromList(
+                  Number(editForm.paymentMethod),
+                  paymentMethods
+                )}
                 onChange={(event, value) =>
                   editFormHandler.autocompleteChange(event, 'paymentMethod', Number(value?.value))
                 }
