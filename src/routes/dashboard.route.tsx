@@ -249,8 +249,18 @@ export const Dashboard = () => {
                   subscription.amount < 0 && subscription.execute_at > new Date().getDate()
               )
               .reduce((prev, cur) => prev + cur.amount, 0)
+          ) +
+          Math.abs(
+            transactions
+              .filter(
+                (transaction) =>
+                  transaction.amount < 0 &&
+                  new Date(transaction.date) > new Date() &&
+                  isSameMonth(new Date(transaction.date), new Date())
+              )
+              .reduce((prev, cur) => prev + cur.amount, 0)
           ),
-        [subscriptions]
+        [subscriptions, transactions]
       ).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }),
       subtitle: 'Upcoming Payments',
       icon: <PaymentsIcon sx={StatsIconStyle} />,
