@@ -550,7 +550,7 @@ export const Dashboard = () => {
                 id="add-amount"
                 label="Amount"
                 name="amount"
-                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                inputProps={{ inputMode: 'numeric' }}
                 onChange={transactionFormHandler.inputChange}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
               />
@@ -672,7 +672,7 @@ export const Dashboard = () => {
                 id="add-amount"
                 label="Amount"
                 name="amount"
-                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                inputProps={{ inputMode: 'numeric' }}
                 onChange={subscriptionFormHandler.inputChange}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
               />

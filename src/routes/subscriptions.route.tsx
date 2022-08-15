@@ -473,7 +473,7 @@ export const Subscriptions = () => {
                 id="add-amount"
                 label="Amount"
                 name="amount"
-                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                inputProps={{ inputMode: 'numeric' }}
                 onChange={addFormHandler.inputChange}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
               />
@@ -595,7 +595,7 @@ export const Subscriptions = () => {
                 name="amount"
                 label="Amount"
                 defaultValue={editForm.amount}
-                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                inputProps={{ inputMode: 'numeric' }}
                 onChange={editFormHandler.inputChange}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
               />
