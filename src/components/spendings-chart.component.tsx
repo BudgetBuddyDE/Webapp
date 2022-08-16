@@ -4,6 +4,7 @@ import { Pie } from '@visx/shape';
 import { Group } from '@visx/group';
 import { scaleOrdinal } from '@visx/scale';
 import ParentSize from '@visx/responsive/lib/components/ParentSizeModern';
+import { Tooltip } from '@mui/material';
 import type { IExpense } from '../types/transaction.interface';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
 
@@ -66,10 +67,19 @@ export const PieChart: FC<{ expenses: IExpense[] }> = ({ expenses }) => {
                       return (
                         <>
                           <g key={`pie-arc-${i}`}>
-                            <path
-                              d={pie.path(arc) || ''}
-                              fill={getCategoryColor(arc.data.category.name)}
-                            />
+                            <Tooltip
+                              title={`${arc.data.category.name}: ${Math.abs(
+                                arc.data.sum
+                              ).toLocaleString('de', {
+                                style: 'currency',
+                                currency: 'EUR',
+                              })}`}
+                            >
+                              <path
+                                d={pie.path(arc) || ''}
+                                fill={getCategoryColor(arc.data.category.name)}
+                              />
+                            </Tooltip>
                             {hasSpaceForLabel && (
                               <g>
                                 <text
@@ -92,7 +102,10 @@ export const PieChart: FC<{ expenses: IExpense[] }> = ({ expenses }) => {
                                   textAnchor="middle"
                                   pointerEvents="none"
                                 >
-                                  {Math.abs(arc.data.sum).toFixed(2) + ' ' + CURRENCY}
+                                  {Math.abs(arc.data.sum).toLocaleString('de', {
+                                    style: 'currency',
+                                    currency: 'EUR',
+                                  })}
                                 </text>
                                 <text
                                   fill="white"
