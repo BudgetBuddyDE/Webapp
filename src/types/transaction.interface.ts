@@ -4,6 +4,8 @@ export interface IExpense {
   created_by: string;
 }
 
+export interface IIncome extends IExpense {}
+
 export interface IBaseTransactionDTO {
   id?: number;
   category: number;

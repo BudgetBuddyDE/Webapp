@@ -24,7 +24,6 @@ export const PieChart: FC<{ expenses: IExpense[] }> = ({ expenses }) => {
 
   const DONUT_THICKNESS = screenSize === 'small' ? 75 : 100;
   const TOTAL_SPENDINGS = expenses.map(getAbsoluteAmount).reduce((prev, cur) => prev + cur, 0);
-  const CURRENCY = '€';
 
   const getCategoryColor = scaleOrdinal({
     domain: CATEGORY_NAMES,

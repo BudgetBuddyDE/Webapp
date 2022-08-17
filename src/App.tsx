@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import { Dashboard } from './routes/dashboard.route';
 import { Transactions } from './routes/transactions.route';
+import { Budget } from './routes/budget.route';
 import { Subscriptions } from './routes/subscriptions.route';
 import { PaymentMethods } from './routes/payment-method.route';
 import { Categories } from './routes/categories.route';
@@ -15,6 +16,8 @@ import { ProtectedRoute } from './components/protected-route.component';
 import Drawer from './components/drawer.component';
 import { RequestReset } from './routes/request-reset';
 import { ResetPassword } from './routes/reset-password.route';
+
+import Test from './routes/test.route';
 
 export const App: React.FC = () => {
   return (
@@ -58,6 +61,14 @@ export const App: React.FC = () => {
                 }
               />
               <Route
+                path="/budget"
+                element={
+                  <ProtectedRoute>
+                    <Budget />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/subscriptions"
                 element={
                   <ProtectedRoute>
@@ -85,6 +96,7 @@ export const App: React.FC = () => {
               <Route path="/request-reset" element={<RequestReset />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/sign-up" element={<SignUp />} />
+              <Route path="/test" element={<Test width={1000} height={750} />} />
             </Routes>
           </Container>
           <Box
