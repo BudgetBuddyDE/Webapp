@@ -1,12 +1,16 @@
 import { FC } from 'react';
-import Typography from '@mui/material/Typography';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import { Typography, Box, Tooltip } from '@mui/material';
+import {
+  AccountBalanceWallet as AccountBalanceWalletIcon,
+  Info as InfoIcon,
+} from '@mui/icons-material';
 import { SxProps, Theme } from '@mui/material/styles';
 import Card from '../components/card.component';
 
 export interface StatsProps {
   title: string;
   subtitle: string;
+  info?: string;
   icon?: JSX.Element;
 }
 
@@ -22,13 +26,25 @@ export const StatsIconStyle: SxProps<Theme> = {
 export const Stats: FC<StatsProps> = ({
   title,
   subtitle,
+  info = '',
   icon = <AccountBalanceWalletIcon sx={StatsIconStyle} />,
 }) => {
   return (
     <Card sx={{ position: 'relative', textAlign: 'right', overflow: 'hidden' }}>
       {icon}
       <Typography variant="h4">{title}</Typography>
-      <Typography variant="h6">{subtitle}</Typography>
+      <Tooltip title={info}>
+        <Box
+          display="flex"
+          flexDirection="row"
+          justifyContent="flex-end"
+          alignItems="center"
+          flexShrink={1}
+        >
+          <Typography variant="h6">{subtitle}</Typography>
+          {info && <InfoIcon sx={{ ml: '.25rem', fontSize: '.9rem' }} />}
+        </Box>
+      </Tooltip>
     </Card>
   );
 };
