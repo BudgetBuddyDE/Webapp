@@ -68,17 +68,12 @@ export const CategoryBudget: FC<ICategoryBudgetProps> = ({
                 budget >= amount ? theme.palette.success.main : theme.palette.error.main,
             }}
           >
-            {budget >= amount ? (
-              <TrendingUpIcon sx={{ mr: 0.5 }} />
-            ) : (
-              <TrendingDownIcon sx={{ mr: 0.5 }} />
-            )}
-            {(budget - amount).toLocaleString('de', { style: 'currency', currency: 'EUR' })}
+            {amount.toLocaleString('de', { style: 'currency', currency: 'EUR' })}
           </Typography>
         </Tooltip>
 
         <Typography fontWeight="bold">
-          {amount.toLocaleString('de', { style: 'currency', currency: 'EUR' })}
+          {budget.toLocaleString('de', { style: 'currency', currency: 'EUR' })}
         </Typography>
       </Box>
     </Box>
