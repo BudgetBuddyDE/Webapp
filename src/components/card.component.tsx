@@ -8,13 +8,23 @@ export interface ICardProps extends PropsWithChildren {
   sx?: SxProps<Theme>;
 }
 
+export interface ICardSectionProps extends PropsWithChildren {
+  sx?: SxProps<Theme>;
+}
+
 const Card: FC<ICardProps> = ({ children, sx }) => {
   return <Paper sx={{ p: 2, ...sx }}>{children}</Paper>;
 };
 
-const Header: FC<PropsWithChildren> = ({ children }) => {
+const Header: FC<ICardSectionProps> = ({ children, sx }) => {
   return (
-    <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap">
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      flexWrap="wrap"
+      sx={{ ...sx }}
+    >
       {children}
     </Box>
   );
@@ -40,12 +50,12 @@ const Subtitle: FC<PropsWithChildren> = ({ children }) => {
   return <Typography variant="subtitle2">{children}</Typography>;
 };
 
-const Body: FC<PropsWithChildren> = ({ children }) => {
-  return <Box>{children}</Box>;
+const Body: FC<ICardSectionProps> = ({ children, sx }) => {
+  return <Box sx={{ ...sx }}>{children}</Box>;
 };
 
-const Footer: FC<PropsWithChildren> = ({ children }) => {
-  return <Box>{children}</Box>;
+const Footer: FC<ICardSectionProps> = ({ children, sx }) => {
+  return <Box sx={{ ...sx }}>{children}</Box>;
 };
 
 export default Object.assign(Card, {
