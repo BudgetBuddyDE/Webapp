@@ -1,3 +1,4 @@
+import { appendFile } from 'fs';
 import {
   createContext,
   Dispatch,
@@ -9,6 +10,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { isConstructorDeclaration } from 'typescript';
 import { CategoryService } from '../services/category.service';
 import { PaymentMethodService } from '../services/payment-method.service';
 import { SubscriptionService } from '../services/subscription.service';
@@ -19,6 +21,7 @@ import type {
   ISubscription,
   ITransaction,
 } from '../types/transaction.interface';
+import { determineNextExecutionDate } from '../utils/determineNextExecution';
 import { AuthContext } from './auth.context';
 
 export interface IStoreContext {
@@ -59,7 +62,18 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
     ])
       .then(([getSubscriptions, getTransactions, getCategories, getPaymentMethods]) => {
         if (getSubscriptions) {
-          setSubscriptions(getSubscriptions);
+          setSubscriptions(
+            getSubscriptions.sort(function (a, b) {
+              const today = new Date();
+              // It does work fine for dates
+              return (
+                // @ts-ignore
+                Math.abs(today - determineNextExecutionDate(a.execute_at)) -
+                // @ts-ignore
+                Math.abs(today - determineNextExecutionDate(b.execute_at))
+              );
+            })
+          );
         } else setSubscriptions([]);
 
         if (getTransactions) {
