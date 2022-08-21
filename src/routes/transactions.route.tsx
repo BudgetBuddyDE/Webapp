@@ -140,7 +140,7 @@ export const Transactions = () => {
             paymentMethod: addForm.paymentMethod,
             receiver: addForm.receiver,
             amount: transformBalance(addForm.amount.toString()),
-            description: addForm.information || null,
+            description: addForm.description || null,
             // @ts-ignore
             created_by: session?.user?.id,
           } as IBaseTransactionDTO,
@@ -184,7 +184,7 @@ export const Transactions = () => {
         paymentMethod: paymentMethods.id,
         receiver,
         amount,
-        information: description || '',
+        description: description || '',
       });
     },
     close: () => {
@@ -223,7 +223,7 @@ export const Transactions = () => {
           paymentMethod: editForm.paymentMethod,
           receiver: editForm.receiver,
           amount: transformBalance(editForm.amount.toString()),
-          description: editForm.information || null,
+          description: editForm.description || null,
           // @ts-ignore
           created_by: session?.user?.id,
         };
@@ -285,6 +285,7 @@ export const Transactions = () => {
     setShownTransactions(
       transactions.filter(
         (item) =>
+          item.receiver.toLowerCase().includes(keyword) ||
           item.categories.name.toLowerCase().includes(keyword) ||
           item.paymentMethods.name.toLowerCase().includes(keyword) ||
           item.description?.toString().toLowerCase().includes(keyword)
@@ -499,7 +500,7 @@ export const Transactions = () => {
               id="add-information"
               variant="outlined"
               label="Information"
-              name="information"
+              name="description"
               sx={{ ...FormStyle, mb: 0 }}
               multiline
               rows={3}
@@ -619,7 +620,7 @@ export const Transactions = () => {
               id="edit-information"
               variant="outlined"
               label="Information"
-              name="information"
+              name="description"
               sx={{ ...FormStyle, mb: 0 }}
               multiline
               rows={3}

@@ -122,7 +122,7 @@ export const Subscriptions = () => {
             paymentMethod: addForm.paymentMethod,
             receiver: addForm.receiver,
             amount: transformBalance(addForm.amount.toString()),
-            description: addForm.information || null,
+            description: addForm.description || null,
             // @ts-ignore
             created_by: session?.user?.id,
           } as IBaseSubscriptionDTO,
@@ -169,7 +169,7 @@ export const Subscriptions = () => {
         paymentMethod: paymentMethods.id,
         receiver,
         amount,
-        information: description || '',
+        description: description || '',
       });
     },
     close: () => {
@@ -208,7 +208,7 @@ export const Subscriptions = () => {
           paymentMethod: editForm.paymentMethod,
           receiver: editForm.receiver,
           amount: transformBalance(editForm.amount.toString()),
-          description: editForm.information || null,
+          description: editForm.description || null,
           // @ts-ignore
           created_by: session?.user?.id,
         };
@@ -483,7 +483,7 @@ export const Subscriptions = () => {
               id="add-information"
               variant="outlined"
               label="Information"
-              name="information"
+              name="description"
               sx={{ ...FormStyle, mb: 0 }}
               multiline
               rows={3}
@@ -605,7 +605,7 @@ export const Subscriptions = () => {
               id="edit-information"
               variant="outlined"
               label="Information"
-              name="information"
+              name="description"
               sx={{ ...FormStyle, mb: 0 }}
               multiline
               rows={3}
