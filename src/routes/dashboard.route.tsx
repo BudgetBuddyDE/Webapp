@@ -39,7 +39,6 @@ import type {
 import { FormDrawer } from '../components/form-drawer.component';
 import { DateService } from '../services/date.service';
 import { determineNextExecution } from '../routes/subscriptions.route';
-import { supabase } from '../supabase';
 import { CircularProgress } from '../components/progress.component';
 import { isSameMonth } from 'date-fns/esm';
 import { SnackbarContext } from '../context/snackbar.context';
@@ -48,6 +47,7 @@ import { StoreContext } from '../context/store.context';
 import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
 import { transformBalance } from '../utils/transformBalance';
+import { ExpenseService } from '../services/expense.service';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -120,8 +120,7 @@ export const Dashboard = () => {
             receiver: addTransactionForm.receiver,
             amount: transformBalance(addTransactionForm.amount.toString()),
             description: addTransactionForm.information || null,
-            // @ts-ignore
-            created_by: session?.user?.id,
+            created_by: session!.user!.id,
           } as IBaseTransactionDTO,
         ]);
         if (data === null) throw new Error('No transaction created');
@@ -195,8 +194,7 @@ export const Dashboard = () => {
             receiver: addSubscriptionForm.receiver,
             amount: transformBalance(addSubscriptionForm.amount.toString()),
             description: addSubscriptionForm.information || null,
-            // @ts-ignore
-            created_by: session?.user?.id,
+            created_by: session!.user!.id,
           } as IBaseSubscriptionDTO,
         ]);
         if (data === null) throw new Error('No subscription created');
@@ -291,29 +289,21 @@ export const Dashboard = () => {
   useEffect(() => {
     setLoading(false);
     Promise.all([
-      supabase
-        .from<IExpense>('CurrentMonthExpenses')
-        .select('*')
-        // @ts-ignore
-        .eq('created_by', session?.user?.id),
-      supabase
-        .from<IExpense>('AllTimeExpenses')
-        .select('*')
-        // @ts-ignore
-        .eq('created_by', session?.user?.id),
+      ExpenseService.getCurrentMonthExpenses(session!.user!.id),
+      ExpenseService.getAllTimeExpenses(session!.user!.id),
     ])
       .then(([getCurrentMonthExpenses, getAllTimeExpenses]) => {
-        if (getCurrentMonthExpenses.data) {
-          setCurrentMonthExpenses(getCurrentMonthExpenses.data);
+        if (getCurrentMonthExpenses) {
+          setCurrentMonthExpenses(getCurrentMonthExpenses);
         } else setCurrentMonthExpenses([]);
 
-        if (getAllTimeExpenses.data) {
-          setAllTimeExpenses(getAllTimeExpenses.data);
+        if (getAllTimeExpenses) {
+          setAllTimeExpenses(getAllTimeExpenses);
         } else setAllTimeExpenses([]);
       })
       .catch((error) => console.error(error))
       .finally(() => setLoading(false));
-  }, [session?.user?.id]);
+  }, [session]);
 
   return (
     <Grid container spacing={3}>
