@@ -118,8 +118,7 @@ export const Categories = () => {
         const update = {
           name: editForm.name,
           description: editForm.description || null,
-          // @ts-ignore
-          created_by: session?.user.id,
+          created_by: session!.user!.id,
         };
 
         const data = await CategoryService.updateCategory(

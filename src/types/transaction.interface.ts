@@ -1,11 +1,14 @@
-export interface IExpense {
+export type IExpense = {
   sum: number;
   category: { id: number; name: string; description: string | null };
   created_by: string;
-}
+};
 
-export interface IIncome extends IExpense {}
-
+export type IIncome = {
+  sum: number;
+  category: { id: number; name: string; description: string | null };
+  created_by: string;
+};
 export interface IBaseTransactionDTO {
   id?: number;
   category: number;
