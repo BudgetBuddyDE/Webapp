@@ -43,19 +43,12 @@ import { getCategoryFromList } from '../utils/getCategoryFromList';
 import { getPaymentMethodFromList } from '../utils/getPaymentMethodFromList';
 import { SubscriptionService } from '../services/subscription.service';
 import { transformBalance } from '../utils/transformBalance';
+import { determineNextExecution } from '../utils/determineNextExecution';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
   mb: 2,
 };
-
-export function determineNextExecution(executeAt: Number) {
-  const now = new Date();
-  const today = now.getDate();
-  if (executeAt >= today) {
-    return `${executeAt} ${DateService.shortMonthName(now)}.`;
-  } else return `${executeAt} ${DateService.shortMonthName(addMonths(now, 1))}.`;
-}
 
 export const Subscriptions = () => {
   const screenSize = useScreenSize();
