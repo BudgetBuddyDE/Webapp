@@ -48,6 +48,7 @@ import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
 import { transformBalance } from '../utils/transformBalance';
 import { ExpenseService } from '../services/expense.service';
+import { ReceiverAutocomplete } from '../components/receiver-autocomplete.component';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -62,6 +63,7 @@ export const Dashboard = () => {
     subscriptions,
     setSubscriptions,
     transactions,
+    transactionReceiver,
     setTransactions,
     categories,
     paymentMethods,
@@ -102,6 +104,9 @@ export const Dashboard = () => {
     },
     inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setAddTransactionForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    receiverChange: (value: string | number) => {
+      setAddTransactionForm((prev) => ({ ...prev, receiver: value }));
     },
     onSubmit: async (event: FormEvent<HTMLFormElement>) => {
       try {
@@ -175,6 +180,9 @@ export const Dashboard = () => {
     },
     inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setAddSubscriptionForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    receiverChange: (value: string | number) => {
+      setAddSubscriptionForm((prev) => ({ ...prev, receiver: value }));
     },
     onSubmit: async (event: FormEvent<HTMLFormElement>) => {
       try {
@@ -535,13 +543,12 @@ export const Dashboard = () => {
               />
             </Box>
 
-            <TextField
-              id="add-receiver"
-              variant="outlined"
-              label="Receiver"
-              name="receiver"
+            <ReceiverAutocomplete
               sx={FormStyle}
-              onChange={transactionFormHandler.inputChange}
+              id="add-receiver"
+              label="Receiver"
+              options={transactionReceiver}
+              onValueChange={transactionFormHandler.receiverChange}
             />
 
             <FormControl fullWidth sx={{ mb: 2 }}>
@@ -657,13 +664,12 @@ export const Dashboard = () => {
               />
             </Box>
 
-            <TextField
-              id="add-receiver"
-              variant="outlined"
-              label="Receiver"
-              name="receiver"
+            <ReceiverAutocomplete
               sx={FormStyle}
-              onChange={subscriptionFormHandler.inputChange}
+              id="add-receiver"
+              label="Receiver"
+              options={transactionReceiver}
+              onValueChange={subscriptionFormHandler.receiverChange}
             />
 
             <FormControl fullWidth sx={{ mb: 2 }}>

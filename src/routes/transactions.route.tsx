@@ -31,7 +31,6 @@ import Card from '../components/card.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/search-input.component';
-import { supabase } from '../supabase';
 import { AuthContext } from '../context/auth.context';
 import type { IBaseTransactionDTO, ITransaction } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
@@ -43,43 +42,24 @@ import { getCategoryFromList } from '../utils/getCategoryFromList';
 import { getPaymentMethodFromList } from '../utils/getPaymentMethodFromList';
 import { TransactionService } from '../services/transaction.service';
 import { transformBalance } from '../utils/transformBalance';
+import { ReceiverAutocomplete } from '../components/receiver-autocomplete.component';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
   mb: 2,
 };
 
-export async function getTransactions(): Promise<ITransaction[] | null> {
-  return new Promise(async (res, rej) => {
-    const { data, error } = await supabase
-      .from<ITransaction>('transactions')
-      .select(
-        `
-          id,
-          amount,
-          receiver,
-          description, 
-          date,
-          updated_at,
-          inserted_at,
-          paymentMethods (
-            id, name, address, provider, description
-          ),
-          categories (
-            id, name, description
-          )`
-      )
-      .order('date', { ascending: false });
-    if (error) rej(error);
-    res(data);
-  });
-}
-
 export const Transactions = () => {
   const { session } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, transactions, setTransactions, categories, paymentMethods } =
-    useContext(StoreContext);
+  const {
+    loading,
+    transactions,
+    transactionReceiver,
+    setTransactions,
+    categories,
+    paymentMethods,
+  } = useContext(StoreContext);
   const screenSize = useScreenSize();
   const rowsPerPageOptions = [10, 25, 50, 100];
   const [keyword, setKeyword] = useState('');
@@ -123,6 +103,9 @@ export const Transactions = () => {
     },
     inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setAddForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    receiverChange: (value: string | number) => {
+      setAddForm((prev) => ({ ...prev, receiver: value }));
     },
     save: async (event: FormEvent<HTMLFormElement>) => {
       try {
@@ -203,6 +186,9 @@ export const Transactions = () => {
     },
     inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setEditForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    receiverChange: (value: string | number) => {
+      setEditForm((prev) => ({ ...prev, receiver: value }));
     },
     save: async (event: FormEvent<HTMLFormElement>) => {
       try {
@@ -475,13 +461,12 @@ export const Transactions = () => {
               />
             </Box>
 
-            <TextField
-              id="add-receiver"
-              variant="outlined"
-              label="Receiver"
-              name="receiver"
+            <ReceiverAutocomplete
               sx={FormStyle}
-              onChange={addFormHandler.inputChange}
+              id="add-receiver"
+              label="Receiver"
+              options={transactionReceiver}
+              onValueChange={addFormHandler.receiverChange}
             />
 
             <FormControl fullWidth sx={{ mb: 2 }}>
@@ -593,14 +578,13 @@ export const Transactions = () => {
               />
             </Box>
 
-            <TextField
-              id="edit-receiver"
-              variant="outlined"
-              label="Receiver"
-              name="receiver"
+            <ReceiverAutocomplete
               sx={FormStyle}
-              defaultValue={editForm.receiver}
-              onChange={editFormHandler.inputChange}
+              id="edit-receiver"
+              label="Receiver"
+              options={transactionReceiver}
+              onValueChange={editFormHandler.receiverChange}
+              defaultValue={String(editForm.receiver)}
             />
 
             <FormControl fullWidth sx={{ mb: 2 }}>

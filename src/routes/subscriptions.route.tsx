@@ -36,14 +36,13 @@ import type { IBaseSubscriptionDTO, ISubscription } from '../types/transaction.i
 import { CircularProgress } from '../components/progress.component';
 import { FormDrawer } from '../components/form-drawer.component';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
-import { DateService } from '../services/date.service';
-import { addMonths } from 'date-fns';
 import { StoreContext } from '../context/store.context';
 import { getCategoryFromList } from '../utils/getCategoryFromList';
 import { getPaymentMethodFromList } from '../utils/getPaymentMethodFromList';
 import { SubscriptionService } from '../services/subscription.service';
 import { transformBalance } from '../utils/transformBalance';
 import { determineNextExecution } from '../utils/determineNextExecution';
+import { ReceiverAutocomplete } from '../components/receiver-autocomplete.component';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -54,8 +53,15 @@ export const Subscriptions = () => {
   const screenSize = useScreenSize();
   const { session } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, subscriptions, setSubscriptions, categories, paymentMethods } =
-    useContext(StoreContext);
+  const {
+    loading,
+    transactions,
+    transactionReceiver,
+    subscriptions,
+    setSubscriptions,
+    categories,
+    paymentMethods,
+  } = useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
   const [keyword, setKeyword] = useState('');
   const [shownSubscriptions, setShownSubscriptions] =
@@ -97,6 +103,9 @@ export const Subscriptions = () => {
     },
     inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setAddForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    receiverChange: (value: string | number) => {
+      setAddForm((prev) => ({ ...prev, receiver: value }));
     },
     save: async (event: FormEvent<HTMLFormElement>) => {
       try {
@@ -181,6 +190,9 @@ export const Subscriptions = () => {
     },
     inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setEditForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    },
+    receiverChange: (value: string | number) => {
+      setEditForm((prev) => ({ ...prev, receiver: value }));
     },
     save: async (event: FormEvent<HTMLFormElement>) => {
       try {
@@ -269,6 +281,8 @@ export const Subscriptions = () => {
       )
     );
   }, [keyword, subscriptions]);
+
+  useEffect(() => console.log(editForm), [editForm]);
 
   return (
     <Grid container spacing={3}>
@@ -451,13 +465,12 @@ export const Subscriptions = () => {
               />
             </Box>
 
-            <TextField
-              id="add-receiver"
-              variant="outlined"
-              label="Receiver"
-              name="receiver"
+            <ReceiverAutocomplete
               sx={FormStyle}
-              onChange={addFormHandler.inputChange}
+              id="add-receiver"
+              label="Receiver"
+              options={transactionReceiver}
+              onValueChange={addFormHandler.receiverChange}
             />
 
             <FormControl fullWidth sx={{ mb: 2 }}>
@@ -571,14 +584,13 @@ export const Subscriptions = () => {
               />
             </Box>
 
-            <TextField
-              id="edit-receiver"
-              variant="outlined"
-              label="Receiver"
-              name="receiver"
+            <ReceiverAutocomplete
               sx={FormStyle}
-              defaultValue={editForm.receiver}
-              onChange={editFormHandler.inputChange}
+              id="edit-receiver"
+              label="Receiver"
+              options={transactionReceiver}
+              onValueChange={editFormHandler.receiverChange}
+              defaultValue={String(editForm.receiver)}
             />
 
             <FormControl fullWidth sx={{ mb: 2 }}>

@@ -1,4 +1,3 @@
-import { appendFile } from 'fs';
 import {
   createContext,
   Dispatch,
@@ -10,7 +9,6 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { isConstructorDeclaration } from 'typescript';
 import { CategoryService } from '../services/category.service';
 import { PaymentMethodService } from '../services/payment-method.service';
 import { SubscriptionService } from '../services/subscription.service';
@@ -31,6 +29,10 @@ export interface IStoreContext {
   setShowDrawer: Dispatch<SetStateAction<boolean>>;
   transactions: ITransaction[];
   setTransactions: Dispatch<SetStateAction<ITransaction[]>>;
+  transactionReceiver: {
+    text: string;
+    value: string;
+  }[];
   subscriptions: ISubscription[];
   setSubscriptions: Dispatch<SetStateAction<ISubscription[]>>;
   categories: ICategory[];
@@ -92,6 +94,15 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
       .finally(() => setLoading(false));
   }, [session?.user?.id]);
 
+  const transactionReceiver = useMemo(
+    () =>
+      [...new Set(transactions.map((transaction) => transaction.receiver))].map((receiver) => ({
+        text: receiver,
+        value: receiver,
+      })),
+    [transactions]
+  );
+
   return (
     <StoreContext.Provider
       value={useMemo(
@@ -102,6 +113,7 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
           setShowDrawer,
           transactions,
           setTransactions,
+          transactionReceiver,
           subscriptions,
           setSubscriptions,
           categories,
@@ -109,7 +121,15 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
           paymentMethods,
           setPaymentMethods,
         }),
-        [loading, showDrawer, transactions, subscriptions, categories, paymentMethods]
+        [
+          loading,
+          showDrawer,
+          transactions,
+          transactionReceiver,
+          subscriptions,
+          categories,
+          paymentMethods,
+        ]
       )}
     >
       {children}
