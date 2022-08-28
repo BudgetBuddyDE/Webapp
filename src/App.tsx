@@ -16,8 +16,7 @@ import { ProtectedRoute } from './components/protected-route.component';
 import Drawer from './components/drawer.component';
 import { RequestReset } from './routes/request-reset';
 import { ResetPassword } from './routes/reset-password.route';
-
-import Test from './routes/test.route';
+import { Settings } from './routes/settings.route';
 
 export const App: React.FC = () => {
   return (
@@ -92,11 +91,18 @@ export const App: React.FC = () => {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/request-reset" element={<RequestReset />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/sign-up" element={<SignUp />} />
-              <Route path="/test" element={<Test width={1000} height={750} />} />
             </Routes>
           </Container>
           <Box
