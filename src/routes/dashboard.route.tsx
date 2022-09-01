@@ -444,9 +444,9 @@ export const Dashboard = () => {
               <CircularProgress />
             ) : (
               transactions
-                .filter(({ date }) => new Date(date) <= new Date())
+                .filter(({ date }) => new Date(new Date(date).toDateString()) <= new Date())
                 .slice(0, 6)
-                .map(({ id, categories, receiver, amount, date }, index) => (
+                .map(({ id, categories, receiver, amount, date }) => (
                   <Transaction
                     key={id}
                     category={categories.name}
