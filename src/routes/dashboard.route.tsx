@@ -49,6 +49,7 @@ import { TransactionService } from '../services/transaction.service';
 import { transformBalance } from '../utils/transformBalance';
 import { ExpenseService } from '../services/expense.service';
 import { ReceiverAutocomplete } from '../components/receiver-autocomplete.component';
+import { addTransactionToExpenses } from '../utils/addTransactionToExpenses';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
