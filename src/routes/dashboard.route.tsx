@@ -340,8 +340,8 @@ export const Dashboard = () => {
         description="All in one page"
       />
 
-      {StatsCards.map((props) => (
-        <Grid item xs={6} md={6} lg={3}>
+      {StatsCards.map((props, index) => (
+        <Grid key={index} item xs={6} md={6} lg={3}>
           <Stats {...props} />
         </Grid>
       ))}
