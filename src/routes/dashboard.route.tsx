@@ -50,6 +50,7 @@ import { transformBalance } from '../utils/transformBalance';
 import { ExpenseService } from '../services/expense.service';
 import { ReceiverAutocomplete } from '../components/receiver-autocomplete.component';
 import { addTransactionToExpenses } from '../utils/addTransactionToExpenses';
+import { NoResults } from '../components/no-results.component';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -83,6 +84,11 @@ export const Dashboard = () => {
   >({});
   const [showAddTransactionForm, setShowAddTransactionForm] = useState(false);
   const [showSubscriptionForm, setShowSubscriptionForm] = useState(false);
+
+  const latestTransactions = useMemo(
+    () => transactions.filter(({ date }) => new Date(new Date(date).toDateString()) <= new Date()),
+    [transactions]
+  );
 
   const transactionFormHandler = {
     open: () => {
@@ -358,7 +364,7 @@ export const Dashboard = () => {
           <Card.Body>
             {loading ? (
               <CircularProgress />
-            ) : (
+            ) : subscriptions.length > 0 ? (
               subscriptions
                 .slice(0, 6)
                 .map(({ id, categories, receiver, amount, execute_at }) => (
@@ -370,6 +376,8 @@ export const Dashboard = () => {
                     amount={amount}
                   />
                 ))
+            ) : (
+              <NoResults sx={{ mt: 2 }} text="No subscriptions found" />
             )}
           </Card.Body>
         </Card>
@@ -443,9 +451,8 @@ export const Dashboard = () => {
           <Card.Body>
             {loading ? (
               <CircularProgress />
-            ) : (
-              transactions
-                .filter(({ date }) => new Date(new Date(date).toDateString()) <= new Date())
+            ) : latestTransactions.length > 0 ? (
+              latestTransactions
                 .slice(0, 6)
                 .map(({ id, categories, receiver, amount, date }) => (
                   <Transaction
@@ -456,6 +463,8 @@ export const Dashboard = () => {
                     amount={amount}
                   />
                 ))
+            ) : (
+              <NoResults sx={{ mt: 2 }} text="No transactions found" />
             )}
           </Card.Body>
         </Card>
@@ -701,34 +710,3 @@ export const Dashboard = () => {
     </Grid>
   );
 };
-
-function addTransactionToExpenses(
-  transaction: ITransaction,
-  expenses: IExpense[],
-  updateExpenses: (updatedExpenses: IExpense[]) => void
-) {
-  if (transaction.amount > 0) return;
-
-  const index = expenses.findIndex((expense) => expense.category.id === transaction.categories.id);
-  if (index > 0) {
-    const outdated = expenses[index];
-    expenses[index] = {
-      ...outdated,
-      sum: Math.abs(outdated.sum) + Math.abs(transaction.amount),
-    };
-
-    updateExpenses(expenses);
-  } else
-    updateExpenses([
-      ...expenses,
-      {
-        sum: transaction.amount,
-        category: {
-          id: transaction.categories.id,
-          name: transaction.categories.name,
-          description: transaction.categories.description,
-        },
-        created_by: transaction.created_by,
-      } as IExpense,
-    ]);
-}

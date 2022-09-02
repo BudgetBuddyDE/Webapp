@@ -27,6 +27,7 @@ import { CircularProgress } from '../components/progress.component';
 import { FormDrawer } from '../components/form-drawer.component';
 import { StoreContext } from '../context/store.context';
 import { CategoryService } from '../services/category.service';
+import { NoResults } from '../components/no-results.component';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -193,64 +194,66 @@ export const Categories = () => {
               </Tooltip>
             </Card.HeaderActions>
           </Card.Header>
-          <Card.Body>
-            {loading ? (
-              <CircularProgress />
-            ) : (
-              <TableContainer>
-                <Table sx={{ minWidth: 650 }} aria-label="Category Table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Description</TableCell>
-                      <TableCell></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {shownCategories
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((row) => (
-                        <TableRow
-                          key={row.id}
-                          sx={{
-                            '&:last-child td, &:last-child th': { border: 0 },
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          <TableCell>{row.name}</TableCell>
-                          <TableCell>{row.description || 'No Description'}</TableCell>
-                          <TableCell align="right">
-                            <Tooltip title="Edit" placement="top">
-                              <IconButton onClick={() => editFormHandler.open(row)}>
-                                <EditIcon />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Delete" placement="top">
-                              <IconButton onClick={() => handleDelete(row.id)}>
-                                <DeleteIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
-          </Card.Body>
-          <Card.Footer>
-            {!loading && (
-              <TablePagination
-                component="div"
-                count={shownCategories.length}
-                page={page}
-                onPageChange={handlePageChange}
-                labelRowsPerPage="Rows:"
-                rowsPerPage={rowsPerPage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
-            )}
-          </Card.Footer>
+          {loading ? (
+            <CircularProgress />
+          ) : categories.length > 0 ? (
+            <>
+              <Card.Body>
+                <TableContainer>
+                  <Table sx={{ minWidth: 650 }} aria-label="Category Table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Name</TableCell>
+                        <TableCell>Description</TableCell>
+                        <TableCell></TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {shownCategories
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .map((row) => (
+                          <TableRow
+                            key={row.id}
+                            sx={{
+                              '&:last-child td, &:last-child th': { border: 0 },
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            <TableCell>{row.name}</TableCell>
+                            <TableCell>{row.description || 'No Description'}</TableCell>
+                            <TableCell align="right">
+                              <Tooltip title="Edit" placement="top">
+                                <IconButton onClick={() => editFormHandler.open(row)}>
+                                  <EditIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete" placement="top">
+                                <IconButton onClick={() => handleDelete(row.id)}>
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Card.Body>
+              <Card.Footer>
+                <TablePagination
+                  component="div"
+                  count={shownCategories.length}
+                  page={page}
+                  onPageChange={handlePageChange}
+                  labelRowsPerPage="Rows:"
+                  rowsPerPage={rowsPerPage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+              </Card.Footer>
+            </>
+          ) : (
+            <NoResults sx={{ mt: 2 }} text="No categories found" />
+          )}
         </Card>
       </Grid>
 

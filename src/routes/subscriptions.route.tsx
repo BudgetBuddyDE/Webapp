@@ -43,6 +43,7 @@ import { SubscriptionService } from '../services/subscription.service';
 import { transformBalance } from '../utils/transformBalance';
 import { determineNextExecution } from '../utils/determineNextExecution';
 import { ReceiverAutocomplete } from '../components/receiver-autocomplete.component';
+import { NoResults } from '../components/no-results.component';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -304,85 +305,87 @@ export const Subscriptions = () => {
               </Tooltip>
             </Card.HeaderActions>
           </Card.Header>
-          <Card.Body>
-            {loading ? (
-              <CircularProgress />
-            ) : (
-              <TableContainer>
-                <Table sx={{ minWidth: 650 }} aria-label="Subscriptions Table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Next execution</TableCell>
-                      <TableCell>Category</TableCell>
-                      <TableCell>Receiver</TableCell>
-                      <TableCell>Amount</TableCell>
-                      <TableCell>Payment Method</TableCell>
-                      <TableCell>Information</TableCell>
-                      <TableCell></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {shownSubscriptions
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((row) => (
-                        <TableRow
-                          key={row.id}
-                          sx={{
-                            '&:last-child td, &:last-child th': { border: 0 },
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          <TableCell>
-                            <Typography fontWeight="bold">
-                              {determineNextExecution(row.execute_at)}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Chip label={row.categories.name} variant="outlined" />
-                          </TableCell>
-                          <TableCell>{row.receiver}</TableCell>
-                          <TableCell>
-                            {row.amount.toLocaleString('de', {
-                              style: 'currency',
-                              currency: 'EUR',
-                            })}
-                          </TableCell>
-                          <TableCell>
-                            <Chip label={row.paymentMethods.name} variant="outlined" />
-                          </TableCell>
-                          <TableCell>{row.description || 'No Information'}</TableCell>
-                          <TableCell align="right">
-                            <Tooltip title="Edit" placement="top">
-                              <IconButton onClick={() => editFormHandler.open(row)}>
-                                <EditIcon />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Delete" placement="top">
-                              <IconButton onClick={() => handleDelete(row.id)}>
-                                <DeleteIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
-          </Card.Body>
-          <Card.Footer>
-            {!loading && (
-              <TablePagination
-                component="div"
-                count={shownSubscriptions.length}
-                page={page}
-                onPageChange={handlePageChange}
-                labelRowsPerPage="Rows:"
-                rowsPerPage={rowsPerPage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
-            )}
-          </Card.Footer>
+          {loading ? (
+            <CircularProgress />
+          ) : subscriptions.length > 0 ? (
+            <>
+              <Card.Body>
+                <TableContainer>
+                  <Table sx={{ minWidth: 650 }} aria-label="Subscriptions Table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Next execution</TableCell>
+                        <TableCell>Category</TableCell>
+                        <TableCell>Receiver</TableCell>
+                        <TableCell>Amount</TableCell>
+                        <TableCell>Payment Method</TableCell>
+                        <TableCell>Information</TableCell>
+                        <TableCell></TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {shownSubscriptions
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .map((row) => (
+                          <TableRow
+                            key={row.id}
+                            sx={{
+                              '&:last-child td, &:last-child th': { border: 0 },
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            <TableCell>
+                              <Typography fontWeight="bold">
+                                {determineNextExecution(row.execute_at)}
+                              </Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Chip label={row.categories.name} variant="outlined" />
+                            </TableCell>
+                            <TableCell>{row.receiver}</TableCell>
+                            <TableCell>
+                              {row.amount.toLocaleString('de', {
+                                style: 'currency',
+                                currency: 'EUR',
+                              })}
+                            </TableCell>
+                            <TableCell>
+                              <Chip label={row.paymentMethods.name} variant="outlined" />
+                            </TableCell>
+                            <TableCell>{row.description || 'No Information'}</TableCell>
+                            <TableCell align="right">
+                              <Tooltip title="Edit" placement="top">
+                                <IconButton onClick={() => editFormHandler.open(row)}>
+                                  <EditIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete" placement="top">
+                                <IconButton onClick={() => handleDelete(row.id)}>
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Card.Body>
+              <Card.Footer>
+                <TablePagination
+                  component="div"
+                  count={shownSubscriptions.length}
+                  page={page}
+                  onPageChange={handlePageChange}
+                  labelRowsPerPage="Rows:"
+                  rowsPerPage={rowsPerPage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+              </Card.Footer>
+            </>
+          ) : (
+            <NoResults sx={{ mt: 2 }} text="No subscriptions found" />
+          )}
         </Card>
       </Grid>
 

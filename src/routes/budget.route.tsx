@@ -39,6 +39,7 @@ import { IBaseBudget, IBudget } from '../types/budget.interface';
 import { Stats, StatsProps } from '../components/stats-card.component';
 import { ExpenseService } from '../services/expense.service';
 import { IncomeService } from '../services/income.service';
+import { NoResults } from '../components/no-results.component';
 
 type ChartContent = 'INCOME' | 'SPENDINGS';
 
@@ -404,15 +405,19 @@ export const Budget = () => {
             {loading ? (
               <CircularProgress />
             ) : chart === 'INCOME' ? (
-              income.map(({ category, sum }) => (
-                <Transaction
-                  key={category.id}
-                  category={category.name}
-                  date={category.description || 'No description'}
-                  amount={sum}
-                />
-              ))
-            ) : (
+              income.length > 0 ? (
+                income.map(({ category, sum }) => (
+                  <Transaction
+                    key={category.id}
+                    category={category.name}
+                    date={category.description || 'No description'}
+                    amount={sum}
+                  />
+                ))
+              ) : (
+                <NoResults sx={{ mt: 2 }} text="No results for the timespan" />
+              )
+            ) : expenses.length > 0 ? (
               expenses.map(({ category, sum }) => (
                 <Transaction
                   key={category.id}
@@ -421,6 +426,8 @@ export const Budget = () => {
                   amount={Math.abs(sum)}
                 />
               ))
+            ) : (
+              <NoResults sx={{ mt: 2 }} text="No results for the timespan" />
             )}
           </Card.Body>
         </Card>
@@ -451,39 +458,33 @@ export const Budget = () => {
           <Card.Body>
             {loading ? (
               <CircularProgress />
-            ) : (
-              <>
-                {budget.map((item) => (
-                  <Box
-                    display="flex"
-                    flexDirection="row"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Box sx={{ flex: 1, mr: 2 }}>
-                      <CategoryBudget
-                        key={item.id}
-                        title={item.category.name}
-                        subtitle={item.category.description || 'No description'}
-                        budget={item.budget || 0}
-                        amount={item.currentlySpent || 0}
-                      />
-                    </Box>
-                    {/* mt: 2 is required, to have all items vertically centered bcause <CategoryBudget />-components have an margin-top of 2 by default */}
-                    <Tooltip title="Edit">
-                      <IconButton sx={{ mt: 2 }} onClick={() => editBudgetHandler.open(item)}>
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
-
-                    <Tooltip title="Delete">
-                      <IconButton sx={{ mt: 2 }} onClick={() => handleBudgetDelete(item.id)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
+            ) : budget.length > 0 ? (
+              budget.map((item) => (
+                <Box display="flex" flexDirection="row" alignItems="center" justifyContent="center">
+                  <Box sx={{ flex: 1, mr: 2 }}>
+                    <CategoryBudget
+                      key={item.id}
+                      title={item.category.name}
+                      subtitle={item.category.description || 'No description'}
+                      budget={item.budget || 0}
+                      amount={item.currentlySpent || 0}
+                    />
                   </Box>
-                ))}
-              </>
+                  <Tooltip title="Edit">
+                    <IconButton sx={{ mt: 2 }} onClick={() => editBudgetHandler.open(item)}>
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Delete">
+                    <IconButton sx={{ mt: 2 }} onClick={() => handleBudgetDelete(item.id)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              ))
+            ) : (
+              <NoResults sx={{ mt: 2 }} text="No budget found" />
             )}
           </Card.Body>
         </Card>

@@ -27,6 +27,7 @@ import { CircularProgress } from '../components/progress.component';
 import { FormDrawer } from '../components/form-drawer.component';
 import { StoreContext } from '../context/store.context';
 import { PaymentMethodService } from '../services/payment-method.service';
+import { NoResults } from '../components/no-results.component';
 
 const FormStyle: SxProps<Theme> = {
   width: '100%',
@@ -211,68 +212,70 @@ export const PaymentMethods = () => {
               </Tooltip>
             </Card.HeaderActions>
           </Card.Header>
-          <Card.Body>
-            {loading ? (
-              <CircularProgress />
-            ) : (
-              <TableContainer>
-                <Table sx={{ minWidth: 650 }} aria-label="Payment Methods Table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Provider</TableCell>
-                      <TableCell>Address</TableCell>
-                      <TableCell>Description</TableCell>
-                      <TableCell></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {shownPaymentMethods
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((row) => (
-                        <TableRow
-                          key={row.id}
-                          sx={{
-                            '&:last-child td, &:last-child th': { border: 0 },
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          <TableCell>{row.name}</TableCell>
-                          <TableCell>{row.provider}</TableCell>
-                          <TableCell>{row.address}</TableCell>
-                          <TableCell>{row.description || 'No Description'}</TableCell>
-                          <TableCell align="right">
-                            <Tooltip title="Edit" placement="top">
-                              <IconButton onClick={() => editFormHandler.open(row)}>
-                                <EditIcon />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Delete" placement="top">
-                              <IconButton onClick={() => handleDelete(row.id)}>
-                                <DeleteIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
-          </Card.Body>
-          <Card.Footer>
-            {!loading && (
-              <TablePagination
-                component="div"
-                count={shownPaymentMethods.length}
-                page={page}
-                onPageChange={handlePageChange}
-                labelRowsPerPage="Rows:"
-                rowsPerPage={rowsPerPage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
-            )}
-          </Card.Footer>
+          {loading ? (
+            <CircularProgress />
+          ) : paymentMethods.length > 0 ? (
+            <>
+              <Card.Body>
+                <TableContainer>
+                  <Table sx={{ minWidth: 650 }} aria-label="Payment Methods Table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Name</TableCell>
+                        <TableCell>Provider</TableCell>
+                        <TableCell>Address</TableCell>
+                        <TableCell>Description</TableCell>
+                        <TableCell></TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {shownPaymentMethods
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .map((row) => (
+                          <TableRow
+                            key={row.id}
+                            sx={{
+                              '&:last-child td, &:last-child th': { border: 0 },
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            <TableCell>{row.name}</TableCell>
+                            <TableCell>{row.provider}</TableCell>
+                            <TableCell>{row.address}</TableCell>
+                            <TableCell>{row.description || 'No Description'}</TableCell>
+                            <TableCell align="right">
+                              <Tooltip title="Edit" placement="top">
+                                <IconButton onClick={() => editFormHandler.open(row)}>
+                                  <EditIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete" placement="top">
+                                <IconButton onClick={() => handleDelete(row.id)}>
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Card.Body>
+              <Card.Footer>
+                <TablePagination
+                  component="div"
+                  count={shownPaymentMethods.length}
+                  page={page}
+                  onPageChange={handlePageChange}
+                  labelRowsPerPage="Rows:"
+                  rowsPerPage={rowsPerPage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+              </Card.Footer>
+            </>
+          ) : (
+            <NoResults sx={{ mt: 2 }} text="No payment-methods found" />
+          )}
         </Card>
       </Grid>
 
