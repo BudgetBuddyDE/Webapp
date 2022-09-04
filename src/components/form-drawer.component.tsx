@@ -55,7 +55,14 @@ export const FormDrawer: FC<IFormDrawerProps> = ({
         </IconButton>
       </Box>
       <Divider />
-      <form onSubmit={onSubmit}>
+      <form
+        onSubmit={onSubmit}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: 'inherit',
+        }}
+      >
         <Box sx={{ p: 2 }}>{children}</Box>
         <Box
           sx={{
