@@ -61,47 +61,51 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([
-      SubscriptionService.getSubscriptions(),
-      TransactionService.getTransactions(),
-      BudgetService.getBudget(session!.user!.id),
-      CategoryService.getCategories(),
-      PaymentMethodService.getPaymentMethods(),
-    ])
-      .then(([getSubscriptions, getTransactions, getBudget, getCategories, getPaymentMethods]) => {
-        if (getSubscriptions) {
-          setSubscriptions(
-            getSubscriptions.sort(function (a, b) {
-              const today = new Date();
-              // It does work fine for dates
-              return (
-                // @ts-ignore
-                Math.abs(today - determineNextExecutionDate(a.execute_at)) -
-                // @ts-ignore
-                Math.abs(today - determineNextExecutionDate(b.execute_at))
+    if (session && session.user) {
+      Promise.all([
+        SubscriptionService.getSubscriptions(),
+        TransactionService.getTransactions(),
+        BudgetService.getBudget(String(session?.user?.id)),
+        CategoryService.getCategories(),
+        PaymentMethodService.getPaymentMethods(),
+      ])
+        .then(
+          ([getSubscriptions, getTransactions, getBudget, getCategories, getPaymentMethods]) => {
+            if (getSubscriptions) {
+              setSubscriptions(
+                getSubscriptions.sort(function (a, b) {
+                  const today = new Date();
+                  // It does work fine for dates
+                  return (
+                    // @ts-ignore
+                    Math.abs(today - determineNextExecutionDate(a.execute_at)) -
+                    // @ts-ignore
+                    Math.abs(today - determineNextExecutionDate(b.execute_at))
+                  );
+                })
               );
-            })
-          );
-        } else setSubscriptions([]);
+            } else setSubscriptions([]);
 
-        if (getTransactions) {
-          setTransactions(getTransactions);
-        } else setTransactions([]);
+            if (getTransactions) {
+              setTransactions(getTransactions);
+            } else setTransactions([]);
 
-        if (getBudget) {
-          setBudget(getBudget);
-        } else setBudget([]);
+            if (getBudget) {
+              setBudget(getBudget);
+            } else setBudget([]);
 
-        if (getCategories) {
-          setCategories(getCategories);
-        } else setCategories([]);
+            if (getCategories) {
+              setCategories(getCategories);
+            } else setCategories([]);
 
-        if (getPaymentMethods) {
-          setPaymentMethods(getPaymentMethods);
-        } else setPaymentMethods([]);
-      })
-      .catch((error) => console.error(error))
-      .finally(() => setLoading(false));
+            if (getPaymentMethods) {
+              setPaymentMethods(getPaymentMethods);
+            } else setPaymentMethods([]);
+          }
+        )
+        .catch((error) => console.error(error))
+        .finally(() => setLoading(false));
+    }
   }, [session?.user?.id]);
 
   const transactionReceiver = useMemo(

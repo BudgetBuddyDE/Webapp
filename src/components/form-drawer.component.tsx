@@ -34,9 +34,11 @@ export const FormDrawer: FC<IFormDrawerProps> = ({
       PaperProps={{
         elevation: 0,
         sx: {
-          backgroundColor: '#001E3C',
           boxSizing: 'border-box',
           width: { xs: 'unset', md: drawerWidth * 2 },
+          margin: { xs: 1, md: 0 },
+          borderRadius: (theme) => ({ xs: `${theme.shape.borderRadius}px`, md: 0 }),
+          backgroundColor: '#001E3C',
         },
       }}
     >
@@ -47,6 +49,7 @@ export const FormDrawer: FC<IFormDrawerProps> = ({
           justifyContent: 'space-between',
           alignItems: 'center',
           p: 2,
+          pb: 0,
         }}
       >
         <Typography fontWeight="bold">{heading}</Typography>
@@ -54,7 +57,7 @@ export const FormDrawer: FC<IFormDrawerProps> = ({
           <CloseIcon />
         </IconButton>
       </Box>
-      <Divider />
+      {/* <Divider /> */}
       <form
         onSubmit={onSubmit}
         style={{
@@ -69,12 +72,13 @@ export const FormDrawer: FC<IFormDrawerProps> = ({
             mt: 'auto',
           }}
         >
-          <Divider />
+          {/* <Divider /> */}
           <Box
             sx={{
               display: 'flex',
               justifyContent: 'flex-end',
               p: 2,
+              pt: 0,
             }}
           >
             <Button onClick={onClose}>{closeLabel}</Button>
