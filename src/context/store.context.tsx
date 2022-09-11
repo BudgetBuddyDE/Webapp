@@ -9,10 +9,12 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { BudgetService } from '../services/budget.service';
 import { CategoryService } from '../services/category.service';
 import { PaymentMethodService } from '../services/payment-method.service';
 import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
+import { IBudget } from '../types/budget.interface';
 import type {
   ICategory,
   IPaymentMethod,
@@ -35,6 +37,8 @@ export interface IStoreContext {
   }[];
   subscriptions: ISubscription[];
   setSubscriptions: Dispatch<SetStateAction<ISubscription[]>>;
+  budget: IBudget[];
+  setBudget: Dispatch<SetStateAction<IBudget[]>>;
   categories: ICategory[];
   setCategories: Dispatch<SetStateAction<ICategory[]>>;
   paymentMethods: IPaymentMethod[];
@@ -49,6 +53,7 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
   const [showDrawer, setShowDrawer] = useState(getSavedSidebarState());
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
+  const [budget, setBudget] = useState<IBudget[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
 
@@ -59,10 +64,11 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
     Promise.all([
       SubscriptionService.getSubscriptions(),
       TransactionService.getTransactions(),
+      BudgetService.getBudget(session!.user!.id),
       CategoryService.getCategories(),
       PaymentMethodService.getPaymentMethods(),
     ])
-      .then(([getSubscriptions, getTransactions, getCategories, getPaymentMethods]) => {
+      .then(([getSubscriptions, getTransactions, getBudget, getCategories, getPaymentMethods]) => {
         if (getSubscriptions) {
           setSubscriptions(
             getSubscriptions.sort(function (a, b) {
@@ -81,6 +87,10 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
         if (getTransactions) {
           setTransactions(getTransactions);
         } else setTransactions([]);
+
+        if (getBudget) {
+          setBudget(getBudget);
+        } else setBudget([]);
 
         if (getCategories) {
           setCategories(getCategories);
@@ -114,6 +124,8 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
           transactions,
           setTransactions,
           transactionReceiver,
+          budget,
+          setBudget,
           subscriptions,
           setSubscriptions,
           categories,
@@ -126,6 +138,7 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
           showDrawer,
           transactions,
           transactionReceiver,
+          budget,
           subscriptions,
           categories,
           paymentMethods,

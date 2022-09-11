@@ -1,22 +1,5 @@
-import { ChangeEvent, FormEvent, useContext, useEffect, useMemo, useState } from 'react';
-import {
-  Grid,
-  Box,
-  Tooltip,
-  IconButton,
-  TextField,
-  Alert,
-  Button,
-  InputAdornment,
-  Autocomplete,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  AlertTitle,
-} from '@mui/material';
-import { SxProps, Theme } from '@mui/material';
-import { LocalizationProvider, DesktopDatePicker, MobileDatePicker } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { Grid, Box, Tooltip, IconButton, Button } from '@mui/material';
 import {
   Receipt as ReceiptIcon,
   Payments as PaymentsIcon,
@@ -29,59 +12,24 @@ import { Stats, StatsProps, StatsIconStyle } from '../components/stats-card.comp
 import { Transaction } from '../components/transaction.component';
 import Card from '../components/card.component';
 import { PieChart } from '../components/spendings-chart.component';
-import type {
-  IBaseTransactionDTO,
-  IBaseSubscriptionDTO,
-  IExpense,
-  ISubscription,
-  ITransaction,
-} from '../types/transaction.interface';
-import { FormDrawer } from '../components/form-drawer.component';
+import type { IExpense } from '../types/transaction.interface';
 import { DateService } from '../services/date.service';
 import { determineNextExecution } from '../utils/determineNextExecution';
 import { CircularProgress } from '../components/progress.component';
 import { isSameMonth } from 'date-fns/esm';
-import { SnackbarContext } from '../context/snackbar.context';
-import { useScreenSize } from '../hooks/useScreenSize.hook';
 import { StoreContext } from '../context/store.context';
-import { SubscriptionService } from '../services/subscription.service';
-import { TransactionService } from '../services/transaction.service';
-import { transformBalance } from '../utils/transformBalance';
 import { ExpenseService } from '../services/expense.service';
-import { ReceiverAutocomplete } from '../components/receiver-autocomplete.component';
 import { addTransactionToExpenses } from '../utils/addTransactionToExpenses';
 import { NoResults } from '../components/no-results.component';
-
-const FormStyle: SxProps<Theme> = {
-  width: '100%',
-  mb: 2,
-};
+import { CreateTransaction } from '../components/create-transaction.component';
+import { CreateSubscription } from '../components/create-subscription.component';
 
 export const Dashboard = () => {
   const { session } = useContext(AuthContext);
-  const {
-    loading,
-    setLoading,
-    subscriptions,
-    setSubscriptions,
-    transactions,
-    transactionReceiver,
-    setTransactions,
-    categories,
-    paymentMethods,
-  } = useContext(StoreContext);
-  const { showSnackbar } = useContext(SnackbarContext);
-  const screenSize = useScreenSize();
+  const { loading, setLoading, subscriptions, transactions } = useContext(StoreContext);
   const [chart, setChart] = useState<'MONTH' | 'ALL'>('MONTH');
   const [currentMonthExpenses, setCurrentMonthExpenses] = useState<IExpense[]>([]);
   const [allTimeExpenses, setAllTimeExpenses] = useState<IExpense[]>([]);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [addTransactionForm, setAddTransactionForm] = useState<
-    Record<string, string | number | Date>
-  >({});
-  const [addSubscriptionForm, setAddSubscriptionForm] = useState<
-    Record<string, string | number | Date>
-  >({});
   const [showAddTransactionForm, setShowAddTransactionForm] = useState(false);
   const [showSubscriptionForm, setShowSubscriptionForm] = useState(false);
 
@@ -89,151 +37,6 @@ export const Dashboard = () => {
     () => transactions.filter(({ date }) => new Date(new Date(date).toDateString()) <= new Date()),
     [transactions]
   );
-
-  const transactionFormHandler = {
-    open: () => {
-      setShowAddTransactionForm(true);
-    },
-    close: () => {
-      setShowAddTransactionForm(false);
-      setAddTransactionForm({});
-      setErrorMessage('');
-    },
-    dateChange: (date: Date | null) => {
-      setAddTransactionForm((prev) => ({ ...prev, date: date || new Date() }));
-    },
-    autocompleteChange: (
-      event: React.SyntheticEvent<Element, Event>,
-      key: 'category' | 'paymentMethod',
-      value: string | number
-    ) => {
-      setAddTransactionForm((prev) => ({ ...prev, [key]: value }));
-    },
-    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setAddTransactionForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
-    },
-    receiverChange: (value: string | number) => {
-      setAddTransactionForm((prev) => ({ ...prev, receiver: value }));
-    },
-    onSubmit: async (event: FormEvent<HTMLFormElement>) => {
-      try {
-        event.preventDefault();
-        const values = Object.keys(addTransactionForm);
-        if (!values.includes('category')) throw new Error('Provide an category');
-        if (!values.includes('paymentMethod')) throw new Error('Provide an paymentMethod');
-        if (!values.includes('receiver')) throw new Error('Provide an receiver');
-        if (!values.includes('amount')) throw new Error('Provide an amount');
-
-        const data = await TransactionService.createTransactions([
-          {
-            date: addTransactionForm.date || new Date(),
-            category: addTransactionForm.category,
-            paymentMethod: addTransactionForm.paymentMethod,
-            receiver: addTransactionForm.receiver,
-            amount: transformBalance(addTransactionForm.amount.toString()),
-            description: addTransactionForm.information || null,
-            created_by: session!.user!.id,
-          } as IBaseTransactionDTO,
-        ]);
-        if (data === null) throw new Error('No transaction created');
-
-        const newTransaction = {
-          ...data[0],
-          categories: categories.find((value) => value.id === data[0].category),
-          paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
-        } as ITransaction;
-
-        setTransactions((prev) => [newTransaction, ...prev]);
-        // Refresh displayed spendings chart
-        if (
-          isSameMonth(new Date(newTransaction.date), new Date()) &&
-          new Date(newTransaction.date) <= new Date()
-        ) {
-          addTransactionToExpenses(newTransaction, currentMonthExpenses, (updatedExpenses) =>
-            setCurrentMonthExpenses(updatedExpenses)
-          );
-        }
-        addTransactionToExpenses(newTransaction, allTimeExpenses, (updatedExpenses) =>
-          setAllTimeExpenses(updatedExpenses)
-        );
-        transactionFormHandler.close();
-        showSnackbar({
-          message: 'Transaction added',
-        });
-      } catch (error) {
-        console.error(error);
-        // @ts-ignore
-        setErrorMessage(error.message || 'Unkown error');
-      }
-    },
-  };
-
-  const subscriptionFormHandler = {
-    open: () => setShowSubscriptionForm(true),
-    close: () => {
-      setShowSubscriptionForm(false);
-      setAddSubscriptionForm({});
-      setErrorMessage('');
-    },
-    dateChange: (date: Date | null) => {
-      setAddSubscriptionForm((prev) => ({ ...prev, execute_at: date || new Date() }));
-    },
-    autocompleteChange: (
-      event: React.SyntheticEvent<Element, Event>,
-      key: 'category' | 'paymentMethod',
-      value: string | number
-    ) => {
-      setAddSubscriptionForm((prev) => ({ ...prev, [key]: value }));
-    },
-    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setAddSubscriptionForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
-    },
-    receiverChange: (value: string | number) => {
-      setAddSubscriptionForm((prev) => ({ ...prev, receiver: value }));
-    },
-    onSubmit: async (event: FormEvent<HTMLFormElement>) => {
-      try {
-        event.preventDefault();
-        const values = Object.keys(addSubscriptionForm);
-        if (!values.includes('category')) throw new Error('Provide an category');
-        if (!values.includes('paymentMethod')) throw new Error('Provide an payment method');
-        if (!values.includes('receiver')) throw new Error('Provide an receiver');
-        if (!values.includes('amount')) throw new Error('Provide an receiver');
-
-        const data = await SubscriptionService.createSubscriptions([
-          {
-            // @ts-ignore
-            execute_at: addForm.execute_at ? addForm.execute_at.getDate() : new Date().getDate(),
-            category: addSubscriptionForm.category,
-            paymentMethod: addSubscriptionForm.paymentMethod,
-            receiver: addSubscriptionForm.receiver,
-            amount: transformBalance(addSubscriptionForm.amount.toString()),
-            description: addSubscriptionForm.information || null,
-            created_by: session!.user!.id,
-          } as IBaseSubscriptionDTO,
-        ]);
-        if (data === null) throw new Error('No subscription created');
-
-        setSubscriptions((prev) => [
-          ...prev,
-          // @ts-ignore
-          {
-            ...data[0],
-            categories: categories.find((value) => value.id === data[0].category),
-            paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
-          } as ISubscription,
-        ]);
-        subscriptionFormHandler.close();
-        showSnackbar({
-          message: 'Subscription added',
-        });
-      } catch (error) {
-        console.error(error);
-        // @ts-ignore
-        setErrorMessage(error.message || 'Unkown error');
-      }
-    },
-  };
 
   const StatsCards: StatsProps[] = [
     {
@@ -355,7 +158,10 @@ export const Dashboard = () => {
             </div>
             <Card.HeaderActions>
               <Tooltip title="Add Subscription">
-                <IconButton aria-label="add-subscription" onClick={subscriptionFormHandler.open}>
+                <IconButton
+                  aria-label="add-subscription"
+                  onClick={() => setShowSubscriptionForm(true)}
+                >
                   <AddIcon fontSize="inherit" />
                 </IconButton>
               </Tooltip>
@@ -442,7 +248,10 @@ export const Dashboard = () => {
             </div>
             <Card.HeaderActions>
               <Tooltip title="Add Transaction">
-                <IconButton aria-label="add-transaction" onClick={transactionFormHandler.open}>
+                <IconButton
+                  aria-label="add-transaction"
+                  onClick={() => setShowAddTransactionForm(true)}
+                >
                   <AddIcon fontSize="inherit" />
                 </IconButton>
               </Tooltip>
@@ -470,243 +279,29 @@ export const Dashboard = () => {
         </Card>
       </Grid>
 
-      {/* Add Transaction */}
-      <FormDrawer
+      <CreateTransaction
         open={showAddTransactionForm}
-        heading="Add Transaction"
-        onClose={transactionFormHandler.close}
-        onSubmit={transactionFormHandler.onSubmit}
-        saveLabel="Create"
-        closeOnBackdropClick
-      >
-        {errorMessage.length > 1 && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {errorMessage}
-          </Alert>
-        )}
-
-        {categories.length === 0 && (
-          <Alert severity="info" sx={{ mb: 2 }}>
-            <AlertTitle>Info</AlertTitle>
-            To be able to create a transaction you have to create a category under{' '}
-            <strong>Categories {'>'} Add Category</strong> before.{' '}
-          </Alert>
-        )}
-
-        {paymentMethods.length === 0 && (
-          <Alert severity="info" sx={{ mb: 2 }}>
-            <AlertTitle>Info</AlertTitle>
-            To be able to create a transaction you have to create a payment method under{' '}
-            <strong>Payment Methods {'>'} Add Payment Method</strong> before.{' '}
-          </Alert>
-        )}
-
-        {!loading && categories.length > 0 && paymentMethods.length > 0 && (
-          <>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              {screenSize === 'small' ? (
-                <MobileDatePicker
-                  label="Date"
-                  inputFormat="dd.MM.yy"
-                  value={addTransactionForm.date || new Date()}
-                  onChange={transactionFormHandler.dateChange}
-                  renderInput={(params) => <TextField sx={FormStyle} {...params} />}
-                />
-              ) : (
-                <DesktopDatePicker
-                  label="Date"
-                  inputFormat="dd.MM.yy"
-                  value={addTransactionForm.date || new Date()}
-                  onChange={transactionFormHandler.dateChange}
-                  renderInput={(params) => <TextField sx={FormStyle} {...params} />}
-                />
-              )}
-            </LocalizationProvider>
-
-            <Box display="flex" flexDirection="row" justifyContent="space-between">
-              <Autocomplete
-                id="add-category"
-                options={categories.map((item) => ({ label: item.name, value: item.id }))}
-                sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
-                onChange={(event, value) =>
-                  transactionFormHandler.autocompleteChange(event, 'category', Number(value?.value))
-                }
-                renderInput={(props) => <TextField {...props} label="Category" />}
-                isOptionEqualToValue={(option, value) => option.value === value.value}
-              />
-              <Autocomplete
-                id="add-payment-method"
-                options={paymentMethods.map((item) => ({
-                  label: `${item.name} • ${item.provider}`,
-                  value: item.id,
-                }))}
-                sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
-                onChange={(event, value) =>
-                  transactionFormHandler.autocompleteChange(
-                    event,
-                    'paymentMethod',
-                    Number(value?.value)
-                  )
-                }
-                renderInput={(props) => <TextField {...props} label="Payment Method" />}
-                isOptionEqualToValue={(option, value) => option.value === value.value}
-              />
-            </Box>
-
-            <ReceiverAutocomplete
-              sx={FormStyle}
-              id="add-receiver"
-              label="Receiver"
-              options={transactionReceiver}
-              onValueChange={transactionFormHandler.receiverChange}
-            />
-
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel htmlFor="add-amount">Amount</InputLabel>
-              <OutlinedInput
-                id="add-amount"
-                label="Amount"
-                name="amount"
-                inputProps={{ inputMode: 'numeric' }}
-                onChange={transactionFormHandler.inputChange}
-                startAdornment={<InputAdornment position="start">€</InputAdornment>}
-              />
-            </FormControl>
-
-            <TextField
-              id="add-information"
-              variant="outlined"
-              label="Information"
-              name="information"
-              sx={{ ...FormStyle, mb: 0 }}
-              multiline
-              rows={3}
-              onChange={transactionFormHandler.inputChange}
-            />
-          </>
-        )}
-      </FormDrawer>
+        setOpen={(show) => setShowAddTransactionForm(show)}
+        afterSubmit={(transaction) => {
+          if (
+            isSameMonth(new Date(transaction.date), new Date()) &&
+            new Date(transaction.date) <= new Date()
+          ) {
+            addTransactionToExpenses(transaction, currentMonthExpenses, (updatedExpenses) =>
+              setCurrentMonthExpenses(updatedExpenses)
+            );
+          }
+          addTransactionToExpenses(transaction, allTimeExpenses, (updatedExpenses) =>
+            setAllTimeExpenses(updatedExpenses)
+          );
+        }}
+      />
 
       {/* Add Subscription */}
-      <FormDrawer
+      <CreateSubscription
         open={showSubscriptionForm}
-        heading="Add Subscription"
-        onClose={subscriptionFormHandler.close}
-        onSubmit={subscriptionFormHandler.onSubmit}
-        saveLabel="Create"
-        closeOnBackdropClick
-      >
-        {errorMessage.length > 1 && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {errorMessage}
-          </Alert>
-        )}
-
-        {categories.length === 0 && (
-          <Alert severity="info" sx={{ mb: 2 }}>
-            <AlertTitle>Info</AlertTitle>
-            To be able to create a transaction you have to create a category under{' '}
-            <strong>Categories {'>'} Add Category</strong> before.{' '}
-          </Alert>
-        )}
-
-        {paymentMethods.length === 0 && (
-          <Alert severity="info" sx={{ mb: 2 }}>
-            <AlertTitle>Info</AlertTitle>
-            To be able to create a transaction you have to create a payment method under{' '}
-            <strong>Payment Methods {'>'} Add Payment Method</strong> before.{' '}
-          </Alert>
-        )}
-
-        {!loading && categories.length > 0 && paymentMethods.length > 0 && (
-          <>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              {screenSize === 'small' ? (
-                <MobileDatePicker
-                  label="Execute at"
-                  inputFormat="dd"
-                  value={addSubscriptionForm.execute_at || new Date()}
-                  onChange={subscriptionFormHandler.dateChange}
-                  renderInput={(params) => <TextField sx={FormStyle} {...params} />}
-                />
-              ) : (
-                <DesktopDatePicker
-                  label="Execute at"
-                  inputFormat="dd"
-                  value={addSubscriptionForm.execute_at || new Date()}
-                  onChange={subscriptionFormHandler.dateChange}
-                  renderInput={(params) => <TextField sx={FormStyle} {...params} />}
-                />
-              )}
-            </LocalizationProvider>
-
-            <Box display="flex" flexDirection="row" justifyContent="space-between">
-              <Autocomplete
-                id="add-category"
-                options={categories.map((item) => ({ label: item.name, value: item.id }))}
-                sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
-                onChange={(event, value) =>
-                  subscriptionFormHandler.autocompleteChange(
-                    event,
-                    'category',
-                    Number(value?.value)
-                  )
-                }
-                renderInput={(props) => <TextField {...props} label="Category" />}
-                isOptionEqualToValue={(option, value) => option.value === value.value}
-              />
-              <Autocomplete
-                id="add-payment-method"
-                options={paymentMethods.map((item) => ({
-                  label: `${item.name} • ${item.provider}`,
-                  value: item.id,
-                }))}
-                sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
-                onChange={(event, value) =>
-                  subscriptionFormHandler.autocompleteChange(
-                    event,
-                    'paymentMethod',
-                    Number(value?.value)
-                  )
-                }
-                renderInput={(props) => <TextField {...props} label="Payment Method" />}
-                isOptionEqualToValue={(option, value) => option.value === value.value}
-              />
-            </Box>
-
-            <ReceiverAutocomplete
-              sx={FormStyle}
-              id="add-receiver"
-              label="Receiver"
-              options={transactionReceiver}
-              onValueChange={subscriptionFormHandler.receiverChange}
-            />
-
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel htmlFor="add-amount">Amount</InputLabel>
-              <OutlinedInput
-                id="add-amount"
-                label="Amount"
-                name="amount"
-                inputProps={{ inputMode: 'numeric' }}
-                onChange={subscriptionFormHandler.inputChange}
-                startAdornment={<InputAdornment position="start">€</InputAdornment>}
-              />
-            </FormControl>
-
-            <TextField
-              id="add-information"
-              variant="outlined"
-              label="Information"
-              name="information"
-              sx={{ ...FormStyle, mb: 0 }}
-              multiline
-              rows={3}
-              onChange={subscriptionFormHandler.inputChange}
-            />
-          </>
-        )}
-      </FormDrawer>
+        setOpen={(show) => setShowSubscriptionForm(show)}
+      />
     </Grid>
   );
 };

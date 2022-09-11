@@ -1,20 +1,5 @@
-import { ChangeEvent, FormEvent, useContext, useEffect, useMemo, useState } from 'react';
-import {
-  Grid,
-  Box,
-  Button,
-  TextField,
-  Tooltip,
-  IconButton,
-  Alert,
-  AlertTitle,
-  Autocomplete,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  InputAdornment,
-  Divider,
-} from '@mui/material';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { Grid, Box, Button, TextField, Tooltip, IconButton, Divider } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { LocalizationProvider, DesktopDatePicker, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -31,15 +16,15 @@ import AreaChart, { IDailyTransaction } from '../components/area-chart.component
 import { useScreenSize } from '../hooks/useScreenSize.hook';
 import { getFirstDayOfMonth } from '../utils/getFirstDayOfMonth';
 import { CategoryBudget } from '../components/category-budget.component';
-import { FormDrawer } from '../components/form-drawer.component';
 import { BudgetService } from '../services/budget.service';
-import { transformBalance } from '../utils/transformBalance';
 import { SnackbarContext } from '../context/snackbar.context';
-import { IBaseBudget, IBudget } from '../types/budget.interface';
+import type { IBudget } from '../types/budget.interface';
 import { Stats, StatsProps } from '../components/stats-card.component';
 import { ExpenseService } from '../services/expense.service';
 import { IncomeService } from '../services/income.service';
 import { NoResults } from '../components/no-results.component';
+import { CreateBudget } from '../components/create-budget.component';
+import { EditBudget } from '../components/edit-budget.component';
 
 type ChartContent = 'INCOME' | 'SPENDINGS';
 
@@ -47,141 +32,17 @@ export const Budget = () => {
   const screenSize = useScreenSize();
   const { session } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, transactions, subscriptions, categories } = useContext(StoreContext);
+  const { loading, transactions, subscriptions, budget, setBudget, categories } =
+    useContext(StoreContext);
   const [chart, setChart] = useState<ChartContent>('INCOME');
   const [dateRange, setDateRange] = useState({ from: getFirstDayOfMonth(), to: new Date() });
   const [dailyIncome, setDailyIncome] = useState<IDailyTransaction[]>([]);
   const [income, setIncome] = useState<IIncome[]>([]);
   const [dailyExpenses, setDailyExpenses] = useState<IDailyTransaction[]>([]);
   const [expenses, setExpenses] = useState<IExpense[]>([]);
-  const [budget, setBudget] = useState<IBudget[]>([]);
   const [showAddBudgetForm, setShowAddBudgetForm] = useState(false);
-  const [addBudgetForm, setAddBudgetForm] = useState<Record<string, string | number>>({});
+  const [editBudget, setEditBudget] = useState<IBudget | null>(null);
   const [editBudgetForm, setEditBudgetForm] = useState<Record<string, string | number>>({});
-  const [errorMessage, setErrorMessage] = useState('');
-
-  const addBudgetHandler = {
-    open: () => setShowAddBudgetForm(true),
-    close: () => {
-      setShowAddBudgetForm(false);
-      setAddBudgetForm({});
-      setErrorMessage('');
-    },
-    autocompleteChange: (event: React.SyntheticEvent<Element, Event>, value: string | number) => {
-      setAddBudgetForm((prev) => ({ ...prev, category: value }));
-    },
-    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setAddBudgetForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
-    },
-    onSubmit: async (event: FormEvent<HTMLFormElement>) => {
-      try {
-        event.preventDefault();
-        const values = Object.keys(addBudgetForm);
-        if (!values.includes('category')) throw new Error('Provide an category');
-        if (!values.includes('budget')) throw new Error('Provide an budget');
-
-        // Check if the user has already set an budget for this category
-        if (budget.find((budget) => budget.category.id === addBudgetForm.category))
-          throw new Error("You've already set an Budget for this category");
-
-        const data = await BudgetService.create([
-          {
-            category: Number(addBudgetForm.category),
-            budget: transformBalance(addBudgetForm.budget.toString()),
-            created_by: session!.user!.id,
-          },
-        ]);
-        if (data === null) throw new Error('No budget saved');
-        setBudget((prev) => [
-          ...prev,
-          {
-            id: data[0].id,
-            category: categories.find((category) => category.id === data[0].category) as {
-              id: number;
-              name: string;
-              description: string | null;
-            },
-            budget: data[0].budget,
-            currentlySpent: Math.abs(
-              transactions
-                .filter(
-                  (transaction) =>
-                    transaction.amount < 0 &&
-                    isSameMonth(new Date(transaction.date), new Date()) &&
-                    new Date(transaction.date) <= new Date() &&
-                    transaction.categories.id === data[0].category
-                )
-                .reduce((prev, cur) => prev + cur.amount, 0)
-            ),
-          } as IBudget,
-        ]);
-        addBudgetHandler.close();
-        showSnackbar({
-          message: `Budget for category '${
-            categories.find((category) => category.id === data[0].category)!.name
-          }' saved`,
-        });
-      } catch (error) {
-        console.error(error);
-        // @ts-ignore
-        setErrorMessage(error.message || 'Unkown error');
-      }
-    },
-  };
-
-  const editBudgetHandler = {
-    open: ({ id, category, budget }: IBudget) => {
-      setEditBudgetForm({ id, category: category.id, budget });
-    },
-    close: () => {
-      setEditBudgetForm({});
-      setErrorMessage('');
-    },
-    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setEditBudgetForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
-    },
-    onSubmit: async (event: FormEvent<HTMLFormElement>) => {
-      try {
-        event.preventDefault();
-        const values = Object.keys(editBudgetForm);
-        if (!values.includes('id')) throw new Error('Provide an id');
-        if (!values.includes('budget')) throw new Error('Provide an budget');
-
-        const data = await BudgetService.update(Number(editBudgetForm.id), {
-          budget: transformBalance(editBudgetForm.budget.toString()),
-        } as Partial<IBaseBudget>);
-        if (data === null) throw new Error('No budget updated');
-
-        setBudget((prev) =>
-          prev.map((budget) => {
-            if (budget.id === data[0].id) {
-              return {
-                ...budget,
-                id: data[0].id,
-                category: categories.find((category) => category.id === data[0].category) as {
-                  id: number;
-                  name: string;
-                  description: string | null;
-                },
-                budget: data[0].budget,
-              };
-            }
-            return budget;
-          })
-        );
-        editBudgetHandler.close();
-        showSnackbar({
-          message: `Budget for category '${
-            categories.find((category) => category.id === data[0].category)!.name
-          }' saved`,
-        });
-      } catch (error) {
-        console.error(error);
-        // @ts-ignore
-        setErrorMessage(error.message || 'Unkown error');
-      }
-    },
-  };
 
   const handleBudgetDelete = async (budgetId: number) => {
     try {
@@ -250,16 +111,6 @@ export const Budget = () => {
       info: 'Balance after subtracting your subscriptions from your income.',
     },
   ];
-
-  useEffect(() => {
-    BudgetService.getBudget(session!.user!.id)
-      .then((data) => {
-        if (data) {
-          setBudget(data);
-        } else setBudget([]);
-      })
-      .catch((error) => console.error(error));
-  }, [session!.user!.id]);
 
   useEffect(() => {
     Promise.all([
@@ -449,7 +300,7 @@ export const Budget = () => {
             </Box>
             <Card.HeaderActions>
               <Tooltip title="Set Budget">
-                <IconButton onClick={addBudgetHandler.open}>
+                <IconButton onClick={() => setShowAddBudgetForm(true)}>
                   <AddIcon />
                 </IconButton>
               </Tooltip>
@@ -471,7 +322,7 @@ export const Budget = () => {
                     />
                   </Box>
                   <Tooltip title="Edit">
-                    <IconButton sx={{ mt: 2 }} onClick={() => editBudgetHandler.open(item)}>
+                    <IconButton sx={{ mt: 2 }} onClick={() => setEditBudget(item)}>
                       <EditIcon />
                     </IconButton>
                   </Tooltip>
@@ -490,85 +341,17 @@ export const Budget = () => {
         </Card>
       </Grid>
 
-      <FormDrawer
-        open={showAddBudgetForm}
-        heading="Set Budget"
-        onClose={addBudgetHandler.close}
-        onSubmit={addBudgetHandler.onSubmit}
-        closeOnBackdropClick
-      >
-        {errorMessage.length > 1 && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {errorMessage}
-          </Alert>
-        )}
+      {/* Set Budget */}
+      <CreateBudget open={showAddBudgetForm} setOpen={(show) => setShowAddBudgetForm(show)} />
 
-        {categories.length === 0 && (
-          <Alert severity="info" sx={{ mb: 2 }}>
-            <AlertTitle>Info</AlertTitle>
-            To be able to create a transaction you have to create a category under{' '}
-            <strong>Categories {'>'} Add Category</strong> before.{' '}
-          </Alert>
-        )}
-
-        {!loading && categories.length > 0 && (
-          <>
-            <Autocomplete
-              id="add-category"
-              options={categories.map((item) => ({ label: item.name, value: item.id }))}
-              sx={{ mb: 2 }}
-              onChange={(event, value) =>
-                addBudgetHandler.autocompleteChange(event, Number(value?.value))
-              }
-              renderInput={(props) => <TextField {...props} label="Category" />}
-              isOptionEqualToValue={(option, value) => option.value === value.value}
-            />
-
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel htmlFor="add-budget">Monthly Budget</InputLabel>
-              <OutlinedInput
-                id="add-budget"
-                label="Monthly Budget"
-                name="budget"
-                inputProps={{ inputMode: 'numeric' }}
-                onChange={addBudgetHandler.inputChange}
-                startAdornment={<InputAdornment position="start">€</InputAdornment>}
-              />
-            </FormControl>
-          </>
-        )}
-      </FormDrawer>
-
-      <FormDrawer
-        open={Object.keys(editBudgetForm).length > 0}
-        heading="Update Budget"
-        onClose={editBudgetHandler.close}
-        onSubmit={editBudgetHandler.onSubmit}
-        closeOnBackdropClick
-      >
-        {errorMessage.length > 1 && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {errorMessage}
-          </Alert>
-        )}
-
-        {!loading && (
-          <>
-            <FormControl fullWidth>
-              <InputLabel htmlFor="add-budget">Monthly Budget</InputLabel>
-              <OutlinedInput
-                id="add-budget"
-                label="Monthly Budget"
-                name="budget"
-                inputProps={{ inputMode: 'numeric' }}
-                defaultValue={editBudgetForm.budget}
-                onChange={editBudgetHandler.inputChange}
-                startAdornment={<InputAdornment position="start">€</InputAdornment>}
-              />
-            </FormControl>
-          </>
-        )}
-      </FormDrawer>
+      {/* Edit Budget */}
+      <EditBudget
+        open={editBudget !== null}
+        setOpen={(show) => {
+          if (!show) setEditBudget(null);
+        }}
+        budget={editBudget}
+      />
     </Grid>
   );
 };
