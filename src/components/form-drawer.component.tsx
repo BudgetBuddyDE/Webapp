@@ -37,6 +37,7 @@ export const FormDrawer: FC<IFormDrawerProps> = ({
           boxSizing: 'border-box',
           width: { xs: 'unset', md: drawerWidth * 2 },
           margin: { xs: 1, md: 0 },
+          mb: { xs: 2, md: 0 },
           borderRadius: (theme) => ({ xs: `${theme.shape.borderRadius}px`, md: 0 }),
           backgroundColor: '#001E3C',
         },
