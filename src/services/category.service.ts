@@ -4,7 +4,7 @@ import type { ICategory } from '../types/transaction.interface';
 export class CategoryService {
   private static table = 'categories';
 
-  static async createCategories(categories: ICategory[]): Promise<ICategory[] | null> {
+  static async createCategories(categories: Partial<ICategory>[]): Promise<ICategory[] | null> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase.from<ICategory>(this.table).insert(categories);
       if (error) rej(error);

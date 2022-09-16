@@ -40,12 +40,9 @@ export const CreateCategory: FC<ICreateCategoryProps> = ({ open, setOpen, afterS
           name: form.name,
           description: form.description || null,
           created_by: session!.user!.id,
-        };
+        } as Partial<ICategory>;
 
-        const data = await CategoryService.updateCategory(
-          Number(form.id),
-          update as Partial<ICategory>
-        );
+        const data = await CategoryService.createCategories([update]);
         if (data === null) throw new Error('No category updated');
 
         if (afterSubmit) afterSubmit(data[0]);
