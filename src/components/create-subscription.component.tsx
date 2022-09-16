@@ -67,10 +67,9 @@ export const CreateSubscription: FC<ICreateSubscriptionProps> = ({
       try {
         event.preventDefault();
         const values = Object.keys(form);
-        if (!values.includes('category')) throw new Error('Provide an category');
-        if (!values.includes('paymentMethod')) throw new Error('Provide an payment method');
-        if (!values.includes('receiver')) throw new Error('Provide an receiver');
-        if (!values.includes('amount')) throw new Error('Provide an receiver');
+        ['category', 'paymentMethod', 'receiver', 'amount'].forEach((field) => {
+          if (!values.includes(field)) throw new Error('Provide an ' + field);
+        });
 
         const data = await SubscriptionService.createSubscriptions([
           {

@@ -36,9 +36,9 @@ export const CreatePaymentMethod: FC<ICreatePaymentMethodProps> = ({
       try {
         event.preventDefault();
         const values = Object.keys(form);
-        if (!values.includes('name')) throw new Error('Provide an name');
-        if (!values.includes('address')) throw new Error('Provide an address');
-        if (!values.includes('provider')) throw new Error('Provide an provider');
+        ['name', 'address', 'provider'].forEach((field) => {
+          if (!values.includes(field)) throw new Error('Provide an ' + field);
+        });
 
         const data = await PaymentMethodService.createPaymentMethods([
           {
