@@ -32,8 +32,9 @@ export const CreateCategory: FC<ICreateCategoryProps> = ({ open, setOpen, afterS
       try {
         event.preventDefault();
         const values = Object.keys(form);
-        if (!values.includes('id')) throw new Error('Provide an id');
-        if (!values.includes('name')) throw new Error('Provide an name');
+        ['name'].forEach((field) => {
+          if (!values.includes(field)) throw new Error('Provide an ' + field);
+        });
 
         const update = {
           name: form.name,
