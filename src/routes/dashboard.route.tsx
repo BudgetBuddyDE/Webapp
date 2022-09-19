@@ -1,8 +1,8 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Grid, Box, Tooltip, IconButton, Button } from '@mui/material';
 import {
-  Receipt as ReceiptIcon,
   Payments as PaymentsIcon,
+  Balance as BalanceIcon,
   Schedule as ScheduleIcon,
   Add as AddIcon,
 } from '@mui/icons-material';
@@ -23,6 +23,8 @@ import { addTransactionToExpenses } from '../utils/addTransactionToExpenses';
 import { NoResults } from '../components/no-results.component';
 import { CreateTransaction } from '../components/create-transaction.component';
 import { CreateSubscription } from '../components/create-subscription.component';
+import { SubscriptionService } from '../services/subscription.service';
+import { TransactionService } from '../services/transaction.service';
 
 export const Dashboard = () => {
   const { session } = useContext(AuthContext);
@@ -34,7 +36,10 @@ export const Dashboard = () => {
   const [showSubscriptionForm, setShowSubscriptionForm] = useState(false);
 
   const latestTransactions = useMemo(
-    () => transactions.filter(({ date }) => new Date(new Date(date).toDateString()) <= new Date()),
+    () =>
+      transactions
+        .filter(({ date }) => new Date(new Date(date).toDateString()) <= new Date())
+        .slice(0, 6),
     [transactions]
   );
 
@@ -42,75 +47,67 @@ export const Dashboard = () => {
     {
       title: useMemo(
         () =>
-          Math.abs(
-            subscriptions
-              .filter(
-                (subscription) =>
-                  subscription.amount < 0 && subscription.execute_at <= new Date().getDate()
-              )
-              .reduce((prev, cur) => prev + cur.amount, 0)
-          ).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }),
+          // TODO: Add getSpendings(subscriptions, transactioins) in order to calculate all planned subscriptions and future transactions which haven't been processed till today
+          SubscriptionService.getPlannedSpendings(subscriptions).toLocaleString('de-DE', {
+            style: 'currency',
+            currency: 'EUR',
+          }),
         [subscriptions]
       ),
-      subtitle: 'Payed Subscriptions',
-      icon: <ReceiptIcon sx={StatsIconStyle} />,
-    },
-    {
-      title: useMemo(
-        () =>
-          Math.abs(
-            subscriptions
-              .filter(
-                (subscription) =>
-                  subscription.amount < 0 && subscription.execute_at > new Date().getDate()
-              )
-              .reduce((prev, cur) => prev + cur.amount, 0)
-          ) +
-          Math.abs(
-            transactions
-              .filter(
-                (transaction) =>
-                  transaction.amount < 0 &&
-                  new Date(transaction.date) > new Date() &&
-                  isSameMonth(new Date(transaction.date), new Date())
-              )
-              .reduce((prev, cur) => prev + cur.amount, 0)
-          ),
-        [subscriptions, transactions]
-      ).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }),
-      subtitle: 'Upcoming Payments',
-      icon: <PaymentsIcon sx={StatsIconStyle} />,
-    },
-    {
-      title: useMemo(
-        () =>
-          Math.abs(
-            subscriptions
-              .filter(
-                (subscription) =>
-                  subscription.amount > 0 && subscription.execute_at > new Date().getDate()
-              )
-              .reduce((prev, cur) => prev + cur.amount, 0)
-          ),
-        [subscriptions]
-      ).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }),
-      subtitle: 'Upcoming Earnings',
+      subtitle: 'Planned Expenses',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
     },
     {
       title: useMemo(
         () =>
-          Math.abs(
-            transactions
-              .filter(
-                (transaction) =>
-                  transaction.amount > 0 && isSameMonth(new Date(transaction.date), new Date())
-              )
-              .reduce((prev, cur) => prev + cur.amount, 0)
+          SubscriptionService.getFuturePlannedSpendings(subscriptions, transactions).toLocaleString(
+            'de-DE',
+            { style: 'currency', currency: 'EUR' }
           ),
+        [subscriptions, transactions]
+      ),
+      subtitle: 'Upcoming Expenses',
+      icon: <PaymentsIcon sx={StatsIconStyle} />,
+    },
+    {
+      title: useMemo(
+        () =>
+          TransactionService.getCurrentMonthIncome(transactions).toLocaleString('de-DE', {
+            style: 'currency',
+            currency: 'EUR',
+          }),
         [transactions]
-      ).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }),
+      ),
       subtitle: 'Received Earnings',
+    },
+    {
+      title: useMemo(
+        () =>
+          SubscriptionService.getFuturePlannedIncome(subscriptions, transactions).toLocaleString(
+            'de-DE',
+            {
+              style: 'currency',
+              currency: 'EUR',
+            }
+          ),
+        [subscriptions, transactions]
+      ),
+      subtitle: 'Upcoming Earnings',
+      icon: <ScheduleIcon sx={StatsIconStyle} />,
+    },
+    {
+      title: useMemo(() => {
+        const plannedIncome = SubscriptionService.getPlannedIncome(subscriptions);
+        const moneySpend = TransactionService.getCurrentMonthSpendings(transactions);
+        const futurePlannedPayments = SubscriptionService.getFuturePlannedSpendings(subscriptions);
+        return (plannedIncome - (moneySpend + futurePlannedPayments)).toLocaleString('de-DE', {
+          style: 'currency',
+          currency: 'EUR',
+        });
+      }, [subscriptions, transactions]),
+
+      subtitle: 'Balance',
+      icon: <BalanceIcon sx={StatsIconStyle} />,
     },
   ];
 
@@ -143,11 +140,19 @@ export const Dashboard = () => {
         description="All in one page"
       />
 
-      {StatsCards.map((props, index) => (
-        <Grid key={index} item xs={6} md={6} lg={3}>
-          <Stats {...props} />
-        </Grid>
-      ))}
+      <Grid container item columns={10} spacing={3}>
+        {StatsCards.map((props, index, list) =>
+          index + 1 === list.length && list.length % 2 > 0 ? (
+            <Grid key={index} item xs={10} md={2} lg={2}>
+              <Stats {...props} />
+            </Grid>
+          ) : (
+            <Grid key={index} item xs={5} md={2} lg={2}>
+              <Stats {...props} />
+            </Grid>
+          )
+        )}
+      </Grid>
 
       <Grid item xs={12} md={6} lg={4} order={{ xs: 3, md: 1 }}>
         <Card>
@@ -261,17 +266,15 @@ export const Dashboard = () => {
             {loading ? (
               <CircularProgress />
             ) : latestTransactions.length > 0 ? (
-              latestTransactions
-                .slice(0, 6)
-                .map(({ id, categories, receiver, amount, date }) => (
-                  <Transaction
-                    key={id}
-                    category={categories.name}
-                    date={new Date(date)}
-                    receiver={receiver}
-                    amount={amount}
-                  />
-                ))
+              latestTransactions.map(({ id, categories, receiver, amount, date }) => (
+                <Transaction
+                  key={id}
+                  category={categories.name}
+                  date={new Date(date)}
+                  receiver={receiver}
+                  amount={amount}
+                />
+              ))
             ) : (
               <NoResults sx={{ mt: 2 }} text="No transactions found" />
             )}
@@ -297,7 +300,6 @@ export const Dashboard = () => {
         }}
       />
 
-      {/* Add Subscription */}
       <CreateSubscription
         open={showSubscriptionForm}
         setOpen={(show) => setShowSubscriptionForm(show)}

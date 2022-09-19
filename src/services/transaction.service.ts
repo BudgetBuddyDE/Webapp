@@ -86,6 +86,23 @@ export class TransactionService {
   }
 
   /**
+   * Get income for this month which hasn't been processed  till today
+   */
+  static getFutureIncome(transactions: ITransaction[]) {
+    const now = new Date();
+    return Math.abs(
+      transactions
+        .filter(
+          (transaction) =>
+            isSameMonth(new Date(transaction.date), now) &&
+            new Date(transaction.date) > now &&
+            transaction.amount > 0
+        )
+        .reduce((prev, cur) => prev + cur.amount, 0)
+    );
+  }
+
+  /**
    * Get all spendings for the month which the user have fullfilled
    */
   static getCurrentMonthSpendings(transactions: ITransaction[]) {
@@ -96,6 +113,23 @@ export class TransactionService {
           (transaction) =>
             isSameMonth(new Date(transaction.date), now) &&
             new Date(transaction.date) <= now &&
+            transaction.amount < 0
+        )
+        .reduce((prev, cur) => prev + cur.amount, 0)
+    );
+  }
+
+  /**
+   * Get spendings for this month which hasn't been processed till today
+   */
+  static getFutureSpendings(transactions: ITransaction[]) {
+    const now = new Date();
+    return Math.abs(
+      transactions
+        .filter(
+          (transaction) =>
+            isSameMonth(new Date(transaction.date), now) &&
+            new Date(transaction.date) > now &&
             transaction.amount < 0
         )
         .reduce((prev, cur) => prev + cur.amount, 0)
