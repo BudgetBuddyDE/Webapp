@@ -1,5 +1,10 @@
 import { supabase } from '../supabase';
-import type { IBaseSubscriptionDTO, ISubscription } from '../types/transaction.interface';
+import type {
+  IBaseSubscriptionDTO,
+  ISubscription,
+  ITransaction,
+} from '../types/transaction.interface';
+import { TransactionService } from './transaction.service';
 
 export class SubscriptionService {
   private static table = 'subscriptions';
@@ -76,15 +81,19 @@ export class SubscriptionService {
   /**
    * Get planned income for this month which aren't fullfilled meaning which will be executed during this month
    */
-  static getFuturePlannedIncome(subscriptions: ISubscription[]) {
+  static getFuturePlannedIncome(subscriptions: ISubscription[], transactions?: ITransaction[]) {
     const now = new Date();
-    return Math.abs(
+    const processedSubscriptions = Math.abs(
       subscriptions
         .filter(
           (subscription) => subscription.execute_at > now.getDate() && subscription.amount > 0
         )
         .reduce((prev, cur) => prev + cur.amount, 0)
     );
+    if (transactions) {
+      const processedTransactions = TransactionService.getFutureIncome(transactions);
+      return processedSubscriptions + processedTransactions;
+    } else return processedSubscriptions;
   }
 
   /**
@@ -101,14 +110,18 @@ export class SubscriptionService {
   /**
    * Get planned spendings for this month which aren't fullfilled meaning which will be executed during this month
    */
-  static getFuturePlannedSpendings(subscriptions: ISubscription[]) {
+  static getFuturePlannedSpendings(subscriptions: ISubscription[], transactions?: ITransaction[]) {
     const now = new Date();
-    return Math.abs(
+    const processedSubscriptions = Math.abs(
       subscriptions
         .filter(
           (subscription) => subscription.execute_at > now.getDate() && subscription.amount < 0
         )
         .reduce((prev, cur) => prev + cur.amount, 0)
     );
+    if (transactions) {
+      const processedTransactions = TransactionService.getFutureSpendings(transactions);
+      return processedSubscriptions + processedTransactions;
+    } else return processedSubscriptions;
   }
 }
