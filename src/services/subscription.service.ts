@@ -61,4 +61,54 @@ export class SubscriptionService {
       res(data);
     });
   }
+
+  /**
+   * Get planned income for the current month
+   */
+  static getPlannedIncome(subscriptions: ISubscription[]) {
+    return Math.abs(
+      subscriptions
+        .filter((subscription) => subscription.amount > 0)
+        .reduce((prev, cur) => prev + cur.amount, 0)
+    );
+  }
+
+  /**
+   * Get planned income for this month which aren't fullfilled meaning which will be executed during this month
+   */
+  static getFuturePlannedIncome(subscriptions: ISubscription[]) {
+    const now = new Date();
+    return Math.abs(
+      subscriptions
+        .filter(
+          (subscription) => subscription.execute_at > now.getDate() && subscription.amount > 0
+        )
+        .reduce((prev, cur) => prev + cur.amount, 0)
+    );
+  }
+
+  /**
+   * Get all planned payments for the current month
+   */
+  static getPlannedSpendings(subscriptions: ISubscription[]) {
+    return Math.abs(
+      subscriptions
+        .filter((subscription) => subscription.amount < 0)
+        .reduce((prev, cur) => prev + cur.amount, 0)
+    );
+  }
+
+  /**
+   * Get planned spendings for this month which aren't fullfilled meaning which will be executed during this month
+   */
+  static getFuturePlannedSpendings(subscriptions: ISubscription[]) {
+    const now = new Date();
+    return Math.abs(
+      subscriptions
+        .filter(
+          (subscription) => subscription.execute_at > now.getDate() && subscription.amount < 0
+        )
+        .reduce((prev, cur) => prev + cur.amount, 0)
+    );
+  }
 }

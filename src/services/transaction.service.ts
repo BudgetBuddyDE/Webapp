@@ -1,3 +1,4 @@
+import { isSameMonth } from 'date-fns';
 import { supabase } from '../supabase';
 import type { IBaseTransactionDTO, ITransaction } from '../types/transaction.interface';
 
@@ -65,5 +66,39 @@ export class TransactionService {
       if (error) rej(error);
       res(data);
     });
+  }
+
+  /**
+   * Get all income for the month which the user have received
+   */
+  static getCurrentMonthIncome(transactions: ITransaction[]) {
+    const now = new Date();
+    return Math.abs(
+      transactions
+        .filter(
+          (transaction) =>
+            isSameMonth(new Date(transaction.date), now) &&
+            new Date(transaction.date) <= now &&
+            transaction.amount > 0
+        )
+        .reduce((prev, cur) => prev + cur.amount, 0)
+    );
+  }
+
+  /**
+   * Get all spendings for the month which the user have fullfilled
+   */
+  static getCurrentMonthSpendings(transactions: ITransaction[]) {
+    const now = new Date();
+    return Math.abs(
+      transactions
+        .filter(
+          (transaction) =>
+            isSameMonth(new Date(transaction.date), now) &&
+            new Date(transaction.date) <= now &&
+            transaction.amount < 0
+        )
+        .reduce((prev, cur) => prev + cur.amount, 0)
+    );
   }
 }

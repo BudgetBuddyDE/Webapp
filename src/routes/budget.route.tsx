@@ -4,7 +4,6 @@ import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/ico
 import { LocalizationProvider, DesktopDatePicker, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import ParentSize from '@visx/responsive/lib/components/ParentSizeModern';
-import { isSameMonth } from 'date-fns';
 import Card from '../components/card.component';
 import { PageHeader } from '../components/page-header.component';
 import { AuthContext } from '../context/auth.context';
@@ -25,6 +24,8 @@ import { IncomeService } from '../services/income.service';
 import { NoResults } from '../components/no-results.component';
 import { CreateBudget } from '../components/create-budget.component';
 import { EditBudget } from '../components/edit-budget.component';
+import { SubscriptionService } from '../services/subscription.service';
+import { TransactionService } from '../services/transaction.service';
 
 type ChartContent = 'INCOME' | 'SPENDINGS';
 
@@ -32,8 +33,7 @@ export const Budget = () => {
   const screenSize = useScreenSize();
   const { session } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, transactions, subscriptions, budget, setBudget, categories } =
-    useContext(StoreContext);
+  const { loading, transactions, subscriptions, budget, setBudget } = useContext(StoreContext);
   const [chart, setChart] = useState<ChartContent>('INCOME');
   const [dateRange, setDateRange] = useState({ from: getFirstDayOfMonth(), to: new Date() });
   const [dailyIncome, setDailyIncome] = useState<IDailyTransaction[]>([]);
@@ -42,7 +42,6 @@ export const Budget = () => {
   const [expenses, setExpenses] = useState<IExpense[]>([]);
   const [showAddBudgetForm, setShowAddBudgetForm] = useState(false);
   const [editBudget, setEditBudget] = useState<IBudget | null>(null);
-  const [editBudgetForm, setEditBudgetForm] = useState<Record<string, string | number>>({});
 
   const handleBudgetDelete = async (budgetId: number) => {
     try {
@@ -62,53 +61,65 @@ export const Budget = () => {
     }
   };
 
-  const StatsCalculations: { income: number; spendings: number } = {
-    income: useMemo(
-      () =>
-        Math.abs(
-          subscriptions
-            .filter((subscription) => subscription.amount > 0)
-            .reduce((prev, cur) => prev + cur.amount, 0)
-        ),
+  const StatsCalculations = {
+    plannedIncome: useMemo(
+      () => SubscriptionService.getPlannedIncome(subscriptions),
       [subscriptions]
     ),
-    spendings: useMemo(
-      () =>
-        Math.abs(
-          transactions
-            .filter(
-              (transaction) =>
-                transaction.amount < 0 &&
-                isSameMonth(new Date(transaction.date), new Date()) &&
-                new Date(transaction.date) <= new Date()
-            )
-            .reduce((prev, cur) => prev + cur.amount, 0)
-        ),
-      [transactions]
+    // totalPlannedIncome: useMemo(() => {
+    //   const receivedMoney = TransactionService.getCurrentMonthIncome(transactions);
+    //   const plannedIncome = SubscriptionService.getFuturePlannedIncome(subscriptions);
+    //   return receivedMoney + plannedIncome;
+    // }, [transactions, subscriptions]),
+    plannedSpendings: useMemo(
+      () => SubscriptionService.getPlannedSpendings(subscriptions),
+      [subscriptions]
     ),
+    totalPlannedSpendings: useMemo(() => {
+      const moneySpend = TransactionService.getCurrentMonthSpendings(transactions);
+      const futurePlannedPayments = SubscriptionService.getFuturePlannedSpendings(subscriptions);
+      return moneySpend + futurePlannedPayments;
+    }, [transactions, subscriptions]),
+    moneyLeft: useMemo(() => {
+      const plannedIncome = SubscriptionService.getPlannedIncome(subscriptions);
+      const moneySpend = TransactionService.getCurrentMonthSpendings(transactions);
+      const futurePlannedPayments = SubscriptionService.getFuturePlannedSpendings(subscriptions);
+      return plannedIncome - (moneySpend + futurePlannedPayments);
+    }, [transactions, subscriptions]),
   };
 
   const StatsCards: StatsProps[] = [
     {
-      title: StatsCalculations.income.toLocaleString('de', { style: 'currency', currency: 'EUR' }),
+      title: StatsCalculations.plannedIncome.toLocaleString('de', {
+        style: 'currency',
+        currency: 'EUR',
+      }),
       subtitle: 'Income',
       info: 'Your monthly income based on your subscriptions.',
     },
     {
-      title: StatsCalculations.spendings.toLocaleString('de', {
+      title: StatsCalculations.plannedSpendings.toLocaleString('de', {
         style: 'currency',
         currency: 'EUR',
       }),
       subtitle: 'Subscriptions',
-      info: 'Your monthly subscriptions.',
+      info: 'Your planned monthly payments.',
     },
     {
-      title: (StatsCalculations.income - StatsCalculations.spendings).toLocaleString('de', {
+      title: StatsCalculations.totalPlannedSpendings.toLocaleString('de', {
+        style: 'currency',
+        currency: 'EUR',
+      }),
+      subtitle: 'Expenses',
+      info: 'Planned montly payments and current month total spendings.',
+    },
+    {
+      title: StatsCalculations.moneyLeft.toLocaleString('de', {
         style: 'currency',
         currency: 'EUR',
       }),
       subtitle: 'Balance',
-      info: 'Balance after subtracting your subscriptions from your income.',
+      info: 'Balance after subtracting your subscriptions and payments from your income.',
     },
   ];
 
@@ -287,7 +298,7 @@ export const Budget = () => {
       <Grid item xs={12} md={12} lg={7} xl={7}>
         <Grid item container spacing={3}>
           {StatsCards.map((props) => (
-            <Grid item xs={6} md={4} lg={4}>
+            <Grid item xs={6} md={3} lg={3}>
               <Stats {...props} />
             </Grid>
           ))}
