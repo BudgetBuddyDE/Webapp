@@ -4,6 +4,7 @@ import Card from '../components/card.component';
 import { PageHeader } from '../components/page-header.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { FeedbackService } from '../services/feedback.service';
+import { UserProfile } from '../components/user-profile.component';
 
 export const Settings = () => {
   const { showSnackbar } = useContext(SnackbarContext);
@@ -45,6 +46,10 @@ export const Settings = () => {
   return (
     <Grid container spacing={3}>
       <PageHeader title="Settings" />
+
+      <Grid item xs={12} md={12} lg={4}>
+        <UserProfile />
+      </Grid>
 
       <Grid item xs={12} md={12} lg={4}>
         <Card>

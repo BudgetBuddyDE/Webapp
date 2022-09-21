@@ -1,6 +1,7 @@
 import { isSameMonth } from 'date-fns';
 import { supabase } from '../supabase';
 import type { IBaseTransactionDTO, ITransaction } from '../types/transaction.interface';
+import type { TExportType } from '../components/user-profile.component';
 
 export class TransactionService {
   private static table = 'transactions';
@@ -134,5 +135,36 @@ export class TransactionService {
         )
         .reduce((prev, cur) => prev + cur.amount, 0)
     );
+  }
+
+  /**
+   * Get the transactions, ready for the export
+   */
+  static export(type: TExportType = 'json'): Promise<IBaseTransactionDTO[] | string> {
+    return new Promise((res, rej) => {
+      switch (type) {
+        case 'json':
+          supabase
+            .from(`transactions`)
+            .select(`*, categories:category(*), paymentMethods:paymentMethod(*)`)
+            .then((result) => {
+              if (result.error) rej(result.error);
+              // @ts-ignore
+              res(result.data ?? []);
+            });
+          break;
+
+        case 'csv':
+          supabase
+            .from(`transactions`)
+            .select(`*, categories:category(*), paymentMethods:paymentMethod(*)`)
+            .csv()
+            .then((result) => {
+              if (result.error) rej(result.error);
+              res((result.data as string) ?? '');
+            });
+          break;
+      }
+    });
   }
 }

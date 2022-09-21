@@ -1,5 +1,6 @@
 import { supabase } from '../supabase';
 import type { IPaymentMethod } from '../types/transaction.interface';
+import type { TExportType } from '../components/user-profile.component';
 
 export class PaymentMethodService {
   private static table = 'paymentMethods';
@@ -49,6 +50,36 @@ export class PaymentMethodService {
         .match({ id: id });
       if (error) rej(error);
       res(data);
+    });
+  }
+
+  /**
+   * Get all payment-methods, ready for the export
+   */
+  static export(type: TExportType = 'json'): Promise<IPaymentMethod[] | string> {
+    return new Promise((res, rej) => {
+      switch (type) {
+        case 'json':
+          supabase
+            .from<IPaymentMethod>(this.table)
+            .select(`*`)
+            .then((result) => {
+              if (result.error) rej(result.error);
+              res(result.data ?? []);
+            });
+          break;
+
+        case 'csv':
+          supabase
+            .from<IPaymentMethod>(this.table)
+            .select(`*`)
+            .csv()
+            .then((result) => {
+              if (result.error) rej(result.error);
+              res(result.data ?? '');
+            });
+          break;
+      }
     });
   }
 }

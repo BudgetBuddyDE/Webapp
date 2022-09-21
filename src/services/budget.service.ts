@@ -1,5 +1,6 @@
 import { supabase } from '../supabase';
-import type { IBaseBudget, IBudget } from '../types/budget.interface';
+import type { IBaseBudget, IBudget, IExportBudget } from '../types/budget.interface';
+import type { TExportType } from '../components/user-profile.component';
 
 export class BudgetService {
   private static table = 'budget';
@@ -45,6 +46,37 @@ export class BudgetService {
         .match({ id: id });
       if (error) rej(error);
       res(data);
+    });
+  }
+
+  /**
+   * Get all set category-budgets, ready for the export
+   */
+  static export(type: TExportType = 'json'): Promise<IExportBudget[] | string> {
+    return new Promise((res, rej) => {
+      switch (type) {
+        case 'json':
+          supabase
+            .from<IBaseBudget>(this.table)
+            .select(`*, categories:category(*)`)
+            .then((result) => {
+              if (result.error) rej(result.error);
+              // @ts-ignore
+              res(result.data ?? []);
+            });
+          break;
+
+        case 'csv':
+          supabase
+            .from<IBaseBudget>(`budget`)
+            .select(`*, categories:category(*)`)
+            .csv()
+            .then((result) => {
+              if (result.error) rej(result.error);
+              res((result.data as string) ?? '');
+            });
+          break;
+      }
     });
   }
 }

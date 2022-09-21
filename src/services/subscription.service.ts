@@ -1,9 +1,11 @@
 import { supabase } from '../supabase';
 import type {
+  IBaseSubscription,
   IBaseSubscriptionDTO,
   ISubscription,
   ITransaction,
 } from '../types/transaction.interface';
+import type { TExportType } from '../components/user-profile.component';
 import { TransactionService } from './transaction.service';
 
 export class SubscriptionService {
@@ -123,5 +125,36 @@ export class SubscriptionService {
       const processedTransactions = TransactionService.getFutureSpendings(transactions);
       return processedSubscriptions + processedTransactions;
     } else return processedSubscriptions;
+  }
+
+  /**
+   * Get the subscriptions, ready for the export
+   */
+  static export(type: TExportType = 'json'): Promise<IBaseSubscription[] | string> {
+    return new Promise((res, rej) => {
+      switch (type) {
+        case 'json':
+          supabase
+            .from<IBaseSubscriptionDTO>(this.table)
+            .select(`*`)
+            .then((result) => {
+              if (result.error) rej(result.error);
+              // @ts-ignore
+              res(result.data ?? []);
+            });
+          break;
+
+        case 'csv':
+          supabase
+            .from<IBaseSubscriptionDTO>(this.table)
+            .select(`*`)
+            .csv()
+            .then((result) => {
+              if (result.error) rej(result.error);
+              res((result.data as string) ?? '');
+            });
+          break;
+      }
+    });
   }
 }
