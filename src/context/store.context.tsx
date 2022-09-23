@@ -9,12 +9,14 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { DEFAULT_FILTER_VALUE } from '../components/filter-drawer.component';
 import { BudgetService } from '../services/budget.service';
 import { CategoryService } from '../services/category.service';
 import { PaymentMethodService } from '../services/payment-method.service';
 import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
-import { IBudget } from '../types/budget.interface';
+import type { IBudget } from '../types/budget.interface';
+import type { IFilter } from '../types/filter.interface';
 import type {
   ICategory,
   IPaymentMethod,
@@ -43,6 +45,10 @@ export interface IStoreContext {
   setCategories: Dispatch<SetStateAction<ICategory[]>>;
   paymentMethods: IPaymentMethod[];
   setPaymentMethods: Dispatch<SetStateAction<IPaymentMethod[]>>;
+  showFilter: boolean;
+  setShowFilter: Dispatch<SetStateAction<boolean>>;
+  filter: IFilter;
+  setFilter: Dispatch<SetStateAction<IFilter>>;
 }
 
 export const StoreContext = createContext({} as IStoreContext);
@@ -56,8 +62,12 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
   const [budget, setBudget] = useState<IBudget[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
+  const [showFilter, setShowFilter] = useState(false);
+  const [filter, setFilter] = useState<IFilter>(DEFAULT_FILTER_VALUE);
 
   useMemo(() => saveSidebarState(showDrawer), [showDrawer]);
+
+  useEffect(() => console.log(filter), [filter]);
 
   useEffect(() => {
     setLoading(true);
@@ -136,6 +146,10 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
           setCategories,
           paymentMethods,
           setPaymentMethods,
+          showFilter,
+          setShowFilter,
+          filter,
+          setFilter,
         }),
         [
           loading,
@@ -146,6 +160,8 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
           subscriptions,
           categories,
           paymentMethods,
+          showFilter,
+          filter,
         ]
       )}
     >

@@ -12,11 +12,12 @@ import { PaymentMethods } from './routes/payment-method.route';
 import { Categories } from './routes/categories.route';
 import { SignIn } from './routes/sign-in.route';
 import { SignUp } from './routes/sign-up.route';
-import { ProtectedRoute } from './components/protected-route.component';
+import { ProtectedRoute, ProtectedComponent } from './components/protected.component';
 import Drawer from './components/drawer.component';
 import { RequestReset } from './routes/request-reset';
 import { ResetPassword } from './routes/reset-password.route';
 import { Settings } from './routes/settings.route';
+import { FilterDrawer } from './components/filter-drawer.component';
 
 export const App: React.FC = () => {
   return (
@@ -104,6 +105,10 @@ export const App: React.FC = () => {
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/sign-up" element={<SignUp />} />
             </Routes>
+
+            <ProtectedComponent>
+              <FilterDrawer />
+            </ProtectedComponent>
           </Container>
           <Box
             component="div"
