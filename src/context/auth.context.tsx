@@ -13,7 +13,6 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   const [session, setSession] = React.useState<Session | null>(supabase.auth.session());
 
   React.useEffect(() => {
-    console.log(process.env.NODE_ENV === 'development' && session);
     supabase.auth.onAuthStateChange((event, session) => setSession(session));
   }, [session]);
 
