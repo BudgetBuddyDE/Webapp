@@ -18,44 +18,42 @@ const Card: FC<ICardProps> = ({ children, sx }) => {
 
 const Header: FC<ICardSectionProps> = ({ children, sx }) => {
   return (
-    <Box
-      display="flex"
-      alignItems="center"
-      justifyContent="space-between"
-      flexWrap="wrap"
-      sx={{ ...sx }}
-    >
+    <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap" sx={sx}>
       {children}
     </Box>
   );
 };
 
-const HeaderActions: FC<PropsWithChildren> = ({ children }) => {
+const HeaderActions: FC<ICardSectionProps> = ({ children, sx }) => {
   return (
-    <Box display="flex" flexDirection="row">
+    <Box display="flex" flexDirection="row" sx={sx}>
       {children}
     </Box>
   );
 };
 
-const Title: FC<PropsWithChildren> = ({ children }) => {
+const Title: FC<ICardSectionProps> = ({ children, sx }) => {
   return (
-    <Typography variant="subtitle1" fontWeight="bold">
+    <Typography variant="subtitle1" fontWeight="bold" sx={sx}>
       {children}
     </Typography>
   );
 };
 
-const Subtitle: FC<PropsWithChildren> = ({ children }) => {
-  return <Typography variant="subtitle2">{children}</Typography>;
+const Subtitle: FC<ICardSectionProps> = ({ children, sx }) => {
+  return (
+    <Typography variant="subtitle2" sx={sx}>
+      {children}
+    </Typography>
+  );
 };
 
 const Body: FC<ICardSectionProps> = ({ children, sx }) => {
-  return <Box sx={{ ...sx }}>{children}</Box>;
+  return <Box sx={sx}>{children}</Box>;
 };
 
 const Footer: FC<ICardSectionProps> = ({ children, sx }) => {
-  return <Box sx={{ ...sx }}>{children}</Box>;
+  return <Box sx={sx}>{children}</Box>;
 };
 
 export default Object.assign(Card, {
