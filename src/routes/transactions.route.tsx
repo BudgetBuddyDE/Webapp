@@ -15,7 +15,12 @@ import {
   Chip,
   Button,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import {
+  Tune as TuneIcon,
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+} from '@mui/icons-material';
 import Card from '../components/card.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { PageHeader } from '../components/page-header.component';
@@ -28,20 +33,17 @@ import { TransactionService } from '../services/transaction.service';
 import { NoResults } from '../components/no-results.component';
 import { CreateTransaction } from '../components/create-transaction.component';
 import { EditTransaction } from '../components/edit-transaction.component';
+import { useStateCallback } from '../hooks/useStateCallback.hook';
+import { filterTransactions } from '../utils/filter';
 
 export const Transactions = () => {
   const { showSnackbar } = useContext(SnackbarContext);
-  const {
-    loading,
-    transactions,
-    transactionReceiver,
-    setTransactions,
-    categories,
-    paymentMethods,
-  } = useContext(StoreContext);
+  const { loading, filter, transactions, setTransactions, setShowFilter } =
+    useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
   const [keyword, setKeyword] = useState('');
-  const [shownTransactions, setShownTransactions] = useState<readonly ITransaction[]>(transactions);
+  const [shownTransactions, setShownTransactions] =
+    useStateCallback<readonly ITransaction[]>(transactions);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -76,18 +78,8 @@ export const Transactions = () => {
   useEffect(() => setShownTransactions(transactions), [transactions]);
 
   useEffect(() => {
-    if (transactions.length === 0) return;
-    if (keyword === '') setShownTransactions(transactions);
-    setShownTransactions(
-      transactions.filter(
-        (item) =>
-          item.receiver.toLowerCase().includes(keyword) ||
-          item.categories.name.toLowerCase().includes(keyword) ||
-          item.paymentMethods.name.toLowerCase().includes(keyword) ||
-          item.description?.toString().toLowerCase().includes(keyword)
-      )
-    );
-  }, [keyword, transactions]);
+    setShownTransactions(filterTransactions(keyword, filter, transactions));
+  }, [keyword, filter, transactions]);
 
   return (
     <Grid container spacing={3}>
@@ -100,7 +92,12 @@ export const Transactions = () => {
               <Card.Title>Transactions</Card.Title>
               <Card.Subtitle>Manage your transactions</Card.Subtitle>
             </Box>
-            <Card.HeaderActions>
+            <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 } }}>
+              <Tooltip title="Apply filters">
+                <IconButton aria-label="apply-filters" onClick={() => setShowFilter(true)}>
+                  <TuneIcon fontSize="inherit" />
+                </IconButton>
+              </Tooltip>
               <SearchInput sx={{ mr: '.5rem' }} onSearch={handleOnSearch} />
               <Tooltip title="Add Transaction">
                 <IconButton aria-label="add-transactions" onClick={() => setShowAddForm(true)}>
