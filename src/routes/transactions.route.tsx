@@ -35,11 +35,11 @@ import { CreateTransaction } from '../components/create-transaction.component';
 import { EditTransaction } from '../components/edit-transaction.component';
 import { useStateCallback } from '../hooks/useStateCallback.hook';
 import { filterTransactions } from '../utils/filter';
+import { ShowFilterButton } from '../components/show-filter.component';
 
 export const Transactions = () => {
   const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, filter, transactions, setTransactions, setShowFilter } =
-    useContext(StoreContext);
+  const { loading, filter, transactions, setTransactions } = useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
   const [keyword, setKeyword] = useState('');
   const [shownTransactions, setShownTransactions] =
@@ -93,12 +93,8 @@ export const Transactions = () => {
               <Card.Subtitle>Manage your transactions</Card.Subtitle>
             </Box>
             <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 } }}>
-              <Tooltip title="Apply filters">
-                <IconButton aria-label="apply-filters" onClick={() => setShowFilter(true)}>
-                  <TuneIcon fontSize="inherit" />
-                </IconButton>
-              </Tooltip>
-              <SearchInput sx={{ mr: '.5rem' }} onSearch={handleOnSearch} />
+              <ShowFilterButton />
+              <SearchInput onSearch={handleOnSearch} />
               <Tooltip title="Add Transaction">
                 <IconButton aria-label="add-transactions" onClick={() => setShowAddForm(true)}>
                   <AddIcon fontSize="inherit" />
