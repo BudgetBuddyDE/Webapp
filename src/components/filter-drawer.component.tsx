@@ -1,4 +1,4 @@
-import { useContext, useState, FC, FormEvent, ChangeEvent, useEffect } from 'react';
+import { useContext, useState, FC, FormEvent, ChangeEvent } from 'react';
 import {
   Box,
   OutlinedInput,
@@ -15,6 +15,7 @@ import { FormDrawer } from './form-drawer.component';
 import { StoreContext } from '../context/store.context';
 import { DateRange, IDateRange } from './date-range.component';
 import type { IFilter } from '../types/filter.interface';
+import { getLastDayOfMonth } from '../utils/getLastDayOfMonth';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -33,7 +34,7 @@ export const DEFAULT_FILTER_VALUE: IFilter = {
   categories: null,
   paymentMethods: null,
   dateFrom: new Date(now.getFullYear(), 0, 1),
-  dateTo: new Date(),
+  dateTo: getLastDayOfMonth(),
   priceFrom: -99999,
   priceTo: 99999,
 };
@@ -104,8 +105,6 @@ export const FilterDrawer: FC<IFilterDrawerProps> = () => {
     },
   };
 
-  useEffect(() => console.log(unappliedFilter), [unappliedFilter]);
-
   return (
     <FormDrawer
       open={showFilter}
@@ -119,6 +118,7 @@ export const FilterDrawer: FC<IFilterDrawerProps> = () => {
         <DateRange
           onDateChange={handler.onDateRangeChange}
           defaultDateFrom={unappliedFilter.dateFrom ?? new Date()}
+          defaultDateTo={unappliedFilter.dateTo ?? new Date()}
         />
       </Box>
 

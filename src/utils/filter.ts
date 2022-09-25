@@ -1,5 +1,5 @@
 import type { IFilter } from '../types/filter.interface';
-import type { ITransaction } from '../types/transaction.interface';
+import type { ISubscription, ITransaction } from '../types/transaction.interface';
 
 export function filterTransactions(keyword: string, filter: IFilter, transactions: ITransaction[]) {
   if (transactions.length === 0) return [];
@@ -45,4 +45,56 @@ export function filterTransactions(keyword: string, filter: IFilter, transaction
   }
 
   return transactions;
+}
+
+export function filterSubscriptions(
+  keyword: string,
+  filter: IFilter,
+  subscriptions: ISubscription[]
+) {
+  if (subscriptions.length === 0) return [];
+
+  if (keyword.length > 0) {
+    subscriptions = subscriptions.filter(
+      (item) =>
+        item.receiver.toLowerCase().includes(keyword) ||
+        item.description?.toString().toLowerCase().includes(keyword)
+    );
+  }
+
+  if (filter.dateFrom) {
+    subscriptions = subscriptions.filter(
+      (subscription) => subscription.execute_at >= filter.dateFrom!.getDate()
+    );
+  }
+
+  if (filter.dateTo) {
+    subscriptions = subscriptions.filter(
+      (subscription) => subscription.execute_at <= filter.dateTo!.getDate()
+    );
+  }
+
+  if (filter.categories) {
+    subscriptions = subscriptions.filter((subscription) =>
+      filter.categories?.includes(subscription.categories.id)
+    );
+  }
+
+  if (filter.paymentMethods) {
+    subscriptions = subscriptions.filter((subscription) =>
+      filter.paymentMethods?.includes(subscription.paymentMethods.id)
+    );
+  }
+
+  if (filter.priceFrom !== null) {
+    subscriptions = subscriptions.filter(
+      (subscription) => subscription.amount >= filter.priceFrom!
+    );
+  }
+
+  if (filter.priceTo !== null) {
+    subscriptions = subscriptions.filter((subscription) => subscription.amount <= filter.priceTo!);
+  }
+
+  return subscriptions;
 }

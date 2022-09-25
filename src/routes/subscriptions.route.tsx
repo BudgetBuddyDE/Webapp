@@ -28,10 +28,12 @@ import { determineNextExecution } from '../utils/determineNextExecution';
 import { NoResults } from '../components/no-results.component';
 import { CreateSubscription } from '../components/create-subscription.component';
 import { EditSubscription } from '../components/edit-subscription.component';
+import { ShowFilterButton } from '../components/show-filter.component';
+import { filterSubscriptions } from '../utils/filter';
 
 export const Subscriptions = () => {
   const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, subscriptions, setSubscriptions } = useContext(StoreContext);
+  const { loading, filter, subscriptions, setSubscriptions } = useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
   const [keyword, setKeyword] = useState('');
   const [shownSubscriptions, setShownSubscriptions] =
@@ -70,17 +72,8 @@ export const Subscriptions = () => {
   useEffect(() => setShownSubscriptions(subscriptions), [subscriptions]);
 
   useEffect(() => {
-    if (subscriptions.length === 0) return;
-    if (keyword === '') setShownSubscriptions(subscriptions);
-    setShownSubscriptions(
-      subscriptions.filter(
-        (item) =>
-          item.categories.name.toLowerCase().includes(keyword) ||
-          item.paymentMethods.name.toLowerCase().includes(keyword) ||
-          item.description?.toString().toLowerCase().includes(keyword)
-      )
-    );
-  }, [keyword, subscriptions]);
+    setShownSubscriptions(filterSubscriptions(keyword, filter, subscriptions));
+  }, [keyword, filter, subscriptions]);
 
   return (
     <Grid container spacing={3}>
@@ -94,7 +87,8 @@ export const Subscriptions = () => {
               <Card.Subtitle>Manage your monthly subscriptions</Card.Subtitle>
             </Box>
             <Card.HeaderActions>
-              <SearchInput sx={{ mr: '.5rem' }} onSearch={handleOnSearch} />
+              <ShowFilterButton />
+              <SearchInput onSearch={handleOnSearch} />
               <Tooltip title="Add Subscription">
                 <IconButton aria-label="add-subscription" onClick={() => setShowAddForm(true)}>
                   <AddIcon fontSize="inherit" />
