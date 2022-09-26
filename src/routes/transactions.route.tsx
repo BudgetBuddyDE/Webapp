@@ -19,15 +19,15 @@ import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/ico
 import Card from '../components/card.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { PageHeader } from '../components/page-header.component';
-import { SearchInput } from '../components/search-input.component';
+import { SearchInput } from '../components/inputs/search-input.component';
 import type { ITransaction } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
 import { format } from 'date-fns';
 import { StoreContext } from '../context/store.context';
 import { TransactionService } from '../services/transaction.service';
 import { NoResults } from '../components/no-results.component';
-import { CreateTransaction } from '../components/create-transaction.component';
-import { EditTransaction } from '../components/edit-transaction.component';
+import { CreateTransaction } from '../components/create-forms/create-transaction.component';
+import { EditTransaction } from '../components/edit-forms/edit-transaction.component';
 import { useStateCallback } from '../hooks/useStateCallback.hook';
 import { filterTransactions } from '../utils/filter';
 import { ShowFilterButton } from '../components/show-filter.component';

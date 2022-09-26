@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { IDailyTransaction } from '../components/area-chart.component';
+import { IDailyTransaction } from '../components/charts/area-chart.component';
 import { supabase } from '../supabase';
 import { IExpense } from '../types/transaction.interface';
 

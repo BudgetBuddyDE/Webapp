@@ -17,14 +17,14 @@ import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/ico
 import Card from '../components/card.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { PageHeader } from '../components/page-header.component';
-import { SearchInput } from '../components/search-input.component';
+import { SearchInput } from '../components/inputs/search-input.component';
 import type { IPaymentMethod } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
 import { StoreContext } from '../context/store.context';
 import { PaymentMethodService } from '../services/payment-method.service';
 import { NoResults } from '../components/no-results.component';
-import { CreatePaymentMethod } from '../components/create-payment-method.component';
-import { EditPaymentMethod } from '../components/edit-payment-method.component';
+import { CreatePaymentMethod } from '../components/create-forms/create-payment-method.component';
+import { EditPaymentMethod } from '../components/edit-forms/edit-payment-method.component';
 
 export const PaymentMethods = () => {
   const { showSnackbar } = useContext(SnackbarContext);

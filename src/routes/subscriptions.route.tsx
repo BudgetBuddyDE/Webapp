@@ -19,15 +19,15 @@ import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/ico
 import Card from '../components/card.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { PageHeader } from '../components/page-header.component';
-import { SearchInput } from '../components/search-input.component';
+import { SearchInput } from '../components/inputs/search-input.component';
 import type { ISubscription } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
 import { StoreContext } from '../context/store.context';
 import { SubscriptionService } from '../services/subscription.service';
 import { determineNextExecution } from '../utils/determineNextExecution';
 import { NoResults } from '../components/no-results.component';
-import { CreateSubscription } from '../components/create-subscription.component';
-import { EditSubscription } from '../components/edit-subscription.component';
+import { CreateSubscription } from '../components/create-forms/create-subscription.component';
+import { EditSubscription } from '../components/edit-forms/edit-subscription.component';
 import { ShowFilterButton } from '../components/show-filter.component';
 import { filterSubscriptions } from '../utils/filter';
 

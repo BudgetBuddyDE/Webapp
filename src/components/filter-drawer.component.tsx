@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { FormDrawer } from './form-drawer.component';
 import { StoreContext } from '../context/store.context';
-import { DateRange, IDateRange } from './date-range.component';
+import { DateRange, IDateRange } from './inputs/date-range.component';
 import type { IFilter } from '../types/filter.interface';
 import { getLastDayOfMonth } from '../utils/getLastDayOfMonth';
 

@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, FormEvent, useContext, useState } from 'react';
+import { ChangeEvent, FC, FormEvent, useContext, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   AlertTitle,
@@ -9,27 +9,28 @@ import {
   OutlinedInput,
   TextField,
 } from '@mui/material';
-import { StoreContext } from '../context/store.context';
-import { FormDrawer } from './form-drawer.component';
-import { SnackbarContext } from '../context/snackbar.context';
-import { AuthContext } from '../context/auth.context';
-import { IBudget } from '../types/budget.interface';
-import { BudgetService } from '../services/budget.service';
-import { transformBalance } from '../utils/transformBalance';
-import { isSameMonth } from 'date-fns';
+import { StoreContext } from '../../context/store.context';
+import { FormDrawer } from '../form-drawer.component';
+import { SnackbarContext } from '../../context/snackbar.context';
+import { IBaseBudget, IBudget } from '../../types/budget.interface';
+import { BudgetService } from '../../services/budget.service';
+import { transformBalance } from '../../utils/transformBalance';
+import { getCategoryFromList } from '../../utils/getCategoryFromList';
 
-export interface ICreateBudgetProps {
+export interface IEditBudgetProps {
   open: boolean;
   setOpen: (show: boolean) => void;
   afterSubmit?: (budget: IBudget) => void;
+  budget: IBudget | null;
 }
 
-export const CreateBudget: FC<ICreateBudgetProps> = ({ open, setOpen, afterSubmit }) => {
-  const { session } = useContext(AuthContext);
+export const EditBudget: FC<IEditBudgetProps> = ({ open, setOpen, afterSubmit, budget }) => {
   const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, categories, budget, setBudget, transactions } = useContext(StoreContext);
+  const { loading, categories, setBudget } = useContext(StoreContext);
   const [form, setForm] = useState<Record<string, string | number>>({});
   const [errorMessage, setErrorMessage] = useState('');
+
+  const shouldBeOpen = useMemo(() => open && form.category !== undefined, [open, form]);
 
   const handler = {
     onClose: () => {
@@ -45,24 +46,16 @@ export const CreateBudget: FC<ICreateBudgetProps> = ({ open, setOpen, afterSubmi
       try {
         event.preventDefault();
         const values = Object.keys(form);
-        ['category', 'budget'].forEach((field) => {
+        ['id', 'budget'].forEach((field) => {
           if (!values.includes(field)) throw new Error('Provide an ' + field);
         });
 
-        // Check if the user has already set an budget for this category
-        if (budget.find((budget) => budget.category.id === form.category))
-          throw new Error("You've already set an Budget for this category");
+        const data = await BudgetService.update(Number(form.id), {
+          budget: transformBalance(form.budget.toString()),
+        } as Partial<IBaseBudget>);
+        if (data === null) throw new Error('No budget updated');
 
-        const data = await BudgetService.create([
-          {
-            category: Number(form.category),
-            budget: transformBalance(form.budget.toString()),
-            created_by: session!.user!.id,
-          },
-        ]);
-        if (data === null) throw new Error('No budget saved');
-
-        const addedItem = {
+        const updatedItem = {
           id: data[0].id,
           category: categories.find((category) => category.id === data[0].category) as {
             id: number;
@@ -70,23 +63,17 @@ export const CreateBudget: FC<ICreateBudgetProps> = ({ open, setOpen, afterSubmi
             description: string | null;
           },
           budget: data[0].budget,
-          currentlySpent: Math.abs(
-            transactions
-              .filter(
-                (transaction) =>
-                  transaction.amount < 0 &&
-                  isSameMonth(new Date(transaction.date), new Date()) &&
-                  new Date(transaction.date) <= new Date() &&
-                  transaction.categories.id === data[0].category
-              )
-              .reduce((prev, cur) => prev + cur.amount, 0)
-          ),
-        } as IBudget;
-        setBudget((prev) => [...prev, addedItem]);
-        if (afterSubmit) afterSubmit(addedItem);
+        };
+        setBudget((prev) =>
+          prev.map((budget) => {
+            if (budget.id === updatedItem.id) {
+              return updatedItem as IBudget;
+            } else return budget;
+          })
+        );
         handler.onClose();
         showSnackbar({
-          message: `Budget for category '${addedItem.category.name}' saved`,
+          message: `Budget for category '${updatedItem.category.name}' saved`,
         });
       } catch (error) {
         console.error(error);
@@ -96,11 +83,21 @@ export const CreateBudget: FC<ICreateBudgetProps> = ({ open, setOpen, afterSubmi
     },
   };
 
+  useEffect(() => {
+    if (budget) {
+      setForm({
+        id: budget.id,
+        category: budget.category.id,
+        budget: budget.budget,
+      });
+    } else setForm({});
+  }, [budget]);
+
   if (loading) return null;
   return (
     <FormDrawer
-      open={open}
-      heading="Set Budget"
+      open={shouldBeOpen}
+      heading="Edit Budget"
       onClose={handler.onClose}
       onSubmit={handler.onSubmit}
       saveLabel="Create"
@@ -115,29 +112,32 @@ export const CreateBudget: FC<ICreateBudgetProps> = ({ open, setOpen, afterSubmi
       {categories.length === 0 && (
         <Alert severity="info" sx={{ mb: 2 }}>
           <AlertTitle>Info</AlertTitle>
-          To be able to create a transaction you have to create a category under{' '}
+          To be able to create set a budget you have to create a category under{' '}
           <strong>Categories {'>'} Add Category</strong> before.{' '}
         </Alert>
       )}
 
       {categories.length > 0 && (
         <Autocomplete
-          id="add-category"
+          id="edit-category"
           options={categories.map((item) => ({ label: item.name, value: item.id }))}
           sx={{ mb: 2 }}
           onChange={(event, value) => handler.autocompleteChange(event, Number(value?.value))}
+          defaultValue={getCategoryFromList(Number(form.category), categories)}
           renderInput={(props) => <TextField {...props} label="Category" />}
           isOptionEqualToValue={(option, value) => option.value === value.value}
+          disabled
         />
       )}
 
       <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel htmlFor="add-budget">Monthly Budget</InputLabel>
+        <InputLabel htmlFor="edit-budget">Monthly Budget</InputLabel>
         <OutlinedInput
-          id="add-budget"
+          id="edit-budget"
           label="Monthly Budget"
           name="budget"
           inputProps={{ inputMode: 'numeric' }}
+          value={form.budget}
           onChange={handler.inputChange}
           startAdornment={<InputAdornment position="start">€</InputAdornment>}
         />

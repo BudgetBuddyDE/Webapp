@@ -5,8 +5,8 @@ import { Group } from '@visx/group';
 import { scaleOrdinal } from '@visx/scale';
 import ParentSize from '@visx/responsive/lib/components/ParentSizeModern';
 import { Tooltip } from '@mui/material';
-import type { IExpense } from '../types/transaction.interface';
-import { useScreenSize } from '../hooks/useScreenSize.hook';
+import type { IExpense } from '../../types/transaction.interface';
+import { useScreenSize } from '../../hooks/useScreenSize.hook';
 
 function getAbsoluteAmount(expense: IExpense) {
   return Math.abs(expense.sum);

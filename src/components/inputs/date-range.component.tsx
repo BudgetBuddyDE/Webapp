@@ -2,8 +2,8 @@ import { FC } from 'react';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Box, SxProps, TextField, TextFieldProps, Theme } from '@mui/material';
-import { useScreenSize } from '../hooks/useScreenSize.hook';
-import { useStateCallback } from '../hooks/useStateCallback.hook';
+import { useScreenSize } from '../../hooks/useScreenSize.hook';
+import { useStateCallback } from '../../hooks/useStateCallback.hook';
 
 export type IDateInputProps = TextFieldProps & { sx?: SxProps<Theme> };
 

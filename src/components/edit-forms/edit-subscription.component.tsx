@@ -12,36 +12,36 @@ import {
 } from '@mui/material';
 import { LocalizationProvider, DesktopDatePicker, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { StoreContext } from '../context/store.context';
-import { FormDrawer } from './form-drawer.component';
-import type { IBaseTransactionDTO, ITransaction } from '../types/transaction.interface';
-import { SnackbarContext } from '../context/snackbar.context';
-import { AuthContext } from '../context/auth.context';
-import { FormStyle } from '../theme/form-style';
-import { useScreenSize } from '../hooks/useScreenSize.hook';
-import { ReceiverAutocomplete } from './receiver-autocomplete.component';
-import { getCategoryFromList } from '../utils/getCategoryFromList';
-import { getPaymentMethodFromList } from '../utils/getPaymentMethodFromList';
-import { transformBalance } from '../utils/transformBalance';
-import { TransactionService } from '../services/transaction.service';
+import { StoreContext } from '../../context/store.context';
+import { FormDrawer } from '../form-drawer.component';
+import type { IBaseSubscriptionDTO, ISubscription } from '../../types/transaction.interface';
+import { SnackbarContext } from '../../context/snackbar.context';
+import { AuthContext } from '../../context/auth.context';
+import { FormStyle } from '../../theme/form-style';
+import { useScreenSize } from '../../hooks/useScreenSize.hook';
+import { ReceiverAutocomplete } from '../inputs/receiver-autocomplete.component';
+import { getCategoryFromList } from '../../utils/getCategoryFromList';
+import { getPaymentMethodFromList } from '../../utils/getPaymentMethodFromList';
+import { transformBalance } from '../../utils/transformBalance';
+import { SubscriptionService } from '../../services/subscription.service';
 
 export interface IEditTransactionProps {
   open: boolean;
   setOpen: (show: boolean) => void;
-  afterSubmit?: (transaction: ITransaction) => void;
-  transaction: ITransaction | null;
+  afterSubmit?: (subscription: ISubscription) => void;
+  subscription: ISubscription | null;
 }
 
-export const EditTransaction: FC<IEditTransactionProps> = ({
+export const EditSubscription: FC<IEditTransactionProps> = ({
   open,
   setOpen,
   afterSubmit,
-  transaction,
+  subscription,
 }) => {
   const screenSize = useScreenSize();
   const { session } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, setTransactions, transactionReceiver, categories, paymentMethods } =
+  const { loading, setSubscriptions, transactionReceiver, categories, paymentMethods } =
     useContext(StoreContext);
   const [form, setForm] = useState<Record<string, string | number | Date>>({});
   const [errorMessage, setErrorMessage] = useState('');
@@ -53,7 +53,7 @@ export const EditTransaction: FC<IEditTransactionProps> = ({
       setOpen(false);
     },
     onDateChange: (date: Date | null) => {
-      if (date) setForm((prev) => ({ ...prev, date: date }));
+      if (date) setForm((prev) => ({ ...prev, execute_at: date }));
     },
     autocompleteChange: (
       event: React.SyntheticEvent<Element, Event>,
@@ -72,22 +72,23 @@ export const EditTransaction: FC<IEditTransactionProps> = ({
       try {
         event.preventDefault();
         const values = Object.keys(form);
-        ['id', 'date', 'category', 'paymentMethod', 'receiver', 'amount'].forEach((field) => {
+        ['id', 'execute_at', 'category', 'paymentMethod', 'receiver', 'amount'].forEach((field) => {
           if (!values.includes(field)) throw new Error('Provide an ' + field);
         });
         if (Number(form.amount) === 0) throw new Error('Provide an amount above 0');
 
-        const data = await TransactionService.updateTransaction(Number(form.id), {
+        const data = await SubscriptionService.updateSubscription(Number(form.id), {
           id: form.id,
-          date: form.date,
+          execute_at:
+            typeof form.execute_at === 'object' ? form.execute_at.getDate() : new Date().getDate(),
           category: form.category,
           paymentMethod: form.paymentMethod,
           receiver: form.receiver,
           amount: transformBalance(form.amount.toString()),
           description: form.description || null,
           created_by: session!.user!.id,
-        } as IBaseTransactionDTO);
-        if (data === null) throw new Error('No transaction updated');
+        } as IBaseSubscriptionDTO);
+        if (data === null) throw new Error('No subscription updated');
 
         handler.onClose();
         const updatedItem = {
@@ -96,17 +97,17 @@ export const EditTransaction: FC<IEditTransactionProps> = ({
           paymentMethods: paymentMethods.find(
             (paymentMethod) => paymentMethod.id === data[0].paymentMethod
           ),
-        } as ITransaction;
+        } as unknown as ISubscription;
         if (afterSubmit) afterSubmit(updatedItem);
-        setTransactions((prev) =>
-          prev.map((transaction) => {
-            if (transaction.id === updatedItem.id) {
+        setSubscriptions((prev) =>
+          prev.map((subscription) => {
+            if (subscription.id === updatedItem.id) {
               return updatedItem;
-            } else return transaction;
+            } else return subscription;
           })
         );
         showSnackbar({
-          message: 'Transaction updated',
+          message: 'Subscription updated',
         });
       } catch (error) {
         console.error(error);
@@ -117,18 +118,20 @@ export const EditTransaction: FC<IEditTransactionProps> = ({
   };
 
   useEffect(() => {
-    if (transaction !== null) {
+    if (subscription !== null) {
+      const execute = new Date();
+      execute.setDate(subscription.execute_at);
       setForm({
-        id: transaction.id,
-        date: new Date(transaction.date),
-        receiver: transaction.receiver,
-        amount: transaction.amount,
-        category: transaction.categories.id,
-        paymentMethod: transaction.paymentMethods.id,
-        description: transaction.description || '',
+        id: subscription.id,
+        execute_at: execute,
+        receiver: subscription.receiver,
+        amount: subscription.amount,
+        category: subscription.categories.id,
+        paymentMethod: subscription.paymentMethods.id,
+        description: subscription.description || '',
       });
     } else setForm({});
-  }, [transaction]);
+  }, [subscription]);
 
   if (loading) return null;
   return (
@@ -149,7 +152,7 @@ export const EditTransaction: FC<IEditTransactionProps> = ({
       {categories.length < 1 && (
         <Alert severity="info" sx={{ mb: 2 }}>
           <AlertTitle>Info</AlertTitle>
-          To be able to create a transaction you have to create a category under{' '}
+          To be able to create a subscription you have to create a category under{' '}
           <strong>Categories {'>'} Add Category</strong> before.{' '}
         </Alert>
       )}
@@ -157,7 +160,7 @@ export const EditTransaction: FC<IEditTransactionProps> = ({
       {paymentMethods.length < 1 && (
         <Alert severity="info" sx={{ mb: 2 }}>
           <AlertTitle>Info</AlertTitle>
-          To be able to create a transaction you have to create a payment method under{' '}
+          To be able to create a subscription you have to create a payment method under{' '}
           <strong>Payment Methods {'>'} Add Payment Method</strong> before.{' '}
         </Alert>
       )}
@@ -165,17 +168,17 @@ export const EditTransaction: FC<IEditTransactionProps> = ({
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         {screenSize === 'small' ? (
           <MobileDatePicker
-            label="Date"
-            inputFormat="dd.MM.yy"
-            value={form.date}
+            label="Execute at"
+            inputFormat="dd"
+            value={form.execute_at}
             onChange={handler.onDateChange}
             renderInput={(params) => <TextField sx={FormStyle} {...params} />}
           />
         ) : (
           <DesktopDatePicker
-            label="Date"
-            inputFormat="dd.MM.yy"
-            value={form.date}
+            label="Execute at"
+            inputFormat="dd"
+            value={form.execute_at}
             onChange={handler.onDateChange}
             renderInput={(params) => <TextField sx={FormStyle} {...params} />}
           />

@@ -12,32 +12,28 @@ import {
 } from '@mui/material';
 import { LocalizationProvider, DesktopDatePicker, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { StoreContext } from '../context/store.context';
-import { FormDrawer } from './form-drawer.component';
-import { useScreenSize } from '../hooks/useScreenSize.hook';
-import { ReceiverAutocomplete } from './receiver-autocomplete.component';
-import { transformBalance } from '../utils/transformBalance';
-import type { IBaseSubscriptionDTO, ISubscription } from '../types/transaction.interface';
-import { SnackbarContext } from '../context/snackbar.context';
-import { AuthContext } from '../context/auth.context';
-import { FormStyle } from '../theme/form-style';
-import { SubscriptionService } from '../services/subscription.service';
+import { StoreContext } from '../../context/store.context';
+import { FormDrawer } from '../form-drawer.component';
+import { useScreenSize } from '../../hooks/useScreenSize.hook';
+import { ReceiverAutocomplete } from '../inputs/receiver-autocomplete.component';
+import { TransactionService } from '../../services/transaction.service';
+import { transformBalance } from '../../utils/transformBalance';
+import type { IBaseTransactionDTO, ITransaction } from '../../types/transaction.interface';
+import { SnackbarContext } from '../../context/snackbar.context';
+import { AuthContext } from '../../context/auth.context';
+import { FormStyle } from '../../theme/form-style';
 
-export interface ICreateSubscriptionProps {
+export interface ICreateTransactionProps {
   open: boolean;
   setOpen: (show: boolean) => void;
-  afterSubmit?: (subscription: ISubscription) => void;
+  afterSubmit?: (transaction: ITransaction) => void;
 }
 
-export const CreateSubscription: FC<ICreateSubscriptionProps> = ({
-  open,
-  setOpen,
-  afterSubmit,
-}) => {
+export const CreateTransaction: FC<ICreateTransactionProps> = ({ open, setOpen, afterSubmit }) => {
   const screenSize = useScreenSize();
   const { session } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, transactionReceiver, setSubscriptions, categories, paymentMethods } =
+  const { loading, transactionReceiver, setTransactions, categories, paymentMethods } =
     useContext(StoreContext);
   const [date, setDate] = useState(new Date());
   const [form, setForm] = useState<Record<string, string | number>>({});
@@ -71,40 +67,30 @@ export const CreateSubscription: FC<ICreateSubscriptionProps> = ({
           if (!values.includes(field)) throw new Error('Provide an ' + field);
         });
 
-        const data = await SubscriptionService.createSubscriptions([
+        const data = await TransactionService.createTransactions([
           {
-            // @ts-ignore
-            execute_at: date.getDate(),
+            date: date,
             category: form.category,
             paymentMethod: form.paymentMethod,
             receiver: form.receiver,
             amount: transformBalance(form.amount.toString()),
             description: form.information || null,
             created_by: session!.user!.id,
-          } as IBaseSubscriptionDTO,
+          } as IBaseTransactionDTO,
         ]);
-        if (data === null) throw new Error('No subscription created');
+        if (data === null) throw new Error('No transaction created');
 
-        if (afterSubmit) {
-          // @ts-ignore
-          afterSubmit({
-            ...data[0],
-            categories: categories.find((value) => value.id === data[0].category),
-            paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
-          } as ISubscription);
-        }
-        setSubscriptions((prev) => [
-          ...prev,
-          // @ts-ignore
-          {
-            ...data[0],
-            categories: categories.find((value) => value.id === data[0].category),
-            paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
-          } as ISubscription,
-        ]);
+        const newTransaction = {
+          ...data[0],
+          categories: categories.find((value) => value.id === data[0].category),
+          paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
+        } as ITransaction;
+
+        if (afterSubmit) afterSubmit(newTransaction);
+        setTransactions((prev) => [newTransaction, ...prev]);
         handler.onClose();
         showSnackbar({
-          message: 'Subscription added',
+          message: 'Transaction added',
         });
       } catch (error) {
         console.error(error);
@@ -118,7 +104,7 @@ export const CreateSubscription: FC<ICreateSubscriptionProps> = ({
   return (
     <FormDrawer
       open={open}
-      heading="Add Subscription"
+      heading="Add Transaction"
       onClose={handler.onClose}
       onSubmit={handler.onSubmit}
       saveLabel="Create"
@@ -130,7 +116,7 @@ export const CreateSubscription: FC<ICreateSubscriptionProps> = ({
         </Alert>
       )}
 
-      {categories.length === 0 && (
+      {categories.length < 1 && (
         <Alert severity="info" sx={{ mb: 2 }}>
           <AlertTitle>Info</AlertTitle>
           To be able to create a transaction you have to create a category under{' '}
@@ -138,7 +124,7 @@ export const CreateSubscription: FC<ICreateSubscriptionProps> = ({
         </Alert>
       )}
 
-      {paymentMethods.length === 0 && (
+      {paymentMethods.length < 1 && (
         <Alert severity="info" sx={{ mb: 2 }}>
           <AlertTitle>Info</AlertTitle>
           To be able to create a transaction you have to create a payment method under{' '}
@@ -149,16 +135,16 @@ export const CreateSubscription: FC<ICreateSubscriptionProps> = ({
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         {screenSize === 'small' ? (
           <MobileDatePicker
-            label="Execute at"
-            inputFormat="dd"
+            label="Date"
+            inputFormat="dd.MM.yy"
             value={date}
             onChange={handler.onDateChange}
             renderInput={(params) => <TextField sx={FormStyle} {...params} />}
           />
         ) : (
           <DesktopDatePicker
-            label="Execute at"
-            inputFormat="dd"
+            label="Date"
+            inputFormat="dd.MM.yy"
             value={date}
             onChange={handler.onDateChange}
             renderInput={(params) => <TextField sx={FormStyle} {...params} />}

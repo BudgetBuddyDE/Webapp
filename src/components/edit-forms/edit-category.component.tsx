@@ -1,12 +1,12 @@
 import { ChangeEvent, FC, FormEvent, useContext, useState, useEffect } from 'react';
 import { Alert, TextField } from '@mui/material';
-import { StoreContext } from '../context/store.context';
-import { FormDrawer } from './form-drawer.component';
-import type { ICategory } from '../types/transaction.interface';
-import { SnackbarContext } from '../context/snackbar.context';
-import { AuthContext } from '../context/auth.context';
-import { FormStyle } from '../theme/form-style';
-import { CategoryService } from '../services/category.service';
+import { StoreContext } from '../../context/store.context';
+import { FormDrawer } from '../form-drawer.component';
+import type { ICategory } from '../../types/transaction.interface';
+import { SnackbarContext } from '../../context/snackbar.context';
+import { AuthContext } from '../../context/auth.context';
+import { FormStyle } from '../../theme/form-style';
+import { CategoryService } from '../../services/category.service';
 
 export interface IEditCategoryProps {
   open: boolean;

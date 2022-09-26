@@ -17,14 +17,14 @@ import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/ico
 import Card from '../components/card.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { PageHeader } from '../components/page-header.component';
-import { SearchInput } from '../components/search-input.component';
+import { SearchInput } from '../components/inputs/search-input.component';
 import type { ICategory } from '../types/transaction.interface';
 import { CircularProgress } from '../components/progress.component';
 import { StoreContext } from '../context/store.context';
 import { CategoryService } from '../services/category.service';
 import { NoResults } from '../components/no-results.component';
-import { CreateCategory } from '../components/create-category.component';
-import { EditCategory } from '../components/edit-category.component';
+import { CreateCategory } from '../components/create-forms/create-category.component';
+import { EditCategory } from '../components/edit-forms/edit-category.component';
 
 export const Categories = () => {
   const { showSnackbar } = useContext(SnackbarContext);
