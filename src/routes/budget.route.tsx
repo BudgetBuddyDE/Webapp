@@ -18,7 +18,7 @@ import { CategoryBudget } from '../components/category-budget.component';
 import { BudgetService } from '../services/budget.service';
 import { SnackbarContext } from '../context/snackbar.context';
 import type { IBudget } from '../types/budget.interface';
-import { Stats, StatsProps } from '../components/stats-card.component';
+import { Stats, IStatsProps } from '../components/stats-card.component';
 import { ExpenseService } from '../services/expense.service';
 import { IncomeService } from '../services/income.service';
 import { NoResults } from '../components/no-results.component';
@@ -88,7 +88,7 @@ export const Budget = () => {
     }, [transactions, subscriptions]),
   };
 
-  const StatsCards: StatsProps[] = [
+  const StatsCards: IStatsProps[] = [
     {
       title: StatsCalculations.plannedIncome.toLocaleString('de', {
         style: 'currency',

@@ -8,7 +8,7 @@ import {
 } from '@mui/icons-material';
 import { PageHeader } from '../components/page-header.component';
 import { AuthContext } from '../context/auth.context';
-import { Stats, StatsProps, StatsIconStyle } from '../components/stats-card.component';
+import { Stats, IStatsProps, StatsIconStyle } from '../components/stats-card.component';
 import { Transaction } from '../components/transaction.component';
 import Card from '../components/card.component';
 import { PieChart } from '../components/spendings-chart.component';
@@ -43,7 +43,7 @@ export const Dashboard = () => {
     [transactions]
   );
 
-  const StatsCards: StatsProps[] = [
+  const StatsCards: IStatsProps[] = [
     {
       title: useMemo(
         () =>

@@ -1,13 +1,12 @@
 import { FC } from 'react';
-import { Typography, Box, Tooltip } from '@mui/material';
+import { Typography, Box, Tooltip, SxProps, Theme } from '@mui/material';
 import {
   AccountBalanceWallet as AccountBalanceWalletIcon,
   Info as InfoIcon,
 } from '@mui/icons-material';
-import { SxProps, Theme } from '@mui/material/styles';
 import Card from '../components/card.component';
 
-export interface StatsProps {
+export interface IStatsProps {
   title: string;
   subtitle: string;
   info?: string;
@@ -23,7 +22,7 @@ export const StatsIconStyle: SxProps<Theme> = {
   opacity: 0.1,
 };
 
-export const Stats: FC<StatsProps> = ({
+export const Stats: FC<IStatsProps> = ({
   title,
   subtitle,
   info = '',
