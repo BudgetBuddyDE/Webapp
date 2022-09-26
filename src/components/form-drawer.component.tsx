@@ -1,5 +1,5 @@
 import { FC, PropsWithChildren } from 'react';
-import { Drawer, Box, Typography, IconButton, Divider, Button } from '@mui/material';
+import { Drawer, Box, Typography, IconButton, Button } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
 import { drawerWidth } from '../theme/default.theme';

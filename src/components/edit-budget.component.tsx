@@ -11,16 +11,10 @@ import {
 } from '@mui/material';
 import { StoreContext } from '../context/store.context';
 import { FormDrawer } from './form-drawer.component';
-import type { ICategory } from '../types/transaction.interface';
 import { SnackbarContext } from '../context/snackbar.context';
-import { AuthContext } from '../context/auth.context';
-import { FormStyle } from '../theme/form-style';
-import { CategoryService } from '../services/category.service';
 import { IBaseBudget, IBudget } from '../types/budget.interface';
-import { Categories } from '../routes/categories.route';
 import { BudgetService } from '../services/budget.service';
 import { transformBalance } from '../utils/transformBalance';
-import { isSameMonth } from 'date-fns';
 import { getCategoryFromList } from '../utils/getCategoryFromList';
 
 export interface IEditBudgetProps {
@@ -31,9 +25,8 @@ export interface IEditBudgetProps {
 }
 
 export const EditBudget: FC<IEditBudgetProps> = ({ open, setOpen, afterSubmit, budget }) => {
-  const { session } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, categories, setBudget, transactions } = useContext(StoreContext);
+  const { loading, categories, setBudget } = useContext(StoreContext);
   const [form, setForm] = useState<Record<string, string | number>>({});
   const [errorMessage, setErrorMessage] = useState('');
 

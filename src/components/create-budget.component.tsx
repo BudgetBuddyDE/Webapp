@@ -11,13 +11,9 @@ import {
 } from '@mui/material';
 import { StoreContext } from '../context/store.context';
 import { FormDrawer } from './form-drawer.component';
-import type { ICategory } from '../types/transaction.interface';
 import { SnackbarContext } from '../context/snackbar.context';
 import { AuthContext } from '../context/auth.context';
-import { FormStyle } from '../theme/form-style';
-import { CategoryService } from '../services/category.service';
 import { IBudget } from '../types/budget.interface';
-import { Categories } from '../routes/categories.route';
 import { BudgetService } from '../services/budget.service';
 import { transformBalance } from '../utils/transformBalance';
 import { isSameMonth } from 'date-fns';
