@@ -1,5 +1,6 @@
 import type { IFilter } from '../types/filter.interface';
-import type { ISubscription, ITransaction } from '../types/transaction.interface';
+import type { ISubscription } from '../types/transaction.interface';
+import type { ITransaction } from '../types/transaction.type';
 
 export function filterTransactions(keyword: string, filter: IFilter, transactions: ITransaction[]) {
   if (transactions.length === 0) return [];

@@ -19,12 +19,13 @@ import { CircularProgress } from '../components/progress.component';
 import { isSameMonth } from 'date-fns/esm';
 import { StoreContext } from '../context/store.context';
 import { ExpenseService } from '../services/expense.service';
-import { addTransactionToExpenses } from '../utils/addTransactionToExpenses';
+import { addTransactionToExpenses } from '../utils/transaction/addTransactionToExpenses';
 import { NoResults } from '../components/no-results.component';
 import { CreateTransaction } from '../components/create-forms/create-transaction.component';
 import { CreateSubscription } from '../components/create-forms/create-subscription.component';
 import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
+import { IExpenseTransactionDTO } from '../types/transaction.type';
 
 export const Dashboard = () => {
   const { session } = useContext(AuthContext);
@@ -286,15 +287,24 @@ export const Dashboard = () => {
         open={showAddTransactionForm}
         setOpen={(show) => setShowAddTransactionForm(show)}
         afterSubmit={(transaction) => {
+          const expenseTransaction: IExpenseTransactionDTO = {
+            sum: transaction.amount,
+            category: {
+              id: transaction.categories.id,
+              name: transaction.categories.name,
+              description: transaction.categories.description,
+            },
+            created_by: transaction.created_by || '', // TODO: Remove undefined
+          };
           if (
             isSameMonth(new Date(transaction.date), new Date()) &&
             new Date(transaction.date) <= new Date()
           ) {
-            addTransactionToExpenses(transaction, currentMonthExpenses, (updatedExpenses) =>
+            addTransactionToExpenses(expenseTransaction, currentMonthExpenses, (updatedExpenses) =>
               setCurrentMonthExpenses(updatedExpenses)
             );
           }
-          addTransactionToExpenses(transaction, allTimeExpenses, (updatedExpenses) =>
+          addTransactionToExpenses(expenseTransaction, allTimeExpenses, (updatedExpenses) =>
             setAllTimeExpenses(updatedExpenses)
           );
         }}

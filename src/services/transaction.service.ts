@@ -1,24 +1,24 @@
 import { isSameMonth } from 'date-fns';
 import { supabase } from '../supabase';
-import type { IBaseTransactionDTO, ITransaction } from '../types/transaction.interface';
+import type { IBaseTransaction, IExportTransaction, ITransaction } from '../types/transaction.type';
 import type { TExportType } from '../components/user-profile.component';
 
 export class TransactionService {
   private static table = 'transactions';
 
   static async createTransactions(
-    transactions: IBaseTransactionDTO[]
-  ): Promise<IBaseTransactionDTO[] | null> {
+    transactions: Partial<IBaseTransaction>[]
+  ): Promise<IBaseTransaction[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
-        .from<IBaseTransactionDTO>(this.table)
+        .from<IBaseTransaction>(this.table)
         .insert(transactions);
       if (error) rej(error);
-      res(data);
+      res(data ?? []);
     });
   }
 
-  static async getTransactions(): Promise<ITransaction[] | null> {
+  static async getTransactions(): Promise<ITransaction[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<ITransaction>(this.table)
@@ -29,6 +29,7 @@ export class TransactionService {
           receiver,
           description, 
           date,
+          created_by,
           updated_at,
           inserted_at,
           paymentMethods (
@@ -40,32 +41,32 @@ export class TransactionService {
         )
         .order('date', { ascending: false });
       if (error) rej(error);
-      res(data);
+      res(data ?? []);
     });
   }
 
   static async updateTransaction(
     id: number,
-    updatedTransaction: Partial<IBaseTransactionDTO>
-  ): Promise<IBaseTransactionDTO[] | null> {
+    updatedTransaction: Partial<IBaseTransaction>
+  ): Promise<IBaseTransaction[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
-        .from<IBaseTransactionDTO>(this.table)
+        .from<IBaseTransaction>(this.table)
         .update(updatedTransaction)
         .match({ id: id });
       if (error) rej(error);
-      res(data);
+      res(data ?? []);
     });
   }
 
-  static async deleteTransactionById(id: number): Promise<IBaseTransactionDTO[] | null> {
+  static async deleteTransactionById(id: number): Promise<IBaseTransaction[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
-        .from<IBaseTransactionDTO>(this.table)
+        .from<IBaseTransaction>(this.table)
         .delete()
         .match({ id: id });
       if (error) rej(error);
-      res(data);
+      res(data ?? []);
     });
   }
 
@@ -140,7 +141,7 @@ export class TransactionService {
   /**
    * Get the transactions, ready for the export
    */
-  static export(type: TExportType = 'json'): Promise<IBaseTransactionDTO[] | string> {
+  static export(type: TExportType = 'json'): Promise<IExportTransaction[] | string> {
     return new Promise((res, rej) => {
       switch (type) {
         case 'json':

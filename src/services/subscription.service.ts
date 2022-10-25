@@ -3,8 +3,8 @@ import type {
   IBaseSubscription,
   IBaseSubscriptionDTO,
   ISubscription,
-  ITransaction,
 } from '../types/transaction.interface';
+import type { ITransaction } from '../types/transaction.type';
 import type { TExportType } from '../components/user-profile.component';
 import { TransactionService } from './transaction.service';
 

@@ -14,7 +14,7 @@ import { LocalizationProvider, DesktopDatePicker, MobileDatePicker } from '@mui/
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { StoreContext } from '../../context/store.context';
 import { FormDrawer } from '../form-drawer.component';
-import type { IBaseTransactionDTO, ITransaction } from '../../types/transaction.interface';
+import type { ITransaction } from '../../types/transaction.type';
 import { SnackbarContext } from '../../context/snackbar.context';
 import { AuthContext } from '../../context/auth.context';
 import { FormStyle } from '../../theme/form-style';
@@ -78,15 +78,15 @@ export const EditTransaction: FC<IEditTransactionProps> = ({
         if (Number(form.amount) === 0) throw new Error('Provide an amount above 0');
 
         const data = await TransactionService.updateTransaction(Number(form.id), {
-          id: form.id,
-          date: form.date,
-          category: form.category,
-          paymentMethod: form.paymentMethod,
-          receiver: form.receiver,
+          id: Number(form.id),
+          date: new Date(form.date),
+          category: Number(form.category),
+          paymentMethod: Number(form.paymentMethod),
+          receiver: String(form.receiver),
           amount: transformBalance(form.amount.toString()),
-          description: form.description || null,
+          description: form.description ? String(form.description) : null,
           created_by: session!.user!.id,
-        } as IBaseTransactionDTO);
+        });
         if (data === null) throw new Error('No transaction updated');
 
         handler.onClose();

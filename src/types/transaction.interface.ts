@@ -9,36 +9,6 @@ export type IIncome = {
   category: { id: number; name: string; description: string | null };
   created_by: string;
 };
-export interface IBaseTransactionDTO {
-  id?: number;
-  category: number;
-  paymentMethod: number;
-  receiver: string;
-  amount: number;
-  description: string | null;
-  date: Date;
-}
-
-export interface IBaseTransaction {
-  categories: ICategory;
-  paymentMethods: IPaymentMethod;
-  receiver: string;
-  amount: number;
-  description: string | null;
-  date: Date;
-}
-
-export interface ITransactioDTO extends ITransaction {
-  paymentMethod: number;
-  category: number;
-}
-
-export interface ITransaction extends IBaseTransaction {
-  id: number;
-  created_by?: string;
-  updated_at?: Date;
-  inserted_at?: Date;
-}
 
 // TODO: Add budget to ICategories
 export interface IBaseCategory {

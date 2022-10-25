@@ -18,7 +18,7 @@ import { useScreenSize } from '../../hooks/useScreenSize.hook';
 import { ReceiverAutocomplete } from '../inputs/receiver-autocomplete.component';
 import { TransactionService } from '../../services/transaction.service';
 import { transformBalance } from '../../utils/transformBalance';
-import type { IBaseTransactionDTO, ITransaction } from '../../types/transaction.interface';
+import type { IBaseTransaction, ITransaction } from '../../types/transaction.type';
 import { SnackbarContext } from '../../context/snackbar.context';
 import { AuthContext } from '../../context/auth.context';
 import { FormStyle } from '../../theme/form-style';
@@ -70,13 +70,13 @@ export const CreateTransaction: FC<ICreateTransactionProps> = ({ open, setOpen, 
         const data = await TransactionService.createTransactions([
           {
             date: date,
-            category: form.category,
-            paymentMethod: form.paymentMethod,
-            receiver: form.receiver,
+            category: Number(form.category),
+            paymentMethod: Number(form.paymentMethod),
+            receiver: String(form.receiver),
             amount: transformBalance(form.amount.toString()),
-            description: form.information || null,
+            description: form.information ? String(form.information) : null,
             created_by: session!.user!.id,
-          } as IBaseTransactionDTO,
+          },
         ]);
         if (data === null) throw new Error('No transaction created');
 
