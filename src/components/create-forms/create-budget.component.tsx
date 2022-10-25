@@ -13,7 +13,7 @@ import { StoreContext } from '../../context/store.context';
 import { FormDrawer } from '../form-drawer.component';
 import { SnackbarContext } from '../../context/snackbar.context';
 import { AuthContext } from '../../context/auth.context';
-import { IBudget } from '../../types/budget.interface';
+import { IBudgetProgressView } from '../../types/budget.type';
 import { BudgetService } from '../../services/budget.service';
 import { transformBalance } from '../../utils/transformBalance';
 import { isSameMonth } from 'date-fns';
@@ -21,7 +21,7 @@ import { isSameMonth } from 'date-fns';
 export interface ICreateBudgetProps {
   open: boolean;
   setOpen: (show: boolean) => void;
-  afterSubmit?: (budget: IBudget) => void;
+  afterSubmit?: (budget: IBudgetProgressView) => void;
 }
 
 export const CreateBudget: FC<ICreateBudgetProps> = ({ open, setOpen, afterSubmit }) => {
@@ -62,14 +62,13 @@ export const CreateBudget: FC<ICreateBudgetProps> = ({ open, setOpen, afterSubmi
         ]);
         if (data === null) throw new Error('No budget saved');
 
-        const addedItem = {
-          id: data[0].id,
+        const addedItem: IBudgetProgressView = {
+          ...data[0],
           category: categories.find((category) => category.id === data[0].category) as {
             id: number;
             name: string;
             description: string | null;
           },
-          budget: data[0].budget,
           currentlySpent: Math.abs(
             transactions
               .filter(
@@ -81,7 +80,7 @@ export const CreateBudget: FC<ICreateBudgetProps> = ({ open, setOpen, afterSubmi
               )
               .reduce((prev, cur) => prev + cur.amount, 0)
           ),
-        } as IBudget;
+        };
         setBudget((prev) => [...prev, addedItem]);
         if (afterSubmit) afterSubmit(addedItem);
         handler.onClose();

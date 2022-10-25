@@ -17,7 +17,7 @@ import { getFirstDayOfMonth } from '../utils/getFirstDayOfMonth';
 import { CategoryBudget } from '../components/category-budget.component';
 import { BudgetService } from '../services/budget.service';
 import { SnackbarContext } from '../context/snackbar.context';
-import type { IBudget } from '../types/budget.interface';
+import type { IBudgetProgressView } from '../types/budget.type';
 import { Stats, IStatsProps } from '../components/stats-card.component';
 import { ExpenseService } from '../services/expense.service';
 import { IncomeService } from '../services/income.service';
@@ -41,7 +41,7 @@ export const Budget = () => {
   const [dailyExpenses, setDailyExpenses] = useState<IDailyTransaction[]>([]);
   const [expenses, setExpenses] = useState<IExpense[]>([]);
   const [showAddBudgetForm, setShowAddBudgetForm] = useState(false);
-  const [editBudget, setEditBudget] = useState<IBudget | null>(null);
+  const [editBudget, setEditBudget] = useState<IBudgetProgressView | null>(null);
 
   const handleBudgetDelete = async (budgetId: number) => {
     try {

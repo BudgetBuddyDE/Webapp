@@ -15,7 +15,7 @@ import { CategoryService } from '../services/category.service';
 import { PaymentMethodService } from '../services/payment-method.service';
 import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
-import type { IBudget } from '../types/budget.interface';
+import type { IBudgetProgressView } from '../types/budget.type';
 import type { IFilter } from '../types/filter.interface';
 import type { ITransaction } from '../types/transaction.type';
 import type { ICategory } from '../types/category.type';
@@ -37,8 +37,8 @@ export interface IStoreContext {
   }[];
   subscriptions: ISubscription[];
   setSubscriptions: Dispatch<SetStateAction<ISubscription[]>>;
-  budget: IBudget[];
-  setBudget: Dispatch<SetStateAction<IBudget[]>>;
+  budget: IBudgetProgressView[];
+  setBudget: Dispatch<SetStateAction<IBudgetProgressView[]>>;
   categories: ICategory[];
   setCategories: Dispatch<SetStateAction<ICategory[]>>;
   paymentMethods: IPaymentMethod[];
@@ -57,7 +57,7 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
   const [showDrawer, setShowDrawer] = useState(getSavedSidebarState());
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
-  const [budget, setBudget] = useState<IBudget[]>([]);
+  const [budget, setBudget] = useState<IBudgetProgressView[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
   const [showFilter, setShowFilter] = useState(false);

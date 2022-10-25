@@ -12,21 +12,22 @@ import {
 import { StoreContext } from '../../context/store.context';
 import { FormDrawer } from '../form-drawer.component';
 import { SnackbarContext } from '../../context/snackbar.context';
-import { IBaseBudget, IBudget } from '../../types/budget.interface';
+import { IBudgetProgressView } from '../../types/budget.type';
 import { BudgetService } from '../../services/budget.service';
 import { transformBalance } from '../../utils/transformBalance';
 import { getCategoryFromList } from '../../utils/getCategoryFromList';
+import { isSameMonth } from 'date-fns';
 
 export interface IEditBudgetProps {
   open: boolean;
   setOpen: (show: boolean) => void;
-  afterSubmit?: (budget: IBudget) => void;
-  budget: IBudget | null;
+  afterSubmit?: (budget: IBudgetProgressView) => void;
+  budget: IBudgetProgressView | null;
 }
 
 export const EditBudget: FC<IEditBudgetProps> = ({ open, setOpen, afterSubmit, budget }) => {
   const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, categories, setBudget } = useContext(StoreContext);
+  const { loading, transactions, categories, setBudget } = useContext(StoreContext);
   const [form, setForm] = useState<Record<string, string | number>>({});
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -52,22 +53,33 @@ export const EditBudget: FC<IEditBudgetProps> = ({ open, setOpen, afterSubmit, b
 
         const data = await BudgetService.update(Number(form.id), {
           budget: transformBalance(form.budget.toString()),
-        } as Partial<IBaseBudget>);
+        });
         if (data === null) throw new Error('No budget updated');
 
-        const updatedItem = {
-          id: data[0].id,
+        const updatedItem: IBudgetProgressView = {
+          ...data[0],
           category: categories.find((category) => category.id === data[0].category) as {
             id: number;
             name: string;
             description: string | null;
           },
-          budget: data[0].budget,
+          currentlySpent: Math.abs(
+            transactions
+              .filter(
+                (transaction) =>
+                  transaction.amount < 0 &&
+                  isSameMonth(new Date(transaction.date), new Date()) &&
+                  new Date(transaction.date) <= new Date() &&
+                  transaction.categories.id === data[0].category
+              )
+              .reduce((prev, cur) => prev + cur.amount, 0)
+          ),
         };
+        if (afterSubmit) afterSubmit(updatedItem);
         setBudget((prev) =>
           prev.map((budget) => {
             if (budget.id === updatedItem.id) {
-              return updatedItem as IBudget;
+              return updatedItem;
             } else return budget;
           })
         );
