@@ -2,7 +2,7 @@ import { ChangeEvent, FC, FormEvent, useContext, useEffect, useState } from 'rea
 import { Alert, TextField } from '@mui/material';
 import { StoreContext } from '../../context/store.context';
 import { FormDrawer } from '../form-drawer.component';
-import type { IPaymentMethod } from '../../types/transaction.interface';
+import type { IPaymentMethod } from '../../types/paymentMethod.type';
 import { SnackbarContext } from '../../context/snackbar.context';
 import { AuthContext } from '../../context/auth.context';
 import { FormStyle } from '../../theme/form-style';

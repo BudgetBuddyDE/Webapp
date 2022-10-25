@@ -17,9 +17,10 @@ import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
 import type { IBudget } from '../types/budget.interface';
 import type { IFilter } from '../types/filter.interface';
-import type { IPaymentMethod, ISubscription } from '../types/transaction.interface';
+import type { ISubscription } from '../types/transaction.interface';
 import type { ITransaction } from '../types/transaction.type';
 import type { ICategory } from '../types/category.type';
+import type { IPaymentMethod } from '../types/paymentMethod.type';
 import { determineNextExecutionDate } from '../utils/determineNextExecution';
 import { AuthContext } from './auth.context';
 

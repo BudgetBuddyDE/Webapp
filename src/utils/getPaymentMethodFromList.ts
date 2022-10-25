@@ -1,4 +1,4 @@
-import type { IPaymentMethod } from '../types/transaction.interface';
+import type { IPaymentMethod } from '../types/paymentMethod.type';
 
 export function getPaymentMethodFromList(
   paymentMethodId: number,
