@@ -1,4 +1,4 @@
-import { ICategory } from './transaction.interface';
+import { ICategory } from './category.type';
 
 export interface IBaseBudget {
   id?: number;

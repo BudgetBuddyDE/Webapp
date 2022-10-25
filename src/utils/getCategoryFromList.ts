@@ -1,4 +1,4 @@
-import type { ICategory } from '../types/transaction.interface';
+import type { ICategory } from '../types/category.type';
 
 export function getCategoryFromList(
   categoryId: number,

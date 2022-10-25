@@ -1,55 +1,58 @@
 import { supabase } from '../supabase';
-import type { ICategory } from '../types/transaction.interface';
+import type { IBaseCategory, ICategory, IExportCategory } from '../types/category.type';
 import type { TExportType } from '../components/user-profile.component';
 
 export class CategoryService {
   private static table = 'categories';
 
-  static async createCategories(categories: Partial<ICategory>[]): Promise<ICategory[] | null> {
+  static async createCategories(categories: Partial<IBaseCategory>[]): Promise<IBaseCategory[]> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase.from<ICategory>(this.table).insert(categories);
+      const { data, error } = await supabase.from<IBaseCategory>(this.table).insert(categories);
       if (error) rej(error);
-      res(data);
+      res(data ?? []);
     });
   }
 
-  static async getCategories(): Promise<ICategory[] | null> {
+  static async getCategories(): Promise<ICategory[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<ICategory>(this.table)
         .select('*')
         .order('name', { ascending: true });
       if (error) rej(error);
-      res(data);
+      res(data ?? []);
     });
   }
 
   static async updateCategory(
     id: number,
-    updatedCategory: Partial<ICategory>
-  ): Promise<ICategory[] | null> {
+    updatedCategory: Partial<IBaseCategory>
+  ): Promise<ICategory[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
-        .from<ICategory>(this.table)
+        .from<IBaseCategory>(this.table)
         .update(updatedCategory)
         .match({ id: id });
       if (error) rej(error);
-      res(data);
+      res(data ?? []);
     });
   }
 
-  static async deleteCategoryById(id: number): Promise<ICategory[] | null> {
+  static async deleteCategoryById(id: number): Promise<IBaseCategory[]> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase.from<ICategory>(this.table).delete().match({ id: id });
+      const { data, error } = await supabase
+        .from<IBaseCategory>(this.table)
+        .delete()
+        .match({ id: id });
       if (error) rej(error);
-      res(data);
+      res(data ?? []);
     });
   }
 
   /**
    * Get all categories, ready for the export
    */
-  static export(type: TExportType = 'json'): Promise<ICategory[] | string> {
+  static export(type: TExportType = 'json'): Promise<IExportCategory[] | string> {
     return new Promise((res, rej) => {
       switch (type) {
         case 'json':

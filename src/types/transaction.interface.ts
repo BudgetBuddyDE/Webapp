@@ -1,3 +1,5 @@
+import type { ICategory } from './category.type';
+
 export type IExpense = {
   sum: number;
   category: { id: number; name: string; description: string | null };
@@ -9,19 +11,6 @@ export type IIncome = {
   category: { id: number; name: string; description: string | null };
   created_by: string;
 };
-
-// TODO: Add budget to ICategories
-export interface IBaseCategory {
-  name: string;
-  description: string | null;
-}
-
-export interface ICategory extends IBaseCategory {
-  id: number;
-  created_by?: string;
-  updated_at?: Date;
-  inserted_at?: Date;
-}
 
 export interface IBasePaymentMethod {
   name: string;
