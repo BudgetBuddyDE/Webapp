@@ -1,9 +1,9 @@
 import { supabase } from '../supabase';
 import type {
   IBaseSubscription,
-  IBaseSubscriptionDTO,
+  IExportSubscription,
   ISubscription,
-} from '../types/transaction.interface';
+} from '../types/subscription.type';
 import type { ITransaction } from '../types/transaction.type';
 import type { TExportType } from '../components/user-profile.component';
 import { TransactionService } from './transaction.service';
@@ -12,18 +12,18 @@ export class SubscriptionService {
   private static table = 'subscriptions';
 
   static async createSubscriptions(
-    subscriptions: IBaseSubscriptionDTO[]
-  ): Promise<IBaseSubscriptionDTO[] | null> {
+    subscriptions: Partial<IBaseSubscription>[]
+  ): Promise<IBaseSubscription[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
-        .from<IBaseSubscriptionDTO>(this.table)
+        .from<IBaseSubscription>(this.table)
         .insert(subscriptions);
       if (error) rej(error);
-      res(data);
+      res(data ?? []);
     });
   }
 
-  static async getSubscriptions(): Promise<ISubscription[] | null> {
+  static async getSubscriptions(): Promise<ISubscription[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase.from<ISubscription>(this.table).select(`
           id,
@@ -40,32 +40,32 @@ export class SubscriptionService {
             id, name, description
           )`);
       if (error) rej(error);
-      res(data);
+      res(data ?? []);
     });
   }
 
   static async updateSubscription(
     id: number,
-    updatedSubscription: Partial<IBaseSubscriptionDTO>
-  ): Promise<IBaseSubscriptionDTO[] | null> {
+    updatedSubscription: Partial<IBaseSubscription>
+  ): Promise<IBaseSubscription[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
-        .from<IBaseSubscriptionDTO>(this.table)
+        .from<IBaseSubscription>(this.table)
         .update(updatedSubscription)
         .match({ id: id });
       if (error) rej(error);
-      res(data);
+      res(data ?? []);
     });
   }
 
-  static async deleteSubscriptionById(id: number): Promise<IBaseSubscriptionDTO[] | null> {
+  static async deleteSubscriptionById(id: number): Promise<IBaseSubscription[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
-        .from<IBaseSubscriptionDTO>(this.table)
+        .from<IBaseSubscription>(this.table)
         .delete()
         .match({ id: id });
       if (error) rej(error);
-      res(data);
+      res(data ?? []);
     });
   }
 
@@ -130,13 +130,13 @@ export class SubscriptionService {
   /**
    * Get the subscriptions, ready for the export
    */
-  static export(type: TExportType = 'json'): Promise<IBaseSubscription[] | string> {
+  static export(type: TExportType = 'json'): Promise<IExportSubscription[] | string> {
     return new Promise((res, rej) => {
       switch (type) {
         case 'json':
           supabase
-            .from<IBaseSubscriptionDTO>(this.table)
-            .select(`*`)
+            .from<IExportSubscription>(this.table)
+            .select(`*, categories:category(*), paymentMethods:paymentMethod(*)`)
             .then((result) => {
               if (result.error) rej(result.error);
               // @ts-ignore
@@ -146,7 +146,7 @@ export class SubscriptionService {
 
         case 'csv':
           supabase
-            .from<IBaseSubscriptionDTO>(this.table)
+            .from<IBaseSubscription>(this.table)
             .select(`*`)
             .csv()
             .then((result) => {

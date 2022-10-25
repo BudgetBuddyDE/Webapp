@@ -14,7 +14,7 @@ import { LocalizationProvider, DesktopDatePicker, MobileDatePicker } from '@mui/
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { StoreContext } from '../../context/store.context';
 import { FormDrawer } from '../form-drawer.component';
-import type { IBaseSubscriptionDTO, ISubscription } from '../../types/transaction.interface';
+import type { ISubscription } from '../../types/subscription.type';
 import { SnackbarContext } from '../../context/snackbar.context';
 import { AuthContext } from '../../context/auth.context';
 import { FormStyle } from '../../theme/form-style';
@@ -78,16 +78,16 @@ export const EditSubscription: FC<IEditTransactionProps> = ({
         if (Number(form.amount) === 0) throw new Error('Provide an amount above 0');
 
         const data = await SubscriptionService.updateSubscription(Number(form.id), {
-          id: form.id,
+          id: Number(form.id),
           execute_at:
             typeof form.execute_at === 'object' ? form.execute_at.getDate() : new Date().getDate(),
-          category: form.category,
-          paymentMethod: form.paymentMethod,
-          receiver: form.receiver,
+          category: Number(form.category),
+          paymentMethod: Number(form.paymentMethod),
+          receiver: String(form.receiver),
           amount: transformBalance(form.amount.toString()),
-          description: form.description || null,
+          description: form.description ? String(form.description) : null,
           created_by: session!.user!.id,
-        } as IBaseSubscriptionDTO);
+        });
         if (data === null) throw new Error('No subscription updated');
 
         handler.onClose();

@@ -17,7 +17,7 @@ import { FormDrawer } from '../form-drawer.component';
 import { useScreenSize } from '../../hooks/useScreenSize.hook';
 import { ReceiverAutocomplete } from '../inputs/receiver-autocomplete.component';
 import { transformBalance } from '../../utils/transformBalance';
-import type { IBaseSubscriptionDTO, ISubscription } from '../../types/transaction.interface';
+import type { IBaseSubscription, ISubscription } from '../../types/subscription.type';
 import { SnackbarContext } from '../../context/snackbar.context';
 import { AuthContext } from '../../context/auth.context';
 import { FormStyle } from '../../theme/form-style';
@@ -73,15 +73,14 @@ export const CreateSubscription: FC<ICreateSubscriptionProps> = ({
 
         const data = await SubscriptionService.createSubscriptions([
           {
-            // @ts-ignore
             execute_at: date.getDate(),
-            category: form.category,
-            paymentMethod: form.paymentMethod,
-            receiver: form.receiver,
+            category: Number(form.category),
+            paymentMethod: Number(form.paymentMethod),
+            receiver: String(form.receiver),
             amount: transformBalance(form.amount.toString()),
-            description: form.information || null,
+            description: form.information ? String(form.information) : null,
             created_by: session!.user!.id,
-          } as IBaseSubscriptionDTO,
+          },
         ]);
         if (data === null) throw new Error('No subscription created');
 

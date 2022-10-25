@@ -20,7 +20,7 @@ import Card from '../components/card.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/inputs/search-input.component';
-import type { ISubscription } from '../types/transaction.interface';
+import type { ISubscription } from '../types/subscription.type';
 import { CircularProgress } from '../components/progress.component';
 import { StoreContext } from '../context/store.context';
 import { SubscriptionService } from '../services/subscription.service';
