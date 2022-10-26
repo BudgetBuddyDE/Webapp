@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import * as React from 'react';
 import {
   Grid,
   Box,
@@ -14,28 +14,28 @@ import {
   Button,
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import Card from '../components/card.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/inputs/search-input.component';
-import type { ICategory } from '../types/category.type';
 import { CircularProgress } from '../components/progress.component';
 import { StoreContext } from '../context/store.context';
-import { CategoryService } from '../services/category.service';
 import { NoResults } from '../components/no-results.component';
 import { CreateCategory } from '../components/create-forms/create-category.component';
 import { EditCategory } from '../components/edit-forms/edit-category.component';
+import Card from '../components/card.component';
+import { Category } from '../models/category.model';
 
 export const Categories = () => {
-  const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, categories, setCategories } = useContext(StoreContext);
+  const { showSnackbar } = React.useContext(SnackbarContext);
+  const { loading, categories, setCategories } = React.useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [keyword, setKeyword] = useState('');
-  const [shownCategories, setShownCategories] = useState<readonly ICategory[]>(categories);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
-  const [editCategory, setEditCategory] = useState<ICategory | null>(null);
+  const [showAddForm, setShowAddForm] = React.useState(false);
+  const [keyword, setKeyword] = React.useState('');
+  const [shownCategories, setShownCategories] = React.useState<readonly Category[]>(categories);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);
+  const [editCategory, setEditCategory] = React.useState<Category | null>(null);
+  const [, startTransition] = React.useTransition();
 
   const handleOnSearch = (text: string) => setKeyword(text.toLowerCase());
 
@@ -48,24 +48,27 @@ export const Categories = () => {
     setPage(0);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (category: Category) => {
     try {
-      const data = await CategoryService.deleteCategoryById(id);
-      if (data === null) throw new Error('No category deleted');
-      setCategories((prev) => prev.filter((category) => category.id !== id));
-      showSnackbar({ message: `Category ${data[0].name} deleted` });
+      const deletedCategories = await category.delete();
+      if (!deletedCategories || deletedCategories.length < 1)
+        throw new Error('No category deleted');
+      startTransition(() => {
+        setCategories((prev) => prev.filter(({ id }) => id !== deletedCategories[0].id));
+      });
+      showSnackbar({ message: `Category ${deletedCategories[0].name} deleted` });
     } catch (error) {
       console.error(error);
       showSnackbar({
         message: `Could'nt delete category`,
-        action: <Button onClick={() => handleDelete(id)}>Retry</Button>,
+        action: <Button onClick={() => handleDelete(category)}>Retry</Button>,
       });
     }
   };
 
-  useEffect(() => setShownCategories(categories), [categories]);
+  React.useEffect(() => setShownCategories(categories), [categories]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (keyword === '') setShownCategories(categories);
     setShownCategories(categories.filter((item) => item.name.toLowerCase().includes(keyword)));
   }, [keyword, categories]);
@@ -124,7 +127,7 @@ export const Categories = () => {
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Delete" placement="top">
-                                <IconButton onClick={() => handleDelete(row.id)}>
+                                <IconButton onClick={() => handleDelete(row)}>
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
@@ -153,10 +156,8 @@ export const Categories = () => {
         </Card>
       </Grid>
 
-      {/* Add Category */}
       <CreateCategory open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
 
-      {/* Edit Category */}
       <EditCategory
         open={editCategory !== null}
         setOpen={(show) => {

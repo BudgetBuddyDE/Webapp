@@ -1,64 +1,47 @@
-import { ChangeEvent, FC, FormEvent, useContext, useState, useEffect } from 'react';
+import * as React from 'react';
 import { Alert, TextField } from '@mui/material';
 import { StoreContext } from '../../context/store.context';
 import { FormDrawer } from '../form-drawer.component';
-import type { ICategory } from '../../types/category.type';
 import { SnackbarContext } from '../../context/snackbar.context';
-import { AuthContext } from '../../context/auth.context';
 import { FormStyle } from '../../theme/form-style';
-import { CategoryService } from '../../services/category.service';
+import { Category } from '../../models/category.model';
 
-export interface IEditCategoryProps {
+export const EditCategory: React.FC<{
   open: boolean;
   setOpen: (show: boolean) => void;
-  afterSubmit?: (category: ICategory) => void;
-  category: ICategory | null;
-}
-
-export const EditCategory: FC<IEditCategoryProps> = ({ open, setOpen, afterSubmit, category }) => {
-  const { session } = useContext(AuthContext);
-  const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, setCategories } = useContext(StoreContext);
-  const [form, setForm] = useState<Record<string, string | number>>({});
-  const [errorMessage, setErrorMessage] = useState('');
+  afterSubmit?: (category: Category) => void;
+  category: Category | null;
+}> = ({ open, setOpen, afterSubmit, category }) => {
+  const { showSnackbar } = React.useContext(SnackbarContext);
+  const { loading, setCategories } = React.useContext(StoreContext);
+  const [, startTransition] = React.useTransition();
+  const [form, setForm] = React.useState<{ name: string; description: string | null } | null>(null);
+  const [errorMessage, setErrorMessage] = React.useState('');
 
   const handler = {
-    onClose: () => {
-      setOpen(false);
-    },
-    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
-    },
-    onSubmit: async (event: FormEvent<HTMLFormElement>) => {
+    onClose: () => setOpen(false),
+    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
       try {
         event.preventDefault();
+        if (!category) throw new Error('No category provided');
+        if (!form) throw new Error('No updated information provided');
 
-        const values = Object.keys(form);
-        ['id', 'name'].forEach((field) => {
-          if (!values.includes(field)) throw new Error('Provide an ' + field);
-        });
+        const update = await category.update(form);
+        if (!update || update.length < 1) throw new Error('No category updated');
 
-        const data = await CategoryService.updateCategory(Number(form.id), {
-          name: form.name,
-          description: form.description || null,
-          created_by: session!.user!.id,
-        } as Partial<ICategory>);
-        if (data === null) throw new Error('No category updated');
-
-        const updatedItem = data[0];
+        const updatedItem = update[0];
         if (afterSubmit) afterSubmit(updatedItem);
-        setCategories((prev) =>
-          prev.map((category) => {
-            if (category.id === updatedItem.id) {
-              return {
-                ...category,
-                name: updatedItem.name.toString(),
-                description: updatedItem.description ? updatedItem.description.toString() : null,
-              };
-            }
-            return category;
-          })
-        );
+        startTransition(() => {
+          setCategories((prev) => {
+            return prev.map((item) => {
+              if (item.id === updatedItem.id) {
+                item.name = updatedItem.name;
+                item.description = updatedItem.description;
+                return item;
+              } else return item;
+            });
+          });
+        });
         handler.onClose();
         showSnackbar({
           message: 'Category updated',
@@ -71,14 +54,8 @@ export const EditCategory: FC<IEditCategoryProps> = ({ open, setOpen, afterSubmi
     },
   };
 
-  useEffect(() => {
-    if (category !== null) {
-      setForm({
-        id: category.id,
-        name: category.name,
-        description: category.description || '',
-      });
-    } else setForm({});
+  React.useEffect(() => {
+    setForm(category ? { name: category.name, description: category.description } : null);
   }, [category]);
 
   if (loading) return null;
@@ -103,8 +80,10 @@ export const EditCategory: FC<IEditCategoryProps> = ({ open, setOpen, afterSubmi
         label="Name"
         name="name"
         sx={FormStyle}
-        value={form.name}
-        onChange={handler.inputChange}
+        value={form ? form.name : ''}
+        onChange={(event) =>
+          setForm((prev) => (prev ? { ...prev, name: event.target.value } : prev))
+        }
       />
 
       <TextField
@@ -115,8 +94,12 @@ export const EditCategory: FC<IEditCategoryProps> = ({ open, setOpen, afterSubmi
         sx={{ ...FormStyle, mb: 0 }}
         multiline
         rows={3}
-        value={form.description}
-        onChange={handler.inputChange}
+        value={form ? form.description ?? '' : ''}
+        onChange={(event) => {
+          const value = event.target.value;
+          const description = value.length > 0 ? value : null;
+          setForm((prev) => (prev ? { ...prev, description: description } : prev));
+        }}
       />
     </FormDrawer>
   );

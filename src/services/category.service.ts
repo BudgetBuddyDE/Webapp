@@ -1,51 +1,54 @@
 import { supabase } from '../supabase';
-import type { IBaseCategory, ICategory, IExportCategory } from '../types/category.type';
+import { Category } from '../models/category.model';
+import type {
+  IEditCategory,
+  IBaseCategory,
+  ICategory,
+  IExportCategory,
+} from '../types/category.type';
 import type { TExportType } from '../components/user-profile.component';
 
 export class CategoryService {
   private static table = 'categories';
 
-  static async createCategories(categories: Partial<IBaseCategory>[]): Promise<IBaseCategory[]> {
+  static async createCategories(categories: Partial<IBaseCategory>[]): Promise<Category[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase.from<IBaseCategory>(this.table).insert(categories);
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((category) => new Category(category)) : []);
     });
   }
 
-  static async getCategories(): Promise<ICategory[]> {
+  static async getCategories(): Promise<Category[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
-        .from<ICategory>(this.table)
+        .from<IBaseCategory>(this.table)
         .select('*')
         .order('name', { ascending: true });
       if (error) rej(error);
-      res(data ?? []);
+      res(data?.map((category) => new Category(category)) ?? []);
     });
   }
 
-  static async updateCategory(
-    id: number,
-    updatedCategory: Partial<IBaseCategory>
-  ): Promise<ICategory[]> {
+  static async updateCategory(id: number, updatedCategory: IEditCategory): Promise<Category[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<IBaseCategory>(this.table)
         .update(updatedCategory)
         .match({ id: id });
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((category) => new Category(category)) : []);
     });
   }
 
-  static async deleteCategoryById(id: number): Promise<IBaseCategory[]> {
+  static async deleteCategoryById(id: number): Promise<Category[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<IBaseCategory>(this.table)
         .delete()
         .match({ id: id });
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((category) => new Category(category)) : []);
     });
   }
 

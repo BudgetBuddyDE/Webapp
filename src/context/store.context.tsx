@@ -1,9 +1,7 @@
 import {
   createContext,
-  Dispatch,
   FC,
   PropsWithChildren,
-  SetStateAction,
   useContext,
   useEffect,
   useMemo,
@@ -18,36 +16,13 @@ import { TransactionService } from '../services/transaction.service';
 import type { IBudgetProgressView } from '../types/budget.type';
 import type { IFilter } from '../types/filter.interface';
 import type { ITransaction } from '../types/transaction.type';
-import type { ICategory } from '../types/category.type';
 import type { IPaymentMethod } from '../types/paymentMethod.type';
 import type { ISubscription } from '../types/subscription.type';
 import { determineNextExecutionDate } from '../utils/determineNextExecution';
 import { AuthContext } from './auth.context';
+import type { IStoreContext } from '../types/store-context.type';
 
-export interface IStoreContext {
-  loading: boolean;
-  setLoading: Dispatch<SetStateAction<boolean>>;
-  showDrawer: boolean;
-  setShowDrawer: Dispatch<SetStateAction<boolean>>;
-  transactions: ITransaction[];
-  setTransactions: Dispatch<SetStateAction<ITransaction[]>>;
-  transactionReceiver: {
-    text: string;
-    value: string;
-  }[];
-  subscriptions: ISubscription[];
-  setSubscriptions: Dispatch<SetStateAction<ISubscription[]>>;
-  budget: IBudgetProgressView[];
-  setBudget: Dispatch<SetStateAction<IBudgetProgressView[]>>;
-  categories: ICategory[];
-  setCategories: Dispatch<SetStateAction<ICategory[]>>;
-  paymentMethods: IPaymentMethod[];
-  setPaymentMethods: Dispatch<SetStateAction<IPaymentMethod[]>>;
-  showFilter: boolean;
-  setShowFilter: Dispatch<SetStateAction<boolean>>;
-  filter: IFilter;
-  setFilter: Dispatch<SetStateAction<IFilter>>;
-}
+import { Category } from '../models/category.model';
 
 export const StoreContext = createContext({} as IStoreContext);
 
@@ -58,7 +33,7 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
   const [budget, setBudget] = useState<IBudgetProgressView[]>([]);
-  const [categories, setCategories] = useState<ICategory[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
   const [showFilter, setShowFilter] = useState(false);
   const [filter, setFilter] = useState<IFilter>(DEFAULT_FILTER_VALUE);
@@ -102,9 +77,7 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
               setBudget(getBudget);
             } else setBudget([]);
 
-            if (getCategories) {
-              setCategories(getCategories);
-            } else setCategories([]);
+            setCategories(getCategories);
 
             if (getPaymentMethods) {
               setPaymentMethods(getPaymentMethods);

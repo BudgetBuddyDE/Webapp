@@ -8,8 +8,13 @@ export interface IBaseCategory {
   name: string;
   description: string | null;
   created_by: uuid;
-  updated_at: string | Date;
-  inserted_at: string | Date;
+  updated_at: string;
+  inserted_at: string;
+}
+export interface IEditCategory {
+  name: string;
+  description: string | null;
+  created_by: uuid;
 }
 
 /**
