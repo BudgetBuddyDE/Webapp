@@ -5,9 +5,7 @@ import { CategoryService } from '../services/category.service';
 import { PaymentMethodService } from '../services/payment-method.service';
 import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
-import type { IBudgetProgressView } from '../types/budget.type';
 import type { IFilter } from '../types/filter.interface';
-import { determineNextExecutionDate } from '../utils/determineNextExecution';
 import { AuthContext } from './auth.context';
 import type { IStoreContext } from '../types/store-context.type';
 import { Category } from '../models/category.model';
@@ -15,6 +13,7 @@ import { PaymentMethod } from '../models/paymentMethod.model';
 import { Transaction } from '../models/transaction.model';
 import { Subscription } from '../models/subscription.model';
 import { sortSubscriptionsByExecution } from '../utils/subscription/sortSubscriptions';
+import { Budget } from '../models/budget.model';
 
 export const StoreContext = React.createContext({} as IStoreContext);
 
@@ -24,7 +23,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   const [showDrawer, setShowDrawer] = React.useState(getSavedSidebarState());
   const [transactions, setTransactions] = React.useState<Transaction[]>([]);
   const [subscriptions, setSubscriptions] = React.useState<Subscription[]>([]);
-  const [budget, setBudget] = React.useState<IBudgetProgressView[]>([]);
+  const [budget, setBudget] = React.useState<Budget[]>([]);
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [paymentMethods, setPaymentMethods] = React.useState<PaymentMethod[]>([]);
   const [showFilter, setShowFilter] = React.useState(false);
@@ -46,11 +45,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
           ([getSubscriptions, getTransactions, getBudget, getCategories, getPaymentMethods]) => {
             setSubscriptions(sortSubscriptionsByExecution(getSubscriptions));
             setTransactions(getTransactions);
-
-            if (getBudget) {
-              setBudget(getBudget);
-            } else setBudget([]);
-
+            setBudget(getBudget);
             setCategories(getCategories);
             setPaymentMethods(getPaymentMethods);
           }

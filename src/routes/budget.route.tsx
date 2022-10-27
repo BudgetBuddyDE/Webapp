@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import * as React from 'react';
 import { Grid, Box, Button, TextField, Tooltip, IconButton, Divider } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { LocalizationProvider, DesktopDatePicker, MobileDatePicker } from '@mui/x-date-pickers';
@@ -15,9 +15,7 @@ import AreaChart, { IDailyTransaction } from '../components/charts/area-chart.co
 import { useScreenSize } from '../hooks/useScreenSize.hook';
 import { getFirstDayOfMonth } from '../utils/getFirstDayOfMonth';
 import { CategoryBudget } from '../components/category-budget.component';
-import { BudgetService } from '../services/budget.service';
 import { SnackbarContext } from '../context/snackbar.context';
-import type { IBudgetProgressView } from '../types/budget.type';
 import { Stats, IStatsProps } from '../components/stats-card.component';
 import { ExpenseService } from '../services/expense.service';
 import { IncomeService } from '../services/income.service';
@@ -26,43 +24,47 @@ import { CreateBudget } from '../components/create-forms/create-budget.component
 import { EditBudget } from '../components/edit-forms/edit-budget.component';
 import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
+import { Budget as BudgetModel } from '../models/budget.model';
 
-type ChartContent = 'INCOME' | 'SPENDINGS';
+export type ChartContent = 'INCOME' | 'SPENDINGS';
 
 export const Budget = () => {
   const screenSize = useScreenSize();
-  const { session } = useContext(AuthContext);
-  const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, transactions, subscriptions, budget, setBudget } = useContext(StoreContext);
-  const [chart, setChart] = useState<ChartContent>('INCOME');
-  const [dateRange, setDateRange] = useState({ from: getFirstDayOfMonth(), to: new Date() });
-  const [dailyIncome, setDailyIncome] = useState<IDailyTransaction[]>([]);
-  const [income, setIncome] = useState<IIncome[]>([]);
-  const [dailyExpenses, setDailyExpenses] = useState<IDailyTransaction[]>([]);
-  const [expenses, setExpenses] = useState<IExpense[]>([]);
-  const [showAddBudgetForm, setShowAddBudgetForm] = useState(false);
-  const [editBudget, setEditBudget] = useState<IBudgetProgressView | null>(null);
+  const { session } = React.useContext(AuthContext);
+  const { showSnackbar } = React.useContext(SnackbarContext);
+  const { loading, transactions, subscriptions, budget, setBudget } =
+    React.useContext(StoreContext);
+  const [chart, setChart] = React.useState<ChartContent>('INCOME');
+  const [dateRange, setDateRange] = React.useState({ from: getFirstDayOfMonth(), to: new Date() });
+  const [dailyIncome, setDailyIncome] = React.useState<IDailyTransaction[]>([]);
+  const [income, setIncome] = React.useState<IIncome[]>([]);
+  const [dailyExpenses, setDailyExpenses] = React.useState<IDailyTransaction[]>([]);
+  const [expenses, setExpenses] = React.useState<IExpense[]>([]);
+  const [showAddBudgetForm, setShowAddBudgetForm] = React.useState(false);
+  const [, startTransition] = React.useTransition();
+  const [editBudget, setEditBudget] = React.useState<BudgetModel | null>(null);
 
-  const handleBudgetDelete = async (budgetId: number) => {
+  const handleBudgetDelete = async (budget: BudgetModel) => {
     try {
-      const data = BudgetService.deleteById(budgetId);
-      if (!data) throw new Error('No budget deleted');
-      setBudget((prev) => prev.filter((budget) => budget.id !== budgetId));
-      showSnackbar({
-        message: `Budget deleted`,
+      const deletedBudgets = await budget.delete();
+      if (!deletedBudgets || deletedBudgets.length < 1) throw new Error('No budget deleted');
+      startTransition(() => {
+        setBudget((prev) => prev.filter(({ id }) => id !== budget.id));
       });
+      showSnackbar({ message: `Budget deleted` });
     } catch (error) {
       console.error(error);
       showSnackbar({
         // @ts-ignore
         message: error.message || "Could'nt delete the budget",
-        action: <Button onClick={() => handleBudgetDelete(budgetId)}>Retry</Button>,
+        action: <Button onClick={() => handleBudgetDelete(budget)}>Retry</Button>,
       });
     }
   };
 
+  // TODO: Calculate stats in SQL and return them using a view or an RPC
   const StatsCalculations = {
-    plannedIncome: useMemo(
+    plannedIncome: React.useMemo(
       () => SubscriptionService.getPlannedIncome(subscriptions),
       [subscriptions]
     ),
@@ -71,16 +73,16 @@ export const Budget = () => {
     //   const plannedIncome = SubscriptionService.getFuturePlannedIncome(subscriptions);
     //   return receivedMoney + plannedIncome;
     // }, [transactions, subscriptions]),
-    plannedSpendings: useMemo(
+    plannedSpendings: React.useMemo(
       () => SubscriptionService.getPlannedSpendings(subscriptions),
       [subscriptions]
     ),
-    totalPlannedSpendings: useMemo(() => {
+    totalPlannedSpendings: React.useMemo(() => {
       const moneySpend = TransactionService.getCurrentMonthSpendings(transactions);
       const futurePlannedPayments = SubscriptionService.getFuturePlannedSpendings(subscriptions);
       return moneySpend + futurePlannedPayments;
     }, [transactions, subscriptions]),
-    moneyLeft: useMemo(() => {
+    moneyLeft: React.useMemo(() => {
       const plannedIncome = SubscriptionService.getPlannedIncome(subscriptions);
       const moneySpend = TransactionService.getCurrentMonthSpendings(transactions);
       const futurePlannedPayments = SubscriptionService.getFuturePlannedSpendings(subscriptions);
@@ -123,7 +125,7 @@ export const Budget = () => {
     },
   ];
 
-  useEffect(() => {
+  React.useEffect(() => {
     Promise.all([
       IncomeService.getIncome(session!.user!.id, dateRange.from, dateRange.to),
       IncomeService.getDailyIncome(session!.user!.id, dateRange.from, dateRange.to),
@@ -170,6 +172,7 @@ export const Budget = () => {
                 { type: 'SPENDIGNS', label: 'Spendings' },
               ].map((btn) => (
                 <Button
+                  key={btn.type}
                   sx={{
                     color: (theme) => theme.palette.text.primary,
                     px: 1,
@@ -298,7 +301,7 @@ export const Budget = () => {
       <Grid item xs={12} md={12} lg={7} xl={7}>
         <Grid item container spacing={3}>
           {StatsCards.map((props) => (
-            <Grid item xs={6} md={3} lg={3}>
+            <Grid key={props.title + props.subtitle} item xs={6} md={3} lg={3}>
               <Stats {...props} />
             </Grid>
           ))}
@@ -322,7 +325,13 @@ export const Budget = () => {
               <CircularProgress />
             ) : budget.length > 0 ? (
               budget.map((item) => (
-                <Box display="flex" flexDirection="row" alignItems="center" justifyContent="center">
+                <Box
+                  key={item.id}
+                  display="flex"
+                  flexDirection="row"
+                  alignItems="center"
+                  justifyContent="center"
+                >
                   <Box sx={{ flex: 1, mr: 2 }}>
                     <CategoryBudget
                       key={item.id}
@@ -339,7 +348,7 @@ export const Budget = () => {
                   </Tooltip>
 
                   <Tooltip title="Delete">
-                    <IconButton sx={{ mt: 2 }} onClick={() => handleBudgetDelete(item.id)}>
+                    <IconButton sx={{ mt: 2 }} onClick={() => handleBudgetDelete(item)}>
                       <DeleteIcon />
                     </IconButton>
                   </Tooltip>
@@ -352,10 +361,8 @@ export const Budget = () => {
         </Card>
       </Grid>
 
-      {/* Set Budget */}
       <CreateBudget open={showAddBudgetForm} setOpen={(show) => setShowAddBudgetForm(show)} />
 
-      {/* Edit Budget */}
       <EditBudget
         open={editBudget !== null}
         setOpen={(show) => {

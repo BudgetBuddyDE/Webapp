@@ -1,6 +1,5 @@
 import type { uuid } from './profile.type';
 import type { ICategoryView } from './category.type';
-import { NumberLiteralType } from 'typescript';
 
 /**
  * Object like it's stored in our database

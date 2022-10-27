@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, FormEvent, useContext, useState } from 'react';
+import * as React from 'react';
 import {
   Alert,
   AlertTitle,
@@ -9,66 +9,66 @@ import {
   OutlinedInput,
   TextField,
 } from '@mui/material';
+import { isSameMonth } from 'date-fns';
 import { StoreContext } from '../../context/store.context';
 import { FormDrawer } from '../form-drawer.component';
 import { SnackbarContext } from '../../context/snackbar.context';
 import { AuthContext } from '../../context/auth.context';
-import { IBudgetProgressView } from '../../types/budget.type';
 import { BudgetService } from '../../services/budget.service';
 import { transformBalance } from '../../utils/transformBalance';
-import { isSameMonth } from 'date-fns';
+import { Budget } from '../../models/budget.model';
+import { IBaseBudget } from '../../types/budget.type';
 
 export interface ICreateBudgetProps {
   open: boolean;
   setOpen: (show: boolean) => void;
-  afterSubmit?: (budget: IBudgetProgressView) => void;
+  afterSubmit?: (budget: Budget) => void;
 }
 
-export const CreateBudget: FC<ICreateBudgetProps> = ({ open, setOpen, afterSubmit }) => {
-  const { session } = useContext(AuthContext);
-  const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, categories, budget, setBudget, transactions } = useContext(StoreContext);
-  const [form, setForm] = useState<Record<string, string | number>>({});
-  const [errorMessage, setErrorMessage] = useState('');
+export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afterSubmit }) => {
+  const { session } = React.useContext(AuthContext);
+  const { showSnackbar } = React.useContext(SnackbarContext);
+  const { loading, categories, budget, setBudget, transactions } = React.useContext(StoreContext);
+  const [, startTransition] = React.useTransition();
+  const [form, setForm] = React.useState<Partial<IBaseBudget>>({});
+  const [errorMessage, setErrorMessage] = React.useState('');
 
   const handler = {
     onClose: () => {
       setOpen(false);
     },
     autocompleteChange: (event: React.SyntheticEvent<Element, Event>, value: string | number) => {
-      setForm((prev) => ({ ...prev, category: value }));
+      setForm((prev) => ({ ...prev, category: Number(value) }));
     },
-    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    onSubmit: async (event: FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
       try {
         event.preventDefault();
+        // Check if the user has already set an budget for this category
+        if (budget.some((budget) => budget.category.id === form.category))
+          throw new Error("You've already set an Budget for this category");
+
         const values = Object.keys(form);
         ['category', 'budget'].forEach((field) => {
           if (!values.includes(field)) throw new Error('Provide an ' + field);
         });
 
-        // Check if the user has already set an budget for this category
-        if (budget.find((budget) => budget.category.id === form.category))
-          throw new Error("You've already set an Budget for this category");
-
-        const data = await BudgetService.create([
+        const createdBudgets = await BudgetService.create([
           {
             category: Number(form.category),
-            budget: transformBalance(form.budget.toString()),
+            budget: transformBalance(form.budget!.toString()),
             created_by: session!.user!.id,
           },
         ]);
-        if (data === null) throw new Error('No budget saved');
+        if (createdBudgets.length < 1) throw new Error('No budget saved');
 
-        const addedItem: IBudgetProgressView = {
-          ...data[0],
-          category: categories.find((category) => category.id === data[0].category) as {
-            id: number;
-            name: string;
-            description: string | null;
-          },
+        const createdBudget = createdBudgets[0];
+        const addedBudget = new Budget({
+          id: createdBudget.id,
+          category: categories.find((c) => c.id === createdBudget.category)!.categoryView,
+          budget: createdBudget.budget,
           currentlySpent: Math.abs(
             transactions
               .filter(
@@ -76,16 +76,22 @@ export const CreateBudget: FC<ICreateBudgetProps> = ({ open, setOpen, afterSubmi
                   transaction.amount < 0 &&
                   isSameMonth(new Date(transaction.date), new Date()) &&
                   new Date(transaction.date) <= new Date() &&
-                  transaction.categories.id === data[0].category
+                  transaction.categories.id === createdBudget.category
               )
               .reduce((prev, cur) => prev + cur.amount, 0)
           ),
-        };
-        setBudget((prev) => [...prev, addedItem]);
-        if (afterSubmit) afterSubmit(addedItem);
+          created_by: createdBudget.created_by,
+          updated_at: createdBudget.updated_at.toString(),
+          inserted_at: createdBudget.inserted_at.toString(),
+        });
+
+        if (afterSubmit) afterSubmit(addedBudget);
+        startTransition(() => {
+          setBudget((prev) => [...prev, addedBudget]);
+        });
         handler.onClose();
         showSnackbar({
-          message: `Budget for category '${addedItem.category.name}' saved`,
+          message: `Budget for category '${addedBudget.category.name}' saved`,
         });
       } catch (error) {
         console.error(error);

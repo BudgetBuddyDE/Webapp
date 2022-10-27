@@ -1,40 +1,38 @@
 import { supabase } from '../supabase';
 import type { IBaseBudget, IBudgetProgressView, IExportBudget } from '../types/budget.type';
+import { BaseBudget, Budget } from '../models/budget.model';
 import type { TExportType } from '../components/user-profile.component';
 
 export class BudgetService {
   private static table = 'budget';
 
-  static async create(budget: Partial<IBaseBudget>[]): Promise<IBaseBudget[]> {
+  static async create(budget: Partial<IBaseBudget>[]): Promise<BaseBudget[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase.from<IBaseBudget>(this.table).insert(budget);
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((budget) => new BaseBudget(budget)) : []);
     });
   }
 
-  static async getBudget(uuid: string): Promise<IBudgetProgressView[]> {
+  static async getBudget(uuid: string): Promise<Budget[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<IBudgetProgressView>('BudgetProgress')
         .select('*')
         .eq('created_by', uuid);
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((budget) => new Budget(budget)) : []);
     });
   }
 
-  static async update(
-    id: number,
-    updatedBudget: Partial<IBaseBudget>
-  ): Promise<IBaseBudget[] | null> {
+  static async update(id: number, updatedBudget: Partial<IBaseBudget>): Promise<BaseBudget[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<IBaseBudget>(this.table)
         .update(updatedBudget)
         .match({ id: id });
       if (error) rej(error);
-      res(data);
+      res(data ? data.map((budget) => new BaseBudget(budget)) : []);
     });
   }
 
@@ -45,7 +43,7 @@ export class BudgetService {
         .delete()
         .match({ id: id });
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((budget) => new BaseBudget(budget)) : []);
     });
   }
 

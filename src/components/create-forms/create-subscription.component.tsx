@@ -17,7 +17,7 @@ import { FormDrawer } from '../form-drawer.component';
 import { useScreenSize } from '../../hooks/useScreenSize.hook';
 import { ReceiverAutocomplete } from '../inputs/receiver-autocomplete.component';
 import { transformBalance } from '../../utils/transformBalance';
-import type { IBaseSubscription, ISubscription } from '../../types/subscription.type';
+import type { IBaseSubscription } from '../../types/subscription.type';
 import { SnackbarContext } from '../../context/snackbar.context';
 import { AuthContext } from '../../context/auth.context';
 import { FormStyle } from '../../theme/form-style';

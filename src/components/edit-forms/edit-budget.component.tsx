@@ -1,91 +1,71 @@
-import { ChangeEvent, FC, FormEvent, useContext, useEffect, useMemo, useState } from 'react';
+import * as React from 'react';
 import {
   Alert,
   AlertTitle,
-  Autocomplete,
   FormControl,
   InputAdornment,
   InputLabel,
   OutlinedInput,
-  TextField,
 } from '@mui/material';
 import { StoreContext } from '../../context/store.context';
 import { FormDrawer } from '../form-drawer.component';
 import { SnackbarContext } from '../../context/snackbar.context';
-import { IBudgetProgressView } from '../../types/budget.type';
-import { BudgetService } from '../../services/budget.service';
+import { IBaseBudget } from '../../types/budget.type';
 import { transformBalance } from '../../utils/transformBalance';
-import { getCategoryFromList } from '../../utils/getCategoryFromList';
-import { isSameMonth } from 'date-fns';
+import { Budget } from '../../models/budget.model';
 
 export interface IEditBudgetProps {
   open: boolean;
   setOpen: (show: boolean) => void;
-  afterSubmit?: (budget: IBudgetProgressView) => void;
-  budget: IBudgetProgressView | null;
+  afterSubmit?: (budget: Budget) => void;
+  budget: Budget | null;
 }
 
-export const EditBudget: FC<IEditBudgetProps> = ({ open, setOpen, afterSubmit, budget }) => {
-  const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, transactions, categories, setBudget } = useContext(StoreContext);
-  const [form, setForm] = useState<Record<string, string | number>>({});
-  const [errorMessage, setErrorMessage] = useState('');
-
-  const shouldBeOpen = useMemo(() => open && form.category !== undefined, [open, form]);
+export const EditBudget: React.FC<IEditBudgetProps> = ({ open, setOpen, afterSubmit, budget }) => {
+  const { showSnackbar } = React.useContext(SnackbarContext);
+  const { loading, categories, setBudget } = React.useContext(StoreContext);
+  const [form, setForm] = React.useState<Partial<IBaseBudget> | null>(null);
+  const [errorMessage, setErrorMessage] = React.useState('');
 
   const handler = {
     onClose: () => {
       setOpen(false);
     },
     autocompleteChange: (event: React.SyntheticEvent<Element, Event>, value: string | number) => {
-      setForm((prev) => ({ ...prev, category: value }));
+      setForm((prev) => ({ ...prev, category: Number(value) }));
     },
-    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    onSubmit: async (event: FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
       try {
         event.preventDefault();
+        if (!budget) throw new Error('No budget provided');
+        if (!form) throw new Error('No changes provided');
         const values = Object.keys(form);
-        ['id', 'budget'].forEach((field) => {
+        ['budget'].forEach((field) => {
           if (!values.includes(field)) throw new Error('Provide an ' + field);
         });
 
-        const data = await BudgetService.update(Number(form.id), {
-          budget: transformBalance(form.budget.toString()),
+        const updatedBudgets = await budget.update({
+          budget: transformBalance(form.budget!.toString()),
         });
-        if (data === null) throw new Error('No budget updated');
+        if (!updatedBudgets || updatedBudgets.length < 1) throw new Error('No budget updated');
 
-        const updatedItem: IBudgetProgressView = {
-          ...data[0],
-          category: categories.find((category) => category.id === data[0].category) as {
-            id: number;
-            name: string;
-            description: string | null;
-          },
-          currentlySpent: Math.abs(
-            transactions
-              .filter(
-                (transaction) =>
-                  transaction.amount < 0 &&
-                  isSameMonth(new Date(transaction.date), new Date()) &&
-                  new Date(transaction.date) <= new Date() &&
-                  transaction.categories.id === data[0].category
-              )
-              .reduce((prev, cur) => prev + cur.amount, 0)
-          ),
-        };
-        if (afterSubmit) afterSubmit(updatedItem);
-        setBudget((prev) =>
-          prev.map((budget) => {
-            if (budget.id === updatedItem.id) {
-              return updatedItem;
-            } else return budget;
-          })
-        );
+        const updatedBaseBudget = updatedBudgets[0];
+        const updatedBudget = budget;
+        updatedBudget.budget = updatedBaseBudget.budget;
+        if (afterSubmit) afterSubmit(updatedBudget);
+        setBudget((prev) => {
+          return prev.map((item) => {
+            if (item.id === updatedBudget.id) {
+              return updatedBudget;
+            } else return item;
+          });
+        });
         handler.onClose();
         showSnackbar({
-          message: `Budget for category '${updatedItem.category.name}' saved`,
+          message: `Budget for category '${updatedBudget.category.name}' saved`,
         });
       } catch (error) {
         console.error(error);
@@ -95,20 +75,14 @@ export const EditBudget: FC<IEditBudgetProps> = ({ open, setOpen, afterSubmit, b
     },
   };
 
-  useEffect(() => {
-    if (budget) {
-      setForm({
-        id: budget.id,
-        category: budget.category.id,
-        budget: budget.budget,
-      });
-    } else setForm({});
+  React.useEffect(() => {
+    setForm(budget ? { budget: budget.budget } : null);
   }, [budget]);
 
   if (loading) return null;
   return (
     <FormDrawer
-      open={shouldBeOpen}
+      open={open}
       heading="Edit Budget"
       onClose={handler.onClose}
       onSubmit={handler.onSubmit}
@@ -129,31 +103,22 @@ export const EditBudget: FC<IEditBudgetProps> = ({ open, setOpen, afterSubmit, b
         </Alert>
       )}
 
-      {categories.length > 0 && (
-        <Autocomplete
-          id="edit-category"
-          options={categories.map((item) => ({ label: item.name, value: item.id }))}
-          sx={{ mb: 2 }}
-          onChange={(event, value) => handler.autocompleteChange(event, Number(value?.value))}
-          defaultValue={getCategoryFromList(Number(form.category), categories)}
-          renderInput={(props) => <TextField {...props} label="Category" />}
-          isOptionEqualToValue={(option, value) => option.value === value.value}
-          disabled
-        />
+      {form && (
+        <React.Fragment>
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel htmlFor="edit-budget">Monthly Budget</InputLabel>
+            <OutlinedInput
+              id="edit-budget"
+              label="Monthly Budget"
+              name="budget"
+              inputProps={{ inputMode: 'numeric' }}
+              value={form.budget}
+              onChange={handler.inputChange}
+              startAdornment={<InputAdornment position="start">€</InputAdornment>}
+            />
+          </FormControl>
+        </React.Fragment>
       )}
-
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel htmlFor="edit-budget">Monthly Budget</InputLabel>
-        <OutlinedInput
-          id="edit-budget"
-          label="Monthly Budget"
-          name="budget"
-          inputProps={{ inputMode: 'numeric' }}
-          value={form.budget}
-          onChange={handler.inputChange}
-          startAdornment={<InputAdornment position="start">€</InputAdornment>}
-        />
-      </FormControl>
     </FormDrawer>
   );
 };

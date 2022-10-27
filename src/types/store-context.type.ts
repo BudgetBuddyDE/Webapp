@@ -1,10 +1,10 @@
 import * as React from 'react';
-import type { IBudgetProgressView } from './budget.type';
 import { Category } from '../models/category.model';
 import type { IFilter } from './filter.interface';
 import { PaymentMethod } from '../models/paymentMethod.model';
 import { Transaction } from '../models/transaction.model';
 import { Subscription } from '../models/subscription.model';
+import { Budget } from '../models/budget.model';
 
 export interface IStoreContext {
   loading: boolean;
@@ -19,8 +19,8 @@ export interface IStoreContext {
   }[];
   subscriptions: Subscription[];
   setSubscriptions: React.Dispatch<React.SetStateAction<Subscription[]>>;
-  budget: IBudgetProgressView[];
-  setBudget: React.Dispatch<React.SetStateAction<IBudgetProgressView[]>>;
+  budget: Budget[];
+  setBudget: React.Dispatch<React.SetStateAction<Budget[]>>;
   categories: Category[];
   setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
   paymentMethods: PaymentMethod[];
