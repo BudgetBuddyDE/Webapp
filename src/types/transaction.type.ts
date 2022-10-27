@@ -14,8 +14,8 @@ export interface IBaseTransaction {
   amount: number;
   date: string | Date;
   created_by: uuid;
-  updated_at: string | Date;
-  inserted_at: string | Date;
+  updated_at: string;
+  inserted_at: string;
 }
 
 /**
@@ -28,10 +28,10 @@ export interface ITransaction {
   receiver: string;
   description: string | null;
   amount: number;
-  date: string | Date;
+  date: string;
   created_by: uuid;
-  updated_at: string | Date;
-  inserted_at: string | Date;
+  updated_at: string;
+  inserted_at: string;
 }
 
 /**
@@ -46,10 +46,10 @@ export interface IExportTransaction {
   receiver: string;
   description: string | null;
   amount: number;
-  date: string | Date;
+  date: string;
   created_by: uuid;
-  updated_at: string | Date;
-  inserted_at: string | Date;
+  updated_at: string;
+  inserted_at: string;
 }
 
 export interface IExpenseTransactionDTO {

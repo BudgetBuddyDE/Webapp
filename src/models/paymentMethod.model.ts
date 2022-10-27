@@ -1,5 +1,5 @@
 import { PaymentMethodService } from '../services/payment-method.service';
-import type { IBasePaymentMethod } from '../types/paymentMethod.type';
+import type { IBasePaymentMethod, IPaymentMethodView } from '../types/paymentMethod.type';
 import type { uuid } from '../types/profile.type';
 
 export class PaymentMethod {
@@ -86,6 +86,17 @@ export class PaymentMethod {
   }
   public set inserted_at(value: Date) {
     this._inserted_at = value;
+  }
+
+  public get paymentMethodView() {
+    const view: IPaymentMethodView = {
+      id: this.id,
+      name: this.name,
+      address: this.address,
+      provider: this.provider,
+      description: this.description,
+    };
+    return view;
   }
 
   async update(updatedInformation: {

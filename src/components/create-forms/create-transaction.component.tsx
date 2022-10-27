@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, FormEvent, useContext, useState } from 'react';
+import * as React from 'react';
 import {
   Alert,
   AlertTitle,
@@ -18,33 +18,38 @@ import { useScreenSize } from '../../hooks/useScreenSize.hook';
 import { ReceiverAutocomplete } from '../inputs/receiver-autocomplete.component';
 import { TransactionService } from '../../services/transaction.service';
 import { transformBalance } from '../../utils/transformBalance';
-import type { IBaseTransaction, ITransaction } from '../../types/transaction.type';
+import type { IBaseTransaction } from '../../types/transaction.type';
 import { SnackbarContext } from '../../context/snackbar.context';
 import { AuthContext } from '../../context/auth.context';
 import { FormStyle } from '../../theme/form-style';
+import { Transaction } from '../../models/transaction.model';
 
 export interface ICreateTransactionProps {
   open: boolean;
   setOpen: (show: boolean) => void;
-  afterSubmit?: (transaction: ITransaction) => void;
+  afterSubmit?: (transaction: Transaction) => void;
 }
 
-export const CreateTransaction: FC<ICreateTransactionProps> = ({ open, setOpen, afterSubmit }) => {
+export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
+  open,
+  setOpen,
+  afterSubmit,
+}) => {
   const screenSize = useScreenSize();
-  const { session } = useContext(AuthContext);
-  const { showSnackbar } = useContext(SnackbarContext);
+  const { session } = React.useContext(AuthContext);
+  const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, transactionReceiver, setTransactions, categories, paymentMethods } =
-    useContext(StoreContext);
-  const [date, setDate] = useState(new Date());
-  const [form, setForm] = useState<Record<string, string | number>>({});
-  const [errorMessage, setErrorMessage] = useState('');
+    React.useContext(StoreContext);
+  const [, startTransition] = React.useTransition();
+  const [form, setForm] = React.useState<Partial<IBaseTransaction>>({ date: new Date() });
+  const [errorMessage, setErrorMessage] = React.useState('');
 
   const handler = {
     onClose: () => {
       setOpen(false);
     },
     onDateChange: (date: Date | null) => {
-      if (date) setDate(date);
+      if (date) setForm((prev) => ({ ...prev, date: date ?? new Date() }));
     },
     autocompleteChange: (
       event: React.SyntheticEvent<Element, Event>,
@@ -53,41 +58,61 @@ export const CreateTransaction: FC<ICreateTransactionProps> = ({ open, setOpen, 
     ) => {
       setForm((prev) => ({ ...prev, [key]: value }));
     },
-    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
     receiverChange: (value: string | number) => {
-      setForm((prev) => ({ ...prev, receiver: value }));
+      setForm((prev) => ({ ...prev, receiver: String(value) }));
     },
-    onSubmit: async (event: FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
       try {
         event.preventDefault();
         const values = Object.keys(form);
-        ['category', 'paymentMethod', 'receiver', 'amount'].forEach((field) => {
+        ['date', 'category', 'paymentMethod', 'receiver', 'amount'].forEach((field) => {
           if (!values.includes(field)) throw new Error('Provide an ' + field);
         });
 
-        const data = await TransactionService.createTransactions([
+        const createdTransactions = await TransactionService.createTransactions([
           {
-            date: date,
+            date: form.date,
             category: Number(form.category),
             paymentMethod: Number(form.paymentMethod),
             receiver: String(form.receiver),
-            amount: transformBalance(form.amount.toString()),
-            description: form.information ? String(form.information) : null,
+            amount: transformBalance(form.amount!.toString()),
+            description: form.description ? String(form.description) : null,
             created_by: session!.user!.id,
           },
         ]);
-        if (data === null) throw new Error('No transaction created');
+        if (createdTransactions.length < 1) throw new Error('No transaction created');
 
-        const newTransaction = {
-          ...data[0],
-          categories: categories.find((value) => value.id === data[0].category),
-          paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
-        } as ITransaction;
-
-        if (afterSubmit) afterSubmit(newTransaction);
-        setTransactions((prev) => [newTransaction, ...prev]);
+        const {
+          id,
+          category,
+          paymentMethod,
+          receiver,
+          description,
+          amount,
+          date,
+          created_by,
+          updated_at,
+          inserted_at,
+        } = createdTransactions[0];
+        const addedTransaction = new Transaction({
+          id: id,
+          categories: categories.find((c) => c.id === category)!.categoryView,
+          paymentMethods: paymentMethods.find((pm) => pm.id === paymentMethod)!.paymentMethodView,
+          receiver: receiver,
+          description: description,
+          amount: amount,
+          date: date.toString(),
+          created_by: created_by,
+          updated_at: updated_at.toString(),
+          inserted_at: inserted_at.toString(),
+        });
+        if (afterSubmit) afterSubmit(addedTransaction);
+        startTransition(() => {
+          setTransactions((prev) => [addedTransaction, ...prev]);
+        });
         handler.onClose();
         showSnackbar({
           message: 'Transaction added',
@@ -137,7 +162,7 @@ export const CreateTransaction: FC<ICreateTransactionProps> = ({ open, setOpen, 
           <MobileDatePicker
             label="Date"
             inputFormat="dd.MM.yy"
-            value={date}
+            value={form.date || new Date()}
             onChange={handler.onDateChange}
             renderInput={(params) => <TextField sx={FormStyle} {...params} />}
           />
@@ -145,7 +170,7 @@ export const CreateTransaction: FC<ICreateTransactionProps> = ({ open, setOpen, 
           <DesktopDatePicker
             label="Date"
             inputFormat="dd.MM.yy"
-            value={date}
+            value={form.date || new Date()}
             onChange={handler.onDateChange}
             renderInput={(params) => <TextField sx={FormStyle} {...params} />}
           />
@@ -199,10 +224,10 @@ export const CreateTransaction: FC<ICreateTransactionProps> = ({ open, setOpen, 
       </FormControl>
 
       <TextField
-        id="information"
+        id="description"
         variant="outlined"
-        label="Information"
-        name="information"
+        label="Description"
+        name="description"
         sx={{ ...FormStyle, mb: 0 }}
         multiline
         rows={3}

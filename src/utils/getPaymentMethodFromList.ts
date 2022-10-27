@@ -1,8 +1,8 @@
-import type { IPaymentMethod } from '../types/paymentMethod.type';
+import { PaymentMethod } from '../models/paymentMethod.model';
 
 export function getPaymentMethodFromList(
   paymentMethodId: number,
-  paymentMethods: IPaymentMethod[]
+  paymentMethods: PaymentMethod[]
 ): { label: string; value: number } {
   const match = paymentMethods.find((paymentMethod) => paymentMethod.id === paymentMethodId);
   if (!match) {

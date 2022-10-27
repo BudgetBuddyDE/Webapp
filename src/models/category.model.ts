@@ -1,5 +1,5 @@
 import type { uuid } from '../types/profile.type';
-import type { IBaseCategory } from '../types/category.type';
+import type { IBaseCategory, ICategoryView } from '../types/category.type';
 import { CategoryService } from '../services/category.service';
 
 export class Category {
@@ -59,6 +59,15 @@ export class Category {
   }
   public set inserted_at(value: Date) {
     this._inserted_at = value;
+  }
+
+  public get categoryView() {
+    const view: ICategoryView = {
+      id: this.id,
+      name: this.name,
+      description: this.description,
+    };
+    return view;
   }
 
   async update(updatedInformation: { name: string; description: string | null }) {

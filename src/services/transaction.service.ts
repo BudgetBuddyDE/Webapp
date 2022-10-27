@@ -2,23 +2,24 @@ import { isSameMonth } from 'date-fns';
 import { supabase } from '../supabase';
 import type { IBaseTransaction, IExportTransaction, ITransaction } from '../types/transaction.type';
 import type { TExportType } from '../components/user-profile.component';
+import { BaseTransaction, Transaction } from '../models/transaction.model';
 
 export class TransactionService {
   private static table = 'transactions';
 
   static async createTransactions(
     transactions: Partial<IBaseTransaction>[]
-  ): Promise<IBaseTransaction[]> {
+  ): Promise<BaseTransaction[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<IBaseTransaction>(this.table)
         .insert(transactions);
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((transaction) => new BaseTransaction(transaction)) : []);
     });
   }
 
-  static async getTransactions(): Promise<ITransaction[]> {
+  static async getTransactions(): Promise<Transaction[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<ITransaction>(this.table)
@@ -41,39 +42,39 @@ export class TransactionService {
         )
         .order('date', { ascending: false });
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((transaction) => new Transaction(transaction)) : []);
     });
   }
 
   static async updateTransaction(
     id: number,
     updatedTransaction: Partial<IBaseTransaction>
-  ): Promise<IBaseTransaction[]> {
+  ): Promise<BaseTransaction[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<IBaseTransaction>(this.table)
         .update(updatedTransaction)
         .match({ id: id });
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((transaction) => new BaseTransaction(transaction)) : []);
     });
   }
 
-  static async deleteTransactionById(id: number): Promise<IBaseTransaction[]> {
+  static async deleteTransactionById(id: number): Promise<BaseTransaction[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<IBaseTransaction>(this.table)
         .delete()
         .match({ id: id });
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((transaction) => new BaseTransaction(transaction)) : []);
     });
   }
 
   /**
    * Get all income for the month which the user have received
    */
-  static getCurrentMonthIncome(transactions: ITransaction[]) {
+  static getCurrentMonthIncome(transactions: Transaction[]) {
     const now = new Date();
     return Math.abs(
       transactions
@@ -90,7 +91,7 @@ export class TransactionService {
   /**
    * Get income for this month which hasn't been processed  till today
    */
-  static getFutureIncome(transactions: ITransaction[]) {
+  static getFutureIncome(transactions: Transaction[]) {
     const now = new Date();
     return Math.abs(
       transactions
@@ -107,7 +108,7 @@ export class TransactionService {
   /**
    * Get all spendings for the month which the user have fullfilled
    */
-  static getCurrentMonthSpendings(transactions: ITransaction[]) {
+  static getCurrentMonthSpendings(transactions: Transaction[]) {
     const now = new Date();
     return Math.abs(
       transactions
@@ -124,7 +125,7 @@ export class TransactionService {
   /**
    * Get spendings for this month which hasn't been processed till today
    */
-  static getFutureSpendings(transactions: ITransaction[]) {
+  static getFutureSpendings(transactions: Transaction[]) {
     const now = new Date();
     return Math.abs(
       transactions

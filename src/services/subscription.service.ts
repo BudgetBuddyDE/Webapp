@@ -4,9 +4,9 @@ import type {
   IExportSubscription,
   ISubscription,
 } from '../types/subscription.type';
-import type { ITransaction } from '../types/transaction.type';
 import type { TExportType } from '../components/user-profile.component';
 import { TransactionService } from './transaction.service';
+import { Transaction } from '../models/transaction.model';
 
 export class SubscriptionService {
   private static table = 'subscriptions';
@@ -83,7 +83,7 @@ export class SubscriptionService {
   /**
    * Get planned income for this month which aren't fullfilled meaning which will be executed during this month
    */
-  static getFuturePlannedIncome(subscriptions: ISubscription[], transactions?: ITransaction[]) {
+  static getFuturePlannedIncome(subscriptions: ISubscription[], transactions?: Transaction[]) {
     const now = new Date();
     const processedSubscriptions = Math.abs(
       subscriptions
@@ -112,7 +112,7 @@ export class SubscriptionService {
   /**
    * Get planned spendings for this month which aren't fullfilled meaning which will be executed during this month
    */
-  static getFuturePlannedSpendings(subscriptions: ISubscription[], transactions?: ITransaction[]) {
+  static getFuturePlannedSpendings(subscriptions: ISubscription[], transactions?: Transaction[]) {
     const now = new Date();
     const processedSubscriptions = Math.abs(
       subscriptions

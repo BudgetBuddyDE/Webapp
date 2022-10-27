@@ -14,6 +14,7 @@ import { AuthContext } from './auth.context';
 import type { IStoreContext } from '../types/store-context.type';
 import { Category } from '../models/category.model';
 import { PaymentMethod } from '../models/paymentMethod.model';
+import { Transaction } from '../models/transaction.model';
 
 export const StoreContext = React.createContext({} as IStoreContext);
 
@@ -21,7 +22,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   const { session } = React.useContext(AuthContext);
   const [loading, setLoading] = React.useState(false);
   const [showDrawer, setShowDrawer] = React.useState(getSavedSidebarState());
-  const [transactions, setTransactions] = React.useState<ITransaction[]>([]);
+  const [transactions, setTransactions] = React.useState<Transaction[]>([]);
   const [subscriptions, setSubscriptions] = React.useState<ISubscription[]>([]);
   const [budget, setBudget] = React.useState<IBudgetProgressView[]>([]);
   const [categories, setCategories] = React.useState<Category[]>([]);
@@ -58,9 +59,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
               );
             } else setSubscriptions([]);
 
-            if (getTransactions) {
-              setTransactions(getTransactions);
-            } else setTransactions([]);
+            setTransactions(getTransactions);
 
             if (getBudget) {
               setBudget(getBudget);

@@ -4,15 +4,15 @@ import { Category } from '../models/category.model';
 import type { IFilter } from './filter.interface';
 import { PaymentMethod } from '../models/paymentMethod.model';
 import type { ISubscription } from './subscription.type';
-import type { ITransaction } from './transaction.type';
+import { Transaction } from '../models/transaction.model';
 
 export interface IStoreContext {
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   showDrawer: boolean;
   setShowDrawer: React.Dispatch<React.SetStateAction<boolean>>;
-  transactions: ITransaction[];
-  setTransactions: React.Dispatch<React.SetStateAction<ITransaction[]>>;
+  transactions: Transaction[];
+  setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
   transactionReceiver: {
     text: string;
     value: string;

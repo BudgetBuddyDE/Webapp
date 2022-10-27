@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import * as React from 'react';
 import {
   Grid,
   Box,
@@ -20,29 +20,29 @@ import Card from '../components/card.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/inputs/search-input.component';
-import type { ITransaction } from '../types/transaction.type';
 import { CircularProgress } from '../components/progress.component';
 import { format } from 'date-fns';
 import { StoreContext } from '../context/store.context';
-import { TransactionService } from '../services/transaction.service';
 import { NoResults } from '../components/no-results.component';
 import { CreateTransaction } from '../components/create-forms/create-transaction.component';
 import { EditTransaction } from '../components/edit-forms/edit-transaction.component';
 import { useStateCallback } from '../hooks/useStateCallback.hook';
 import { filterTransactions } from '../utils/filter';
 import { ShowFilterButton } from '../components/show-filter.component';
+import { Transaction } from '../models/transaction.model';
 
 export const Transactions = () => {
-  const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, filter, transactions, setTransactions } = useContext(StoreContext);
+  const { showSnackbar } = React.useContext(SnackbarContext);
+  const { loading, filter, transactions, setTransactions } = React.useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
-  const [keyword, setKeyword] = useState('');
+  const [keyword, setKeyword] = React.useState('');
   const [shownTransactions, setShownTransactions] =
-    useStateCallback<readonly ITransaction[]>(transactions);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [editTransaction, setEditTransaction] = useState<ITransaction | null>(null);
+    useStateCallback<readonly Transaction[]>(transactions);
+  const [page, setPage] = React.useState(0);
+  const [, startTransition] = React.useTransition();
+  const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);
+  const [showAddForm, setShowAddForm] = React.useState(false);
+  const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
 
   const handleOnSearch = (text: string) => setKeyword(text.toLowerCase());
 
@@ -55,24 +55,27 @@ export const Transactions = () => {
     setPage(0);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (transaction: Transaction) => {
     try {
-      const data = await TransactionService.deleteTransactionById(id);
-      if (data === null) throw new Error('No transaction deleted');
-      setTransactions((prev) => prev.filter((transaction) => transaction.id !== id));
-      showSnackbar({ message: `Transaction ${data[0].receiver} deleted` });
+      const deletedTransactions = await transaction.delete();
+      if (!deletedTransactions || deletedTransactions.length < 0)
+        throw new Error('No transaction deleted');
+      startTransition(() => {
+        setTransactions((prev) => prev.filter(({ id }) => id !== transaction.id));
+      });
+      showSnackbar({ message: `Transaction ${transaction.receiver} deleted` });
     } catch (error) {
       console.error(error);
       showSnackbar({
         message: `Could'nt delete transaction`,
-        action: <Button onClick={() => handleDelete(id)}>Retry</Button>,
+        action: <Button onClick={() => handleDelete(transaction)}>Retry</Button>,
       });
     }
   };
 
-  useEffect(() => setShownTransactions(transactions), [transactions]);
+  React.useEffect(() => setShownTransactions(transactions), [transactions]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     setShownTransactions(filterTransactions(keyword, filter, transactions));
   }, [keyword, filter, transactions]);
 
@@ -153,7 +156,7 @@ export const Transactions = () => {
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Delete" placement="top">
-                                <IconButton onClick={() => handleDelete(row.id)}>
+                                <IconButton onClick={() => handleDelete(row)}>
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
