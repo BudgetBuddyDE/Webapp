@@ -1,17 +1,17 @@
-import { TransactionService } from '../services/transaction.service';
+import { SubscriptionService } from '../services/subscription.service';
 import type { ICategoryView } from '../types/category.type';
 import type { IPaymentMethodView } from '../types/paymentMethod.type';
 import type { uuid } from '../types/profile.type';
-import type { IBaseTransaction, ITransaction } from '../types/transaction.type';
+import { IBaseSubscription, ISubscription } from '../types/subscription.type';
 
-export class Transaction {
+export class Subscription {
   private _id: number;
   private _categories: ICategoryView;
   private _paymentMethods: IPaymentMethodView;
   private _receiver: string;
   private _description: string | null;
   private _amount: number;
-  private _date: Date;
+  private _execute_at: number;
   private _created_by: uuid;
   private _updated_at: Date;
   private _inserted_at: Date;
@@ -23,25 +23,25 @@ export class Transaction {
     receiver,
     description,
     amount,
-    date,
+    execute_at,
     created_by,
     updated_at,
     inserted_at,
-  }: ITransaction) {
+  }: ISubscription) {
     this._id = id;
     this._categories = categories;
     this._paymentMethods = paymentMethods;
     this._receiver = receiver;
     this._description = description;
     this._amount = amount;
-    this._date = new Date(date);
+    this._execute_at = execute_at;
     this._created_by = created_by;
     this._updated_at = new Date(updated_at);
     this._inserted_at = new Date(inserted_at);
   }
 
   async update(updatedInformation: {
-    date: Date;
+    execute_at: number;
     receiver: string;
     category: number;
     paymentMethod: number;
@@ -49,7 +49,7 @@ export class Transaction {
     description: string | null;
   }) {
     try {
-      return await TransactionService.updateTransaction(this.id, {
+      return await SubscriptionService.updateSubscription(this.id, {
         ...updatedInformation,
         created_by: this.created_by,
       });
@@ -60,7 +60,7 @@ export class Transaction {
 
   async delete() {
     try {
-      return await TransactionService.deleteTransactionById(this.id);
+      return await SubscriptionService.deleteSubscriptionById(this.id);
     } catch (error) {
       console.error(error);
     }
@@ -108,11 +108,11 @@ export class Transaction {
     this._amount = value;
   }
 
-  public get date(): Date {
-    return this._date;
+  public get execute_at(): number {
+    return this._execute_at;
   }
-  public set date(value: Date) {
-    this._date = value;
+  public set execute_at(value: number) {
+    this._execute_at = value;
   }
 
   public get created_by(): uuid {
@@ -137,14 +137,14 @@ export class Transaction {
   }
 }
 
-export class BaseTransaction {
+export class BaseSubscription {
   private _id: number;
   private _category: number;
   private _paymentMethod: number;
   private _receiver: string;
   private _description: string | null;
   private _amount: number;
-  private _date: Date;
+  private _execute_at: number;
   private _created_by: uuid;
   private _updated_at: Date;
   private _inserted_at: Date;
@@ -156,25 +156,26 @@ export class BaseTransaction {
     receiver,
     description,
     amount,
-    date,
+    execute_at,
     created_by,
     updated_at,
     inserted_at,
-  }: IBaseTransaction) {
+  }: IBaseSubscription) {
     this._id = id;
     this._category = category;
     this._paymentMethod = paymentMethod;
     this._receiver = receiver;
     this._description = description;
     this._amount = amount;
-    this._date = new Date(date);
+    this._execute_at = execute_at;
     this._created_by = created_by;
     this._updated_at = new Date(updated_at);
     this._inserted_at = new Date(inserted_at);
   }
 
   async update(updatedInformation: {
-    date: Date;
+    execute_at: number;
+    name: string;
     receiver: string;
     category: number;
     paymentMethod: number;
@@ -182,7 +183,7 @@ export class BaseTransaction {
     description: string | null;
   }) {
     try {
-      return await TransactionService.updateTransaction(this.id, {
+      return await SubscriptionService.updateSubscription(this.id, {
         ...updatedInformation,
         created_by: this.created_by,
       });
@@ -193,7 +194,7 @@ export class BaseTransaction {
 
   async delete() {
     try {
-      return await TransactionService.deleteTransactionById(this.id);
+      return await SubscriptionService.deleteSubscriptionById(this.id);
     } catch (error) {
       console.error(error);
     }
@@ -241,11 +242,11 @@ export class BaseTransaction {
     this._amount = value;
   }
 
-  public get date(): Date {
-    return this._date;
+  public get execute_at(): number {
+    return this._execute_at;
   }
-  public set date(value: Date) {
-    this._date = value;
+  public set execute_at(value: number) {
+    this._execute_at = value;
   }
 
   public get created_by(): uuid {

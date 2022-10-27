@@ -7,14 +7,14 @@ import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
 import type { IBudgetProgressView } from '../types/budget.type';
 import type { IFilter } from '../types/filter.interface';
-import type { ITransaction } from '../types/transaction.type';
-import type { ISubscription } from '../types/subscription.type';
 import { determineNextExecutionDate } from '../utils/determineNextExecution';
 import { AuthContext } from './auth.context';
 import type { IStoreContext } from '../types/store-context.type';
 import { Category } from '../models/category.model';
 import { PaymentMethod } from '../models/paymentMethod.model';
 import { Transaction } from '../models/transaction.model';
+import { Subscription } from '../models/subscription.model';
+import { sortSubscriptionsByExecution } from '../utils/subscription/sortSubscriptions';
 
 export const StoreContext = React.createContext({} as IStoreContext);
 
@@ -23,7 +23,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   const [loading, setLoading] = React.useState(false);
   const [showDrawer, setShowDrawer] = React.useState(getSavedSidebarState());
   const [transactions, setTransactions] = React.useState<Transaction[]>([]);
-  const [subscriptions, setSubscriptions] = React.useState<ISubscription[]>([]);
+  const [subscriptions, setSubscriptions] = React.useState<Subscription[]>([]);
   const [budget, setBudget] = React.useState<IBudgetProgressView[]>([]);
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [paymentMethods, setPaymentMethods] = React.useState<PaymentMethod[]>([]);
@@ -44,21 +44,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
       ])
         .then(
           ([getSubscriptions, getTransactions, getBudget, getCategories, getPaymentMethods]) => {
-            if (getSubscriptions) {
-              setSubscriptions(
-                getSubscriptions.sort(function (a, b) {
-                  const today = new Date();
-                  // It does work fine for dates
-                  return (
-                    // @ts-ignore
-                    Math.abs(today - determineNextExecutionDate(a.execute_at)) -
-                    // @ts-ignore
-                    Math.abs(today - determineNextExecutionDate(b.execute_at))
-                  );
-                })
-              );
-            } else setSubscriptions([]);
-
+            setSubscriptions(sortSubscriptionsByExecution(getSubscriptions));
             setTransactions(getTransactions);
 
             if (getBudget) {

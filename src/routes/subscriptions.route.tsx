@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import * as React from 'react';
 import {
   Grid,
   Box,
@@ -20,28 +20,28 @@ import Card from '../components/card.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { PageHeader } from '../components/page-header.component';
 import { SearchInput } from '../components/inputs/search-input.component';
-import type { ISubscription } from '../types/subscription.type';
 import { CircularProgress } from '../components/progress.component';
 import { StoreContext } from '../context/store.context';
-import { SubscriptionService } from '../services/subscription.service';
 import { determineNextExecution } from '../utils/determineNextExecution';
 import { NoResults } from '../components/no-results.component';
 import { CreateSubscription } from '../components/create-forms/create-subscription.component';
 import { EditSubscription } from '../components/edit-forms/edit-subscription.component';
 import { ShowFilterButton } from '../components/show-filter.component';
 import { filterSubscriptions } from '../utils/filter';
+import { Subscription } from '../models/subscription.model';
 
 export const Subscriptions = () => {
-  const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, filter, subscriptions, setSubscriptions } = useContext(StoreContext);
+  const { showSnackbar } = React.useContext(SnackbarContext);
+  const { loading, filter, subscriptions, setSubscriptions } = React.useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
-  const [keyword, setKeyword] = useState('');
+  const [keyword, setKeyword] = React.useState('');
   const [shownSubscriptions, setShownSubscriptions] =
-    useState<readonly ISubscription[]>(subscriptions);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [editSubscription, setEditSubscription] = useState<ISubscription | null>(null);
+    React.useState<readonly Subscription[]>(subscriptions);
+  const [, startTransition] = React.useTransition();
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);
+  const [showAddForm, setShowAddForm] = React.useState(false);
+  const [editSubscription, setEditSubscription] = React.useState<Subscription | null>(null);
 
   const handleOnSearch = (text: string) => setKeyword(text.toLowerCase());
 
@@ -54,24 +54,27 @@ export const Subscriptions = () => {
     setPage(0);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (subscription: Subscription) => {
     try {
-      const data = await SubscriptionService.deleteSubscriptionById(id);
-      if (data === null) throw new Error('No subscription deleted');
-      setSubscriptions((prev) => prev.filter((subscription) => subscription.id !== id));
-      showSnackbar({ message: `Subscription ${data[0].receiver} deleted` });
+      const deletedSubscriptions = await subscription.delete();
+      if (!deletedSubscriptions || deletedSubscriptions.length < 1)
+        throw new Error('No subscription deleted');
+      startTransition(() => {
+        setSubscriptions((prev) => prev.filter(({ id }) => id !== subscription.id));
+      });
+      showSnackbar({ message: `Subscription ${subscription.receiver} deleted` });
     } catch (error) {
       console.error(error);
       showSnackbar({
         message: `Could'nt delete transaction`,
-        action: <Button onClick={() => handleDelete(id)}>Retry</Button>,
+        action: <Button onClick={() => handleDelete(subscription)}>Retry</Button>,
       });
     }
   };
 
-  useEffect(() => setShownSubscriptions(subscriptions), [subscriptions]);
+  React.useEffect(() => setShownSubscriptions(subscriptions), [subscriptions]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     setShownSubscriptions(filterSubscriptions(keyword, filter, subscriptions));
   }, [keyword, filter, subscriptions]);
 
@@ -151,7 +154,7 @@ export const Subscriptions = () => {
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Delete" placement="top">
-                                <IconButton onClick={() => handleDelete(row.id)}>
+                                <IconButton onClick={() => handleDelete(row)}>
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
@@ -180,10 +183,8 @@ export const Subscriptions = () => {
         </Card>
       </Grid>
 
-      {/* Add Subscription */}
       <CreateSubscription open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
 
-      {/* Edit Subscription */}
       <EditSubscription
         open={editSubscription !== null}
         setOpen={(show) => {

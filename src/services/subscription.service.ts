@@ -7,23 +7,24 @@ import type {
 import type { TExportType } from '../components/user-profile.component';
 import { TransactionService } from './transaction.service';
 import { Transaction } from '../models/transaction.model';
+import { BaseSubscription, Subscription } from '../models/subscription.model';
 
 export class SubscriptionService {
   private static table = 'subscriptions';
 
   static async createSubscriptions(
     subscriptions: Partial<IBaseSubscription>[]
-  ): Promise<IBaseSubscription[]> {
+  ): Promise<BaseSubscription[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<IBaseSubscription>(this.table)
         .insert(subscriptions);
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((subscription) => new BaseSubscription(subscription)) : []);
     });
   }
 
-  static async getSubscriptions(): Promise<ISubscription[]> {
+  static async getSubscriptions(): Promise<Subscription[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase.from<ISubscription>(this.table).select(`
           id,
@@ -40,39 +41,39 @@ export class SubscriptionService {
             id, name, description
           )`);
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((subscription) => new Subscription(subscription)) : []);
     });
   }
 
   static async updateSubscription(
     id: number,
     updatedSubscription: Partial<IBaseSubscription>
-  ): Promise<IBaseSubscription[]> {
+  ): Promise<BaseSubscription[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<IBaseSubscription>(this.table)
         .update(updatedSubscription)
         .match({ id: id });
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((subscription) => new BaseSubscription(subscription)) : []);
     });
   }
 
-  static async deleteSubscriptionById(id: number): Promise<IBaseSubscription[]> {
+  static async deleteSubscriptionById(id: number): Promise<BaseSubscription[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<IBaseSubscription>(this.table)
         .delete()
         .match({ id: id });
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((subscription) => new BaseSubscription(subscription)) : []);
     });
   }
 
   /**
    * Get planned income for the current month
    */
-  static getPlannedIncome(subscriptions: ISubscription[]) {
+  static getPlannedIncome(subscriptions: Subscription[]) {
     return Math.abs(
       subscriptions
         .filter((subscription) => subscription.amount > 0)
@@ -83,7 +84,7 @@ export class SubscriptionService {
   /**
    * Get planned income for this month which aren't fullfilled meaning which will be executed during this month
    */
-  static getFuturePlannedIncome(subscriptions: ISubscription[], transactions?: Transaction[]) {
+  static getFuturePlannedIncome(subscriptions: Subscription[], transactions?: Transaction[]) {
     const now = new Date();
     const processedSubscriptions = Math.abs(
       subscriptions
@@ -101,7 +102,7 @@ export class SubscriptionService {
   /**
    * Get all planned payments for the current month
    */
-  static getPlannedSpendings(subscriptions: ISubscription[]) {
+  static getPlannedSpendings(subscriptions: Subscription[]) {
     return Math.abs(
       subscriptions
         .filter((subscription) => subscription.amount < 0)
@@ -112,7 +113,7 @@ export class SubscriptionService {
   /**
    * Get planned spendings for this month which aren't fullfilled meaning which will be executed during this month
    */
-  static getFuturePlannedSpendings(subscriptions: ISubscription[], transactions?: Transaction[]) {
+  static getFuturePlannedSpendings(subscriptions: Subscription[], transactions?: Transaction[]) {
     const now = new Date();
     const processedSubscriptions = Math.abs(
       subscriptions

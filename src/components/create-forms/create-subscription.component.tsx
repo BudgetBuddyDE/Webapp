@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, FormEvent, useContext, useState } from 'react';
+import * as React from 'react';
 import {
   Alert,
   AlertTitle,
@@ -22,33 +22,36 @@ import { SnackbarContext } from '../../context/snackbar.context';
 import { AuthContext } from '../../context/auth.context';
 import { FormStyle } from '../../theme/form-style';
 import { SubscriptionService } from '../../services/subscription.service';
+import { Subscription } from '../../models/subscription.model';
+import { sortSubscriptionsByExecution } from '../../utils/subscription/sortSubscriptions';
 
 export interface ICreateSubscriptionProps {
   open: boolean;
   setOpen: (show: boolean) => void;
-  afterSubmit?: (subscription: ISubscription) => void;
+  afterSubmit?: (subscription: Subscription) => void;
 }
 
-export const CreateSubscription: FC<ICreateSubscriptionProps> = ({
+export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({
   open,
   setOpen,
   afterSubmit,
 }) => {
   const screenSize = useScreenSize();
-  const { session } = useContext(AuthContext);
-  const { showSnackbar } = useContext(SnackbarContext);
+  const { session } = React.useContext(AuthContext);
+  const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, transactionReceiver, setSubscriptions, categories, paymentMethods } =
-    useContext(StoreContext);
-  const [date, setDate] = useState(new Date());
-  const [form, setForm] = useState<Record<string, string | number>>({});
-  const [errorMessage, setErrorMessage] = useState('');
+    React.useContext(StoreContext);
+  const [, startTransition] = React.useTransition();
+  const [executionDate, setExecutionDate] = React.useState(new Date());
+  const [form, setForm] = React.useState<Partial<IBaseSubscription>>({});
+  const [errorMessage, setErrorMessage] = React.useState('');
 
   const handler = {
     onClose: () => {
       setOpen(false);
     },
     onDateChange: (date: Date | null) => {
-      if (date) setDate(date);
+      if (date) setExecutionDate(date);
     },
     autocompleteChange: (
       event: React.SyntheticEvent<Element, Event>,
@@ -57,13 +60,13 @@ export const CreateSubscription: FC<ICreateSubscriptionProps> = ({
     ) => {
       setForm((prev) => ({ ...prev, [key]: value }));
     },
-    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
     receiverChange: (value: string | number) => {
-      setForm((prev) => ({ ...prev, receiver: value }));
+      setForm((prev) => ({ ...prev, receiver: String(value) }));
     },
-    onSubmit: async (event: FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
       try {
         event.preventDefault();
         const values = Object.keys(form);
@@ -71,36 +74,47 @@ export const CreateSubscription: FC<ICreateSubscriptionProps> = ({
           if (!values.includes(field)) throw new Error('Provide an ' + field);
         });
 
-        const data = await SubscriptionService.createSubscriptions([
+        const addedSubscriptions = await SubscriptionService.createSubscriptions([
           {
-            execute_at: date.getDate(),
+            execute_at: executionDate.getDate(),
             category: Number(form.category),
             paymentMethod: Number(form.paymentMethod),
             receiver: String(form.receiver),
-            amount: transformBalance(form.amount.toString()),
-            description: form.information ? String(form.information) : null,
+            amount: transformBalance(form.amount!.toString()),
+            description: form.description! ?? '',
             created_by: session!.user!.id,
           },
         ]);
-        if (data === null) throw new Error('No subscription created');
+        if (addedSubscriptions.length < 1) throw new Error('No subscription created');
 
-        if (afterSubmit) {
-          // @ts-ignore
-          afterSubmit({
-            ...data[0],
-            categories: categories.find((value) => value.id === data[0].category),
-            paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
-          } as ISubscription);
-        }
-        setSubscriptions((prev) => [
-          ...prev,
-          // @ts-ignore
-          {
-            ...data[0],
-            categories: categories.find((value) => value.id === data[0].category),
-            paymentMethods: paymentMethods.find((value) => value.id === data[0].paymentMethod),
-          } as ISubscription,
-        ]);
+        const {
+          id,
+          category,
+          paymentMethod,
+          receiver,
+          description,
+          amount,
+          execute_at,
+          created_by,
+          updated_at,
+          inserted_at,
+        } = addedSubscriptions[0];
+        const addedSubscription = new Subscription({
+          id: id,
+          categories: categories.find((c) => c.id === category)!.categoryView,
+          paymentMethods: paymentMethods.find((pm) => pm.id === paymentMethod)!.paymentMethodView,
+          receiver: receiver,
+          description: description,
+          amount: amount,
+          execute_at: execute_at,
+          created_by: created_by,
+          updated_at: new Date(updated_at),
+          inserted_at: new Date(inserted_at),
+        });
+        if (afterSubmit) afterSubmit(addedSubscription);
+        startTransition(() => {
+          setSubscriptions((prev) => sortSubscriptionsByExecution([addedSubscription, ...prev]));
+        });
         handler.onClose();
         showSnackbar({
           message: 'Subscription added',
@@ -150,7 +164,7 @@ export const CreateSubscription: FC<ICreateSubscriptionProps> = ({
           <MobileDatePicker
             label="Execute at"
             inputFormat="dd"
-            value={date}
+            value={executionDate}
             onChange={handler.onDateChange}
             renderInput={(params) => <TextField sx={FormStyle} {...params} />}
           />
@@ -158,7 +172,7 @@ export const CreateSubscription: FC<ICreateSubscriptionProps> = ({
           <DesktopDatePicker
             label="Execute at"
             inputFormat="dd"
-            value={date}
+            value={executionDate}
             onChange={handler.onDateChange}
             renderInput={(params) => <TextField sx={FormStyle} {...params} />}
           />
@@ -212,10 +226,10 @@ export const CreateSubscription: FC<ICreateSubscriptionProps> = ({
       </FormControl>
 
       <TextField
-        id="information"
+        id="description"
         variant="outlined"
-        label="Information"
-        name="information"
+        label="Description"
+        name="description"
         sx={{ ...FormStyle, mb: 0 }}
         multiline
         rows={3}
