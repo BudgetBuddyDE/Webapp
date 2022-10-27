@@ -4,6 +4,7 @@ import type {
   IExportPaymentMethod,
   IPaymentMethod,
 } from '../types/paymentMethod.type';
+import { PaymentMethod } from '../models/paymentMethod.model';
 import type { TExportType } from '../components/user-profile.component';
 
 export class PaymentMethodService {
@@ -11,49 +12,49 @@ export class PaymentMethodService {
 
   static async createPaymentMethods(
     paymentMethods: Partial<IBasePaymentMethod>[]
-  ): Promise<IBasePaymentMethod[]> {
+  ): Promise<PaymentMethod[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<IBasePaymentMethod>(this.table)
         .insert(paymentMethods);
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((paymentMethod) => new PaymentMethod(paymentMethod)) : []);
     });
   }
 
-  static async getPaymentMethods(): Promise<IPaymentMethod[]> {
+  static async getPaymentMethods(): Promise<PaymentMethod[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<IPaymentMethod>(this.table)
         .select('*')
         .order('name', { ascending: true });
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((paymentMethod) => new PaymentMethod(paymentMethod)) : []);
     });
   }
 
   static async updatePaymentMethod(
     id: number,
     updatedPaymentMethod: Partial<IBasePaymentMethod>
-  ): Promise<IPaymentMethod[]> {
+  ): Promise<PaymentMethod[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<IBasePaymentMethod>(this.table)
         .update(updatedPaymentMethod)
         .match({ id: id });
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((paymentMethod) => new PaymentMethod(paymentMethod)) : []);
     });
   }
 
-  static async deletePaymentMethodById(id: number): Promise<IBasePaymentMethod[]> {
+  static async deletePaymentMethodById(id: number): Promise<PaymentMethod[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<IBasePaymentMethod>(this.table)
         .delete()
         .match({ id: id });
       if (error) rej(error);
-      res(data ?? []);
+      res(data ? data.map((paymentMethod) => new PaymentMethod(paymentMethod)) : []);
     });
   }
 

@@ -1,8 +1,8 @@
-import { ChangeEvent, FC, FormEvent, useContext, useState } from 'react';
+import * as React from 'react';
 import { Alert, TextField } from '@mui/material';
 import { StoreContext } from '../../context/store.context';
 import { FormDrawer } from '../form-drawer.component';
-import type { IPaymentMethod } from '../../types/paymentMethod.type';
+import type { IBasePaymentMethod, IPaymentMethod } from '../../types/paymentMethod.type';
 import { SnackbarContext } from '../../context/snackbar.context';
 import { AuthContext } from '../../context/auth.context';
 import { FormStyle } from '../../theme/form-style';
@@ -14,25 +14,26 @@ export interface ICreatePaymentMethodProps {
   afterSubmit?: (paymentMethod: IPaymentMethod) => void;
 }
 
-export const CreatePaymentMethod: FC<ICreatePaymentMethodProps> = ({
+export const CreatePaymentMethod: React.FC<ICreatePaymentMethodProps> = ({
   open,
   setOpen,
   afterSubmit,
 }) => {
-  const { session } = useContext(AuthContext);
-  const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, setPaymentMethods } = useContext(StoreContext);
-  const [form, setForm] = useState<Record<string, string | number>>({});
-  const [errorMessage, setErrorMessage] = useState('');
+  const { session } = React.useContext(AuthContext);
+  const { showSnackbar } = React.useContext(SnackbarContext);
+  const { loading, setPaymentMethods } = React.useContext(StoreContext);
+  const [, startTransition] = React.useTransition();
+  const [form, setForm] = React.useState<Partial<IBasePaymentMethod>>({});
+  const [errorMessage, setErrorMessage] = React.useState('');
 
   const handler = {
     onClose: () => {
       setOpen(false);
     },
-    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    onSubmit: async (event: FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
       try {
         event.preventDefault();
         const values = Object.keys(form);
@@ -40,19 +41,14 @@ export const CreatePaymentMethod: FC<ICreatePaymentMethodProps> = ({
           if (!values.includes(field)) throw new Error('Provide an ' + field);
         });
 
-        const data = await PaymentMethodService.createPaymentMethods([
-          {
-            name: form.name,
-            address: form.address,
-            provider: form.provider,
-            description: form.description || null,
-            created_by: session!.user!.id,
-          } as IPaymentMethod,
-        ]);
-        if (data === null) throw new Error('No payment-method created');
+        const createdPaymentMethods = await PaymentMethodService.createPaymentMethods([form]);
+        if (createdPaymentMethods.length < 1) throw new Error('No payment-methods created');
 
-        if (afterSubmit) afterSubmit(data[0]);
-        setPaymentMethods((prev) => [...prev, ...data]);
+        const createdPaymentMethod = createdPaymentMethods[0];
+        if (afterSubmit) afterSubmit(createdPaymentMethod);
+        startTransition(() => {
+          setPaymentMethods((prev) => [createdPaymentMethod, ...prev]);
+        });
         handler.onClose();
         showSnackbar({
           message: 'Payment Method added',
@@ -87,7 +83,7 @@ export const CreatePaymentMethod: FC<ICreatePaymentMethodProps> = ({
         label="Name"
         name="name"
         sx={FormStyle}
-        onChange={handler.inputChange}
+        onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
       />
 
       <TextField
@@ -96,7 +92,7 @@ export const CreatePaymentMethod: FC<ICreatePaymentMethodProps> = ({
         label="Provider"
         name="provider"
         sx={FormStyle}
-        onChange={handler.inputChange}
+        onChange={(event) => setForm((prev) => ({ ...prev, provider: event.target.value }))}
       />
 
       <TextField
@@ -105,7 +101,7 @@ export const CreatePaymentMethod: FC<ICreatePaymentMethodProps> = ({
         label="Address"
         name="address"
         sx={FormStyle}
-        onChange={handler.inputChange}
+        onChange={(event) => setForm((prev) => ({ ...prev, address: event.target.value }))}
       />
 
       <TextField
@@ -116,7 +112,11 @@ export const CreatePaymentMethod: FC<ICreatePaymentMethodProps> = ({
         sx={{ ...FormStyle, mb: 0 }}
         multiline
         rows={3}
-        onChange={handler.inputChange}
+        onChange={(event) => {
+          const value = event.target.value;
+          const description = value.length > 1 ? value : null;
+          setForm((prev) => ({ ...prev, description: description }));
+        }}
       />
     </FormDrawer>
   );

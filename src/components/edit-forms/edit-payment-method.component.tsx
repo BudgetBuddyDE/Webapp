@@ -1,78 +1,68 @@
-import { ChangeEvent, FC, FormEvent, useContext, useEffect, useState } from 'react';
+import * as React from 'react';
 import { Alert, TextField } from '@mui/material';
 import { StoreContext } from '../../context/store.context';
 import { FormDrawer } from '../form-drawer.component';
-import type { IPaymentMethod } from '../../types/paymentMethod.type';
 import { SnackbarContext } from '../../context/snackbar.context';
 import { AuthContext } from '../../context/auth.context';
 import { FormStyle } from '../../theme/form-style';
-import { PaymentMethodService } from '../../services/payment-method.service';
+import { PaymentMethod } from '../../models/paymentMethod.model';
+import type { IBasePaymentMethod } from '../../types/paymentMethod.type';
 
 export interface IEditPaymentMethodProps {
   open: boolean;
   setOpen: (show: boolean) => void;
-  afterSubmit?: (paymentMethod: IPaymentMethod) => void;
-  paymentMethod: IPaymentMethod | null;
+  afterSubmit?: (paymentMethod: PaymentMethod) => void;
+  paymentMethod: PaymentMethod | null;
 }
 
-export const EditPaymentMethod: FC<IEditPaymentMethodProps> = ({
+export const EditPaymentMethod: React.FC<IEditPaymentMethodProps> = ({
   open,
   setOpen,
   afterSubmit,
   paymentMethod,
 }) => {
-  const { session } = useContext(AuthContext);
-  const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, setPaymentMethods } = useContext(StoreContext);
-  const [form, setForm] = useState<Record<string, string | number>>({});
-  const [errorMessage, setErrorMessage] = useState('');
+  const { session } = React.useContext(AuthContext);
+  const { showSnackbar } = React.useContext(SnackbarContext);
+  const { loading, setPaymentMethods } = React.useContext(StoreContext);
+  const [, startTransition] = React.useTransition();
+  const [form, setForm] = React.useState<Partial<IBasePaymentMethod> | null>(null);
+  const [errorMessage, setErrorMessage] = React.useState('');
 
   const handler = {
     onClose: () => {
       setOpen(false);
     },
-    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
-    },
-    onSubmit: async (event: FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
       try {
         event.preventDefault();
-
+        if (!paymentMethod) throw new Error('No payment-method provided');
+        if (!form) throw new Error('No updates provided');
         const values = Object.keys(form);
         ['id', 'name', 'address', 'provider'].forEach((field) => {
           if (!values.includes(field)) throw new Error('Provide an ' + field);
         });
 
-        const update = {
-          name: form.name,
-          address: form.address,
-          provider: form.provider,
-          description: form.description || null,
-          created_by: session!.user!.id,
-        };
+        // @ts-expect-error will work because we're checking if the object contains all required keys at the top
+        const updatedPaymentMethods = await paymentMethod.update(form);
+        if (!updatedPaymentMethods || updatedPaymentMethods.length < 1)
+          throw new Error('No payment-method updated');
 
-        const data = await PaymentMethodService.updatePaymentMethod(
-          Number(form.id),
-          update as Partial<IPaymentMethod>
-        );
-        if (data === null) throw new Error('No payment-method updated');
-
-        const updatedItem = data[0];
+        const updatedItem = updatedPaymentMethods[0];
         if (afterSubmit) afterSubmit(updatedItem);
-        setPaymentMethods((prev) =>
-          prev.map((paymentMethod) => {
-            if (paymentMethod.id === updatedItem.id) {
-              return {
-                ...paymentMethod,
-                name: updatedItem.name.toString(),
-                address: updatedItem.address.toString(),
-                provider: updatedItem.provider.toString(),
-                description: updatedItem.description ? updatedItem.description.toString() : null,
-              };
-            }
-            return paymentMethod;
-          })
-        );
+        startTransition(() => {
+          setPaymentMethods((prev) => {
+            return prev.map((item) => {
+              if (item.id === updatedItem.id) {
+                item.name = updatedItem.name;
+                item.address = updatedItem.address;
+                item.provider = updatedItem.provider;
+                item.description = updatedItem.description;
+                return item;
+              }
+              return item;
+            });
+          });
+        });
         handler.onClose();
         showSnackbar({
           message: 'Payment method updated',
@@ -85,16 +75,18 @@ export const EditPaymentMethod: FC<IEditPaymentMethodProps> = ({
     },
   };
 
-  useEffect(() => {
-    if (paymentMethod) {
-      setForm({
-        id: paymentMethod.id,
-        name: paymentMethod.name,
-        address: paymentMethod.address,
-        provider: paymentMethod.provider,
-        description: paymentMethod.description || '',
-      });
-    } else setForm({});
+  React.useEffect(() => {
+    setForm(
+      paymentMethod
+        ? {
+            id: paymentMethod.id,
+            name: paymentMethod.name,
+            address: paymentMethod.address,
+            provider: paymentMethod.provider,
+            description: paymentMethod.description,
+          }
+        : null
+    );
   }, [paymentMethod]);
 
   if (loading) return null;
@@ -119,8 +111,8 @@ export const EditPaymentMethod: FC<IEditPaymentMethodProps> = ({
         label="Name"
         name="name"
         sx={FormStyle}
-        value={form.name}
-        onChange={handler.inputChange}
+        value={form ? form.name : ''}
+        onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
       />
 
       <TextField
@@ -129,8 +121,8 @@ export const EditPaymentMethod: FC<IEditPaymentMethodProps> = ({
         label="Provider"
         name="provider"
         sx={FormStyle}
-        value={form.provider}
-        onChange={handler.inputChange}
+        value={form ? form.provider : ''}
+        onChange={(event) => setForm((prev) => ({ ...prev, provider: event.target.value }))}
       />
 
       <TextField
@@ -139,8 +131,8 @@ export const EditPaymentMethod: FC<IEditPaymentMethodProps> = ({
         label="Address"
         name="address"
         sx={FormStyle}
-        value={form.address}
-        onChange={handler.inputChange}
+        value={form ? form.address : ''}
+        onChange={(event) => setForm((prev) => ({ ...prev, address: event.target.value }))}
       />
 
       <TextField
@@ -151,8 +143,12 @@ export const EditPaymentMethod: FC<IEditPaymentMethodProps> = ({
         sx={{ ...FormStyle, mb: 0 }}
         multiline
         rows={3}
-        value={form.description}
-        onChange={handler.inputChange}
+        value={form ? form.description ?? '' : ''}
+        onChange={(event) => {
+          const value = event.target.value;
+          const description = value.length > 0 ? value : null;
+          setForm((prev) => ({ ...prev, description: description }));
+        }}
       />
     </FormDrawer>
   );

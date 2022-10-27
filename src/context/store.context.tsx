@@ -1,12 +1,4 @@
-import {
-  createContext,
-  FC,
-  PropsWithChildren,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import * as React from 'react';
 import { DEFAULT_FILTER_VALUE } from '../components/filter-drawer.component';
 import { BudgetService } from '../services/budget.service';
 import { CategoryService } from '../services/category.service';
@@ -16,33 +8,30 @@ import { TransactionService } from '../services/transaction.service';
 import type { IBudgetProgressView } from '../types/budget.type';
 import type { IFilter } from '../types/filter.interface';
 import type { ITransaction } from '../types/transaction.type';
-import type { IPaymentMethod } from '../types/paymentMethod.type';
 import type { ISubscription } from '../types/subscription.type';
 import { determineNextExecutionDate } from '../utils/determineNextExecution';
 import { AuthContext } from './auth.context';
 import type { IStoreContext } from '../types/store-context.type';
-
 import { Category } from '../models/category.model';
+import { PaymentMethod } from '../models/paymentMethod.model';
 
-export const StoreContext = createContext({} as IStoreContext);
+export const StoreContext = React.createContext({} as IStoreContext);
 
-export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
-  const { session } = useContext(AuthContext);
-  const [loading, setLoading] = useState(false);
-  const [showDrawer, setShowDrawer] = useState(getSavedSidebarState());
-  const [transactions, setTransactions] = useState<ITransaction[]>([]);
-  const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
-  const [budget, setBudget] = useState<IBudgetProgressView[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
-  const [showFilter, setShowFilter] = useState(false);
-  const [filter, setFilter] = useState<IFilter>(DEFAULT_FILTER_VALUE);
+export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const { session } = React.useContext(AuthContext);
+  const [loading, setLoading] = React.useState(false);
+  const [showDrawer, setShowDrawer] = React.useState(getSavedSidebarState());
+  const [transactions, setTransactions] = React.useState<ITransaction[]>([]);
+  const [subscriptions, setSubscriptions] = React.useState<ISubscription[]>([]);
+  const [budget, setBudget] = React.useState<IBudgetProgressView[]>([]);
+  const [categories, setCategories] = React.useState<Category[]>([]);
+  const [paymentMethods, setPaymentMethods] = React.useState<PaymentMethod[]>([]);
+  const [showFilter, setShowFilter] = React.useState(false);
+  const [filter, setFilter] = React.useState<IFilter>(DEFAULT_FILTER_VALUE);
 
-  useMemo(() => saveSidebarState(showDrawer), [showDrawer]);
+  React.useMemo(() => saveSidebarState(showDrawer), [showDrawer]);
 
-  useEffect(() => console.log(filter), [filter]);
-
-  useEffect(() => {
+  React.useEffect(() => {
     setLoading(true);
     if (session && session.user) {
       Promise.all([
@@ -78,10 +67,7 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
             } else setBudget([]);
 
             setCategories(getCategories);
-
-            if (getPaymentMethods) {
-              setPaymentMethods(getPaymentMethods);
-            } else setPaymentMethods([]);
+            setPaymentMethods(getPaymentMethods);
           }
         )
         .catch((error) => console.error(error))
@@ -89,7 +75,7 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
     }
   }, [session?.user?.id]);
 
-  const transactionReceiver = useMemo(
+  const transactionReceiver = React.useMemo(
     () =>
       [...new Set(transactions.map((transaction) => transaction.receiver))].map((receiver) => ({
         text: receiver,
@@ -100,7 +86,7 @@ export const StoreProvider: FC<PropsWithChildren> = ({ children }) => {
 
   return (
     <StoreContext.Provider
-      value={useMemo(
+      value={React.useMemo(
         () => ({
           loading,
           setLoading,

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import * as React from 'react';
 import {
   Grid,
   Box,
@@ -21,22 +21,23 @@ import { SearchInput } from '../components/inputs/search-input.component';
 import type { IPaymentMethod } from '../types/paymentMethod.type';
 import { CircularProgress } from '../components/progress.component';
 import { StoreContext } from '../context/store.context';
-import { PaymentMethodService } from '../services/payment-method.service';
 import { NoResults } from '../components/no-results.component';
 import { CreatePaymentMethod } from '../components/create-forms/create-payment-method.component';
 import { EditPaymentMethod } from '../components/edit-forms/edit-payment-method.component';
+import { PaymentMethod } from '../models/paymentMethod.model';
 
 export const PaymentMethods = () => {
-  const { showSnackbar } = useContext(SnackbarContext);
-  const { loading, paymentMethods, setPaymentMethods } = useContext(StoreContext);
+  const { showSnackbar } = React.useContext(SnackbarContext);
+  const { loading, paymentMethods, setPaymentMethods } = React.useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [keyword, setKeyword] = useState('');
+  const [showAddForm, setShowAddForm] = React.useState(false);
+  const [keyword, setKeyword] = React.useState('');
   const [shownPaymentMethods, setShownPaymentMethods] =
-    useState<readonly IPaymentMethod[]>(paymentMethods);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
-  const [editPaymentMethod, setEditPaymentMethod] = useState<IPaymentMethod | null>(null);
+    React.useState<readonly PaymentMethod[]>(paymentMethods);
+  const [page, setPage] = React.useState(0);
+  const [, startTransition] = React.useTransition();
+  const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);
+  const [editPaymentMethod, setEditPaymentMethod] = React.useState<PaymentMethod | null>(null);
 
   const handleOnSearch = (text: string) => setKeyword(text.toLowerCase());
 
@@ -49,24 +50,27 @@ export const PaymentMethods = () => {
     setPage(0);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (paymentMethod: PaymentMethod) => {
     try {
-      const data = await PaymentMethodService.deletePaymentMethodById(id);
-      if (data === null) throw new Error('No payment-method deleted');
-      setPaymentMethods((prev) => prev.filter((paymentMethod) => paymentMethod.id !== id));
-      showSnackbar({ message: `Payment Method ${data[0].name} deleted` });
+      const deletedPaymentMethods = await paymentMethod.delete();
+      if (!deletedPaymentMethods || deletedPaymentMethods.length < 1)
+        throw new Error('No payment-method deleted');
+      startTransition(() => {
+        setPaymentMethods((prev) => prev.filter(({ id }) => id !== paymentMethod.id));
+      });
+      showSnackbar({ message: `Payment Method ${paymentMethod.name} deleted` });
     } catch (error) {
       console.error(error);
       showSnackbar({
         message: `Could'nt delete payment method`,
-        action: <Button onClick={() => handleDelete(id)}>Retry</Button>,
+        action: <Button onClick={() => handleDelete(paymentMethod)}>Retry</Button>,
       });
     }
   };
 
-  useEffect(() => setShownPaymentMethods(paymentMethods), [paymentMethods]);
+  React.useEffect(() => setShownPaymentMethods(paymentMethods), [paymentMethods]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (keyword === '') setShownPaymentMethods(paymentMethods);
     setShownPaymentMethods(
       paymentMethods.filter(
@@ -134,7 +138,7 @@ export const PaymentMethods = () => {
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Delete" placement="top">
-                                <IconButton onClick={() => handleDelete(row.id)}>
+                                <IconButton onClick={() => handleDelete(row)}>
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
@@ -163,10 +167,8 @@ export const PaymentMethods = () => {
         </Card>
       </Grid>
 
-      {/* Add Payment Method */}
       <CreatePaymentMethod open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
 
-      {/* Edit Payment Method */}
       <EditPaymentMethod
         open={editPaymentMethod !== null}
         setOpen={(show) => {

@@ -2,7 +2,7 @@ import * as React from 'react';
 import type { IBudgetProgressView } from './budget.type';
 import { Category } from '../models/category.model';
 import type { IFilter } from './filter.interface';
-import type { IPaymentMethod } from './paymentMethod.type';
+import { PaymentMethod } from '../models/paymentMethod.model';
 import type { ISubscription } from './subscription.type';
 import type { ITransaction } from './transaction.type';
 
@@ -23,8 +23,8 @@ export interface IStoreContext {
   setBudget: React.Dispatch<React.SetStateAction<IBudgetProgressView[]>>;
   categories: Category[];
   setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
-  paymentMethods: IPaymentMethod[];
-  setPaymentMethods: React.Dispatch<React.SetStateAction<IPaymentMethod[]>>;
+  paymentMethods: PaymentMethod[];
+  setPaymentMethods: React.Dispatch<React.SetStateAction<PaymentMethod[]>>;
   showFilter: boolean;
   setShowFilter: React.Dispatch<React.SetStateAction<boolean>>;
   filter: IFilter;
