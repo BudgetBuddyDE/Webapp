@@ -29,7 +29,6 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
       try {
         event.preventDefault();
         if (!form.name) throw new Error('No name provided');
-        if (form.description === undefined) throw new Error('No description provided');
 
         const createdCategories = await CategoryService.createCategories([
           {
