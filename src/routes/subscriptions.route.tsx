@@ -12,7 +12,6 @@ import {
   TableCell,
   TableBody,
   Typography,
-  Chip,
   Button,
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
@@ -29,6 +28,7 @@ import { EditSubscription } from '../components/edit-forms/edit-subscription.com
 import { ShowFilterButton } from '../components/show-filter.component';
 import { filterSubscriptions } from '../utils/filter';
 import { Subscription } from '../models/subscription.model';
+import { CategoryChip, PaymentMethodChip } from '../components/chip.component';
 
 export const Subscriptions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
@@ -134,7 +134,7 @@ export const Subscriptions = () => {
                               </Typography>
                             </TableCell>
                             <TableCell>
-                              <Chip label={row.categories.name} variant="outlined" />
+                              <CategoryChip category={row.categories} />
                             </TableCell>
                             <TableCell>{row.receiver}</TableCell>
                             <TableCell>
@@ -144,7 +144,7 @@ export const Subscriptions = () => {
                               })}
                             </TableCell>
                             <TableCell>
-                              <Chip label={row.paymentMethods.name} variant="outlined" />
+                              <PaymentMethodChip paymentMethod={row.paymentMethods} />
                             </TableCell>
                             <TableCell>{row.description || 'No Information'}</TableCell>
                             <TableCell align="right">

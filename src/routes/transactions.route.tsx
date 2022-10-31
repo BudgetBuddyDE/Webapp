@@ -12,7 +12,6 @@ import {
   TableCell,
   TableBody,
   Typography,
-  Chip,
   Button,
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
@@ -30,6 +29,7 @@ import { useStateCallback } from '../hooks/useStateCallback.hook';
 import { filterTransactions } from '../utils/filter';
 import { ShowFilterButton } from '../components/show-filter.component';
 import { Transaction } from '../models/transaction.model';
+import { CategoryChip, PaymentMethodChip } from '../components/chip.component';
 
 export const Transactions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
@@ -136,7 +136,7 @@ export const Transactions = () => {
                               )}`}</Typography>
                             </TableCell>
                             <TableCell>
-                              <Chip label={row.categories.name} variant="outlined" />
+                              <CategoryChip category={row.categories} />
                             </TableCell>
                             <TableCell>{row.receiver}</TableCell>
                             <TableCell>
@@ -146,7 +146,7 @@ export const Transactions = () => {
                               })}
                             </TableCell>
                             <TableCell>
-                              <Chip label={row.paymentMethods.name} variant="outlined" />
+                              <PaymentMethodChip paymentMethod={row.paymentMethods} />
                             </TableCell>
                             <TableCell>{row.description || 'No Information'}</TableCell>
                             <TableCell align="right">
@@ -185,10 +185,8 @@ export const Transactions = () => {
         </Card>
       </Grid>
 
-      {/* Add Transaction */}
       <CreateTransaction open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
 
-      {/* Edit Transaction */}
       <EditTransaction
         open={editTransaction !== null}
         setOpen={(show) => {
