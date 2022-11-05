@@ -29,6 +29,7 @@ import { ShowFilterButton } from '../components/show-filter.component';
 import { filterSubscriptions } from '../utils/filter';
 import { Subscription } from '../models/subscription.model';
 import { CategoryChip, PaymentMethodChip } from '../components/chip.component';
+import { Linkify } from '../components/linkify.component';
 
 export const Subscriptions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
@@ -108,13 +109,19 @@ export const Subscriptions = () => {
                   <Table sx={{ minWidth: 650 }} aria-label="Subscriptions Table">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Next execution</TableCell>
-                        <TableCell>Category</TableCell>
-                        <TableCell>Receiver</TableCell>
-                        <TableCell>Amount</TableCell>
-                        <TableCell>Payment Method</TableCell>
-                        <TableCell>Information</TableCell>
-                        <TableCell></TableCell>
+                        {[
+                          'Next execution',
+                          'Category',
+                          'Receiver',
+                          'Amount',
+                          'Payment Method',
+                          'Information',
+                          '',
+                        ].map((cell, index) => (
+                          <TableCell key={index}>
+                            <Typography fontWeight="bolder">{cell}</Typography>
+                          </TableCell>
+                        ))}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -129,24 +136,30 @@ export const Subscriptions = () => {
                             }}
                           >
                             <TableCell>
-                              <Typography fontWeight="bold">
+                              <Typography fontWeight="bolder">
                                 {determineNextExecution(row.execute_at)}
                               </Typography>
                             </TableCell>
                             <TableCell>
                               <CategoryChip category={row.categories} />
                             </TableCell>
-                            <TableCell>{row.receiver}</TableCell>
                             <TableCell>
-                              {row.amount.toLocaleString('de', {
-                                style: 'currency',
-                                currency: 'EUR',
-                              })}
+                              <Linkify>{row.receiver}</Linkify>
+                            </TableCell>
+                            <TableCell>
+                              <Typography>
+                                {row.amount.toLocaleString('de', {
+                                  style: 'currency',
+                                  currency: 'EUR',
+                                })}
+                              </Typography>
                             </TableCell>
                             <TableCell>
                               <PaymentMethodChip paymentMethod={row.paymentMethods} />
                             </TableCell>
-                            <TableCell>{row.description || 'No Information'}</TableCell>
+                            <TableCell>
+                              <Linkify>{row.description ?? 'No Information'}</Linkify>
+                            </TableCell>
                             <TableCell align="right">
                               <Tooltip title="Edit" placement="top">
                                 <IconButton onClick={() => setEditSubscription(row)}>

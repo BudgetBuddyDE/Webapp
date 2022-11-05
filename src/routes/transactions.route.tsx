@@ -30,6 +30,7 @@ import { filterTransactions } from '../utils/filter';
 import { ShowFilterButton } from '../components/show-filter.component';
 import { Transaction } from '../models/transaction.model';
 import { CategoryChip, PaymentMethodChip } from '../components/chip.component';
+import { Linkify } from '../components/linkify.component';
 
 export const Transactions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
@@ -109,13 +110,19 @@ export const Transactions = () => {
                   <Table sx={{ minWidth: 650 }} aria-label="Transaction Table">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Category</TableCell>
-                        <TableCell>Receiver</TableCell>
-                        <TableCell>Amount</TableCell>
-                        <TableCell>Payment Method</TableCell>
-                        <TableCell>Information</TableCell>
-                        <TableCell></TableCell>
+                        {[
+                          'Date',
+                          'Category',
+                          'Receiver',
+                          'Amount',
+                          'Payment Method',
+                          'Information',
+                          '',
+                        ].map((cell, index) => (
+                          <TableCell key={index}>
+                            <Typography fontWeight="bolder">{cell}</Typography>
+                          </TableCell>
+                        ))}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -130,7 +137,7 @@ export const Transactions = () => {
                             }}
                           >
                             <TableCell>
-                              <Typography fontWeight="bold">{`${format(
+                              <Typography fontWeight="bolder">{`${format(
                                 new Date(row.date),
                                 'dd.MM.yy'
                               )}`}</Typography>
@@ -138,17 +145,23 @@ export const Transactions = () => {
                             <TableCell>
                               <CategoryChip category={row.categories} />
                             </TableCell>
-                            <TableCell>{row.receiver}</TableCell>
                             <TableCell>
-                              {row.amount.toLocaleString('de', {
-                                style: 'currency',
-                                currency: 'EUR',
-                              })}
+                              <Linkify>{row.receiver}</Linkify>
+                            </TableCell>
+                            <TableCell>
+                              <Typography>
+                                {row.amount.toLocaleString('de', {
+                                  style: 'currency',
+                                  currency: 'EUR',
+                                })}
+                              </Typography>
                             </TableCell>
                             <TableCell>
                               <PaymentMethodChip paymentMethod={row.paymentMethods} />
                             </TableCell>
-                            <TableCell>{row.description || 'No Information'}</TableCell>
+                            <TableCell>
+                              <Linkify>{row.description ?? 'No information'}</Linkify>
+                            </TableCell>
                             <TableCell align="right">
                               <Tooltip title="Edit" placement="top">
                                 <IconButton onClick={() => setEditTransaction(row)}>

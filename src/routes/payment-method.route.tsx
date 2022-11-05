@@ -12,6 +12,7 @@ import {
   TableCell,
   TableBody,
   Button,
+  Typography,
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import Card from '../components/card.component';
@@ -25,6 +26,7 @@ import { NoResults } from '../components/no-results.component';
 import { CreatePaymentMethod } from '../components/create-forms/create-payment-method.component';
 import { EditPaymentMethod } from '../components/edit-forms/edit-payment-method.component';
 import { PaymentMethod } from '../models/paymentMethod.model';
+import { Linkify } from '../components/linkify.component';
 
 export const PaymentMethods = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
@@ -109,11 +111,11 @@ export const PaymentMethods = () => {
                   <Table sx={{ minWidth: 650 }} aria-label="Payment Methods Table">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Name</TableCell>
-                        <TableCell>Provider</TableCell>
-                        <TableCell>Address</TableCell>
-                        <TableCell>Description</TableCell>
-                        <TableCell></TableCell>
+                        {['Name', 'Provider', 'Address', 'Description', ''].map((cell, index) => (
+                          <TableCell key={index}>
+                            <Typography fontWeight="bolder">{cell}</Typography>
+                          </TableCell>
+                        ))}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -127,10 +129,18 @@ export const PaymentMethods = () => {
                               whiteSpace: 'nowrap',
                             }}
                           >
-                            <TableCell>{row.name}</TableCell>
-                            <TableCell>{row.provider}</TableCell>
-                            <TableCell>{row.address}</TableCell>
-                            <TableCell>{row.description || 'No Description'}</TableCell>
+                            <TableCell>
+                              <Typography>{row.name}</Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Linkify>{row.provider}</Linkify>
+                            </TableCell>
+                            <TableCell>
+                              <Linkify>{row.address}</Linkify>
+                            </TableCell>
+                            <TableCell>
+                              <Linkify>{row.description ?? 'No description'}</Linkify>
+                            </TableCell>
                             <TableCell align="right">
                               <Tooltip title="Edit" placement="top">
                                 <IconButton onClick={() => setEditPaymentMethod(row)}>

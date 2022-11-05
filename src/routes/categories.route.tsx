@@ -12,6 +12,7 @@ import {
   TableCell,
   TableBody,
   Button,
+  Typography,
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { SnackbarContext } from '../context/snackbar.context';
@@ -24,6 +25,7 @@ import { CreateCategory } from '../components/create-forms/create-category.compo
 import { EditCategory } from '../components/edit-forms/edit-category.component';
 import Card from '../components/card.component';
 import { Category } from '../models/category.model';
+import { Linkify } from '../components/linkify.component';
 
 export const Categories = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
@@ -102,9 +104,11 @@ export const Categories = () => {
                   <Table sx={{ minWidth: 650 }} aria-label="Category Table">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Name</TableCell>
-                        <TableCell>Description</TableCell>
-                        <TableCell></TableCell>
+                        {['Name', 'Description', ''].map((cell, index) => (
+                          <TableCell key={index}>
+                            <Typography fontWeight="bolder">{cell}</Typography>
+                          </TableCell>
+                        ))}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -118,8 +122,12 @@ export const Categories = () => {
                               whiteSpace: 'nowrap',
                             }}
                           >
-                            <TableCell>{row.name}</TableCell>
-                            <TableCell>{row.description || 'No Description'}</TableCell>
+                            <TableCell>
+                              <Typography>{row.name}</Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Linkify>{row.description ?? 'No Description'}</Linkify>
+                            </TableCell>
                             <TableCell align="right">
                               <Tooltip title="Edit" placement="top">
                                 <IconButton onClick={() => setEditCategory(row)}>

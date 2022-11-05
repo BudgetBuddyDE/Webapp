@@ -19,7 +19,6 @@ import { supabase } from '../supabase';
 import { AuthContext } from '../context/auth.context';
 import { SnackbarContext } from '../context/snackbar.context';
 import Card from '../components/card.component';
-import { Link } from '@mui/material';
 
 export const SignIn = () => {
   const navigate = useNavigate();
