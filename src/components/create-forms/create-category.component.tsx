@@ -60,7 +60,7 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
   return (
     <FormDrawer
       open={open}
-      heading="Add Subscription"
+      heading="Add Category"
       onClose={handler.onClose}
       onSubmit={handler.onSubmit}
       saveLabel="Create"
