@@ -5,7 +5,7 @@ import type { ICategoryView } from '../types/category.type';
 import type { IPaymentMethodView } from '../types/paymentMethod.type';
 
 export type CategoryChipProps = { category: ICategoryView } & ChipProps;
-export type PaymentMethodChipProps = { paymentMethod: IPaymentMethodView } & ChipProps;
+export type PaymentMethodChipProps = { payment_method: IPaymentMethodView } & ChipProps;
 
 export const CategoryChip: React.FC<CategoryChipProps> = (props) => {
   const { category } = props;
@@ -45,27 +45,27 @@ export const CategoryChip: React.FC<CategoryChipProps> = (props) => {
 };
 
 export const PaymentMethodChip: React.FC<PaymentMethodChipProps> = (props) => {
-  const { paymentMethod } = props;
+  const { payment_method } = props;
   const { filter, setFilter } = React.useContext(StoreContext);
   return (
     <Chip
       onClick={() => {
         if (filter.paymentMethods !== null || filter.paymentMethods === null) {
-          setFilter((prev) => ({ ...prev, paymentMethods: [paymentMethod.id] }));
+          setFilter((prev) => ({ ...prev, paymentMethods: [payment_method.id] }));
         }
 
-        if (filter.paymentMethods?.includes(paymentMethod.id)) {
-          setFilter((prev) => ({ ...prev, paymentMethods: [paymentMethod.id] }));
+        if (filter.paymentMethods?.includes(payment_method.id)) {
+          setFilter((prev) => ({ ...prev, paymentMethods: [payment_method.id] }));
         }
       }}
       onDelete={
         filter.paymentMethods !== null
           ? () => {
               if (filter.paymentMethods === null) return;
-              if (filter.paymentMethods.includes(paymentMethod.id)) {
+              if (filter.paymentMethods.includes(payment_method.id)) {
                 setFilter((prev) => {
                   const filteredList =
-                    prev.paymentMethods?.filter((id) => id !== paymentMethod.id) ?? [];
+                    prev.paymentMethods?.filter((id) => id !== payment_method.id) ?? [];
                   return {
                     ...prev,
                     paymentMethods:
@@ -76,7 +76,7 @@ export const PaymentMethodChip: React.FC<PaymentMethodChipProps> = (props) => {
             }
           : undefined
       }
-      label={props.paymentMethod.name}
+      label={props.payment_method.name}
       variant="outlined"
       {...props}
     />

@@ -26,7 +26,7 @@ const Header: FC<ICardSectionProps> = ({ children, sx }) => {
 
 const HeaderActions: FC<ICardSectionProps> = ({ children, sx }) => {
   return (
-    <Box display="flex" flexDirection="row" sx={sx}>
+    <Box display="flex" flexDirection="row" sx={{ mt: { xs: 1, md: 0 }, ...sx }}>
       {children}
     </Box>
   );

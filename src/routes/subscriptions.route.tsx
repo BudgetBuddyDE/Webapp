@@ -155,7 +155,7 @@ export const Subscriptions = () => {
                               </Typography>
                             </TableCell>
                             <TableCell>
-                              <PaymentMethodChip paymentMethod={row.paymentMethods} />
+                              <PaymentMethodChip payment_method={row.paymentMethods} />
                             </TableCell>
                             <TableCell>
                               <Linkify>{row.description ?? 'No Information'}</Linkify>

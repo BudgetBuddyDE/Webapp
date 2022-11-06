@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './App';
 import reportWebVitals from './reportWebVitals';
@@ -10,18 +9,16 @@ import { StoreProvider } from './context/store.context';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
-  <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AuthProvider>
-        <StoreProvider>
-          <SnackbarProvider>
-            <App />
-          </SnackbarProvider>
-        </StoreProvider>
-      </AuthProvider>
-    </ThemeProvider>
-  </React.StrictMode>
+  <ThemeProvider theme={theme}>
+    <CssBaseline />
+    <AuthProvider>
+      <StoreProvider>
+        <SnackbarProvider>
+          <App />
+        </SnackbarProvider>
+      </StoreProvider>
+    </AuthProvider>
+  </ThemeProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

@@ -11,11 +11,19 @@ import { Category } from '../../models/category.model';
 
 export interface ICreateCategoryProps {
   open: boolean;
+  defaultValue?: Partial<IBaseCategory>;
   setOpen: (show: boolean) => void;
   afterSubmit?: (category: Category) => void;
+  afterDismiss?: () => void;
 }
 
-export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, afterSubmit }) => {
+export const CreateCategory: React.FC<ICreateCategoryProps> = ({
+  open,
+  defaultValue,
+  setOpen,
+  afterSubmit,
+  afterDismiss,
+}) => {
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, setCategories } = React.useContext(StoreContext);
@@ -24,7 +32,10 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
   const [errorMessage, setErrorMessage] = React.useState('');
 
   const handler = {
-    onClose: () => setOpen(false),
+    onClose: () => {
+      setOpen(false);
+      if (afterDismiss) afterDismiss();
+    },
     onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
       try {
         event.preventDefault();
@@ -56,6 +67,10 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
     },
   };
 
+  React.useEffect(() => {
+    if (defaultValue) setForm(defaultValue);
+  }, [defaultValue]);
+
   if (loading) return null;
   return (
     <FormDrawer
@@ -78,6 +93,7 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
         label="Name"
         name="name"
         sx={FormStyle}
+        value={form.name}
         onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
       />
 
@@ -89,6 +105,7 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
         sx={{ ...FormStyle, mb: 0 }}
         multiline
         rows={3}
+        value={form.description ?? ''}
         onChange={(event) => {
           const value = event.target.value;
           const description = value.length > 0 ? value : null;

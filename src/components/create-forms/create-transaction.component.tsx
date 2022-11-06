@@ -23,6 +23,7 @@ import { SnackbarContext } from '../../context/snackbar.context';
 import { AuthContext } from '../../context/auth.context';
 import { FormStyle } from '../../theme/form-style';
 import { Transaction } from '../../models/transaction.model';
+import { CategoryAutocomplete } from '../inputs/category-autocomplete.component';
 
 export interface ICreateTransactionProps {
   open: boolean;
@@ -177,8 +178,17 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
         )}
       </LocalizationProvider>
 
+      <CategoryAutocomplete
+        sx={FormStyle}
+        options={categories.map((item) => ({ label: item.name, value: item.id }))}
+        onChange={(event, value) => {
+          console.warn(value);
+          console.log(value);
+        }}
+      />
+
       <Box display="flex" flexDirection="row" justifyContent="space-between">
-        <Autocomplete
+        {/* <Autocomplete
           id="category"
           options={categories.map((item) => ({ label: item.name, value: item.id }))}
           sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
@@ -187,7 +197,8 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
           }
           renderInput={(props) => <TextField {...props} label="Category" />}
           isOptionEqualToValue={(option, value) => option.value === value.value}
-        />
+        /> */}
+
         <Autocomplete
           id="payment-method"
           options={paymentMethods.map((item) => ({

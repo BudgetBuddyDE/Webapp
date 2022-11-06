@@ -26,8 +26,10 @@ import { EditCategory } from '../components/edit-forms/edit-category.component';
 import Card from '../components/card.component';
 import { Category } from '../models/category.model';
 import { Linkify } from '../components/linkify.component';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-export const Categories = () => {
+export const Categories: React.FC = (props) => {
+  const location = useLocation();
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, categories, setCategories } = React.useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
@@ -164,7 +166,18 @@ export const Categories = () => {
         </Card>
       </Grid>
 
-      <CreateCategory open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
+      <CreateCategory
+        open={showAddForm}
+        setOpen={(show) => setShowAddForm(show)}
+        // {...{
+        //   defaultValue:
+        //     // @ts-expect-error
+        //     location.state && location.state.category
+        //       ? // @ts-expect-error
+        //         location.state.category
+        //       : undefined,
+        // }}
+      />
 
       <EditCategory
         open={editCategory !== null}

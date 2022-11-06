@@ -11,10 +11,14 @@ export const Linkify: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   return (
     <Typography>
-      {children.split(' ').map((word) => {
+      {children.split(' ').map((word, index) => {
         return word.match(URL_REGEX) ? (
           <>
-            <Link href={word.includes('//') ? word : '//' + word} underline="none">
+            <Link
+              key={index + word}
+              href={word.includes('//') ? word : '//' + word}
+              underline="none"
+            >
               {word}
             </Link>{' '}
           </>
