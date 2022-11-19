@@ -1,9 +1,9 @@
-import DashboardIcon from '@mui/icons-material/Dashboard';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import DonutSmallIcon from '@mui/icons-material/DonutSmall';
-import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
-import PaymentsIcon from '@mui/icons-material/Payments';
 import LabelIcon from '@mui/icons-material/Label';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 export const DrawerLinks = [

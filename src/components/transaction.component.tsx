@@ -1,8 +1,8 @@
-import { FC } from 'react';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import ReceiptIcon from '@mui/icons-material/Receipt';
 import format from 'date-fns/format';
+import { FC } from 'react';
 
 export interface TransactionProps {
   category: string;

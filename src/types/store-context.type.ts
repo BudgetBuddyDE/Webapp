@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Category } from '../models/category.model';
-import type { IFilter } from './filter.interface';
-import { PaymentMethod } from '../models/paymentMethod.model';
-import { Transaction } from '../models/transaction.model';
-import { Subscription } from '../models/subscription.model';
 import { Budget } from '../models/budget.model';
+import { Category } from '../models/category.model';
+import { PaymentMethod } from '../models/paymentMethod.model';
+import { Subscription } from '../models/subscription.model';
+import { Transaction } from '../models/transaction.model';
+import type { IFilter } from './filter.interface';
 
 export interface IStoreContext {
   loading: boolean;

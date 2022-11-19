@@ -1,21 +1,21 @@
-import React, { useMemo, useCallback } from 'react';
-import { AreaClosed, Line, Bar } from '@visx/shape';
 // @ts-ignore
 import { curveMonotoneX } from '@visx/curve';
-// @ts-ignore
-import { GridRows, GridColumns } from '@visx/grid';
-import { scaleTime, scaleLinear } from '@visx/scale';
-// @ts-ignore
-import { withTooltip, Tooltip, TooltipWithBounds, defaultStyles } from '@visx/tooltip';
-// @ts-ignore
-import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withTooltip';
 // @ts-ignore
 import { localPoint } from '@visx/event';
 // @ts-ignore
 import { LinearGradient } from '@visx/gradient';
 // @ts-ignore
-import { max, extent, bisector } from 'd3-array';
+import { GridColumns, GridRows } from '@visx/grid';
+import { scaleLinear, scaleTime } from '@visx/scale';
+import { AreaClosed, Bar, Line } from '@visx/shape';
+// @ts-ignore
+import { Tooltip, TooltipWithBounds, defaultStyles, withTooltip } from '@visx/tooltip';
+// @ts-ignore
+import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withTooltip';
+// @ts-ignore
+import { bisector, extent, max } from 'd3-array';
 import { format } from 'date-fns';
+import React, { useCallback, useMemo } from 'react';
 
 export interface IDailyTransaction {
   date: string;

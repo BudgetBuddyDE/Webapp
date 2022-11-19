@@ -1,5 +1,5 @@
-import type { uuid } from './profile.type';
 import type { ICategoryView } from './category.type';
+import type { uuid } from './profile.type';
 
 /**
  * Object like it's stored in our database

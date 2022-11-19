@@ -1,31 +1,31 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { Grid, Box, Tooltip, IconButton, Button } from '@mui/material';
 import {
-  Payments as PaymentsIcon,
-  Balance as BalanceIcon,
-  Schedule as ScheduleIcon,
   Add as AddIcon,
+  Balance as BalanceIcon,
+  Payments as PaymentsIcon,
+  Schedule as ScheduleIcon,
 } from '@mui/icons-material';
-import { PageHeader } from '../components/page-header.component';
-import { AuthContext } from '../context/auth.context';
-import { Stats, IStatsProps, StatsIconStyle } from '../components/stats-card.component';
-import { Transaction } from '../components/transaction.component';
+import { Box, Button, Grid, IconButton, Tooltip } from '@mui/material';
+import { isSameMonth } from 'date-fns/esm';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import Card from '../components/card.component';
 import { PieChart } from '../components/charts/spendings-chart.component';
-import type { IExpense } from '../types/transaction.interface';
-import { DateService } from '../services/date.service';
-import { determineNextExecution } from '../utils/determineNextExecution';
-import { CircularProgress } from '../components/progress.component';
-import { isSameMonth } from 'date-fns/esm';
-import { StoreContext } from '../context/store.context';
-import { ExpenseService } from '../services/expense.service';
-import { addTransactionToExpenses } from '../utils/transaction/addTransactionToExpenses';
-import { NoResults } from '../components/no-results.component';
-import { CreateTransaction } from '../components/create-forms/create-transaction.component';
 import { CreateSubscription } from '../components/create-forms/create-subscription.component';
+import { CreateTransaction } from '../components/create-forms/create-transaction.component';
+import { NoResults } from '../components/no-results.component';
+import { PageHeader } from '../components/page-header.component';
+import { CircularProgress } from '../components/progress.component';
+import { IStatsProps, Stats, StatsIconStyle } from '../components/stats-card.component';
+import { Transaction } from '../components/transaction.component';
+import { AuthContext } from '../context/auth.context';
+import { StoreContext } from '../context/store.context';
+import { DateService } from '../services/date.service';
+import { ExpenseService } from '../services/expense.service';
 import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
+import type { IExpense } from '../types/transaction.interface';
 import { IExpenseTransactionDTO } from '../types/transaction.type';
+import { determineNextExecution } from '../utils/determineNextExecution';
+import { addTransactionToExpenses } from '../utils/transaction/addTransactionToExpenses';
 
 export const Dashboard = () => {
   const { session } = useContext(AuthContext);

@@ -1,8 +1,8 @@
-import { FC, PropsWithChildren } from 'react';
-import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { SxProps, Theme } from '@mui/system';
+import { FC, PropsWithChildren } from 'react';
 
 export interface ICardProps extends PropsWithChildren {
   sx?: SxProps<Theme>;

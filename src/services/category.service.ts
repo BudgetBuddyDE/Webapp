@@ -1,12 +1,12 @@
-import { supabase } from '../supabase';
+import type { TExportType } from '../components/user-profile.component';
 import { Category } from '../models/category.model';
+import { supabase } from '../supabase';
 import type {
-  IEditCategory,
   IBaseCategory,
   ICategory,
+  IEditCategory,
   IExportCategory,
 } from '../types/category.type';
-import type { TExportType } from '../components/user-profile.component';
 
 export class CategoryService {
   private static table = 'categories';

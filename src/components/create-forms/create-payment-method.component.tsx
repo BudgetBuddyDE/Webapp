@@ -1,12 +1,12 @@
-import * as React from 'react';
 import { Alert, TextField } from '@mui/material';
-import { StoreContext } from '../../context/store.context';
-import { FormDrawer } from '../form-drawer.component';
-import type { IBasePaymentMethod, IPaymentMethod } from '../../types/paymentMethod.type';
-import { SnackbarContext } from '../../context/snackbar.context';
+import * as React from 'react';
 import { AuthContext } from '../../context/auth.context';
-import { FormStyle } from '../../theme/form-style';
+import { SnackbarContext } from '../../context/snackbar.context';
+import { StoreContext } from '../../context/store.context';
 import { PaymentMethodService } from '../../services/payment-method.service';
+import { FormStyle } from '../../theme/form-style';
+import type { IBasePaymentMethod, IPaymentMethod } from '../../types/paymentMethod.type';
+import { FormDrawer } from '../form-drawer.component';
 
 export interface ICreatePaymentMethodProps {
   open: boolean;

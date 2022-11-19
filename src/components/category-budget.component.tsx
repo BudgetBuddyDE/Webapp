@@ -1,10 +1,10 @@
-import { FC } from 'react';
-import { Box, Tooltip, Typography } from '@mui/material';
 import {
   Label as LabelIcon,
-  TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,
+  TrendingUp as TrendingUpIcon,
 } from '@mui/icons-material';
+import { Box, Tooltip, Typography } from '@mui/material';
+import { FC } from 'react';
 
 export interface ICategoryBudgetProps {
   title: string;

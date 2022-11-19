@@ -1,7 +1,7 @@
-import type { uuid } from '../types/profile.type';
-import type { ICategoryView } from '../types/category.type';
-import type { IBaseBudget, IBudgetProgressView } from '../types/budget.type';
 import { BudgetService } from '../services/budget.service';
+import type { IBaseBudget, IBudgetProgressView } from '../types/budget.type';
+import type { ICategoryView } from '../types/category.type';
+import type { uuid } from '../types/profile.type';
 
 export class Budget {
   private _id: number;

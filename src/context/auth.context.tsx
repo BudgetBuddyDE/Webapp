@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { Session } from '@supabase/supabase-js';
+import * as React from 'react';
 import { supabase } from '../supabase';
 
 interface IAuthProvider {

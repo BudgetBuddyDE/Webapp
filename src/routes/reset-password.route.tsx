@@ -1,15 +1,15 @@
-import { ChangeEvent, FormEvent, useContext, useState } from 'react';
-import { Navigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
+import { ChangeEvent, FormEvent, useContext, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../supabase';
-import { SnackbarContext } from '../context/snackbar.context';
 import Card from '../components/card.component';
+import { SnackbarContext } from '../context/snackbar.context';
+import { supabase } from '../supabase';
 
 export const ResetPassword = () => {
   const navigate = useNavigate();

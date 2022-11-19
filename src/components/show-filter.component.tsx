@@ -1,6 +1,6 @@
-import { useContext } from 'react';
-import { Tooltip, IconButton } from '@mui/material';
 import { Tune as TuneIcon } from '@mui/icons-material';
+import { IconButton, Tooltip } from '@mui/material';
+import { useContext } from 'react';
 import { StoreContext } from '../context/store.context';
 
 export const ShowFilterButton = () => {

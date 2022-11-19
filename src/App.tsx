@@ -1,23 +1,23 @@
-import * as React from 'react';
-import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
-import { Main } from './components/main.component';
-import { Copyright } from './components/copyright.component';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import { Dashboard } from './routes/dashboard.route';
-import { Transactions } from './routes/transactions.route';
-import { Budget } from './routes/budget.route';
-import { Subscriptions } from './routes/subscriptions.route';
-import { PaymentMethods } from './routes/payment-method.route';
-import { Categories } from './routes/categories.route';
-import { SignIn } from './routes/sign-in.route';
-import { SignUp } from './routes/sign-up.route';
-import { ProtectedRoute, ProtectedComponent } from './components/protected.component';
+import * as React from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { Copyright } from './components/copyright.component';
 import Drawer from './components/drawer.component';
+import { FilterDrawer } from './components/filter-drawer.component';
+import { Main } from './components/main.component';
+import { ProtectedComponent, ProtectedRoute } from './components/protected.component';
+import { Budget } from './routes/budget.route';
+import { Categories } from './routes/categories.route';
+import { Dashboard } from './routes/dashboard.route';
+import { PaymentMethods } from './routes/payment-method.route';
 import { RequestReset } from './routes/request-reset';
 import { ResetPassword } from './routes/reset-password.route';
 import { Settings } from './routes/settings.route';
-import { FilterDrawer } from './components/filter-drawer.component';
+import { SignIn } from './routes/sign-in.route';
+import { SignUp } from './routes/sign-up.route';
+import { Subscriptions } from './routes/subscriptions.route';
+import { Transactions } from './routes/transactions.route';
 
 export const App: React.FC = () => {
   return (

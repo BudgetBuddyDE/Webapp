@@ -1,5 +1,5 @@
-import type { IExpenseTransactionDTO } from '../../types/transaction.type';
 import { IExpense } from '../../types/transaction.interface';
+import type { IExpenseTransactionDTO } from '../../types/transaction.type';
 
 export function addTransactionToExpenses(
   expenseTransaction: IExpenseTransactionDTO,

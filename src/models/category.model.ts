@@ -1,6 +1,6 @@
-import type { uuid } from '../types/profile.type';
-import type { IBaseCategory, ICategoryView } from '../types/category.type';
 import { CategoryService } from '../services/category.service';
+import type { IBaseCategory, ICategoryView } from '../types/category.type';
+import type { uuid } from '../types/profile.type';
 
 export class Category {
   private _id: number;

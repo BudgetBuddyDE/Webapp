@@ -1,32 +1,32 @@
-import * as React from 'react';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import {
-  Grid,
   Box,
-  Tooltip,
-  IconButton,
-  TablePagination,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   Button,
+  Grid,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Tooltip,
   Typography,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import * as React from 'react';
 import Card from '../components/card.component';
-import { SnackbarContext } from '../context/snackbar.context';
-import { PageHeader } from '../components/page-header.component';
-import { SearchInput } from '../components/inputs/search-input.component';
-import type { IPaymentMethod } from '../types/paymentMethod.type';
-import { CircularProgress } from '../components/progress.component';
-import { StoreContext } from '../context/store.context';
-import { NoResults } from '../components/no-results.component';
 import { CreatePaymentMethod } from '../components/create-forms/create-payment-method.component';
 import { EditPaymentMethod } from '../components/edit-forms/edit-payment-method.component';
-import { PaymentMethod } from '../models/paymentMethod.model';
+import { SearchInput } from '../components/inputs/search-input.component';
 import { Linkify } from '../components/linkify.component';
+import { NoResults } from '../components/no-results.component';
+import { PageHeader } from '../components/page-header.component';
+import { CircularProgress } from '../components/progress.component';
+import { SnackbarContext } from '../context/snackbar.context';
+import { StoreContext } from '../context/store.context';
+import { PaymentMethod } from '../models/paymentMethod.model';
+import type { IPaymentMethod } from '../types/paymentMethod.type';
 
 export const PaymentMethods = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);

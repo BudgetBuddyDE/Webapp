@@ -1,35 +1,35 @@
-import * as React from 'react';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import {
-  Grid,
   Box,
-  Tooltip,
-  IconButton,
-  TablePagination,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  Typography,
   Button,
+  Grid,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Tooltip,
+  Typography,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import * as React from 'react';
 import Card from '../components/card.component';
-import { SnackbarContext } from '../context/snackbar.context';
-import { PageHeader } from '../components/page-header.component';
-import { SearchInput } from '../components/inputs/search-input.component';
-import { CircularProgress } from '../components/progress.component';
-import { StoreContext } from '../context/store.context';
-import { determineNextExecution } from '../utils/determineNextExecution';
-import { NoResults } from '../components/no-results.component';
+import { CategoryChip, PaymentMethodChip } from '../components/chip.component';
 import { CreateSubscription } from '../components/create-forms/create-subscription.component';
 import { EditSubscription } from '../components/edit-forms/edit-subscription.component';
-import { ShowFilterButton } from '../components/show-filter.component';
-import { filterSubscriptions } from '../utils/filter';
-import { Subscription } from '../models/subscription.model';
-import { CategoryChip, PaymentMethodChip } from '../components/chip.component';
+import { SearchInput } from '../components/inputs/search-input.component';
 import { Linkify } from '../components/linkify.component';
+import { NoResults } from '../components/no-results.component';
+import { PageHeader } from '../components/page-header.component';
+import { CircularProgress } from '../components/progress.component';
+import { ShowFilterButton } from '../components/show-filter.component';
+import { SnackbarContext } from '../context/snackbar.context';
+import { StoreContext } from '../context/store.context';
+import { Subscription } from '../models/subscription.model';
+import { determineNextExecution } from '../utils/determineNextExecution';
+import { filterSubscriptions } from '../utils/filter';
 
 export const Subscriptions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);

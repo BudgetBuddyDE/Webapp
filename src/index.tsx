@@ -1,12 +1,12 @@
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './App';
-import reportWebVitals from './reportWebVitals';
-import { CssBaseline, ThemeProvider } from '@mui/material';
-import { theme } from './theme/default.theme';
 import { AuthProvider } from './context/auth.context';
 import { SnackbarProvider } from './context/snackbar.context';
 import { StoreProvider } from './context/store.context';
+import reportWebVitals from './reportWebVitals';
+import { theme } from './theme/default.theme';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(

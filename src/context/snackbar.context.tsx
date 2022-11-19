@@ -1,5 +1,5 @@
+import { Snackbar, darken } from '@mui/material';
 import * as React from 'react';
-import { darken, Snackbar } from '@mui/material';
 
 export interface IShowSnackbarProps {
   message: string;

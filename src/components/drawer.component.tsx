@@ -1,33 +1,33 @@
-import * as React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  Drawer as MuiDrawer,
-  Tooltip,
-  List,
+  Logout as LogoutIcon,
+  Menu as MenuIcon,
+  MenuOpen as MenuOpenIcon,
+} from '@mui/icons-material';
+import {
+  Avatar,
+  Box,
+  Button,
   Divider,
+  Fab,
   IconButton,
+  List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Box,
-  Fab,
-  Avatar,
-  Button,
+  Drawer as MuiDrawer,
+  Tooltip,
   Typography,
 } from '@mui/material';
-import {
-  Menu as MenuIcon,
-  MenuOpen as MenuOpenIcon,
-  Logout as LogoutIcon,
-} from '@mui/icons-material';
-import { CSSObject, styled, Theme } from '@mui/material/styles';
+import { CSSObject, Theme, styled } from '@mui/material/styles';
+import * as React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { DrawerLinks } from '../constants/drawer-items.constant';
-import { StoreContext } from '../context/store.context';
-import { drawerWidth } from '../theme/default.theme';
 import { AuthContext } from '../context/auth.context';
-import { supabase } from '../supabase';
+import { StoreContext } from '../context/store.context';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
+import { supabase } from '../supabase';
+import { drawerWidth } from '../theme/default.theme';
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,

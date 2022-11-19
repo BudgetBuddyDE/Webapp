@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { Chip, ChipProps } from '@mui/material';
+import * as React from 'react';
 import { StoreContext } from '../context/store.context';
 import type { ICategoryView } from '../types/category.type';
 import type { IPaymentMethodView } from '../types/paymentMethod.type';

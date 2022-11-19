@@ -1,12 +1,12 @@
-import * as React from 'react';
 import { Alert, TextField } from '@mui/material';
-import { StoreContext } from '../../context/store.context';
-import { FormDrawer } from '../form-drawer.component';
-import { SnackbarContext } from '../../context/snackbar.context';
+import * as React from 'react';
 import { AuthContext } from '../../context/auth.context';
-import { FormStyle } from '../../theme/form-style';
+import { SnackbarContext } from '../../context/snackbar.context';
+import { StoreContext } from '../../context/store.context';
 import { PaymentMethod } from '../../models/paymentMethod.model';
+import { FormStyle } from '../../theme/form-style';
 import type { IBasePaymentMethod } from '../../types/paymentMethod.type';
+import { FormDrawer } from '../form-drawer.component';
 
 export interface IEditPaymentMethodProps {
   open: boolean;

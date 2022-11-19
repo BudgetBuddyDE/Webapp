@@ -1,5 +1,5 @@
+import { Autocomplete, SxProps, TextField, Theme, createFilterOptions } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
-import { TextField, Autocomplete, createFilterOptions, SxProps, Theme } from '@mui/material';
 
 type TOption = {
   text: string;

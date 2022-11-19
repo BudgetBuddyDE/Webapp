@@ -1,10 +1,10 @@
-import { FormEvent, SyntheticEvent, ChangeEvent, useContext, useState } from 'react';
-import { Grid, Box, Rating, TextField, Button } from '@mui/material';
+import { Box, Button, Grid, Rating, TextField } from '@mui/material';
+import { ChangeEvent, FormEvent, SyntheticEvent, useContext, useState } from 'react';
 import Card from '../components/card.component';
 import { PageHeader } from '../components/page-header.component';
+import { UserProfile } from '../components/user-profile.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { FeedbackService } from '../services/feedback.service';
-import { UserProfile } from '../components/user-profile.component';
 
 export const Settings = () => {
   const { showSnackbar } = useContext(SnackbarContext);

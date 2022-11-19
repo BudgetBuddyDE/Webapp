@@ -1,6 +1,6 @@
-import { supabase } from '../supabase';
-import type { uuid, IBaseProfile, IExportProfile } from '../types/profile.interface';
 import type { TExportType } from '../components/user-profile.component';
+import { supabase } from '../supabase';
+import type { IBaseProfile, IExportProfile, uuid } from '../types/profile.interface';
 
 export class ProfileService {
   private static table = 'profiles';

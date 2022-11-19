@@ -1,13 +1,13 @@
-import * as React from 'react';
 import { Alert, TextField } from '@mui/material';
-import { StoreContext } from '../../context/store.context';
-import { FormDrawer } from '../form-drawer.component';
-import type { IBaseCategory } from '../../types/category.type';
-import { SnackbarContext } from '../../context/snackbar.context';
+import * as React from 'react';
 import { AuthContext } from '../../context/auth.context';
-import { FormStyle } from '../../theme/form-style';
-import { CategoryService } from '../../services/category.service';
+import { SnackbarContext } from '../../context/snackbar.context';
+import { StoreContext } from '../../context/store.context';
 import { Category } from '../../models/category.model';
+import { CategoryService } from '../../services/category.service';
+import { FormStyle } from '../../theme/form-style';
+import type { IBaseCategory } from '../../types/category.type';
+import { FormDrawer } from '../form-drawer.component';
 
 export interface ICreateCategoryProps {
   open: boolean;

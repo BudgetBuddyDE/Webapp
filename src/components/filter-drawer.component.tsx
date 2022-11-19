@@ -1,21 +1,21 @@
-import { useContext, useState, FC, FormEvent, ChangeEvent } from 'react';
 import {
   Box,
-  OutlinedInput,
+  Button,
+  Chip,
+  FormControl,
+  InputAdornment,
   InputLabel,
   MenuItem,
-  FormControl,
+  OutlinedInput,
   Select,
   SelectChangeEvent,
-  Chip,
-  Button,
-  InputAdornment,
 } from '@mui/material';
-import { FormDrawer } from './form-drawer.component';
+import { ChangeEvent, FC, FormEvent, useContext, useState } from 'react';
 import { StoreContext } from '../context/store.context';
-import { DateRange, IDateRange } from './inputs/date-range.component';
 import type { IFilter } from '../types/filter.interface';
 import { getLastDayOfMonth } from '../utils/getLastDayOfMonth';
+import { FormDrawer } from './form-drawer.component';
+import { DateRange, IDateRange } from './inputs/date-range.component';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;

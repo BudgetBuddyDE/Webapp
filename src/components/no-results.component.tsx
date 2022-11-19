@@ -1,5 +1,5 @@
-import { FC } from 'react';
 import { Box, SxProps, Theme, Typography } from '@mui/material';
+import { FC } from 'react';
 
 export interface INoResultsProps {
   sx?: SxProps<Theme>;

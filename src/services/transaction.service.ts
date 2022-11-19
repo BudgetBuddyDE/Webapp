@@ -1,8 +1,8 @@
 import { isSameMonth } from 'date-fns';
-import { supabase } from '../supabase';
-import type { IBaseTransaction, IExportTransaction, ITransaction } from '../types/transaction.type';
 import type { TExportType } from '../components/user-profile.component';
 import { BaseTransaction, Transaction } from '../models/transaction.model';
+import { supabase } from '../supabase';
+import type { IBaseTransaction, IExportTransaction, ITransaction } from '../types/transaction.type';
 
 export class TransactionService {
   private static table = 'transactions';

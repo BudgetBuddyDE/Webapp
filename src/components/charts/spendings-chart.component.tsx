@@ -1,12 +1,12 @@
-import { FC } from 'react';
+import { Tooltip } from '@mui/material';
+import { Group } from '@visx/group';
+import ParentSize from '@visx/responsive/lib/components/ParentSizeModern';
+import { scaleOrdinal } from '@visx/scale';
 // @ts-ignore
 import { Pie } from '@visx/shape';
-import { Group } from '@visx/group';
-import { scaleOrdinal } from '@visx/scale';
-import ParentSize from '@visx/responsive/lib/components/ParentSizeModern';
-import { Tooltip } from '@mui/material';
-import type { IExpense } from '../../types/transaction.interface';
+import { FC } from 'react';
 import { useScreenSize } from '../../hooks/useScreenSize.hook';
+import type { IExpense } from '../../types/transaction.interface';
 
 function getAbsoluteAmount(expense: IExpense) {
   return Math.abs(expense.sum);

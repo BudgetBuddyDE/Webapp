@@ -1,9 +1,9 @@
-import { FC } from 'react';
-import { Typography, Box, Tooltip, SxProps, Theme } from '@mui/material';
 import {
   AccountBalanceWallet as AccountBalanceWalletIcon,
   Info as InfoIcon,
 } from '@mui/icons-material';
+import { Box, SxProps, Theme, Tooltip, Typography } from '@mui/material';
+import { FC } from 'react';
 import Card from '../components/card.component';
 
 export interface IStatsProps {

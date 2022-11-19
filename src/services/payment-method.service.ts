@@ -1,11 +1,11 @@
+import type { TExportType } from '../components/user-profile.component';
+import { PaymentMethod } from '../models/paymentMethod.model';
 import { supabase } from '../supabase';
 import type {
   IBasePaymentMethod,
   IExportPaymentMethod,
   IPaymentMethod,
 } from '../types/paymentMethod.type';
-import { PaymentMethod } from '../models/paymentMethod.model';
-import type { TExportType } from '../components/user-profile.component';
 
 export class PaymentMethodService {
   private static table = 'paymentMethods';

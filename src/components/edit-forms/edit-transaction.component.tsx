@@ -1,4 +1,3 @@
-import * as React from 'react';
 import {
   Alert,
   AlertTitle,
@@ -10,19 +9,20 @@ import {
   OutlinedInput,
   TextField,
 } from '@mui/material';
-import { LocalizationProvider, DesktopDatePicker, MobileDatePicker } from '@mui/x-date-pickers';
+import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { StoreContext } from '../../context/store.context';
-import { FormDrawer } from '../form-drawer.component';
+import * as React from 'react';
 import { SnackbarContext } from '../../context/snackbar.context';
-import { FormStyle } from '../../theme/form-style';
+import { StoreContext } from '../../context/store.context';
 import { useScreenSize } from '../../hooks/useScreenSize.hook';
-import { ReceiverAutocomplete } from '../inputs/receiver-autocomplete.component';
+import { Transaction } from '../../models/transaction.model';
+import { FormStyle } from '../../theme/form-style';
+import type { IBaseTransaction } from '../../types/transaction.type';
 import { getCategoryFromList } from '../../utils/getCategoryFromList';
 import { getPaymentMethodFromList } from '../../utils/getPaymentMethodFromList';
 import { transformBalance } from '../../utils/transformBalance';
-import { Transaction } from '../../models/transaction.model';
-import type { IBaseTransaction } from '../../types/transaction.type';
+import { FormDrawer } from '../form-drawer.component';
+import { ReceiverAutocomplete } from '../inputs/receiver-autocomplete.component';
 
 export interface IEditTransactionProps {
   open: boolean;

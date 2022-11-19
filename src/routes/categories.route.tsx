@@ -1,31 +1,31 @@
-import * as React from 'react';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import {
-  Grid,
   Box,
-  Tooltip,
-  IconButton,
-  TablePagination,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   Button,
+  Grid,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Tooltip,
   Typography,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import { SnackbarContext } from '../context/snackbar.context';
-import { PageHeader } from '../components/page-header.component';
-import { SearchInput } from '../components/inputs/search-input.component';
-import { CircularProgress } from '../components/progress.component';
-import { StoreContext } from '../context/store.context';
-import { NoResults } from '../components/no-results.component';
+import * as React from 'react';
+import Card from '../components/card.component';
 import { CreateCategory } from '../components/create-forms/create-category.component';
 import { EditCategory } from '../components/edit-forms/edit-category.component';
-import Card from '../components/card.component';
-import { Category } from '../models/category.model';
+import { SearchInput } from '../components/inputs/search-input.component';
 import { Linkify } from '../components/linkify.component';
+import { NoResults } from '../components/no-results.component';
+import { PageHeader } from '../components/page-header.component';
+import { CircularProgress } from '../components/progress.component';
+import { SnackbarContext } from '../context/snackbar.context';
+import { StoreContext } from '../context/store.context';
+import { Category } from '../models/category.model';
 
 export const Categories = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);

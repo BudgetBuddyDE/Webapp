@@ -1,24 +1,24 @@
-import { ChangeEvent, FormEvent, useContext, useState } from 'react';
-import Box from '@mui/material/Box';
-import FormControl from '@mui/material/FormControl';
-import Grid from '@mui/material/Grid';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import InputLabel from '@mui/material/InputLabel';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
 import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
+import FormControl from '@mui/material/FormControl';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import InputLabel from '@mui/material/InputLabel';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import { ChangeEvent, FormEvent, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../supabase';
+import Card from '../components/card.component';
 import { AuthContext } from '../context/auth.context';
 import { SnackbarContext } from '../context/snackbar.context';
-import Card from '../components/card.component';
+import { supabase } from '../supabase';
 
 export const SignIn = () => {
   const navigate = useNavigate();
