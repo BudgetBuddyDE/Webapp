@@ -23,6 +23,21 @@ More detailed informations about this project can be found in the [wiki](https:/
    npm i
    ```
 
+   2.1. Setup husky
+
+   > Install husky once in order to run our GIT-hooks If you already have installed the dependencies Husky should already got set-up
+
+   ```shell
+   npm run prepare
+   ```
+
+   **How to add a hook?**
+
+   ```shell
+   npx husky add .husky/pre-commit "npm test"
+   git add .husky/pre-commit
+   ```
+
 3. Start the app
 
    ```shell

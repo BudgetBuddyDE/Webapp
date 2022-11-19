@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+files=`git diff --name-only --staged --diff-filter=ACM`
+echo $files
+npx prettier --write $files
+git add $files
+
+exit 0
