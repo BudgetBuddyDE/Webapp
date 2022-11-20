@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Box,
   Button,
   CircularProgress,
@@ -15,13 +14,14 @@ import { useContext, useRef, useState } from 'react';
 import { AuthContext } from '../context/auth.context';
 import { SnackbarContext } from '../context/snackbar.context';
 import { useStateCallback } from '../hooks/useStateCallback.hook';
+import { AuthService } from '../services/auth.service';
 import { BudgetService } from '../services/budget.service';
 import { CategoryService } from '../services/category.service';
 import { PaymentMethodService } from '../services/payment-method.service';
-import { ProfileService } from '../services/profile.service';
 import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
 import Card from './card.component';
+import { ProfileAvatar } from './profile-avatar.component';
 
 export type TExportType = 'json' | 'csv';
 
@@ -36,12 +36,13 @@ export const UserProfile = () => {
   const { showSnackbar } = useContext(SnackbarContext);
   const [exportType, setExportType] = useState(EXPORT_TYPES[0].value);
   const [preparingDownload, setPreparingDownload] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [newUsername, setNewUsername] = useState('');
   const [downloadData, setDownloadData] = useStateCallback<
     | {
         budget: any[] | string;
         categories: any[] | string;
         paymentMethods: any[] | string;
-        profile: any[] | string;
         subscriptions: any[] | string;
         transactions: any[] | string;
       }
@@ -144,6 +145,29 @@ export const UserProfile = () => {
     }
   };
 
+  const handleProfileSave = async () => {
+    try {
+      setSaving(true);
+      const { error } = await AuthService.update({
+        data: {
+          username: newUsername,
+        },
+      });
+      if (error) throw error;
+      showSnackbar({
+        message: 'Username updated',
+      });
+    } catch (error) {
+      console.error(error);
+      showSnackbar({
+        message: error as string,
+        action: <Button onClick={() => handleProfileSave()}>Retry</Button>,
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <Card>
       <Card.Header>
@@ -153,12 +177,9 @@ export const UserProfile = () => {
       </Card.Header>
       <Card.Body>
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Avatar variant="rounded" sx={{ width: '4rem', height: '4rem', mx: 'auto' }}>
-            {session &&
-              session.user &&
-              session.user.email &&
-              session.user.email.substring(0, 2).toUpperCase()}
-          </Avatar>
+          {session && session.user && (
+            <ProfileAvatar sx={{ width: '6rem', height: '6rem', mx: 'auto' }} user={session.user} />
+          )}
 
           <TextField
             disabled
@@ -177,6 +198,27 @@ export const UserProfile = () => {
             defaultValue={session?.user?.email}
             sx={{ mt: 2 }}
           />
+
+          <TextField
+            id="profile-username"
+            name="profile-username"
+            label="Username"
+            defaultValue={session?.user?.user_metadata.username}
+            onChange={(event) => setNewUsername(event.target.value)}
+            sx={{ mt: 2 }}
+          />
+
+          <Box>
+            <Button
+              disabled={saving}
+              variant="contained"
+              sx={{ mt: 2 }}
+              onClick={handleProfileSave}
+            >
+              {saving && <CircularProgress size={20} sx={{ mr: 1 }} />}
+              Save
+            </Button>
+          </Box>
 
           <Divider sx={{ mt: 2 }} />
 

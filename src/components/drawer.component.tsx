@@ -4,7 +4,6 @@ import {
   MenuOpen as MenuOpenIcon,
 } from '@mui/icons-material';
 import {
-  Avatar,
   Box,
   Button,
   Divider,
@@ -28,6 +27,7 @@ import { StoreContext } from '../context/store.context';
 import { useScreenSize } from '../hooks/useScreenSize.hook';
 import { supabase } from '../supabase';
 import { drawerWidth } from '../theme/default.theme';
+import { ProfileAvatar } from './profile-avatar.component';
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
@@ -184,15 +184,10 @@ const Profile: React.FC<{ open: boolean }> = ({ open }) => {
             alignItems: 'center',
           }}
         >
-          <Avatar variant="rounded">
-            {session &&
-              session.user &&
-              session.user.email &&
-              session.user.email.substring(0, 2).toUpperCase()}
-          </Avatar>
+          {session && session.user && <ProfileAvatar user={session.user} />}
           <Box sx={{ ml: '.5rem' }}>
             <Typography fontWeight="bold">
-              {session && session.user && session.user.email && session.user.email.split('@')[0]}
+              {session && session.user && session.user.user_metadata.username}
             </Typography>
             <Typography>Basic</Typography>
           </Box>

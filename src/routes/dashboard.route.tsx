@@ -135,8 +135,7 @@ export const Dashboard = () => {
     <Grid container spacing={3}>
       <PageHeader
         title={`Welcome, ${
-          (session && session.user && session.user.email && session.user.email.split('@')[0]) ||
-          'Username'
+          (session && session.user && session.user.user_metadata.username) || 'Username'
         }!`}
         description="All in one page"
       />
