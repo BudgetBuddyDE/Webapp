@@ -14,14 +14,14 @@ import { useContext, useRef, useState } from 'react';
 import { AuthContext } from '../context/auth.context';
 import { SnackbarContext } from '../context/snackbar.context';
 import { useStateCallback } from '../hooks/useStateCallback.hook';
-import { AuthService } from '../services/auth.service';
 import { BudgetService } from '../services/budget.service';
 import { CategoryService } from '../services/category.service';
 import { PaymentMethodService } from '../services/payment-method.service';
 import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
+import { UserService } from '../services/user.service';
 import Card from './card.component';
-import { ProfileAvatar } from './profile-avatar.component';
+import { ProfileAvatarWithUpload } from './profile-avatar.component';
 
 export type TExportType = 'json' | 'csv';
 
@@ -148,7 +148,7 @@ export const UserProfile = () => {
   const handleProfileSave = async () => {
     try {
       setSaving(true);
-      const { error } = await AuthService.update({
+      const { error } = await UserService.update({
         data: {
           username: newUsername,
         },
@@ -168,6 +168,36 @@ export const UserProfile = () => {
     }
   };
 
+  const handleAvatarUpload = async (files: FileList | null) => {
+    try {
+      if (!session || !session.user) throw new Error('No user provided');
+      if (files) {
+        const file = files[0];
+        if (!['jpeg', 'jpg', 'png'].some((type) => file.type.includes(type)))
+          throw new Error('You can only upload png or jpg files');
+        const { data, error } = await UserService.uploadAvatar(session.user, files[0]);
+        if (error) throw error;
+        if (!data) throw new Error('No image got uploaded');
+        const updateUser = await UserService.update({
+          data: {
+            avatar: `${process.env.REACT_APP_SUPABASE_URL}/storage/v1/object/public/${data?.Key}`,
+          },
+        });
+        if (updateUser.error) throw updateUser.error;
+        showSnackbar({
+          message:
+            'Your avatar has been uploaded. It may take a moment for the changes to be applied',
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      showSnackbar({
+        message: typeof error === 'string' ? error : JSON.stringify(error),
+        action: <Button onClick={() => handleAvatarUpload(files)}>Retry</Button>,
+      });
+    }
+  };
+
   return (
     <Card>
       <Card.Header>
@@ -178,7 +208,11 @@ export const UserProfile = () => {
       <Card.Body>
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           {session && session.user && (
-            <ProfileAvatar sx={{ width: '6rem', height: '6rem', mx: 'auto' }} user={session.user} />
+            <ProfileAvatarWithUpload
+              sx={{ width: '6rem', height: '6rem', mx: 'auto' }}
+              user={session.user}
+              onUpload={handleAvatarUpload}
+            />
           )}
 
           <TextField
