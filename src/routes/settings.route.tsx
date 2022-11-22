@@ -1,35 +1,53 @@
-import { Box, Button, Grid, Rating, TextField } from '@mui/material';
-import { ChangeEvent, FormEvent, SyntheticEvent, useContext, useState } from 'react';
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  Rating,
+  TextField,
+} from '@mui/material';
+import React from 'react';
 import Card from '../components/card.component';
 import { PageHeader } from '../components/page-header.component';
 import { UserProfile } from '../components/user-profile.component';
+import { AuthContext } from '../context/auth.context';
 import { SnackbarContext } from '../context/snackbar.context';
 import { FeedbackService } from '../services/feedback.service';
 
 export const Settings = () => {
-  const { showSnackbar } = useContext(SnackbarContext);
-  const [feedbackForm, setFeedbackForm] = useState<Record<string, string | number>>({});
+  const { session } = React.useContext(AuthContext);
+  const { showSnackbar } = React.useContext(SnackbarContext);
+  const [feedbackForm, setFeedbackForm] = React.useState<Record<string, string | number | boolean>>(
+    {}
+  );
 
   const feedbackHandler = {
-    starChange: (event: SyntheticEvent<Element, Event>, value: number | null) => {
+    starChange: (event: React.SyntheticEvent<Element, Event>, value: number | null) => {
       setFeedbackForm((prev) => ({ ...prev, rating: Number(value) }));
     },
-    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setFeedbackForm((prev) => ({
         ...prev,
         [event.target.name]: event.target.value,
       }));
     },
-    submit: async (event: FormEvent<HTMLFormElement>) => {
+    checkboxChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+      setFeedbackForm((prev) => ({
+        ...prev,
+        [event.target.name]: event.target.checked,
+      }));
+    },
+    submit: async (event: React.FormEvent<HTMLFormElement>) => {
       try {
         event.preventDefault();
-        const values = Object.keys(feedbackForm);
-        if (values.length < 1) return;
-        if (values.includes('rating')) throw new Error('Provide an rating');
-
+        if (!session || !session.user) throw new Error('You need to sign in first');
         const data = await FeedbackService.create({
           rating: Number(feedbackForm.rating) || 2.5,
           text: String(feedbackForm.text) || null,
+          share: Boolean(feedbackForm.share) || false,
+          author: Boolean(feedbackForm.anonymus) ? session.user.id : null,
         });
         if (!data) throw new Error('No feedback sent');
 
@@ -73,13 +91,35 @@ export const Settings = () => {
                 id="text"
                 name="text"
                 label="Feedback"
-                sx={{ mb: 2 }}
                 fullWidth
                 multiline
                 rows={3}
                 onChange={feedbackHandler.inputChange}
                 value={feedbackForm.text}
               />
+
+              <FormGroup sx={{ mb: 2 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      name="anonymus"
+                      onChange={feedbackHandler.checkboxChange}
+                      checked={Boolean(feedbackForm.anonymus)}
+                    />
+                  }
+                  label="Anonymus feedback"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      name="share"
+                      onChange={feedbackHandler.checkboxChange}
+                      checked={Boolean(feedbackForm.share)}
+                    />
+                  }
+                  label="Share on website"
+                />
+              </FormGroup>
 
               <Button variant="contained" type="submit">
                 Submit
