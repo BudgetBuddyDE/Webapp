@@ -13,12 +13,12 @@ import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { User } from '@supabase/supabase-js';
 import { FormEvent, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../components/card.component';
 import { AuthContext } from '../context/auth.context';
 import { SnackbarContext } from '../context/snackbar.context';
+import { AuthService } from '../services/auth.service';
 import { supabase } from '../supabase';
 
 export const SignUp = () => {
@@ -27,14 +27,6 @@ export const SignUp = () => {
   const { showSnackbar } = useContext(SnackbarContext);
   const [form, setForm] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
-
-  const registerUser = (email: string, password: string) => {
-    return supabase.auth.signUp({ email: email, password: password });
-  };
-
-  const registerProfile = (user: User, username: string) => {
-    return supabase.from('profiles').insert([{ id: user.id, username: username }]);
-  };
 
   const formHandler = {
     inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -45,15 +37,17 @@ export const SignUp = () => {
 
       try {
         const values = Object.keys(form);
-        if (!values.includes('username')) throw new Error('Provide an username');
-        if (!values.includes('email')) throw new Error('Provide an email');
-        if (!values.includes('password')) throw new Error('Provide an password');
+        ['username', 'email', 'password'].forEach((field) => {
+          if (!values.includes(field)) throw new Error('Provide an ' + field);
+        });
 
-        const userRegistration = await registerUser(form.email, form.password);
-        if (userRegistration.error || !userRegistration.user) throw userRegistration.error;
-        const userProfileRegistration = await registerProfile(userRegistration.user, form.username);
-        if (userProfileRegistration.error) throw userProfileRegistration.error;
-        setSession(userRegistration.session);
+        const { user, session, error } = await AuthService.signUp({
+          email: form.email,
+          password: form.password,
+          metadata: { username: form.username, avatar: '' },
+        });
+        if (error || !user) throw error;
+        setSession(session);
         navigate('/dashboard', { replace: true });
         showSnackbar({
           message: 'Registration successfull',

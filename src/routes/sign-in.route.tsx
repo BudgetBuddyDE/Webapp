@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import Card from '../components/card.component';
 import { AuthContext } from '../context/auth.context';
 import { SnackbarContext } from '../context/snackbar.context';
+import { AuthService } from '../services/auth.service';
 import { supabase } from '../supabase';
 
 export const SignIn = () => {
@@ -36,10 +37,11 @@ export const SignIn = () => {
 
       try {
         const values = Object.keys(form);
-        if (!values.includes('email')) throw new Error('Provide an email');
-        if (!values.includes('password')) throw new Error('Provide an password');
+        ['email', 'password'].forEach((field) => {
+          if (!values.includes(field)) throw new Error('Provide an ' + field);
+        });
 
-        const { session, error } = await supabase.auth.signIn({
+        const { session, error } = await AuthService.signIn({
           email: form.email,
           password: form.password,
         });
