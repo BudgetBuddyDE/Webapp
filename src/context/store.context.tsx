@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { getSavedSidebarState, saveSidebarState } from '../components/drawer.component';
 import { DEFAULT_FILTER_VALUE } from '../components/filter-drawer.component';
 import { Budget } from '../models/budget.model';
 import { Category } from '../models/category.model';
@@ -106,14 +107,3 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     </StoreContext.Provider>
   );
 };
-
-function getSavedSidebarState() {
-  const saved = localStorage.getItem('bb.sidebar.show');
-  if (saved === null) {
-    return true;
-  } else return saved === 'true';
-}
-
-function saveSidebarState(state: boolean) {
-  return localStorage.setItem('bb.sidebar.show', state.toString());
-}

@@ -29,6 +29,17 @@ import { supabase } from '../supabase';
 import { drawerWidth } from '../theme/default.theme';
 import { ProfileAvatar } from './profile-avatar.component';
 
+export function getSavedSidebarState() {
+  const saved = localStorage.getItem('bb.sidebar.show');
+  if (saved === null) {
+    return true;
+  } else return saved === 'true';
+}
+
+export function saveSidebarState(state: boolean) {
+  return localStorage.setItem('bb.sidebar.show', state.toString());
+}
+
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
   transition: theme.transitions.create('width', {
