@@ -74,7 +74,7 @@ export class TransactionService {
   /**
    * Get all income for the month which the user have received
    */
-  static getCurrentMonthIncome(transactions: Transaction[]) {
+  static getReceivedEarnings(transactions: Transaction[]) {
     const now = new Date();
     return Math.abs(
       transactions
@@ -91,7 +91,7 @@ export class TransactionService {
   /**
    * Get income for this month which hasn't been processed  till today
    */
-  static getFutureIncome(transactions: Transaction[]) {
+  static getUpcomingEarnings(transactions: Transaction[]) {
     const now = new Date();
     return Math.abs(
       transactions
@@ -108,7 +108,7 @@ export class TransactionService {
   /**
    * Get all spendings for the month which the user have fullfilled
    */
-  static getCurrentMonthSpendings(transactions: Transaction[]) {
+  static getPaidSpendings(transactions: Transaction[]) {
     const now = new Date();
     return Math.abs(
       transactions
@@ -125,7 +125,7 @@ export class TransactionService {
   /**
    * Get spendings for this month which hasn't been processed till today
    */
-  static getFutureSpendings(transactions: Transaction[]) {
+  static getUpcomingSpendings(transactions: Transaction[]) {
     const now = new Date();
     return Math.abs(
       transactions

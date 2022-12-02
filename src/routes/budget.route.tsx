@@ -69,8 +69,8 @@ export const Budget = () => {
       [subscriptions]
     ),
     // totalPlannedIncome: useMemo(() => {
-    //   const receivedMoney = TransactionService.getCurrentMonthIncome(transactions);
-    //   const plannedIncome = SubscriptionService.getFuturePlannedIncome(subscriptions);
+    //   const receivedMoney = TransactionService.getReceivedEarnings(transactions);
+    //   const plannedIncome = SubscriptionService.getUpcomingEarnings(subscriptions);
     //   return receivedMoney + plannedIncome;
     // }, [transactions, subscriptions]),
     plannedSpendings: React.useMemo(
@@ -78,14 +78,14 @@ export const Budget = () => {
       [subscriptions]
     ),
     totalPlannedSpendings: React.useMemo(() => {
-      const moneySpend = TransactionService.getCurrentMonthSpendings(transactions);
-      const futurePlannedPayments = SubscriptionService.getFuturePlannedSpendings(subscriptions);
+      const moneySpend = TransactionService.getPaidSpendings(transactions);
+      const futurePlannedPayments = SubscriptionService.getUpcomingSpendings(subscriptions);
       return moneySpend + futurePlannedPayments;
     }, [transactions, subscriptions]),
     moneyLeft: React.useMemo(() => {
       const plannedIncome = SubscriptionService.getPlannedIncome(subscriptions);
-      const moneySpend = TransactionService.getCurrentMonthSpendings(transactions);
-      const futurePlannedPayments = SubscriptionService.getFuturePlannedSpendings(subscriptions);
+      const moneySpend = TransactionService.getPaidSpendings(transactions);
+      const futurePlannedPayments = SubscriptionService.getUpcomingSpendings(subscriptions);
       return plannedIncome - (moneySpend + futurePlannedPayments);
     }, [transactions, subscriptions]),
   };

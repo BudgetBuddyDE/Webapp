@@ -22,9 +22,11 @@ import { DateService } from '../services/date.service';
 import { ExpenseService } from '../services/expense.service';
 import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
+import { test } from '../tests/dashboard-stats.test';
 import type { IExpense } from '../types/transaction.interface';
 import { IExpenseTransactionDTO } from '../types/transaction.type';
 import { determineNextExecution } from '../utils/determineNextExecution';
+import { formatBalance } from '../utils/formatBalance';
 import { addTransactionToExpenses } from '../utils/transaction/addTransactionToExpenses';
 
 export const Dashboard = () => {
@@ -36,84 +38,82 @@ export const Dashboard = () => {
   const [showAddTransactionForm, setShowAddTransactionForm] = useState(false);
   const [showSubscriptionForm, setShowSubscriptionForm] = useState(false);
 
-  const latestTransactions = useMemo(
-    () =>
-      transactions
-        .filter(({ date }) => new Date(new Date(date).toDateString()) <= new Date())
-        .slice(0, 6),
-    [transactions]
-  );
+  const latestTransactions = useMemo(() => {
+    return transactions
+      .filter(({ date }) => new Date(new Date(date).toDateString()) <= new Date())
+      .slice(0, 6);
+  }, [transactions]);
+
+  const latestSubscriptions = useMemo(() => {
+    return subscriptions.slice(0, 6);
+  }, [subscriptions]);
 
   const StatsCards: IStatsProps[] = [
     {
-      title: useMemo(
-        () =>
-          // TODO: Add getSpendings(subscriptions, transactioins) in order to calculate all planned subscriptions and future transactions which haven't been processed till today
-          SubscriptionService.getPlannedSpendings(subscriptions).toLocaleString('de-DE', {
-            style: 'currency',
-            currency: 'EUR',
-          }),
-        [subscriptions]
-      ),
-      subtitle: 'Planned Expenses',
-      icon: <ScheduleIcon sx={StatsIconStyle} />,
-    },
-    {
-      title: useMemo(
-        () =>
-          SubscriptionService.getFuturePlannedSpendings(subscriptions, transactions).toLocaleString(
-            'de-DE',
-            { style: 'currency', currency: 'EUR' }
-          ),
-        [subscriptions, transactions]
-      ),
-      subtitle: 'Upcoming Expenses',
-      icon: <PaymentsIcon sx={StatsIconStyle} />,
-    },
-    {
-      title: useMemo(
-        () =>
-          TransactionService.getCurrentMonthIncome(transactions).toLocaleString('de-DE', {
-            style: 'currency',
-            currency: 'EUR',
-          }),
-        [transactions]
-      ),
-      subtitle: 'Received Earnings',
-    },
-    {
-      title: useMemo(
-        () =>
-          SubscriptionService.getFuturePlannedIncome(subscriptions, transactions).toLocaleString(
-            'de-DE',
-            {
-              style: 'currency',
-              currency: 'EUR',
-            }
-          ),
-        [subscriptions, transactions]
-      ),
-      subtitle: 'Upcoming Earnings',
-      icon: <ScheduleIcon sx={StatsIconStyle} />,
-    },
-    {
+      // TODO: Create test to verify the result
       title: useMemo(() => {
-        const plannedIncome = SubscriptionService.getPlannedIncome(subscriptions);
-        const moneySpend = TransactionService.getCurrentMonthSpendings(transactions);
-        const futurePlannedPayments = SubscriptionService.getFuturePlannedSpendings(subscriptions);
-        return (plannedIncome - (moneySpend + futurePlannedPayments)).toLocaleString('de-DE', {
-          style: 'currency',
-          currency: 'EUR',
-        });
+        return formatBalance(SubscriptionService.getPlannedSpendings(subscriptions));
       }, [subscriptions, transactions]),
-
-      subtitle: 'Balance',
-      icon: <BalanceIcon sx={StatsIconStyle} />,
+      subtitle: 'Planned expenses',
+      info: 'Sum of transactions and subscriptions that will be executed this month',
+      icon: <ScheduleIcon sx={StatsIconStyle} />,
+    },
+    {
+      // TODO: Create test to verify the result
+      title: useMemo(() => {
+        return formatBalance(
+          SubscriptionService.getUpcomingSpendings(subscriptions) +
+            TransactionService.getUpcomingSpendings(transactions)
+        );
+      }, [subscriptions, transactions]),
+      subtitle: 'Upcoming expenses',
+      info: 'Sum of transactions and subscriptions that have yet to be executed this month',
+      icon: <ScheduleIcon sx={StatsIconStyle} />,
+    },
+    {
+      // TODO: Create test to verify the result
+      title: useMemo(() => {
+        return formatBalance(TransactionService.getReceivedEarnings(transactions));
+      }, [transactions]),
+      subtitle: 'Received earnings',
+      info: 'Sum of transactions and subscriptions that have been executed in favor of you',
+      icon: <ScheduleIcon sx={StatsIconStyle} />,
+    },
+    {
+      // TODO: Create test to verify the result
+      title: useMemo(() => {
+        return formatBalance(
+          SubscriptionService.getUpcomingEarnings(subscriptions) +
+            TransactionService.getUpcomingEarnings(transactions)
+        );
+      }, [subscriptions, transactions]),
+      subtitle: 'Upcoming earnings',
+      info: 'Sum of transactions and subscriptions that still have to be executed in favor of you',
+      icon: <ScheduleIcon sx={StatsIconStyle} />,
+    },
+    {
+      // TODO: Create test to verify the result
+      title: '0.00 €',
+      subtitle: 'Estimated balance',
+      info: 'Estimated balance after prognosed expenses from the income',
+      icon: <ScheduleIcon sx={StatsIconStyle} />,
+    },
+    {
+      // TODO: Create test to verify the result
+      title: useMemo(() => {
+        return formatBalance(
+          TransactionService.getReceivedEarnings(transactions) -
+            TransactionService.getPaidSpendings(transactions)
+        );
+      }, [transactions]),
+      subtitle: 'Current balance',
+      info: 'Calculated balance after deduction of all expenses from the income',
+      icon: <ScheduleIcon sx={StatsIconStyle} />,
     },
   ];
 
   useEffect(() => {
-    setLoading(false);
+    setLoading(true);
     Promise.all([
       ExpenseService.getCurrentMonthExpenses(session!.user!.id),
       ExpenseService.getAllTimeExpenses(session!.user!.id),
@@ -128,7 +128,10 @@ export const Dashboard = () => {
         } else setAllTimeExpenses([]);
       })
       .catch((error) => console.error(error))
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        test();
+      });
   }, [session]);
 
   return (
@@ -140,14 +143,14 @@ export const Dashboard = () => {
         description="All in one page"
       />
 
-      <Grid container item columns={10} spacing={3}>
+      <Grid container item columns={12} spacing={3}>
         {StatsCards.map((props, index, list) =>
           index + 1 === list.length && list.length % 2 > 0 ? (
-            <Grid key={index} item xs={10} md={2} lg={2}>
+            <Grid key={index} item xs={12} md={2} lg={2}>
               <Stats {...props} />
             </Grid>
           ) : (
-            <Grid key={index} item xs={5} md={2} lg={2}>
+            <Grid key={index} item xs={6} md={2} lg={2}>
               <Stats {...props} />
             </Grid>
           )
@@ -176,17 +179,15 @@ export const Dashboard = () => {
             {loading ? (
               <CircularProgress />
             ) : subscriptions.length > 0 ? (
-              subscriptions
-                .slice(0, 6)
-                .map(({ id, categories, receiver, amount, execute_at }) => (
-                  <Transaction
-                    key={id}
-                    category={categories.name}
-                    date={determineNextExecution(execute_at)}
-                    receiver={receiver}
-                    amount={amount}
-                  />
-                ))
+              latestSubscriptions.map(({ id, categories, receiver, amount, execute_at }) => (
+                <Transaction
+                  key={id}
+                  category={categories.name}
+                  date={determineNextExecution(execute_at)}
+                  receiver={receiver}
+                  amount={amount}
+                />
+              ))
             ) : (
               <NoResults sx={{ mt: 2 }} text="No subscriptions found" />
             )}

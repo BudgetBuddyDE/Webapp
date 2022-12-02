@@ -40,7 +40,9 @@ export const Stats: FC<IStatsProps> = ({
           alignItems="center"
           flexShrink={1}
         >
-          <Typography variant="h6">{subtitle}</Typography>
+          <Typography variant="h6" sx={{ whiteSpace: { xs: 'wrap', md: 'nowrap' } }}>
+            {subtitle}
+          </Typography>
           {info && <InfoIcon sx={{ ml: '.25rem', fontSize: '.9rem' }} />}
         </Box>
       </Tooltip>
