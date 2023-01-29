@@ -120,49 +120,62 @@ const Header = () => {
   );
 };
 
+export const DrawerItem: React.FC<{
+  open: boolean;
+  text: string;
+  path: string;
+  icon: JSX.Element;
+  closeOnClick?: boolean;
+}> = ({ open, text, path, icon, closeOnClick = false }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { setShowDrawer } = React.useContext(StoreContext);
+  const active = location.pathname === path;
+
+  return (
+    <Tooltip key={text} title={open ? '' : text} placement="right">
+      <ListItem disablePadding sx={{ display: 'block' }}>
+        <ListItemButton
+          sx={{
+            mx: '.5rem',
+            height: 48,
+            minHeight: 48,
+            justifyContent: open ? 'initial' : 'center',
+            px: 2.5,
+            backgroundColor: (theme) => (active ? theme.palette.action.focus : 'transparent'),
+            borderRadius: (theme) => `${theme.shape.borderRadius}px`,
+          }}
+          onClick={() => {
+            navigate(path, { replace: true });
+            if (closeOnClick) setShowDrawer((prev) => !prev);
+          }}
+        >
+          <ListItemIcon
+            sx={{
+              minWidth: 0,
+              mr: open ? 3 : 'auto',
+              justifyContent: 'center',
+            }}
+          >
+            {icon}
+          </ListItemIcon>
+          <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
+        </ListItemButton>
+      </ListItem>
+    </Tooltip>
+  );
+};
+
 const DrawerItems: React.FC<{ open: boolean; closeOnClick?: boolean }> = ({
   open,
   closeOnClick = false,
 }) => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { setShowDrawer } = React.useContext(StoreContext);
   return (
     <>
       <Divider />
       <List>
         {DrawerLinks.map((link) => (
-          <Tooltip key={link.text} title={open ? '' : link.text} placement="right">
-            <ListItem disablePadding sx={{ display: 'block' }}>
-              <ListItemButton
-                sx={{
-                  mx: '.5rem',
-                  height: 48,
-                  minHeight: 48,
-                  justifyContent: open ? 'initial' : 'center',
-                  px: 2.5,
-                  backgroundColor: (theme) =>
-                    location.pathname === link.path ? theme.palette.action.focus : 'transparent',
-                  borderRadius: (theme) => `${theme.shape.borderRadius}px`,
-                }}
-                onClick={() => {
-                  navigate(link.path, { replace: true });
-                  if (closeOnClick) setShowDrawer((prev) => !prev);
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : 'auto',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {link.icon}
-                </ListItemIcon>
-                <ListItemText primary={link.text} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-          </Tooltip>
+          <DrawerItem key={link.path} open={open} {...link} closeOnClick={closeOnClick} />
         ))}
       </List>
     </>
