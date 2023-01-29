@@ -37,3 +37,16 @@ export interface IBudgetProgressView {
   updated_at: string | Date;
   inserted_at: string | Date;
 }
+
+/**
+ * Structure of `MonthlyBalance`
+ */
+export interface IMonthlyBalance {
+  year: number;
+  month: number;
+  sum: number;
+}
+export interface IMonthlyBalanceAvg {
+  months: IMonthlyBalance[];
+  avg: number;
+}

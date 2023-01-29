@@ -18,15 +18,23 @@ import { IStatsProps, Stats, StatsIconStyle } from '../components/stats-card.com
 import { Transaction } from '../components/transaction.component';
 import { AuthContext } from '../context/auth.context';
 import { StoreContext } from '../context/store.context';
+import { BudgetService } from '../services/budget.service';
 import { DateService } from '../services/date.service';
 import { ExpenseService } from '../services/expense.service';
 import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
+import { supabase } from '../supabase';
+import { IMonthlyBalanceAvg } from '../types/budget.type';
 import type { IExpense } from '../types/transaction.interface';
 import { IExpenseTransactionDTO } from '../types/transaction.type';
 import { determineNextExecution } from '../utils/determineNextExecution';
 import { formatBalance } from '../utils/formatBalance';
 import { addTransactionToExpenses } from '../utils/transaction/addTransactionToExpenses';
+
+/**
+ * How many months do we wanna look back?
+ */
+export const MONTH_BACKLOG = 6;
 
 export const Dashboard = () => {
   const { session } = useContext(AuthContext);
@@ -34,6 +42,7 @@ export const Dashboard = () => {
   const [chart, setChart] = useState<'MONTH' | 'ALL'>('MONTH');
   const [currentMonthExpenses, setCurrentMonthExpenses] = useState<IExpense[]>([]);
   const [allTimeExpenses, setAllTimeExpenses] = useState<IExpense[]>([]);
+  const [monthlyAvg, setMonthlyAvg] = useState<IMonthlyBalanceAvg | null>(null);
   const [showAddTransactionForm, setShowAddTransactionForm] = useState(false);
   const [showSubscriptionForm, setShowSubscriptionForm] = useState(false);
 
@@ -49,16 +58,15 @@ export const Dashboard = () => {
 
   const StatsCards: IStatsProps[] = [
     {
-      subtitle: 'Planned Expenses',
       // TODO: Create test to verify the result
       title: useMemo(() => {
         return formatBalance(SubscriptionService.getPlannedSpendings(subscriptions));
       }, [subscriptions, transactions]),
+      subtitle: 'Planned expenses',
+      info: 'Sum of transactions and subscriptions that will be executed this month',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
     },
     {
-      subtitle: 'Upcoming Expenses',
-      icon: <PaymentsIcon sx={StatsIconStyle} />,
       // TODO: Create test to verify the result
       title: useMemo(() => {
         return formatBalance(
@@ -66,16 +74,20 @@ export const Dashboard = () => {
             TransactionService.getUpcomingSpendings(transactions)
         );
       }, [subscriptions, transactions]),
+      subtitle: 'Upcoming expenses',
+      info: 'Sum of transactions and subscriptions that have yet to be executed this month',
+      icon: <ScheduleIcon sx={StatsIconStyle} />,
     },
     {
-      subtitle: 'Received Earnings',
       // TODO: Create test to verify the result
       title: useMemo(() => {
         return formatBalance(TransactionService.getReceivedEarnings(transactions));
       }, [transactions]),
+      subtitle: 'Received earnings',
+      info: 'Sum of transactions and subscriptions that have been executed in favor of you',
+      icon: <ScheduleIcon sx={StatsIconStyle} />,
     },
     {
-      subtitle: 'Upcoming Earnings',
       // TODO: Create test to verify the result
       title: useMemo(() => {
         return formatBalance(
@@ -83,31 +95,42 @@ export const Dashboard = () => {
             TransactionService.getUpcomingEarnings(transactions)
         );
       }, [subscriptions, transactions]),
+      subtitle: 'Upcoming earnings',
+      info: 'Sum of transactions and subscriptions that still have to be executed in favor of you',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
     },
     {
+      // TODO: Create test to verify the result
       title: useMemo(() => {
-        const plannedIncome = SubscriptionService.getPlannedIncome(subscriptions);
-        const moneySpend = TransactionService.getCurrentMonthSpendings(transactions);
-        const futurePlannedPayments = SubscriptionService.getFuturePlannedSpendings(subscriptions);
-        return (plannedIncome - (moneySpend + futurePlannedPayments)).toLocaleString('de-DE', {
-          style: 'currency',
-          currency: 'EUR',
-        });
-      }, [subscriptions, transactions]),
-
-      subtitle: 'Balance',
-      icon: <BalanceIcon sx={StatsIconStyle} />,
+        return formatBalance(monthlyAvg ? monthlyAvg.avg : 0);
+      }, [monthlyAvg]),
+      subtitle: 'Estimated balance',
+      info: `Estimated balance based on the past ${MONTH_BACKLOG} months`,
+      icon: <ScheduleIcon sx={StatsIconStyle} />,
+    },
+    {
+      // TODO: Create test to verify the result
+      title: useMemo(() => {
+        return formatBalance(
+          TransactionService.getReceivedEarnings(transactions) -
+            TransactionService.getPaidSpendings(transactions)
+        );
+      }, [transactions]),
+      subtitle: 'Current balance',
+      info: 'Calculated balance after deduction of all expenses from the income',
+      icon: <ScheduleIcon sx={StatsIconStyle} />,
     },
   ];
 
   useEffect(() => {
-    setLoading(false);
+    if (!session || !session.user) return;
+    setLoading(true);
     Promise.all([
-      ExpenseService.getCurrentMonthExpenses(session!.user!.id),
-      ExpenseService.getAllTimeExpenses(session!.user!.id),
+      ExpenseService.getCurrentMonthExpenses(session.user.id),
+      ExpenseService.getAllTimeExpenses(session.user.id),
+      BudgetService.getMonthlyBalanceAvg(MONTH_BACKLOG),
     ])
-      .then(([getCurrentMonthExpenses, getAllTimeExpenses]) => {
+      .then(([getCurrentMonthExpenses, getAllTimeExpenses, getMonthlyBalance]) => {
         if (getCurrentMonthExpenses) {
           setCurrentMonthExpenses(getCurrentMonthExpenses);
         } else setCurrentMonthExpenses([]);
@@ -115,6 +138,10 @@ export const Dashboard = () => {
         if (getAllTimeExpenses) {
           setAllTimeExpenses(getAllTimeExpenses);
         } else setAllTimeExpenses([]);
+
+        if (getMonthlyBalance) {
+          setMonthlyAvg(getMonthlyBalance);
+        }
       })
       .catch((error) => console.error(error))
       .finally(() => setLoading(false));
@@ -129,14 +156,14 @@ export const Dashboard = () => {
         description="All in one page"
       />
 
-      <Grid container item columns={10} spacing={3}>
+      <Grid container item columns={12} spacing={3}>
         {StatsCards.map((props, index, list) =>
           index + 1 === list.length && list.length % 2 > 0 ? (
-            <Grid key={index} item xs={10} md={2} lg={2}>
+            <Grid key={index} item xs={12} md={2} lg={2}>
               <Stats {...props} />
             </Grid>
           ) : (
-            <Grid key={index} item xs={5} md={2} lg={2}>
+            <Grid key={index} item xs={6} md={2} lg={2}>
               <Stats {...props} />
             </Grid>
           )

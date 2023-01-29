@@ -1,7 +1,14 @@
+import { isConstructorDeclaration } from 'typescript';
 import type { TExportType } from '../components/user-profile.component';
 import { BaseBudget, Budget } from '../models/budget.model';
 import { supabase } from '../supabase';
-import type { IBaseBudget, IBudgetProgressView, IExportBudget } from '../types/budget.type';
+import type {
+  IBaseBudget,
+  IBudgetProgressView,
+  IExportBudget,
+  IMonthlyBalance,
+  IMonthlyBalanceAvg,
+} from '../types/budget.type';
 
 export class BudgetService {
   private static table = 'budget';
@@ -22,6 +29,24 @@ export class BudgetService {
         .eq('created_by', uuid);
       if (error) rej(error);
       res(data ? data.map((budget) => new Budget(budget)) : []);
+    });
+  }
+
+  static getMonthlyBalance(monthBacklog: number): Promise<IMonthlyBalance[]> {
+    return new Promise(async (res, rej) => {
+      const { data, error } = await supabase.rpc('get_monthly_balance', {
+        months: monthBacklog,
+      });
+      if (error) rej(error);
+      res(data ?? []);
+    });
+  }
+
+  static getMonthlyBalanceAvg(monthBacklog: number): Promise<IMonthlyBalanceAvg> {
+    return new Promise(async (res) => {
+      const months = await this.getMonthlyBalance(monthBacklog);
+      const avgBalance = months.reduce((prev, cur) => prev + cur.sum, 0) / months.length;
+      res({ months: months, avg: avgBalance });
     });
   }
 
