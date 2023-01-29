@@ -25,6 +25,7 @@ import { TransactionService } from '../services/transaction.service';
 import type { IExpense } from '../types/transaction.interface';
 import { IExpenseTransactionDTO } from '../types/transaction.type';
 import { determineNextExecution } from '../utils/determineNextExecution';
+import { formatBalance } from '../utils/formatBalance';
 import { addTransactionToExpenses } from '../utils/transaction/addTransactionToExpenses';
 
 export const Dashboard = () => {
@@ -36,64 +37,52 @@ export const Dashboard = () => {
   const [showAddTransactionForm, setShowAddTransactionForm] = useState(false);
   const [showSubscriptionForm, setShowSubscriptionForm] = useState(false);
 
-  const latestTransactions = useMemo(
-    () =>
-      transactions
-        .filter(({ date }) => new Date(new Date(date).toDateString()) <= new Date())
-        .slice(0, 6),
-    [transactions]
-  );
+  const latestTransactions = useMemo(() => {
+    return transactions
+      .filter(({ date }) => new Date(new Date(date).toDateString()) <= new Date())
+      .slice(0, 6);
+  }, [transactions]);
+
+  const latestSubscriptions = useMemo(() => {
+    return subscriptions.slice(0, 6);
+  }, [subscriptions]);
 
   const StatsCards: IStatsProps[] = [
     {
-      title: useMemo(
-        () =>
-          // TODO: Add getSpendings(subscriptions, transactioins) in order to calculate all planned subscriptions and future transactions which haven't been processed till today
-          SubscriptionService.getPlannedSpendings(subscriptions).toLocaleString('de-DE', {
-            style: 'currency',
-            currency: 'EUR',
-          }),
-        [subscriptions]
-      ),
       subtitle: 'Planned Expenses',
+      // TODO: Create test to verify the result
+      title: useMemo(() => {
+        return formatBalance(SubscriptionService.getPlannedSpendings(subscriptions));
+      }, [subscriptions, transactions]),
       icon: <ScheduleIcon sx={StatsIconStyle} />,
     },
     {
-      title: useMemo(
-        () =>
-          SubscriptionService.getFuturePlannedSpendings(subscriptions, transactions).toLocaleString(
-            'de-DE',
-            { style: 'currency', currency: 'EUR' }
-          ),
-        [subscriptions, transactions]
-      ),
       subtitle: 'Upcoming Expenses',
       icon: <PaymentsIcon sx={StatsIconStyle} />,
+      // TODO: Create test to verify the result
+      title: useMemo(() => {
+        return formatBalance(
+          SubscriptionService.getUpcomingSpendings(subscriptions) +
+            TransactionService.getUpcomingSpendings(transactions)
+        );
+      }, [subscriptions, transactions]),
     },
     {
-      title: useMemo(
-        () =>
-          TransactionService.getCurrentMonthIncome(transactions).toLocaleString('de-DE', {
-            style: 'currency',
-            currency: 'EUR',
-          }),
-        [transactions]
-      ),
       subtitle: 'Received Earnings',
+      // TODO: Create test to verify the result
+      title: useMemo(() => {
+        return formatBalance(TransactionService.getReceivedEarnings(transactions));
+      }, [transactions]),
     },
     {
-      title: useMemo(
-        () =>
-          SubscriptionService.getFuturePlannedIncome(subscriptions, transactions).toLocaleString(
-            'de-DE',
-            {
-              style: 'currency',
-              currency: 'EUR',
-            }
-          ),
-        [subscriptions, transactions]
-      ),
       subtitle: 'Upcoming Earnings',
+      // TODO: Create test to verify the result
+      title: useMemo(() => {
+        return formatBalance(
+          SubscriptionService.getUpcomingEarnings(subscriptions) +
+            TransactionService.getUpcomingEarnings(transactions)
+        );
+      }, [subscriptions, transactions]),
       icon: <ScheduleIcon sx={StatsIconStyle} />,
     },
     {
@@ -176,17 +165,15 @@ export const Dashboard = () => {
             {loading ? (
               <CircularProgress />
             ) : subscriptions.length > 0 ? (
-              subscriptions
-                .slice(0, 6)
-                .map(({ id, categories, receiver, amount, execute_at }) => (
-                  <Transaction
-                    key={id}
-                    category={categories.name}
-                    date={determineNextExecution(execute_at)}
-                    receiver={receiver}
-                    amount={amount}
-                  />
-                ))
+              latestSubscriptions.map(({ id, categories, receiver, amount, execute_at }) => (
+                <Transaction
+                  key={id}
+                  category={categories.name}
+                  date={determineNextExecution(execute_at)}
+                  receiver={receiver}
+                  amount={amount}
+                />
+              ))
             ) : (
               <NoResults sx={{ mt: 2 }} text="No subscriptions found" />
             )}

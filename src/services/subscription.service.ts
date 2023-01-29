@@ -84,7 +84,7 @@ export class SubscriptionService {
   /**
    * Get planned income for this month which aren't fullfilled meaning which will be executed during this month
    */
-  static getFuturePlannedIncome(subscriptions: Subscription[], transactions?: Transaction[]) {
+  static getUpcomingEarnings(subscriptions: Subscription[], transactions?: Transaction[]) {
     const now = new Date();
     const processedSubscriptions = Math.abs(
       subscriptions
@@ -94,7 +94,7 @@ export class SubscriptionService {
         .reduce((prev, cur) => prev + cur.amount, 0)
     );
     if (transactions) {
-      const processedTransactions = TransactionService.getFutureIncome(transactions);
+      const processedTransactions = TransactionService.getUpcomingEarnings(transactions);
       return processedSubscriptions + processedTransactions;
     } else return processedSubscriptions;
   }
@@ -113,7 +113,7 @@ export class SubscriptionService {
   /**
    * Get planned spendings for this month which aren't fullfilled meaning which will be executed during this month
    */
-  static getFuturePlannedSpendings(subscriptions: Subscription[], transactions?: Transaction[]) {
+  static getUpcomingSpendings(subscriptions: Subscription[], transactions?: Transaction[]) {
     const now = new Date();
     const processedSubscriptions = Math.abs(
       subscriptions
@@ -123,7 +123,7 @@ export class SubscriptionService {
         .reduce((prev, cur) => prev + cur.amount, 0)
     );
     if (transactions) {
-      const processedTransactions = TransactionService.getFutureSpendings(transactions);
+      const processedTransactions = TransactionService.getUpcomingSpendings(transactions);
       return processedSubscriptions + processedTransactions;
     } else return processedSubscriptions;
   }
