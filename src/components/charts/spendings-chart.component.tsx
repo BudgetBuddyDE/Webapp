@@ -4,7 +4,7 @@ import ParentSize from '@visx/responsive/lib/components/ParentSizeModern';
 import { scaleOrdinal } from '@visx/scale';
 // @ts-ignore
 import { Pie } from '@visx/shape';
-import { FC } from 'react';
+import React from 'react';
 import { useScreenSize } from '../../hooks/useScreenSize.hook';
 import type { IExpense } from '../../types/transaction.interface';
 
@@ -12,7 +12,7 @@ function getAbsoluteAmount(expense: IExpense) {
   return Math.abs(expense.sum);
 }
 
-export const PieChart: FC<{ expenses: IExpense[] }> = ({ expenses }) => {
+export const PieChart: React.FC<{ expenses: IExpense[] }> = ({ expenses }) => {
   const screenSize = useScreenSize();
   const MARGIN = { top: 0, right: 0, bottom: 0, left: 0 };
   const CATEGORY_NAMES = Object.entries(expenses).map(([key, value]) => value.category.name);
@@ -64,8 +64,8 @@ export const PieChart: FC<{ expenses: IExpense[] }> = ({ expenses }) => {
                           ? arc.endAngle - arc.startAngle >= 0.15
                           : arc.endAngle - arc.startAngle >= 0.2;
                       return (
-                        <>
-                          <g key={`pie-arc-${i}`}>
+                        <React.Fragment key={`pie-arc-${i}`}>
+                          <g>
                             <Tooltip
                               title={`${arc.data.category.name}: ${Math.abs(
                                 arc.data.sum
@@ -119,7 +119,7 @@ export const PieChart: FC<{ expenses: IExpense[] }> = ({ expenses }) => {
                               </g>
                             )}
                           </g>
-                          <g key={`pie-arc-z${i}`}>
+                          <g>
                             <text
                               fill="white"
                               textAnchor="middle"
@@ -131,7 +131,7 @@ export const PieChart: FC<{ expenses: IExpense[] }> = ({ expenses }) => {
                               })}
                             </text>
                           </g>
-                        </>
+                        </React.Fragment>
                       );
                     })
                 }
