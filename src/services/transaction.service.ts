@@ -46,6 +46,9 @@ export class TransactionService {
     });
   }
 
+  /**
+   * @deprecated Use `Transaction.update()` instead of the the `TransactionService.updateTransaction(...)`
+   */
   static async updateTransaction(
     id: number,
     updatedTransaction: Partial<IBaseTransaction>
@@ -60,6 +63,9 @@ export class TransactionService {
     });
   }
 
+  /**
+   * @deprecated Use `Transaction.delete()` instead of the the `TransactionService.deleteTransactionById(...)`
+   */
   static async deleteTransactionById(id: number): Promise<BaseTransaction[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase

@@ -25,6 +25,9 @@ export class BudgetService {
     });
   }
 
+  /**
+   * @deprecated Use `Budget.delete()` instead of the the `BudgetService.update(...)`
+   */
   static async update(id: number, updatedBudget: Partial<IBaseBudget>): Promise<BaseBudget[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
@@ -36,6 +39,9 @@ export class BudgetService {
     });
   }
 
+  /**
+   * @deprecated Use `Budget.delete()` instead of the the `BudgetService.deleteById(...)`
+   */
   static async deleteById(id: number): Promise<IBaseBudget[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase

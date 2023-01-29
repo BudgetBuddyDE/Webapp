@@ -33,6 +33,9 @@ export class PaymentMethodService {
     });
   }
 
+  /**
+   * @deprecated Use `PaymentMethod.update()` instead of the the `PaymentMethodService.updatePaymentMethod(...)`
+   */
   static async updatePaymentMethod(
     id: number,
     updatedPaymentMethod: Partial<IBasePaymentMethod>
@@ -47,6 +50,9 @@ export class PaymentMethodService {
     });
   }
 
+  /**
+   * @deprecated Use `PaymentMethod.delete()` instead of the the `PaymentMethodService.deletePaymentMethodById(...)`
+   */
   static async deletePaymentMethodById(id: number): Promise<PaymentMethod[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase

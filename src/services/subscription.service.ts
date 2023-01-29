@@ -45,6 +45,9 @@ export class SubscriptionService {
     });
   }
 
+  /**
+   * @deprecated Use `Subscription.update()` instead of the the `SubscriptionService.updateSubscription(...)`
+   */
   static async updateSubscription(
     id: number,
     updatedSubscription: Partial<IBaseSubscription>
@@ -59,6 +62,9 @@ export class SubscriptionService {
     });
   }
 
+  /**
+   * @deprecated Use `Subscription.delete()` instead of the the `SubscriptionService.deleteSubscriptionById(...)`
+   */
   static async deleteSubscriptionById(id: number): Promise<BaseSubscription[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase

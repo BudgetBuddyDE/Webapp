@@ -30,6 +30,9 @@ export class CategoryService {
     });
   }
 
+  /**
+   * @deprecated Use `Category.delete()` instead of the the `CategoryService.updateCategory(...)`
+   */
   static async updateCategory(id: number, updatedCategory: IEditCategory): Promise<Category[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
@@ -41,6 +44,9 @@ export class CategoryService {
     });
   }
 
+  /**
+   * @deprecated Use `Category.delete()` instead of the the `CategoryService.deleteCategoryById(...)`
+   */
   static async deleteCategoryById(id: number): Promise<Category[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
