@@ -21,7 +21,7 @@ import { TransactionService } from '../../services/transaction.service';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseTransaction } from '../../types/transaction.type';
 import { transformBalance } from '../../utils/transformBalance';
-import { FormDrawer } from '../form-drawer.component';
+import { FormDrawer } from '../base/form-drawer.component';
 import { ReceiverAutocomplete } from '../inputs/receiver-autocomplete.component';
 
 export interface ICreateTransactionProps {

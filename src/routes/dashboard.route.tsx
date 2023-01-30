@@ -13,7 +13,7 @@ import { CreateSubscription } from '../components/create-forms/create-subscripti
 import { CreateTransaction } from '../components/create-forms/create-transaction.component';
 import { NoResults } from '../components/no-results.component';
 import { PageHeader } from '../components/page-header.component';
-import { CircularProgress } from '../components/progress.component';
+import { CircularProgress } from '../components/base/progress.component';
 import { IStatsProps, Stats, StatsIconStyle } from '../components/stats-card.component';
 import { Transaction } from '../components/transaction.component';
 import { AuthContext } from '../context/auth.context';

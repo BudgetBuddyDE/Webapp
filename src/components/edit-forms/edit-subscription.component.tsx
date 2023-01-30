@@ -22,7 +22,7 @@ import { getCategoryFromList } from '../../utils/getCategoryFromList';
 import { getPaymentMethodFromList } from '../../utils/getPaymentMethodFromList';
 import { sortSubscriptionsByExecution } from '../../utils/subscription/sortSubscriptions';
 import { transformBalance } from '../../utils/transformBalance';
-import { FormDrawer } from '../form-drawer.component';
+import { FormDrawer } from '../base/form-drawer.component';
 import { ReceiverAutocomplete } from '../inputs/receiver-autocomplete.component';
 
 export interface IEditTransactionProps {

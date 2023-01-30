@@ -4,7 +4,7 @@ import { SnackbarContext } from '../../context/snackbar.context';
 import { StoreContext } from '../../context/store.context';
 import { Category } from '../../models/category.model';
 import { FormStyle } from '../../theme/form-style';
-import { FormDrawer } from '../form-drawer.component';
+import { FormDrawer } from '../base/form-drawer.component';
 
 export const EditCategory: React.FC<{
   open: boolean;

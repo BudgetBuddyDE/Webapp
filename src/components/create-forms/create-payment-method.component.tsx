@@ -6,7 +6,7 @@ import { StoreContext } from '../../context/store.context';
 import { PaymentMethodService } from '../../services/payment-method.service';
 import { FormStyle } from '../../theme/form-style';
 import type { IBasePaymentMethod, IPaymentMethod } from '../../types/paymentMethod.type';
-import { FormDrawer } from '../form-drawer.component';
+import { FormDrawer } from '../base/form-drawer.component';
 
 export interface ICreatePaymentMethodProps {
   open: boolean;

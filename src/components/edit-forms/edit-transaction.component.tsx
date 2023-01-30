@@ -21,7 +21,7 @@ import type { IBaseTransaction } from '../../types/transaction.type';
 import { getCategoryFromList } from '../../utils/getCategoryFromList';
 import { getPaymentMethodFromList } from '../../utils/getPaymentMethodFromList';
 import { transformBalance } from '../../utils/transformBalance';
-import { FormDrawer } from '../form-drawer.component';
+import { FormDrawer } from '../base/form-drawer.component';
 import { ReceiverAutocomplete } from '../inputs/receiver-autocomplete.component';
 
 export interface IEditTransactionProps {

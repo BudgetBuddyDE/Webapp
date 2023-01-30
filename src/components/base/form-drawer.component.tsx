@@ -1,8 +1,8 @@
 import { Close as CloseIcon } from '@mui/icons-material';
 import { Box, Button, Drawer, IconButton, Typography } from '@mui/material';
 import { FC, PropsWithChildren } from 'react';
-import { useScreenSize } from '../hooks/useScreenSize.hook';
-import { drawerWidth } from '../theme/default.theme';
+import { useScreenSize } from '../../hooks/useScreenSize.hook';
+import { drawerWidth } from '../../theme/default.theme';
 
 export interface IFormDrawerProps extends PropsWithChildren {
   open: boolean;

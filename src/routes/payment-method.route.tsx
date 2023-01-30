@@ -15,14 +15,14 @@ import {
   Typography,
 } from '@mui/material';
 import * as React from 'react';
+import { Linkify } from '../components/base/linkify.component';
+import { CircularProgress } from '../components/base/progress.component';
 import Card from '../components/card.component';
 import { CreatePaymentMethod } from '../components/create-forms/create-payment-method.component';
 import { EditPaymentMethod } from '../components/edit-forms/edit-payment-method.component';
 import { SearchInput } from '../components/inputs/search-input.component';
-import { Linkify } from '../components/linkify.component';
 import { NoResults } from '../components/no-results.component';
 import { PageHeader } from '../components/page-header.component';
-import { CircularProgress } from '../components/progress.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { StoreContext } from '../context/store.context';
 import { PaymentMethod } from '../models/paymentMethod.model';

@@ -4,6 +4,7 @@ import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import ParentSize from '@visx/responsive/lib/components/ParentSizeModern';
 import * as React from 'react';
+import { CircularProgress } from '../components/base/progress.component';
 import Card from '../components/card.component';
 import { CategoryBudget } from '../components/category-budget.component';
 import AreaChart, { IDailyTransaction } from '../components/charts/area-chart.component';
@@ -11,7 +12,6 @@ import { CreateBudget } from '../components/create-forms/create-budget.component
 import { EditBudget } from '../components/edit-forms/edit-budget.component';
 import { NoResults } from '../components/no-results.component';
 import { PageHeader } from '../components/page-header.component';
-import { CircularProgress } from '../components/progress.component';
 import { IStatsProps, Stats } from '../components/stats-card.component';
 import { Transaction } from '../components/transaction.component';
 import { AuthContext } from '../context/auth.context';
