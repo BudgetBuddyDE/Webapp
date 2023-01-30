@@ -1,8 +1,10 @@
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
-import { FC } from 'react';
+import { Grid, Typography } from '@mui/material';
+import React from 'react';
 
-export const PageHeader: FC<{ title: string; description?: string }> = ({ title, description }) => {
+export const PageHeader: React.FC<{ title: string; description?: string }> = ({
+  title,
+  description,
+}) => {
   return (
     <Grid item xs={12}>
       <Typography variant="h5" fontWeight="bold" sx={{ m: 0 }}>

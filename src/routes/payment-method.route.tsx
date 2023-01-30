@@ -15,6 +15,7 @@ import {
   Typography,
 } from '@mui/material';
 import * as React from 'react';
+import { ActionPaper } from '../components/base/action-paper.component';
 import { Linkify } from '../components/base/linkify.component';
 import { CircularProgress } from '../components/base/progress.component';
 import Card from '../components/card.component';
@@ -26,7 +27,6 @@ import { PageHeader } from '../components/page-header.component';
 import { SnackbarContext } from '../context/snackbar.context';
 import { StoreContext } from '../context/store.context';
 import { PaymentMethod } from '../models/paymentMethod.model';
-import type { IPaymentMethod } from '../types/paymentMethod.type';
 
 export const PaymentMethods = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
@@ -94,12 +94,14 @@ export const PaymentMethods = () => {
               <Card.Subtitle>Manage your payment-methods</Card.Subtitle>
             </Box>
             <Card.HeaderActions>
-              <SearchInput sx={{ mr: '.5rem' }} onSearch={handleOnSearch} />
-              <Tooltip title="Add Payment Method">
-                <IconButton aria-label="add-payment-method" onClick={() => setShowAddForm(true)}>
-                  <AddIcon fontSize="inherit" />
-                </IconButton>
-              </Tooltip>
+              <ActionPaper sx={{ display: 'flex', flexDirection: 'row' }}>
+                <SearchInput onSearch={handleOnSearch} />
+                <Tooltip title="Add Payment Method">
+                  <IconButton color="primary" onClick={() => setShowAddForm(true)}>
+                    <AddIcon fontSize="inherit" />
+                  </IconButton>
+                </Tooltip>
+              </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
           {loading ? (
@@ -142,16 +144,21 @@ export const PaymentMethods = () => {
                               <Linkify>{row.description ?? 'No description'}</Linkify>
                             </TableCell>
                             <TableCell align="right">
-                              <Tooltip title="Edit" placement="top">
-                                <IconButton onClick={() => setEditPaymentMethod(row)}>
-                                  <EditIcon />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Delete" placement="top">
-                                <IconButton onClick={() => handleDelete(row)}>
-                                  <DeleteIcon />
-                                </IconButton>
-                              </Tooltip>
+                              <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
+                                <Tooltip title="Edit" placement="top">
+                                  <IconButton
+                                    color="primary"
+                                    onClick={() => setEditPaymentMethod(row)}
+                                  >
+                                    <EditIcon />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Delete" placement="top">
+                                  <IconButton color="primary" onClick={() => handleDelete(row)}>
+                                    <DeleteIcon />
+                                  </IconButton>
+                                </Tooltip>
+                              </ActionPaper>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -160,15 +167,17 @@ export const PaymentMethods = () => {
                 </TableContainer>
               </Card.Body>
               <Card.Footer>
-                <TablePagination
-                  component="div"
-                  count={shownPaymentMethods.length}
-                  page={page}
-                  onPageChange={handlePageChange}
-                  labelRowsPerPage="Rows:"
-                  rowsPerPage={rowsPerPage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                />
+                <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
+                  <TablePagination
+                    component="div"
+                    count={shownPaymentMethods.length}
+                    page={page}
+                    onPageChange={handlePageChange}
+                    labelRowsPerPage="Rows:"
+                    rowsPerPage={rowsPerPage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                  />
+                </ActionPaper>
               </Card.Footer>
             </>
           ) : (

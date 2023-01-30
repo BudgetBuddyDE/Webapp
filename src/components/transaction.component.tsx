@@ -1,4 +1,5 @@
 import ReceiptIcon from '@mui/icons-material/Receipt';
+import { Chip } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import format from 'date-fns/format';
@@ -35,15 +36,13 @@ export const Transaction: FC<TransactionProps> = ({
           mr: 0.5,
         }}
       >
-      <Box
-        sx={{
-          mr: '0.5rem',
-        }}
-      >
-        <Typography fontWeight="bold">
-          {category} {receiver && `@ ${receiver}`}
-        </Typography>
-        <Typography>{typeof date === 'string' ? date : format(date, 'dd.MM.yyyy')}</Typography>
+        <Typography fontWeight="bold">{receiver && `${receiver}`}</Typography>
+        <Chip
+          label={typeof date === 'string' ? date : format(date, 'dd.MM')}
+          size="small"
+          variant="outlined"
+        />
+        <Chip label={category} size="small" variant="outlined" sx={{ ml: 1 }} />
       </Box>
       <Box sx={{ ml: 'auto' }}>
         <Typography fontWeight="bold">

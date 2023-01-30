@@ -1,9 +1,20 @@
 import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
-import { Box, Button, Divider, Grid, IconButton, TextField, Tooltip } from '@mui/material';
+import {
+  Box,
+  Button,
+  Divider,
+  Grid,
+  IconButton,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
+} from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import ParentSize from '@visx/responsive/lib/components/ParentSizeModern';
 import * as React from 'react';
+import { ActionPaper } from '../components/base/action-paper.component';
 import { CircularProgress } from '../components/base/progress.component';
 import Card from '../components/card.component';
 import { CategoryBudget } from '../components/category-budget.component';
@@ -26,7 +37,12 @@ import { TransactionService } from '../services/transaction.service';
 import { IExpense, IIncome } from '../types/transaction.interface';
 import { getFirstDayOfMonth } from '../utils/getFirstDayOfMonth';
 
-export type ChartContent = 'INCOME' | 'SPENDINGS';
+export type ChartContentType = 'INCOME' | 'SPENDINGS';
+
+export const ChartContentTypes = [
+  { type: 'INCOME' as ChartContentType, label: 'Income' },
+  { type: 'SPENDIGNS' as ChartContentType, label: 'Spendings' },
+];
 
 export const Budget = () => {
   const screenSize = useScreenSize();
@@ -34,7 +50,7 @@ export const Budget = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, transactions, subscriptions, budget, setBudget } =
     React.useContext(StoreContext);
-  const [chart, setChart] = React.useState<ChartContent>('INCOME');
+  const [chart, setChart] = React.useState<ChartContentType>('INCOME');
   const [dateRange, setDateRange] = React.useState({ from: getFirstDayOfMonth(), to: new Date() });
   const [dailyIncome, setDailyIncome] = React.useState<IDailyTransaction[]>([]);
   const [income, setIncome] = React.useState<IIncome[]>([]);
@@ -167,24 +183,21 @@ export const Budget = () => {
             </Box>
 
             <Card.HeaderActions>
-              {[
-                { type: 'INCOME', label: 'Income' },
-                { type: 'SPENDIGNS', label: 'Spendings' },
-              ].map((btn) => (
-                <Button
-                  key={btn.type}
-                  sx={{
-                    color: (theme) => theme.palette.text.primary,
-                    px: 1,
-                    minWidth: 'unset',
-                    backgroundColor: (theme) =>
-                      chart === btn.type ? theme.palette.action.focus : 'unset',
-                  }}
-                  onClick={() => setChart(btn.type as ChartContent)}
+              <ActionPaper>
+                <ToggleButtonGroup
+                  size="small"
+                  color="primary"
+                  value={chart}
+                  onChange={(event: React.BaseSyntheticEvent) =>
+                    setChart(event.target.value as ChartContentType)
+                  }
+                  exclusive
                 >
-                  {btn.label}
-                </Button>
-              ))}
+                  {ChartContentTypes.map((button) => (
+                    <ToggleButton value={button.type}>{button.label}</ToggleButton>
+                  ))}
+                </ToggleButtonGroup>
+              </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
           <Card.Header>
@@ -313,11 +326,13 @@ export const Budget = () => {
               <Card.Title>Category Budgets</Card.Title>
             </Box>
             <Card.HeaderActions>
-              <Tooltip title="Set Budget">
-                <IconButton onClick={() => setShowAddBudgetForm(true)}>
-                  <AddIcon />
-                </IconButton>
-              </Tooltip>
+              <ActionPaper>
+                <Tooltip title="Set Budget">
+                  <IconButton color="primary" onClick={() => setShowAddBudgetForm(true)}>
+                    <AddIcon />
+                  </IconButton>
+                </Tooltip>
+              </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
@@ -327,10 +342,12 @@ export const Budget = () => {
               budget.map((item) => (
                 <Box
                   key={item.id}
-                  display="flex"
-                  flexDirection="row"
-                  alignItems="center"
-                  justifyContent="center"
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
                 >
                   <Box sx={{ flex: 1, mr: 2 }}>
                     <CategoryBudget

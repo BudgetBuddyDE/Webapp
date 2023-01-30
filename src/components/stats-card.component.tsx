@@ -19,7 +19,8 @@ export const StatsIconStyle: SxProps<Theme> = {
   bottom: '-1rem',
   left: '.5rem',
   fontSize: '5.5rem',
-  opacity: 0.1,
+  opacity: 0.25,
+  color: (theme) => theme.palette.primary.main,
 };
 
 export const Stats: FC<IStatsProps> = ({

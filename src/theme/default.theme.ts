@@ -2,18 +2,6 @@ import createTheme from '@mui/material/styles/createTheme';
 
 export const drawerWidth = 280;
 
-// export const theme = createTheme({
-//   palette: {
-//     mode: localStorage.getItem('bb.web.dark') === 'true' ? 'dark' : 'light',
-//     primary: {
-//       main: '#28a745',
-//     },
-//   },
-//   shape: {
-//     borderRadius: 8,
-//   },
-// });
-
 export const theme = createTheme({
   breakpoints: {
     keys: ['xs', 'sm', 'md', 'lg', 'xl'],
@@ -155,6 +143,34 @@ export const theme = createTheme({
     borderRadius: 10,
   },
   unstable_strictMode: true,
+  components: {
+    MuiToggleButtonGroup: {
+      styleOverrides: {
+        root: {
+          '& .MuiToggleButtonGroup-grouped': {
+            margin: '.25rem',
+            border: 0,
+            '&.Mui-disabled': {
+              border: 0,
+            },
+            '&:not(:first-of-type)': {
+              borderRadius: 10,
+            },
+            '&:first-of-type': {
+              borderRadius: 10,
+            },
+          },
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 10,
+        },
+      },
+    },
+  },
   typography: {
     fontFamily:
       '"Source Sans Pro","IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',

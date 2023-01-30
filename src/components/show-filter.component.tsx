@@ -7,7 +7,7 @@ export const ShowFilterButton = () => {
   const { setShowFilter } = useContext(StoreContext);
   return (
     <Tooltip title="Apply filters">
-      <IconButton aria-label="apply-filters" onClick={() => setShowFilter(true)}>
+      <IconButton aria-label="apply-filters" color="primary" onClick={() => setShowFilter(true)}>
         <TuneIcon fontSize="inherit" />
       </IconButton>
     </Tooltip>

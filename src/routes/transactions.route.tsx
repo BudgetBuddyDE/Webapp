@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { format } from 'date-fns';
 import * as React from 'react';
+import { ActionPaper } from '../components/base/action-paper.component';
 import { Linkify } from '../components/base/linkify.component';
 import { CircularProgress } from '../components/base/progress.component';
 import Card from '../components/card.component';
@@ -92,13 +93,15 @@ export const Transactions = () => {
               <Card.Subtitle>Manage your transactions</Card.Subtitle>
             </Box>
             <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 } }}>
-              <ShowFilterButton />
-              <SearchInput onSearch={handleOnSearch} />
-              <Tooltip title="Add Transaction">
-                <IconButton aria-label="add-transactions" onClick={() => setShowAddForm(true)}>
-                  <AddIcon fontSize="inherit" />
-                </IconButton>
-              </Tooltip>
+              <ActionPaper sx={{ display: 'flex', flexDirection: 'row' }}>
+                <ShowFilterButton />
+                <SearchInput onSearch={handleOnSearch} />
+                <Tooltip title="Add Transaction">
+                  <IconButton color="primary" onClick={() => setShowAddForm(true)}>
+                    <AddIcon fontSize="inherit" />
+                  </IconButton>
+                </Tooltip>
+              </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
           {loading ? (
@@ -163,16 +166,21 @@ export const Transactions = () => {
                               <Linkify>{row.description ?? 'No information'}</Linkify>
                             </TableCell>
                             <TableCell align="right">
-                              <Tooltip title="Edit" placement="top">
-                                <IconButton onClick={() => setEditTransaction(row)}>
-                                  <EditIcon />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Delete" placement="top">
-                                <IconButton onClick={() => handleDelete(row)}>
-                                  <DeleteIcon />
-                                </IconButton>
-                              </Tooltip>
+                              <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
+                                <Tooltip title="Edit" placement="top">
+                                  <IconButton
+                                    color="primary"
+                                    onClick={() => setEditTransaction(row)}
+                                  >
+                                    <EditIcon />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Delete" placement="top">
+                                  <IconButton color="primary" onClick={() => handleDelete(row)}>
+                                    <DeleteIcon />
+                                  </IconButton>
+                                </Tooltip>
+                              </ActionPaper>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -181,15 +189,17 @@ export const Transactions = () => {
                 </TableContainer>
               </Card.Body>
               <Card.Footer>
-                <TablePagination
-                  component="div"
-                  count={shownTransactions.length}
-                  page={page}
-                  onPageChange={handlePageChange}
-                  labelRowsPerPage="Rows:"
-                  rowsPerPage={rowsPerPage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                />
+                <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
+                  <TablePagination
+                    component="div"
+                    count={shownTransactions.length}
+                    page={page}
+                    onPageChange={handlePageChange}
+                    labelRowsPerPage="Rows:"
+                    rowsPerPage={rowsPerPage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                  />
+                </ActionPaper>
               </Card.Footer>
             </>
           ) : (

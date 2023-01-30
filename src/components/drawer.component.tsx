@@ -6,6 +6,7 @@ import {
 import {
   Box,
   Button,
+  Chip,
   Divider,
   Fab,
   IconButton,
@@ -213,7 +214,7 @@ const Profile: React.FC<{ open: boolean }> = ({ open }) => {
             <Typography fontWeight="bold">
               {session && session.user && session.user.user_metadata.username}
             </Typography>
-            <Typography>Basic</Typography>
+            <Chip label="Basic" variant="outlined" size="small" />
           </Box>
         </Box>
         <Button

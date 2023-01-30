@@ -1,19 +1,26 @@
+import { Add as AddIcon, Schedule as ScheduleIcon } from '@mui/icons-material';
 import {
-  Add as AddIcon,
-  Balance as BalanceIcon,
-  Payments as PaymentsIcon,
-  Schedule as ScheduleIcon,
-} from '@mui/icons-material';
-import { Box, Button, Grid, IconButton, Tooltip } from '@mui/material';
+  Box,
+  Button,
+  ButtonGroup,
+  Grid,
+  IconButton,
+  Paper,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
+  styled,
+} from '@mui/material';
 import { isSameMonth } from 'date-fns/esm';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import React from 'react';
+import { ActionPaper } from '../components/base/action-paper.component';
+import { CircularProgress } from '../components/base/progress.component';
 import Card from '../components/card.component';
-import { PieChart } from '../components/charts/spendings-chart.component';
+import { PieChart, SpendingChartType } from '../components/charts/spendings-chart.component';
 import { CreateSubscription } from '../components/create-forms/create-subscription.component';
 import { CreateTransaction } from '../components/create-forms/create-transaction.component';
 import { NoResults } from '../components/no-results.component';
 import { PageHeader } from '../components/page-header.component';
-import { CircularProgress } from '../components/base/progress.component';
 import { IStatsProps, Stats, StatsIconStyle } from '../components/stats-card.component';
 import { Transaction } from '../components/transaction.component';
 import { AuthContext } from '../context/auth.context';
@@ -23,7 +30,6 @@ import { DateService } from '../services/date.service';
 import { ExpenseService } from '../services/expense.service';
 import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
-import { supabase } from '../supabase';
 import { IMonthlyBalanceAvg } from '../types/budget.type';
 import type { IExpense } from '../types/transaction.interface';
 import { IExpenseTransactionDTO } from '../types/transaction.type';
@@ -37,29 +43,36 @@ import { addTransactionToExpenses } from '../utils/transaction/addTransactionToE
 export const MONTH_BACKLOG = 6;
 
 export const Dashboard = () => {
-  const { session } = useContext(AuthContext);
-  const { loading, setLoading, subscriptions, transactions } = useContext(StoreContext);
-  const [chart, setChart] = useState<'MONTH' | 'ALL'>('MONTH');
-  const [currentMonthExpenses, setCurrentMonthExpenses] = useState<IExpense[]>([]);
-  const [allTimeExpenses, setAllTimeExpenses] = useState<IExpense[]>([]);
-  const [monthlyAvg, setMonthlyAvg] = useState<IMonthlyBalanceAvg | null>(null);
-  const [showAddTransactionForm, setShowAddTransactionForm] = useState(false);
-  const [showSubscriptionForm, setShowSubscriptionForm] = useState(false);
+  const SPENDING_CHART_TYPES: { type: SpendingChartType; text: string }[] = [
+    {
+      type: 'MONTH',
+      text: DateService.shortMonthName() + '.',
+    },
+    { type: 'ALL', text: 'All' },
+  ];
+  const { session } = React.useContext(AuthContext);
+  const { loading, setLoading, subscriptions, transactions } = React.useContext(StoreContext);
+  const [chart, setChart] = React.useState<SpendingChartType>(SPENDING_CHART_TYPES[0].type);
+  const [currentMonthExpenses, setCurrentMonthExpenses] = React.useState<IExpense[]>([]);
+  const [allTimeExpenses, setAllTimeExpenses] = React.useState<IExpense[]>([]);
+  const [monthlyAvg, setMonthlyAvg] = React.useState<IMonthlyBalanceAvg | null>(null);
+  const [showAddTransactionForm, setShowAddTransactionForm] = React.useState(false);
+  const [showSubscriptionForm, setShowSubscriptionForm] = React.useState(false);
 
-  const latestTransactions = useMemo(() => {
+  const latestTransactions = React.useMemo(() => {
     return transactions
       .filter(({ date }) => new Date(new Date(date).toDateString()) <= new Date())
       .slice(0, 6);
   }, [transactions]);
 
-  const latestSubscriptions = useMemo(() => {
+  const latestSubscriptions = React.useMemo(() => {
     return subscriptions.slice(0, 6);
   }, [subscriptions]);
 
   const StatsCards: IStatsProps[] = [
     {
       // TODO: Create test to verify the result
-      title: useMemo(() => {
+      title: React.useMemo(() => {
         return formatBalance(SubscriptionService.getPlannedSpendings(subscriptions));
       }, [subscriptions, transactions]),
       subtitle: 'Planned expenses',
@@ -68,7 +81,7 @@ export const Dashboard = () => {
     },
     {
       // TODO: Create test to verify the result
-      title: useMemo(() => {
+      title: React.useMemo(() => {
         return formatBalance(
           SubscriptionService.getUpcomingSpendings(subscriptions) +
             TransactionService.getUpcomingSpendings(transactions)
@@ -80,7 +93,7 @@ export const Dashboard = () => {
     },
     {
       // TODO: Create test to verify the result
-      title: useMemo(() => {
+      title: React.useMemo(() => {
         return formatBalance(TransactionService.getReceivedEarnings(transactions));
       }, [transactions]),
       subtitle: 'Received earnings',
@@ -89,7 +102,7 @@ export const Dashboard = () => {
     },
     {
       // TODO: Create test to verify the result
-      title: useMemo(() => {
+      title: React.useMemo(() => {
         return formatBalance(
           SubscriptionService.getUpcomingEarnings(subscriptions) +
             TransactionService.getUpcomingEarnings(transactions)
@@ -101,7 +114,7 @@ export const Dashboard = () => {
     },
     {
       // TODO: Create test to verify the result
-      title: useMemo(() => {
+      title: React.useMemo(() => {
         return formatBalance(monthlyAvg ? monthlyAvg.avg : 0);
       }, [monthlyAvg]),
       subtitle: 'Estimated balance',
@@ -110,7 +123,7 @@ export const Dashboard = () => {
     },
     {
       // TODO: Create test to verify the result
-      title: useMemo(() => {
+      title: React.useMemo(() => {
         return formatBalance(
           TransactionService.getReceivedEarnings(transactions) -
             TransactionService.getPaidSpendings(transactions)
@@ -122,7 +135,7 @@ export const Dashboard = () => {
     },
   ];
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!session || !session.user) return;
     setLoading(true);
     Promise.all([
@@ -178,14 +191,13 @@ export const Dashboard = () => {
               <Card.Subtitle>Your upcoming subscriptions</Card.Subtitle>
             </div>
             <Card.HeaderActions>
-              <Tooltip title="Add Subscription">
-                <IconButton
-                  aria-label="add-subscription"
-                  onClick={() => setShowSubscriptionForm(true)}
-                >
-                  <AddIcon fontSize="inherit" />
-                </IconButton>
-              </Tooltip>
+              <ActionPaper>
+                <Tooltip title="Add Subscription">
+                  <IconButton onClick={() => setShowSubscriptionForm(true)} color="primary">
+                    <AddIcon fontSize="inherit" />
+                  </IconButton>
+                </Tooltip>
+              </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
@@ -216,30 +228,19 @@ export const Dashboard = () => {
               <Card.Subtitle>Categorized Spendings</Card.Subtitle>
             </div>
             <Card.HeaderActions>
-              {[
-                {
-                  type: 'MONTH',
-                  text: DateService.shortMonthName() + '.',
-                  tooltip: DateService.getMonthFromDate(),
-                  onClick: () => setChart('MONTH'),
-                },
-                { type: 'ALL', text: 'All', tooltip: 'All-Time', onClick: () => setChart('ALL') },
-              ].map((button) => (
-                <Tooltip key={button.text} title={button.tooltip}>
-                  <Button
-                    sx={{
-                      color: (theme) => theme.palette.text.primary,
-                      px: 1,
-                      minWidth: 'unset',
-                      backgroundColor: (theme) =>
-                        chart === button.type ? theme.palette.action.focus : 'unset',
-                    }}
-                    onClick={button.onClick}
-                  >
-                    {button.text}
-                  </Button>
-                </Tooltip>
-              ))}
+              <ActionPaper>
+                <ToggleButtonGroup
+                  size="small"
+                  color="primary"
+                  value={chart}
+                  onChange={(event: React.BaseSyntheticEvent) => setChart(event.target.value)}
+                  exclusive
+                >
+                  {SPENDING_CHART_TYPES.map((button) => (
+                    <ToggleButton value={button.type}>{button.text}</ToggleButton>
+                  ))}
+                </ToggleButtonGroup>
+              </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
@@ -266,14 +267,13 @@ export const Dashboard = () => {
               <Card.Subtitle>Your latest transactions</Card.Subtitle>
             </div>
             <Card.HeaderActions>
-              <Tooltip title="Add Transaction">
-                <IconButton
-                  aria-label="add-transaction"
-                  onClick={() => setShowAddTransactionForm(true)}
-                >
-                  <AddIcon fontSize="inherit" />
-                </IconButton>
-              </Tooltip>
+              <ActionPaper>
+                <Tooltip title="Add Transaction">
+                  <IconButton onClick={() => setShowAddTransactionForm(true)} color="primary">
+                    <AddIcon fontSize="inherit" />
+                  </IconButton>
+                </Tooltip>
+              </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
