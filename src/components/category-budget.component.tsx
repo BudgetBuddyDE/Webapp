@@ -5,6 +5,7 @@ import {
 } from '@mui/icons-material';
 import { Box, Tooltip, Typography } from '@mui/material';
 import { FC } from 'react';
+import { Icon } from './base/icon.component';
 
 export interface ICategoryBudgetProps {
   title: string;
@@ -31,20 +32,7 @@ export const CategoryBudget: FC<ICategoryBudgetProps> = ({
         mt: '1rem',
       }}
     >
-      <Box
-        sx={{
-          mr: '0.5rem',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          aspectRatio: '1/1',
-          height: '2.75rem',
-          backgroundColor: (theme) => theme.palette.action.disabledBackground,
-          borderRadius: (theme) => `${theme.shape.borderRadius}px`,
-        }}
-      >
-        {icon}
-      </Box>
+      <Icon sx={{ mr: 1 }} icon={icon} />
       <Box
         sx={{
           mr: '0.5rem',

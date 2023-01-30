@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import format from 'date-fns/format';
 import { FC } from 'react';
+import { Icon } from './base/icon.component';
 
 export interface TransactionProps {
   category: string;
@@ -25,23 +26,15 @@ export const Transaction: FC<TransactionProps> = ({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        mt: '1rem',
+        mt: 1,
       }}
     >
+      <Icon icon={icon} sx={{ mr: 1 }} />
       <Box
         sx={{
-          mr: '0.5rem',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          aspectRatio: '1/1',
-          height: '2.75rem',
-          backgroundColor: (theme) => theme.palette.action.disabledBackground,
-          borderRadius: (theme) => `${theme.shape.borderRadius}px`,
+          mr: 0.5,
         }}
       >
-        {icon}
-      </Box>
       <Box
         sx={{
           mr: '0.5rem',
