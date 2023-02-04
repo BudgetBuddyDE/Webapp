@@ -6,12 +6,12 @@ import { useScreenSize, useStateCallback } from '../../hooks';
 
 export type IDateInputProps = TextFieldProps & { sx?: SxProps<Theme> };
 
-export const DateFromInput: FC<IDateInputProps> = (props) => {
+export const DateFromInput: React.FC<IDateInputProps> = (props) => {
   // 1rem is the default gap defined for the container
   return <TextField {...props} sx={{ width: 'calc(50% - 0.5rem)', ...props.sx }} />;
 };
 
-export const DateToInput: FC<IDateInputProps> = (props) => {
+export const DateToInput: React.FC<IDateInputProps> = (props) => {
   // 1rem is the default gap defined for the container
   return <TextField {...props} sx={{ width: 'calc(50% - 0.5rem)', ...props.sx }} />;
 };
