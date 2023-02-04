@@ -4,7 +4,7 @@ import {
 } from '@mui/icons-material';
 import { Box, SxProps, Theme, Tooltip, Typography } from '@mui/material';
 import { FC } from 'react';
-import Card from '../components/card.component';
+import { Card } from '../components';
 
 export interface IStatsProps {
   title: string;

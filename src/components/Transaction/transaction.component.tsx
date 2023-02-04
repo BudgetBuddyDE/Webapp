@@ -1,10 +1,8 @@
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import { Chip } from '@mui/material';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import { Receipt as ReceiptIcon } from '@mui/icons-material';
+import { Box, Chip, Typography } from '@mui/material';
 import format from 'date-fns/format';
-import { FC } from 'react';
-import { Icon } from './base/icon.component';
+import React from 'react';
+import { Icon } from '../Base/icon.component';
 
 export interface TransactionProps {
   category: string;
@@ -14,7 +12,7 @@ export interface TransactionProps {
   icon?: JSX.Element;
 }
 
-export const Transaction: FC<TransactionProps> = ({
+export const Transaction: React.FC<TransactionProps> = ({
   icon = <ReceiptIcon />,
   category,
   receiver,

@@ -54,7 +54,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
         .catch((error) => console.error(error))
         .finally(() => setLoading(false));
     }
-  }, [session?.user?.id]);
+  }, [session]);
 
   const transactionReceiver = React.useMemo(
     () =>

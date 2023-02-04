@@ -1,41 +1,32 @@
 import { Add as AddIcon, Schedule as ScheduleIcon } from '@mui/icons-material';
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Grid,
-  IconButton,
-  Paper,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
-  styled,
-} from '@mui/material';
+import { Box, Grid, IconButton, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
 import { isSameMonth } from 'date-fns/esm';
 import React from 'react';
-import { ActionPaper } from '../components/base/action-paper.component';
-import { CircularProgress } from '../components/base/progress.component';
+import {
+  ActionPaper,
+  CircularProgress,
+  CreateSubscription,
+  CreateTransaction,
+  IStatsProps,
+  NoResults,
+  PageHeader,
+  PieChart,
+  SpendingChartType,
+  Stats,
+  StatsIconStyle,
+  Transaction,
+} from '../components';
 import Card from '../components/card.component';
-import { PieChart, SpendingChartType } from '../components/charts/spendings-chart.component';
-import { CreateSubscription } from '../components/create-forms/create-subscription.component';
-import { CreateTransaction } from '../components/create-forms/create-transaction.component';
-import { NoResults } from '../components/no-results.component';
-import { PageHeader } from '../components/page-header.component';
-import { IStatsProps, Stats, StatsIconStyle } from '../components/stats-card.component';
-import { Transaction } from '../components/transaction.component';
-import { AuthContext } from '../context/auth.context';
-import { StoreContext } from '../context/store.context';
-import { BudgetService } from '../services/budget.service';
-import { DateService } from '../services/date.service';
-import { ExpenseService } from '../services/expense.service';
-import { SubscriptionService } from '../services/subscription.service';
-import { TransactionService } from '../services/transaction.service';
-import { IMonthlyBalanceAvg } from '../types/budget.type';
-import type { IExpense } from '../types/transaction.interface';
-import { IExpenseTransactionDTO } from '../types/transaction.type';
-import { determineNextExecution } from '../utils/determineNextExecution';
-import { formatBalance } from '../utils/formatBalance';
-import { addTransactionToExpenses } from '../utils/transaction/addTransactionToExpenses';
+import { AuthContext, StoreContext } from '../context';
+import {
+  BudgetService,
+  DateService,
+  ExpenseService,
+  SubscriptionService,
+  TransactionService,
+} from '../services';
+import type { IExpense, IExpenseTransactionDTO, IMonthlyBalanceAvg } from '../types';
+import { addTransactionToExpenses, determineNextExecution, formatBalance } from '../utils';
 
 /**
  * How many months do we wanna look back?
@@ -158,7 +149,7 @@ export const Dashboard = () => {
       })
       .catch((error) => console.error(error))
       .finally(() => setLoading(false));
-  }, [session]);
+  }, [session, transactions]);
 
   return (
     <Grid container spacing={3}>
@@ -223,10 +214,10 @@ export const Dashboard = () => {
       <Grid item xs={12} md={6} lg={4} order={{ xs: 1, md: 2 }}>
         <Card>
           <Card.Header>
-            <div>
+            <Box>
               <Card.Title>Spendings</Card.Title>
               <Card.Subtitle>Categorized Spendings</Card.Subtitle>
-            </div>
+            </Box>
             <Card.HeaderActions>
               <ActionPaper>
                 <ToggleButtonGroup
@@ -237,7 +228,9 @@ export const Dashboard = () => {
                   exclusive
                 >
                   {SPENDING_CHART_TYPES.map((button) => (
-                    <ToggleButton value={button.type}>{button.text}</ToggleButton>
+                    <ToggleButton key={button.type} value={button.type}>
+                      {button.text}
+                    </ToggleButton>
                   ))}
                 </ToggleButtonGroup>
               </ActionPaper>
@@ -262,10 +255,10 @@ export const Dashboard = () => {
       <Grid item xs={12} md={6} lg={4} order={{ xs: 2, md: 3 }}>
         <Card>
           <Card.Header>
-            <div>
+            <Box>
               <Card.Title>Transactions</Card.Title>
               <Card.Subtitle>Your latest transactions</Card.Subtitle>
-            </div>
+            </Box>
             <Card.HeaderActions>
               <ActionPaper>
                 <Tooltip title="Add Transaction">

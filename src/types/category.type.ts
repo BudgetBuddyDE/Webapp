@@ -1,4 +1,4 @@
-import type { uuid } from './profile.interface';
+import type { uuid } from '../types';
 
 /**
  * Object like it's stored in our database

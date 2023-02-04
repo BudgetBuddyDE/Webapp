@@ -15,23 +15,25 @@ import {
   Typography,
 } from '@mui/material';
 import { format } from 'date-fns';
-import * as React from 'react';
-import { ActionPaper } from '../components/base/action-paper.component';
-import { Linkify } from '../components/base/linkify.component';
-import { CircularProgress } from '../components/base/progress.component';
+import React from 'react';
+import {
+  ActionPaper,
+  CategoryChip,
+  CircularProgress,
+  CreateTransaction,
+  EditTransaction,
+  Linkify,
+  NoResults,
+  PageHeader,
+  PaymentMethodChip,
+  SearchInput,
+  ShowFilterButton,
+} from '../components';
 import Card from '../components/card.component';
-import { CategoryChip, PaymentMethodChip } from '../components/chip.component';
-import { CreateTransaction } from '../components/create-forms/create-transaction.component';
-import { EditTransaction } from '../components/edit-forms/edit-transaction.component';
-import { SearchInput } from '../components/inputs/search-input.component';
-import { NoResults } from '../components/no-results.component';
-import { PageHeader } from '../components/page-header.component';
-import { ShowFilterButton } from '../components/show-filter.component';
-import { SnackbarContext } from '../context/snackbar.context';
-import { StoreContext } from '../context/store.context';
-import { useStateCallback } from '../hooks/useStateCallback.hook';
-import { Transaction } from '../models/transaction.model';
-import { filterTransactions } from '../utils/filter';
+import { SnackbarContext, StoreContext } from '../context';
+import { useStateCallback } from '../hooks';
+import { Transaction } from '../models';
+import { filterTransactions } from '../utils';
 
 export const Transactions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
@@ -75,11 +77,11 @@ export const Transactions = () => {
     }
   };
 
-  React.useEffect(() => setShownTransactions(transactions), [transactions]);
+  React.useEffect(() => setShownTransactions(transactions), [transactions, setShownTransactions]);
 
   React.useEffect(() => {
     setShownTransactions(filterTransactions(keyword, filter, transactions));
-  }, [keyword, filter, transactions]);
+  }, [keyword, filter, transactions, setShownTransactions]);
 
   return (
     <Grid container spacing={3}>

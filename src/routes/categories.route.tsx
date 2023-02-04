@@ -14,19 +14,20 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import * as React from 'react';
-import { ActionPaper } from '../components/base/action-paper.component';
-import { Linkify } from '../components/base/linkify.component';
-import { CircularProgress } from '../components/base/progress.component';
+import React from 'react';
+import {
+  ActionPaper,
+  CircularProgress,
+  CreateCategory,
+  EditCategory,
+  Linkify,
+  NoResults,
+  PageHeader,
+  SearchInput,
+} from '../components';
 import Card from '../components/card.component';
-import { CreateCategory } from '../components/create-forms/create-category.component';
-import { EditCategory } from '../components/edit-forms/edit-category.component';
-import { SearchInput } from '../components/inputs/search-input.component';
-import { NoResults } from '../components/no-results.component';
-import { PageHeader } from '../components/page-header.component';
-import { SnackbarContext } from '../context/snackbar.context';
-import { StoreContext } from '../context/store.context';
-import { Category } from '../models/category.model';
+import { SnackbarContext, StoreContext } from '../context';
+import { Category } from '../models';
 
 export const Categories = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);

@@ -8,6 +8,7 @@ export const ActionPaper: React.FC<React.PropsWithChildren<PaperProps>> = (props
     {...props}
     sx={{
       boxShadow: 'none',
+      border: 'none',
       ...props.sx,
     }}
   >

@@ -1,4 +1,3 @@
-import { isConstructorDeclaration } from 'typescript';
 import type { TExportType } from '../components/user-profile.component';
 import { BaseBudget, Budget } from '../models/budget.model';
 import { supabase } from '../supabase';

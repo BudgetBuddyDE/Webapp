@@ -9,12 +9,10 @@ import {
   TextField,
 } from '@mui/material';
 import React from 'react';
+import { PageHeader, UserProfile } from '../components';
 import Card from '../components/card.component';
-import { PageHeader } from '../components/page-header.component';
-import { UserProfile } from '../components/user-profile.component';
-import { AuthContext } from '../context/auth.context';
-import { SnackbarContext } from '../context/snackbar.context';
-import { FeedbackService } from '../services/feedback.service';
+import { AuthContext, SnackbarContext } from '../context';
+import { FeedbackService } from '../services';
 
 export const Settings = () => {
   const { session } = React.useContext(AuthContext);

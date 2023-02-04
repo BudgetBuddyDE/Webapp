@@ -1,25 +1,20 @@
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Grid';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import { ChangeEvent, FormEvent, useContext, useState } from 'react';
+import { Box, Button, Divider, Grid, TextField, Typography } from '@mui/material';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../components/card.component';
-import { SnackbarContext } from '../context/snackbar.context';
+import { SnackbarContext } from '../context';
 import { supabase } from '../supabase';
 
 export const RequestReset = () => {
   const navigate = useNavigate();
-  const { showSnackbar } = useContext(SnackbarContext);
-  const [form, setForm] = useState<Record<string, string>>({});
+  const { showSnackbar } = React.useContext(SnackbarContext);
+  const [form, setForm] = React.useState<Record<string, string>>({});
 
   const formHandler = {
-    inputChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    formSubmit: async (event: FormEvent<HTMLFormElement>) => {
+    formSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
       try {

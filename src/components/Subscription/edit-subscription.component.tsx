@@ -22,17 +22,17 @@ import { getCategoryFromList } from '../../utils/getCategoryFromList';
 import { getPaymentMethodFromList } from '../../utils/getPaymentMethodFromList';
 import { sortSubscriptionsByExecution } from '../../utils/subscription/sortSubscriptions';
 import { transformBalance } from '../../utils/transformBalance';
-import { FormDrawer } from '../base/form-drawer.component';
-import { ReceiverAutocomplete } from '../inputs/receiver-autocomplete.component';
+import { FormDrawer } from '../Base/form-drawer.component';
+import { ReceiverAutocomplete } from '../Inputs/receiver-autocomplete.component';
 
-export interface IEditTransactionProps {
+export interface IEditSubscriptionProps {
   open: boolean;
   setOpen: (show: boolean) => void;
   afterSubmit?: (subscription: Subscription) => void;
   subscription: Subscription | null;
 }
 
-export const EditSubscription: React.FC<IEditTransactionProps> = ({
+export const EditSubscription: React.FC<IEditSubscriptionProps> = ({
   open,
   setOpen,
   afterSubmit,

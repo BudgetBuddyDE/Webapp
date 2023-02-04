@@ -170,6 +170,14 @@ export const theme = createTheme({
         },
       },
     },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          boxShadow: 'none',
+          border: '1px solid rgba(194, 224, 255, 0.08)',
+        },
+      },
+    },
   },
   typography: {
     fontFamily:

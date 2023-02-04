@@ -17,7 +17,7 @@ import { Budget } from '../../models/budget.model';
 import { BudgetService } from '../../services/budget.service';
 import { IBaseBudget } from '../../types/budget.type';
 import { transformBalance } from '../../utils/transformBalance';
-import { FormDrawer } from '../base/form-drawer.component';
+import { FormDrawer } from '../Base/form-drawer.component';
 
 export interface ICreateBudgetProps {
   open: boolean;

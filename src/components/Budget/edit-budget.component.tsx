@@ -12,7 +12,7 @@ import { StoreContext } from '../../context/store.context';
 import { Budget } from '../../models/budget.model';
 import { IBaseBudget } from '../../types/budget.type';
 import { transformBalance } from '../../utils/transformBalance';
-import { FormDrawer } from '../base/form-drawer.component';
+import { FormDrawer } from '../Base/form-drawer.component';
 
 export interface IEditBudgetProps {
   open: boolean;

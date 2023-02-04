@@ -14,23 +14,24 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import * as React from 'react';
-import { ActionPaper } from '../components/base/action-paper.component';
-import { Linkify } from '../components/base/linkify.component';
-import { CircularProgress } from '../components/base/progress.component';
+import React from 'react';
+import {
+  ActionPaper,
+  CategoryChip,
+  CircularProgress,
+  CreateSubscription,
+  EditSubscription,
+  Linkify,
+  NoResults,
+  PageHeader,
+  PaymentMethodChip,
+  SearchInput,
+  ShowFilterButton,
+} from '../components';
 import Card from '../components/card.component';
-import { CategoryChip, PaymentMethodChip } from '../components/chip.component';
-import { CreateSubscription } from '../components/create-forms/create-subscription.component';
-import { EditSubscription } from '../components/edit-forms/edit-subscription.component';
-import { SearchInput } from '../components/inputs/search-input.component';
-import { NoResults } from '../components/no-results.component';
-import { PageHeader } from '../components/page-header.component';
-import { ShowFilterButton } from '../components/show-filter.component';
-import { SnackbarContext } from '../context/snackbar.context';
-import { StoreContext } from '../context/store.context';
-import { Subscription } from '../models/subscription.model';
-import { determineNextExecution } from '../utils/determineNextExecution';
-import { filterSubscriptions } from '../utils/filter';
+import { SnackbarContext, StoreContext } from '../context';
+import { Subscription } from '../models';
+import { determineNextExecution, filterSubscriptions } from '../utils';
 
 export const Subscriptions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
@@ -106,7 +107,7 @@ export const Subscriptions = () => {
           {loading ? (
             <CircularProgress />
           ) : subscriptions.length > 0 ? (
-            <>
+            <React.Fragment>
               <Card.Body>
                 <TableContainer>
                   <Table sx={{ minWidth: 650 }} aria-label="Subscriptions Table">
@@ -161,7 +162,7 @@ export const Subscriptions = () => {
                               <PaymentMethodChip paymentMethod={row.paymentMethods} />
                             </TableCell>
                             <TableCell>
-                              <Linkify>{row.description ?? 'No Information'}</Linkify>
+                              <Linkify>{row.description || 'No Information'}</Linkify>
                             </TableCell>
                             <TableCell align="right">
                               <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
@@ -199,7 +200,7 @@ export const Subscriptions = () => {
                   />
                 </ActionPaper>
               </Card.Footer>
-            </>
+            </React.Fragment>
           ) : (
             <NoResults sx={{ mt: 2 }} text="No subscriptions found" />
           )}

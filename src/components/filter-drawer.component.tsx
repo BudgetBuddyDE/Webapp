@@ -14,8 +14,8 @@ import { ChangeEvent, FC, FormEvent, useContext, useState } from 'react';
 import { StoreContext } from '../context/store.context';
 import type { IFilter } from '../types/filter.interface';
 import { getLastDayOfMonth } from '../utils/getLastDayOfMonth';
-import { FormDrawer } from './base/form-drawer.component';
-import { DateRange, IDateRange } from './inputs/date-range.component';
+import { FormDrawer } from './Base/form-drawer.component';
+import { DateRange, IDateRange } from './Inputs/date-range.component';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;

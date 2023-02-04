@@ -2,9 +2,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './App';
-import { AuthProvider } from './context/auth.context';
-import { SnackbarProvider } from './context/snackbar.context';
-import { StoreProvider } from './context/store.context';
+import { AuthProvider, SnackbarProvider, StoreProvider } from './context';
 import reportWebVitals from './reportWebVitals';
 import { theme } from './theme/default.theme';
 

@@ -16,21 +16,22 @@ import { AuthContext } from '../../context/auth.context';
 import { SnackbarContext } from '../../context/snackbar.context';
 import { StoreContext } from '../../context/store.context';
 import { useScreenSize } from '../../hooks/useScreenSize.hook';
-import { Transaction } from '../../models/transaction.model';
-import { TransactionService } from '../../services/transaction.service';
+import { Subscription } from '../../models/subscription.model';
+import { SubscriptionService } from '../../services/subscription.service';
 import { FormStyle } from '../../theme/form-style';
-import type { IBaseTransaction } from '../../types/transaction.type';
+import type { IBaseSubscription } from '../../types/subscription.type';
+import { sortSubscriptionsByExecution } from '../../utils/subscription/sortSubscriptions';
 import { transformBalance } from '../../utils/transformBalance';
-import { FormDrawer } from '../base/form-drawer.component';
-import { ReceiverAutocomplete } from '../inputs/receiver-autocomplete.component';
+import { FormDrawer } from '../Base/form-drawer.component';
+import { ReceiverAutocomplete } from '../Inputs/receiver-autocomplete.component';
 
-export interface ICreateTransactionProps {
+export interface ICreateSubscriptionProps {
   open: boolean;
   setOpen: (show: boolean) => void;
-  afterSubmit?: (transaction: Transaction) => void;
+  afterSubmit?: (subscription: Subscription) => void;
 }
 
-export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
+export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({
   open,
   setOpen,
   afterSubmit,
@@ -38,10 +39,11 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
   const screenSize = useScreenSize();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, transactionReceiver, setTransactions, categories, paymentMethods } =
+  const { loading, transactionReceiver, setSubscriptions, categories, paymentMethods } =
     React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();
-  const [form, setForm] = React.useState<Partial<IBaseTransaction>>({ date: new Date() });
+  const [executionDate, setExecutionDate] = React.useState(new Date());
+  const [form, setForm] = React.useState<Partial<IBaseSubscription>>({});
   const [errorMessage, setErrorMessage] = React.useState('');
 
   const handler = {
@@ -49,7 +51,7 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
       setOpen(false);
     },
     onDateChange: (date: Date | null) => {
-      if (date) setForm((prev) => ({ ...prev, date: date ?? new Date() }));
+      if (date) setExecutionDate(date);
     },
     autocompleteChange: (
       event: React.SyntheticEvent<Element, Event>,
@@ -68,22 +70,22 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
       try {
         event.preventDefault();
         const values = Object.keys(form);
-        ['date', 'category', 'paymentMethod', 'receiver', 'amount'].forEach((field) => {
+        ['category', 'paymentMethod', 'receiver', 'amount'].forEach((field) => {
           if (!values.includes(field)) throw new Error('Provide an ' + field);
         });
 
-        const createdTransactions = await TransactionService.createTransactions([
+        const addedSubscriptions = await SubscriptionService.createSubscriptions([
           {
-            date: form.date,
+            execute_at: executionDate.getDate(),
             category: Number(form.category),
             paymentMethod: Number(form.paymentMethod),
             receiver: String(form.receiver),
             amount: transformBalance(form.amount!.toString()),
-            description: form.description ? String(form.description) : null,
+            description: form.description! ?? '',
             created_by: session!.user!.id,
           },
         ]);
-        if (createdTransactions.length < 1) throw new Error('No transaction created');
+        if (addedSubscriptions.length < 1) throw new Error('No subscription created');
 
         const {
           id,
@@ -92,30 +94,30 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
           receiver,
           description,
           amount,
-          date,
+          execute_at,
           created_by,
           updated_at,
           inserted_at,
-        } = createdTransactions[0];
-        const addedTransaction = new Transaction({
+        } = addedSubscriptions[0];
+        const addedSubscription = new Subscription({
           id: id,
           categories: categories.find((c) => c.id === category)!.categoryView,
           paymentMethods: paymentMethods.find((pm) => pm.id === paymentMethod)!.paymentMethodView,
           receiver: receiver,
           description: description,
           amount: amount,
-          date: date.toString(),
+          execute_at: execute_at,
           created_by: created_by,
-          updated_at: updated_at.toString(),
-          inserted_at: inserted_at.toString(),
+          updated_at: new Date(updated_at),
+          inserted_at: new Date(inserted_at),
         });
-        if (afterSubmit) afterSubmit(addedTransaction);
+        if (afterSubmit) afterSubmit(addedSubscription);
         startTransition(() => {
-          setTransactions((prev) => [addedTransaction, ...prev]);
+          setSubscriptions((prev) => sortSubscriptionsByExecution([addedSubscription, ...prev]));
         });
         handler.onClose();
         showSnackbar({
-          message: 'Transaction added',
+          message: 'Subscription added',
         });
       } catch (error) {
         console.error(error);
@@ -129,7 +131,7 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
   return (
     <FormDrawer
       open={open}
-      heading="Add Transaction"
+      heading="Add Subscription"
       onClose={handler.onClose}
       onSubmit={handler.onSubmit}
       saveLabel="Create"
@@ -141,7 +143,7 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
         </Alert>
       )}
 
-      {categories.length < 1 && (
+      {categories.length === 0 && (
         <Alert severity="info" sx={{ mb: 2 }}>
           <AlertTitle>Info</AlertTitle>
           To be able to create a transaction you have to create a category under{' '}
@@ -149,7 +151,7 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
         </Alert>
       )}
 
-      {paymentMethods.length < 1 && (
+      {paymentMethods.length === 0 && (
         <Alert severity="info" sx={{ mb: 2 }}>
           <AlertTitle>Info</AlertTitle>
           To be able to create a transaction you have to create a payment method under{' '}
@@ -160,17 +162,17 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         {screenSize === 'small' ? (
           <MobileDatePicker
-            label="Date"
-            inputFormat="dd.MM.yy"
-            value={form.date || new Date()}
+            label="Execute at"
+            inputFormat="dd"
+            value={executionDate}
             onChange={handler.onDateChange}
             renderInput={(params) => <TextField sx={FormStyle} {...params} />}
           />
         ) : (
           <DesktopDatePicker
-            label="Date"
-            inputFormat="dd.MM.yy"
-            value={form.date || new Date()}
+            label="Execute at"
+            inputFormat="dd"
+            value={executionDate}
             onChange={handler.onDateChange}
             renderInput={(params) => <TextField sx={FormStyle} {...params} />}
           />

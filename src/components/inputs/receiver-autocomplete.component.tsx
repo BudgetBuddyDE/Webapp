@@ -1,12 +1,12 @@
 import { Autocomplete, SxProps, TextField, Theme, createFilterOptions } from '@mui/material';
-import { FC, useEffect, useState } from 'react';
+import React from 'react';
 
-type TOption = {
+export type TOption = {
   text: string;
   value: string;
 };
 
-type TReceiverAutocompleteProps = {
+export type TReceiverAutocompleteProps = {
   sx?: SxProps<Theme>;
   id?: string;
   label: string;
@@ -21,7 +21,7 @@ const filter = createFilterOptions<TOption>();
  * Docs:
  * - [Material UI reference](https://mui.com/material-ui/react-autocomplete/#creatable)
  */
-export const ReceiverAutocomplete: FC<TReceiverAutocompleteProps> = ({
+export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
   sx,
   id,
   label,
@@ -29,11 +29,11 @@ export const ReceiverAutocomplete: FC<TReceiverAutocompleteProps> = ({
   defaultValue = null,
   onValueChange,
 }) => {
-  const [value, setValue] = useState<TOption | null>(
+  const [value, setValue] = React.useState<TOption | null>(
     defaultValue ? { text: defaultValue, value: defaultValue } : null
   );
 
-  useEffect(() => onValueChange(value?.value || ''), [value]);
+  React.useEffect(() => onValueChange(value?.value || ''), [value, onValueChange]);
 
   return (
     <Autocomplete

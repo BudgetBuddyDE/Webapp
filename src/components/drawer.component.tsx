@@ -11,23 +11,18 @@ import {
   Fab,
   IconButton,
   List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Drawer as MuiDrawer,
-  Tooltip,
   Typography,
 } from '@mui/material';
 import { CSSObject, Theme, styled } from '@mui/material/styles';
-import * as React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { DrawerLinks } from '../constants/drawer-items.constant';
-import { AuthContext } from '../context/auth.context';
-import { StoreContext } from '../context/store.context';
-import { useScreenSize } from '../hooks/useScreenSize.hook';
+import { AuthContext, StoreContext } from '../context';
+import { useScreenSize } from '../hooks';
 import { supabase } from '../supabase';
 import { drawerWidth } from '../theme/default.theme';
+import { DrawerItem } from './Core';
 import { ProfileAvatar } from './profile-avatar.component';
 
 export function getSavedSidebarState() {
@@ -118,52 +113,6 @@ const Header = () => {
         <Hamburger open={showDrawer} />
       </IconButton>
     </DrawerHeader>
-  );
-};
-
-export const DrawerItem: React.FC<{
-  open: boolean;
-  text: string;
-  path: string;
-  icon: JSX.Element;
-  closeOnClick?: boolean;
-}> = ({ open, text, path, icon, closeOnClick = false }) => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { setShowDrawer } = React.useContext(StoreContext);
-  const active = location.pathname === path;
-
-  return (
-    <Tooltip key={text} title={open ? '' : text} placement="right">
-      <ListItem disablePadding sx={{ display: 'block' }}>
-        <ListItemButton
-          sx={{
-            mx: '.5rem',
-            height: 48,
-            minHeight: 48,
-            justifyContent: open ? 'initial' : 'center',
-            px: 2.5,
-            backgroundColor: (theme) => (active ? theme.palette.action.focus : 'transparent'),
-            borderRadius: (theme) => `${theme.shape.borderRadius}px`,
-          }}
-          onClick={() => {
-            navigate(path, { replace: true });
-            if (closeOnClick) setShowDrawer((prev) => !prev);
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              mr: open ? 3 : 'auto',
-              justifyContent: 'center',
-            }}
-          >
-            {icon}
-          </ListItemIcon>
-          <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-        </ListItemButton>
-      </ListItem>
-    </Tooltip>
   );
 };
 

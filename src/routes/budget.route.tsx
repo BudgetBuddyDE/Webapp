@@ -1,4 +1,4 @@
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Add as AddIcon } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -13,29 +13,34 @@ import {
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import ParentSize from '@visx/responsive/lib/components/ParentSizeModern';
-import * as React from 'react';
-import { ActionPaper } from '../components/base/action-paper.component';
-import { CircularProgress } from '../components/base/progress.component';
-import Card from '../components/card.component';
-import { CategoryBudget } from '../components/category-budget.component';
-import AreaChart, { IDailyTransaction } from '../components/charts/area-chart.component';
-import { CreateBudget } from '../components/create-forms/create-budget.component';
-import { EditBudget } from '../components/edit-forms/edit-budget.component';
-import { NoResults } from '../components/no-results.component';
-import { PageHeader } from '../components/page-header.component';
-import { IStatsProps, Stats } from '../components/stats-card.component';
-import { Transaction } from '../components/transaction.component';
-import { AuthContext } from '../context/auth.context';
-import { SnackbarContext } from '../context/snackbar.context';
-import { StoreContext } from '../context/store.context';
-import { useScreenSize } from '../hooks/useScreenSize.hook';
-import { Budget as BudgetModel } from '../models/budget.model';
-import { ExpenseService } from '../services/expense.service';
-import { IncomeService } from '../services/income.service';
-import { SubscriptionService } from '../services/subscription.service';
-import { TransactionService } from '../services/transaction.service';
-import { IExpense, IIncome } from '../types/transaction.interface';
-import { getFirstDayOfMonth } from '../utils/getFirstDayOfMonth';
+import React from 'react';
+import {
+  ActionPaper,
+  AreaChart,
+  Card,
+  CategoryBudget,
+  CategoryBudgetProps,
+  CircularProgress,
+  CreateBudget,
+  EditBudget,
+  IDailyTransaction,
+  IStatsProps,
+  NoResults,
+  PageHeader,
+  Stats,
+  Transaction,
+} from '../components';
+import { AuthContext, SnackbarContext, StoreContext } from '../context';
+import { useScreenSize } from '../hooks';
+import { Budget as BudgetModel } from '../models';
+import {
+  ExpenseService,
+  IncomeService,
+  SubscriptionService,
+  TransactionService,
+} from '../services';
+import type { IExpense, IIncome } from '../types';
+import { getFirstDayOfMonth } from '../utils';
 
 export type ChartContentType = 'INCOME' | 'SPENDINGS';
 
@@ -60,23 +65,34 @@ export const Budget = () => {
   const [, startTransition] = React.useTransition();
   const [editBudget, setEditBudget] = React.useState<BudgetModel | null>(null);
 
-  const handleBudgetDelete = async (budget: BudgetModel) => {
-    try {
-      const deletedBudgets = await budget.delete();
-      if (!deletedBudgets || deletedBudgets.length < 1) throw new Error('No budget deleted');
-      startTransition(() => {
-        setBudget((prev) => prev.filter(({ id }) => id !== budget.id));
-      });
-      showSnackbar({ message: `Budget deleted` });
-    } catch (error) {
-      console.error(error);
-      showSnackbar({
-        // @ts-ignore
-        message: error.message || "Could'nt delete the budget",
-        action: <Button onClick={() => handleBudgetDelete(budget)}>Retry</Button>,
-      });
-    }
+  const handler: {
+    onBudgetEdit: CategoryBudgetProps['onEdit'];
+    onBudgetDelete: CategoryBudgetProps['onDelete'];
+  } = {
+    onBudgetEdit: (budget) => {},
+    onBudgetDelete: async (deleteBudget) => {
+      try {
+        const deletedBudgets = await deleteBudget;
+        if (!deletedBudgets || deletedBudgets.length < 1) throw new Error('No budget deleted');
+        startTransition(() => {
+          setBudget((prev) => prev.filter(({ id }) => id !== deletedBudgets[0].id));
+        });
+        showSnackbar({ message: `Budget deleted` });
+      } catch (error) {
+        console.error(error);
+        showSnackbar({
+          // @ts-ignore
+          message: error.message || "Could'nt delete the budget",
+          action: deleteBudget ? (
+            // @ts-ignore
+            <Button onClick={() => handler.onBudgetDelete(deleteBudget)}>Retry</Button>
+          ) : undefined, // TODO: Fixme
+        });
+      }
+    },
   };
+
+  const handleBudgetDelete = async (budget: BudgetModel) => {};
 
   // TODO: Calculate stats in SQL and return them using a view or an RPC
   const StatsCalculations = {
@@ -166,7 +182,7 @@ export const Budget = () => {
         } else setDailyExpenses([]);
       })
       .catch((error) => console.error(error));
-  }, [session!.user!.id, dateRange]);
+  }, [session, dateRange]);
 
   return (
     <Grid container spacing={3}>
@@ -324,6 +340,7 @@ export const Budget = () => {
           <Card.Header>
             <Box>
               <Card.Title>Category Budgets</Card.Title>
+              <Card.Subtitle>Set a limit for your spending</Card.Subtitle>
             </Box>
             <Card.HeaderActions>
               <ActionPaper>
@@ -339,38 +356,7 @@ export const Budget = () => {
             {loading ? (
               <CircularProgress />
             ) : budget.length > 0 ? (
-              budget.map((item) => (
-                <Box
-                  key={item.id}
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Box sx={{ flex: 1, mr: 2 }}>
-                    <CategoryBudget
-                      key={item.id}
-                      title={item.category.name}
-                      subtitle={item.category.description || 'No description'}
-                      budget={item.budget || 0}
-                      amount={item.currentlySpent || 0}
-                    />
-                  </Box>
-                  <Tooltip title="Edit">
-                    <IconButton sx={{ mt: 2 }} onClick={() => setEditBudget(item)}>
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Delete">
-                    <IconButton sx={{ mt: 2 }} onClick={() => handleBudgetDelete(item)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              ))
+              budget.map((item) => <CategoryBudget budget={item} />)
             ) : (
               <NoResults sx={{ mt: 2 }} text="No budget found" />
             )}

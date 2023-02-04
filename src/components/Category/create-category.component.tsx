@@ -7,7 +7,7 @@ import { Category } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseCategory } from '../../types/category.type';
-import { FormDrawer } from '../base/form-drawer.component';
+import { FormDrawer } from '../Base/form-drawer.component';
 
 export interface ICreateCategoryProps {
   open: boolean;

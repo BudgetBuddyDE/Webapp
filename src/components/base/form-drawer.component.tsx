@@ -1,10 +1,11 @@
 import { Close as CloseIcon } from '@mui/icons-material';
 import { Box, Button, Drawer, IconButton, Typography } from '@mui/material';
-import { FC, PropsWithChildren } from 'react';
-import { useScreenSize } from '../../hooks/useScreenSize.hook';
+import React from 'react';
+import { useScreenSize } from '../../hooks';
 import { drawerWidth } from '../../theme/default.theme';
+import { ActionPaper } from './action-paper.component';
 
-export interface IFormDrawerProps extends PropsWithChildren {
+export interface IFormDrawerProps extends React.PropsWithChildren {
   open: boolean;
   heading: string;
   onClose: () => void;
@@ -14,7 +15,7 @@ export interface IFormDrawerProps extends PropsWithChildren {
   closeOnBackdropClick?: boolean;
 }
 
-export const FormDrawer: FC<IFormDrawerProps> = ({
+export const FormDrawer: React.FC<IFormDrawerProps> = ({
   open,
   heading,
   onClose,
@@ -53,12 +54,15 @@ export const FormDrawer: FC<IFormDrawerProps> = ({
           pb: 0,
         }}
       >
-        <Typography fontWeight="bold">{heading}</Typography>
-        <IconButton size="small" onClick={onClose}>
-          <CloseIcon />
-        </IconButton>
+        <Typography variant="subtitle1" fontWeight="bold">
+          {heading}
+        </Typography>
+        <ActionPaper>
+          <IconButton color="primary" onClick={onClose}>
+            <CloseIcon />
+          </IconButton>
+        </ActionPaper>
       </Box>
-      {/* <Divider /> */}
       <form
         onSubmit={onSubmit}
         style={{
@@ -73,7 +77,6 @@ export const FormDrawer: FC<IFormDrawerProps> = ({
             mt: 'auto',
           }}
         >
-          {/* <Divider /> */}
           <Box
             sx={{
               display: 'flex',
@@ -82,7 +85,9 @@ export const FormDrawer: FC<IFormDrawerProps> = ({
               pt: 0,
             }}
           >
-            <Button onClick={onClose}>{closeLabel}</Button>
+            <Button onClick={onClose} sx={{ mr: 1 }}>
+              {closeLabel}
+            </Button>
             <Button type="submit" variant="contained">
               {saveLabel}
             </Button>

@@ -1,21 +1,15 @@
-// @ts-ignore
+import { useTheme } from '@mui/material';
 import { curveMonotoneX } from '@visx/curve';
-// @ts-ignore
 import { localPoint } from '@visx/event';
-// @ts-ignore
 import { LinearGradient } from '@visx/gradient';
-// @ts-ignore
 import { GridColumns, GridRows } from '@visx/grid';
 import { scaleLinear, scaleTime } from '@visx/scale';
 import { AreaClosed, Bar, Line } from '@visx/shape';
-// @ts-ignore
 import { Tooltip, TooltipWithBounds, defaultStyles, withTooltip } from '@visx/tooltip';
-// @ts-ignore
 import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withTooltip';
-// @ts-ignore
 import { bisector, extent, max } from 'd3-array';
 import { format } from 'date-fns';
-import React, { useCallback, useMemo } from 'react';
+import React from 'react';
 
 export interface IDailyTransaction {
   date: string;
@@ -24,23 +18,6 @@ export interface IDailyTransaction {
 }
 
 type TooltipData = IDailyTransaction;
-
-export const background = '#3b6978';
-export const background2 = '#204051';
-export const accentColor = '#edffea';
-export const accentColorDark = '#75daad';
-const tooltipStyles = {
-  ...defaultStyles,
-  background,
-  border: '1px solid white',
-  color: 'white',
-};
-
-const getDate = (d: IDailyTransaction) => new Date(d.date);
-const getValue = (d: IDailyTransaction) => Math.abs(d.sum);
-const bisectDate = bisector<IDailyTransaction, Date>(
-  (d: IDailyTransaction) => new Date(d.date)
-).left;
 
 export type IAreaChartProps = {
   data: IDailyTransaction[];
@@ -65,12 +42,30 @@ export default withTooltip<IAreaChartProps, TooltipData>(
     tooltipTop = 0,
     tooltipLeft = 0,
   }: IAreaChartProps & WithTooltipProvidedProps<TooltipData>) => {
+    const theme = useTheme();
     if (width < 10) return null;
+
+    const background = theme.palette.background.default;
+    const background2 = theme.palette.background.paper;
+    const accentColor = theme.palette.primary.main;
+    const accentColorDark = theme.palette.primary.dark;
+    const tooltipStyles = {
+      ...defaultStyles,
+      background,
+      border: '1px solid white',
+      color: 'white',
+    };
+
+    const getDate = (d: IDailyTransaction) => new Date(d.date);
+    const getValue = (d: IDailyTransaction) => Math.abs(d.sum);
+    const bisectDate = bisector<IDailyTransaction, Date>(
+      (d: IDailyTransaction) => new Date(d.date)
+    ).left;
 
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
-    const dateScale = useMemo(
+    const dateScale = React.useMemo(
       () =>
         scaleTime({
           range: [margin.left, innerWidth + margin.left],
@@ -78,7 +73,7 @@ export default withTooltip<IAreaChartProps, TooltipData>(
         }),
       [innerWidth, margin.left, data]
     );
-    const valueScale = useMemo(
+    const valueScale = React.useMemo(
       () =>
         scaleLinear({
           range: [innerHeight + margin.top, margin.top],
@@ -88,7 +83,7 @@ export default withTooltip<IAreaChartProps, TooltipData>(
       [margin.top, innerHeight, data]
     );
 
-    const handleTooltip = useCallback(
+    const handleTooltip = React.useCallback(
       (event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {
         const { x } = localPoint(event) || { x: 0 };
         const x0 = dateScale.invert(x);
