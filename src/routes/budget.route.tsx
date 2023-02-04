@@ -24,21 +24,14 @@ import {
   CreateBudget,
   EditBudget,
   IDailyTransaction,
-  IStatsProps,
   NoResults,
   PageHeader,
-  Stats,
   Transaction,
 } from '../components';
 import { AuthContext, SnackbarContext, StoreContext } from '../context';
 import { useScreenSize } from '../hooks';
 import { Budget as BudgetModel } from '../models';
-import {
-  ExpenseService,
-  IncomeService,
-  SubscriptionService,
-  TransactionService,
-} from '../services';
+import { ExpenseService, IncomeService } from '../services';
 import type { IExpense, IIncome } from '../types';
 import { getFirstDayOfMonth } from '../utils';
 
@@ -53,8 +46,7 @@ export const Budget = () => {
   const screenSize = useScreenSize();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, transactions, subscriptions, budget, setBudget } =
-    React.useContext(StoreContext);
+  const { loading, budget, setBudget } = React.useContext(StoreContext);
   const [chart, setChart] = React.useState<ChartContentType>('INCOME');
   const [dateRange, setDateRange] = React.useState({ from: getFirstDayOfMonth(), to: new Date() });
   const [dailyIncome, setDailyIncome] = React.useState<IDailyTransaction[]>([]);
@@ -95,7 +87,7 @@ export const Budget = () => {
   const handleBudgetDelete = async (budget: BudgetModel) => {};
 
   // TODO: Calculate stats in SQL and return them using a view or an RPC
-  const StatsCalculations = {
+  /*const StatsCalculations = {
     plannedIncome: React.useMemo(
       () => SubscriptionService.getPlannedIncome(subscriptions),
       [subscriptions]
@@ -120,9 +112,9 @@ export const Budget = () => {
       const futurePlannedPayments = SubscriptionService.getUpcomingSpendings(subscriptions);
       return plannedIncome - (moneySpend + futurePlannedPayments);
     }, [transactions, subscriptions]),
-  };
+  };*/
 
-  const StatsCards: IStatsProps[] = [
+  /*const StatsCards: IStatsProps[] = [
     {
       title: StatsCalculations.plannedIncome.toLocaleString('de', {
         style: 'currency',
@@ -155,7 +147,7 @@ export const Budget = () => {
       subtitle: 'Balance',
       info: 'Balance after subtracting your subscriptions and payments from your income.',
     },
-  ];
+  ];*/
 
   React.useEffect(() => {
     Promise.all([
@@ -328,13 +320,13 @@ export const Budget = () => {
       </Grid>
 
       <Grid item xs={12} md={12} lg={7} xl={7}>
-        <Grid item container spacing={3}>
+        {/*        <Grid item container spacing={3}>
           {StatsCards.map((props) => (
             <Grid key={props.title + props.subtitle} item xs={6} md={3} lg={3}>
               <Stats {...props} />
             </Grid>
           ))}
-        </Grid>
+        </Grid>*/}
 
         <Card sx={{ mt: 2 }}>
           <Card.Header>
