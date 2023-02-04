@@ -61,7 +61,9 @@ export const Budget = () => {
     onBudgetEdit: CategoryBudgetProps['onEdit'];
     onBudgetDelete: CategoryBudgetProps['onDelete'];
   } = {
-    onBudgetEdit: (budget) => {},
+    onBudgetEdit: (budget) => {
+      setEditBudget(budget);
+    },
     onBudgetDelete: async (deleteBudget) => {
       try {
         const deletedBudgets = await deleteBudget;
@@ -83,8 +85,6 @@ export const Budget = () => {
       }
     },
   };
-
-  const handleBudgetDelete = async (budget: BudgetModel) => {};
 
   // TODO: Calculate stats in SQL and return them using a view or an RPC
   /*const StatsCalculations = {
@@ -348,7 +348,13 @@ export const Budget = () => {
             {loading ? (
               <CircularProgress />
             ) : budget.length > 0 ? (
-              budget.map((item) => <CategoryBudget budget={item} />)
+              budget.map((item) => (
+                <CategoryBudget
+                  budget={item}
+                  onEdit={handler.onBudgetEdit}
+                  onDelete={handler.onBudgetDelete}
+                />
+              ))
             ) : (
               <NoResults sx={{ mt: 2 }} text="No budget found" />
             )}
