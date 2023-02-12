@@ -252,7 +252,7 @@ export const Budget = () => {
           <Card.Body>
             {loading ? (
               <CircularProgress />
-            ) : (
+            ) : dailyTransactions.income && dailyTransactions.spendings ? (
               <Paper elevation={0} sx={{ mt: '1rem' }}>
                 {dailyTransactions.selected && (
                   <Box sx={{ ml: 2, mt: 1 }}>
@@ -299,6 +299,8 @@ export const Budget = () => {
                   </ParentSize>
                 )}
               </Paper>
+            ) : (
+              <NoResults sx={{ mt: 2 }} text="Nothing was returned" />
             )}
 
             <Divider sx={{ mt: 2 }} />
