@@ -8,8 +8,6 @@ export * from './Category';
 export * from './PaymentMethod';
 export * from './Inputs';
 
-export { default as Card } from './card.component';
-export * from './card.component';
 export * from './chip.component';
 export * from './copyright.component';
 export * from './drawer.component';

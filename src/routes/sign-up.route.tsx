@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Card from '../components/card.component';
+import Card from '../components/Base/card.component';
 import { AuthContext, SnackbarContext } from '../context';
 import { AuthService } from '../services';
 import { supabase } from '../supabase';

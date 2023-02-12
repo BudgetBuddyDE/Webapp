@@ -28,7 +28,7 @@ import {
   SearchInput,
   ShowFilterButton,
 } from '../components';
-import Card from '../components/card.component';
+import Card from '../components/Base/card.component';
 import { SnackbarContext, StoreContext } from '../context';
 import { Subscription } from '../models';
 import { determineNextExecution, filterSubscriptions } from '../utils';

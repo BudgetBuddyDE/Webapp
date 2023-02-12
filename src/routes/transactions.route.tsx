@@ -18,6 +18,7 @@ import { format } from 'date-fns';
 import React from 'react';
 import {
   ActionPaper,
+  Card,
   CategoryChip,
   CircularProgress,
   CreateTransaction,
@@ -29,7 +30,6 @@ import {
   SearchInput,
   ShowFilterButton,
 } from '../components';
-import Card from '../components/card.component';
 import { SnackbarContext, StoreContext } from '../context';
 import { useStateCallback } from '../hooks';
 import { Transaction } from '../models';
@@ -48,36 +48,52 @@ export const Transactions = () => {
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
 
-  const handleOnSearch = (text: string) => setKeyword(text.toLowerCase());
-
-  const handlePageChange = (event: unknown, newPage: number) => {
-    setPage(newPage);
+  const handler: {
+    onSearch: (text: string) => void;
+    onAddTransaction: (show: boolean) => void;
+    onPageChange: (event: unknown, newPage: number) => void;
+    onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onTransactionDelete: (transaction: Transaction) => void;
+  } = {
+    onSearch(text) {
+      setKeyword(text.toLowerCase());
+    },
+    onAddTransaction(show) {
+      setShowAddForm(show);
+    },
+    onPageChange(_event, newPage) {
+      setPage(newPage);
+    },
+    onRowsPerPageChange(event) {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setPage(0);
+    },
+    async onTransactionDelete(transaction) {
+      try {
+        const deletedTransactions = await transaction.delete();
+        if (!deletedTransactions || deletedTransactions.length < 0)
+          throw new Error('No transaction deleted');
+        startTransition(() => {
+          setTransactions((prev) => prev.filter(({ id }) => id !== transaction.id));
+        });
+        showSnackbar({ message: `Transaction ${transaction.receiver} deleted` });
+      } catch (error) {
+        console.error(error);
+        showSnackbar({
+          message: `Could'nt delete transaction`,
+          action: <Button onClick={() => handler.onTransactionDelete(transaction)}>Retry</Button>,
+        });
+      }
+    },
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const currentPageTransactions: Transaction[] = React.useMemo(() => {
+    return shownTransactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  }, [shownTransactions, page, rowsPerPage]);
 
-  const handleDelete = async (transaction: Transaction) => {
-    try {
-      const deletedTransactions = await transaction.delete();
-      if (!deletedTransactions || deletedTransactions.length < 0)
-        throw new Error('No transaction deleted');
-      startTransition(() => {
-        setTransactions((prev) => prev.filter(({ id }) => id !== transaction.id));
-      });
-      showSnackbar({ message: `Transaction ${transaction.receiver} deleted` });
-    } catch (error) {
-      console.error(error);
-      showSnackbar({
-        message: `Could'nt delete transaction`,
-        action: <Button onClick={() => handleDelete(transaction)}>Retry</Button>,
-      });
-    }
-  };
-
-  React.useEffect(() => setShownTransactions(transactions), [transactions, setShownTransactions]);
+  React.useEffect(() => {
+    setShownTransactions(transactions);
+  }, [transactions, setShownTransactions]);
 
   React.useEffect(() => {
     setShownTransactions(filterTransactions(keyword, filter, transactions));
@@ -97,9 +113,9 @@ export const Transactions = () => {
             <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 } }}>
               <ActionPaper sx={{ display: 'flex', flexDirection: 'row' }}>
                 <ShowFilterButton />
-                <SearchInput onSearch={handleOnSearch} />
+                <SearchInput onSearch={handler.onSearch} />
                 <Tooltip title="Add Transaction">
-                  <IconButton color="primary" onClick={() => setShowAddForm(true)}>
+                  <IconButton color="primary" onClick={() => handler.onAddTransaction(true)}>
                     <AddIcon fontSize="inherit" />
                   </IconButton>
                 </Tooltip>
@@ -131,61 +147,62 @@ export const Transactions = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {shownTransactions
-                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                        .map((row) => (
-                          <TableRow
-                            key={row.id}
-                            sx={{
-                              '&:last-child td, &:last-child th': { border: 0 },
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            <TableCell>
-                              <Typography fontWeight="bolder">{`${format(
-                                new Date(row.date),
-                                'dd.MM.yy'
-                              )}`}</Typography>
-                            </TableCell>
-                            <TableCell>
-                              <CategoryChip category={row.categories} />
-                            </TableCell>
-                            <TableCell>
-                              <Linkify>{row.receiver}</Linkify>
-                            </TableCell>
-                            <TableCell>
-                              <Typography>
-                                {row.amount.toLocaleString('de', {
-                                  style: 'currency',
-                                  currency: 'EUR',
-                                })}
-                              </Typography>
-                            </TableCell>
-                            <TableCell>
-                              <PaymentMethodChip paymentMethod={row.paymentMethods} />
-                            </TableCell>
-                            <TableCell>
-                              <Linkify>{row.description ?? 'No information'}</Linkify>
-                            </TableCell>
-                            <TableCell align="right">
-                              <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
-                                <Tooltip title="Edit" placement="top">
-                                  <IconButton
-                                    color="primary"
-                                    onClick={() => setEditTransaction(row)}
-                                  >
-                                    <EditIcon />
-                                  </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Delete" placement="top">
-                                  <IconButton color="primary" onClick={() => handleDelete(row)}>
-                                    <DeleteIcon />
-                                  </IconButton>
-                                </Tooltip>
-                              </ActionPaper>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                      {currentPageTransactions.map((transaction) => (
+                        <TableRow
+                          key={transaction.id}
+                          sx={{
+                            '&:last-child td, &:last-child th': { border: 0 },
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          <TableCell>
+                            <Typography fontWeight="bolder">{`${format(
+                              new Date(transaction.date),
+                              'dd.MM.yy'
+                            )}`}</Typography>
+                          </TableCell>
+                          <TableCell>
+                            <CategoryChip category={transaction.categories} />
+                          </TableCell>
+                          <TableCell>
+                            <Linkify>{transaction.receiver}</Linkify>
+                          </TableCell>
+                          <TableCell>
+                            <Typography>
+                              {transaction.amount.toLocaleString('de', {
+                                style: 'currency',
+                                currency: 'EUR',
+                              })}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <PaymentMethodChip paymentMethod={transaction.paymentMethods} />
+                          </TableCell>
+                          <TableCell>
+                            <Linkify>{transaction.description ?? 'No information'}</Linkify>
+                          </TableCell>
+                          <TableCell align="right">
+                            <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
+                              <Tooltip title="Edit" placement="top">
+                                <IconButton
+                                  color="primary"
+                                  onClick={() => setEditTransaction(transaction)}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete" placement="top">
+                                <IconButton
+                                  color="primary"
+                                  onClick={() => handler.onTransactionDelete(transaction)}
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </ActionPaper>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
@@ -196,10 +213,10 @@ export const Transactions = () => {
                     component="div"
                     count={shownTransactions.length}
                     page={page}
-                    onPageChange={handlePageChange}
+                    onPageChange={handler.onPageChange}
                     labelRowsPerPage="Rows:"
                     rowsPerPage={rowsPerPage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    onRowsPerPageChange={handler.onRowsPerPageChange}
                   />
                 </ActionPaper>
               </Card.Footer>

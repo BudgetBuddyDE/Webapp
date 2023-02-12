@@ -17,6 +17,7 @@ import {
 import React from 'react';
 import {
   ActionPaper,
+  Card,
   CircularProgress,
   CreatePaymentMethod,
   EditPaymentMethod,
@@ -25,7 +26,6 @@ import {
   PageHeader,
   SearchInput,
 } from '../components';
-import Card from '../components/card.component';
 import { SnackbarContext, StoreContext } from '../context';
 import { PaymentMethod } from '../models';
 

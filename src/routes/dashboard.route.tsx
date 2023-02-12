@@ -4,6 +4,7 @@ import { isSameMonth } from 'date-fns/esm';
 import React from 'react';
 import {
   ActionPaper,
+  Card,
   CircularProgress,
   CreateSubscription,
   CreateTransaction,
@@ -16,7 +17,6 @@ import {
   StatsIconStyle,
   Transaction,
 } from '../components';
-import Card from '../components/card.component';
 import { AuthContext, StoreContext } from '../context';
 import {
   BudgetService,

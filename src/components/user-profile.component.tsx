@@ -20,7 +20,7 @@ import { PaymentMethodService } from '../services/payment-method.service';
 import { SubscriptionService } from '../services/subscription.service';
 import { TransactionService } from '../services/transaction.service';
 import { UserService } from '../services/user.service';
-import Card from './card.component';
+import Card from './Base/card.component';
 import { ProfileAvatarWithUpload } from './profile-avatar.component';
 
 export type TExportType = 'json' | 'csv';

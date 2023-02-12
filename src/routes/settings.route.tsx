@@ -9,8 +9,7 @@ import {
   TextField,
 } from '@mui/material';
 import React from 'react';
-import { PageHeader, UserProfile } from '../components';
-import Card from '../components/card.component';
+import { Card, PageHeader, UserProfile } from '../components';
 import { AuthContext, SnackbarContext } from '../context';
 import { FeedbackService } from '../services';
 
