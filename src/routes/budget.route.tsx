@@ -1,4 +1,4 @@
-import { Add as AddIcon } from '@mui/icons-material';
+import { Add as AddIcon, FlareSharp } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -27,6 +27,8 @@ import {
   CircularProgress,
   CreateBudget,
   EditBudget,
+  ICreateBudgetProps,
+  IEditBudgetProps,
   NoResults,
   PageHeader,
   Transaction,
@@ -37,6 +39,8 @@ import { Budget as BudgetModel } from '../models';
 import { ExpenseService, IncomeService } from '../services';
 import type { DailyIncome, DailySpending, IExpense, IIncome } from '../types';
 import { formatBalance, getFirstDayOfMonth } from '../utils';
+
+export const DATE_RANGE_INPUT_FORMAT = 'dd.MM';
 
 export type ChartContentType = 'INCOME' | 'SPENDINGS';
 
@@ -60,19 +64,36 @@ export const Budget = () => {
   }>({ income: [], spendings: [], selected: null });
   const [income, setIncome] = React.useState<IIncome[]>([]);
   const [expenses, setExpenses] = React.useState<IExpense[]>([]);
-  const [showAddBudgetForm, setShowAddBudgetForm] = React.useState(false);
-  const [editBudget, setEditBudget] = React.useState<BudgetModel | null>(null);
+  const [showForm, setShowForm] = React.useState<{
+    createBudget: boolean;
+    editBudget: BudgetModel | null;
+  }>({
+    createBudget: false,
+    editBudget: null,
+  });
 
   const handler: {
-    onBudgetEdit: CategoryBudgetProps['onEdit'];
+    onDateFromChange: (value: Date | null, keyboardInputValue?: string | undefined) => void;
+    onDateToChange: (value: Date | null, keyboardInputValue?: string | undefined) => void;
     onBudgetDelete: CategoryBudgetProps['onDelete'];
+    createBudget: {
+      onShowAddBudgetForm: () => void;
+      onSetOpen: ICreateBudgetProps['setOpen'];
+    };
+    editBudget: {
+      onSetOpen: IEditBudgetProps['setOpen'];
+      onEdit: CategoryBudgetProps['onEdit'];
+    };
     charts: {
       onEvent: (bar: BarChartData | null) => void;
       onChangeChart: (event: React.BaseSyntheticEvent) => void;
     };
   } = {
-    onBudgetEdit: (budget) => {
-      setEditBudget(budget);
+    onDateFromChange(value, keyboardInputValue) {
+      setDateRange((prev) => ({ ...prev, from: value || new Date() }));
+    },
+    onDateToChange(value, keyboardInputValue) {
+      setDateRange((prev) => ({ ...prev, from: value || new Date() }));
     },
     onBudgetDelete: async (deleteBudget) => {
       try {
@@ -93,6 +114,22 @@ export const Budget = () => {
           ) : undefined, // TODO: Fixme
         });
       }
+    },
+    createBudget: {
+      onShowAddBudgetForm() {
+        setShowForm((prev) => ({ ...prev, createBudget: true }));
+      },
+      onSetOpen(show) {
+        setShowForm((prev) => ({ ...prev, createBudget: show }));
+      },
+    },
+    editBudget: {
+      onSetOpen(show) {
+        if (!show) setShowForm((prev) => ({ ...prev, editBudget: null }));
+      },
+      onEdit: (budget) => {
+        setShowForm((prev) => ({ ...prev, editBudget: budget }));
+      },
     },
     charts: {
       onEvent(bar) {
@@ -126,11 +163,13 @@ export const Budget = () => {
   };
 
   React.useEffect(() => {
+    const from = dateRange.from;
+    const to = dateRange.to;
     Promise.all([
-      IncomeService.getIncome(session!.user!.id, dateRange.from, dateRange.to),
-      IncomeService.getDailyIncome(dateRange.from, dateRange.to),
-      ExpenseService.getExpenses(session!.user!.id, dateRange.from, dateRange.to),
-      ExpenseService.getDailyExpenses(dateRange.from, dateRange.to),
+      IncomeService.getIncome(session!.user!.id, from, to),
+      IncomeService.getDailyIncome(from, to),
+      ExpenseService.getExpenses(session!.user!.id, from, to),
+      ExpenseService.getDailyExpenses(from, to),
     ])
       .then(async ([getIncome, getDailyIncome, getExpenses, getDailyExpenses]) => {
         if (getIncome) {
@@ -198,11 +237,9 @@ export const Budget = () => {
                 {screenSize === 'small' ? (
                   <MobileDatePicker
                     label="From"
-                    inputFormat="dd.MM"
+                    inputFormat={DATE_RANGE_INPUT_FORMAT}
                     value={dateRange.from}
-                    onChange={(date: Date | null) => {
-                      setDateRange((prev) => ({ ...prev, from: date || new Date() }));
-                    }}
+                    onChange={handler.onDateFromChange}
                     renderInput={(params) => (
                       <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
                     )}
@@ -210,11 +247,9 @@ export const Budget = () => {
                 ) : (
                   <DesktopDatePicker
                     label="From"
-                    inputFormat="dd.MM"
+                    inputFormat={DATE_RANGE_INPUT_FORMAT}
                     value={dateRange.from}
-                    onChange={(date: Date | null) => {
-                      setDateRange((prev) => ({ ...prev, from: date || new Date() }));
-                    }}
+                    onChange={handler.onDateFromChange}
                     renderInput={(params) => (
                       <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
                     )}
@@ -224,11 +259,9 @@ export const Budget = () => {
                 {screenSize === 'small' ? (
                   <MobileDatePicker
                     label="To"
-                    inputFormat="dd.MM"
+                    inputFormat={DATE_RANGE_INPUT_FORMAT}
                     value={dateRange.to}
-                    onChange={(date: Date | null) => {
-                      setDateRange((prev) => ({ ...prev, to: date || new Date() }));
-                    }}
+                    onChange={handler.onDateToChange}
                     renderInput={(params) => (
                       <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
                     )}
@@ -236,11 +269,9 @@ export const Budget = () => {
                 ) : (
                   <DesktopDatePicker
                     label="To"
-                    inputFormat="dd.MM"
+                    inputFormat={DATE_RANGE_INPUT_FORMAT}
                     value={dateRange.to}
-                    onChange={(date: Date | null) => {
-                      setDateRange((prev) => ({ ...prev, to: date || new Date() }));
-                    }}
+                    onChange={handler.onDateToChange}
                     renderInput={(params) => (
                       <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
                     )}
@@ -346,7 +377,7 @@ export const Budget = () => {
             <Card.HeaderActions>
               <ActionPaper>
                 <Tooltip title="Set Budget">
-                  <IconButton color="primary" onClick={() => setShowAddBudgetForm(true)}>
+                  <IconButton color="primary" onClick={handler.createBudget.onShowAddBudgetForm}>
                     <AddIcon />
                   </IconButton>
                 </Tooltip>
@@ -360,7 +391,7 @@ export const Budget = () => {
               budget.map((item) => (
                 <CategoryBudget
                   budget={item}
-                  onEdit={handler.onBudgetEdit}
+                  onEdit={handler.editBudget.onEdit}
                   onDelete={handler.onBudgetDelete}
                 />
               ))
@@ -371,14 +402,12 @@ export const Budget = () => {
         </Card>
       </Grid>
 
-      <CreateBudget open={showAddBudgetForm} setOpen={(show) => setShowAddBudgetForm(show)} />
+      <CreateBudget open={showForm.createBudget} setOpen={handler.createBudget.onSetOpen} />
 
       <EditBudget
-        open={editBudget !== null}
-        setOpen={(show) => {
-          if (!show) setEditBudget(null);
-        }}
-        budget={editBudget}
+        open={showForm.editBudget !== null}
+        setOpen={handler.editBudget.onSetOpen}
+        budget={showForm.editBudget}
       />
     </Grid>
   );
