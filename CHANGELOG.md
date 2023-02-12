@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.8](https://github.com/BudgetBuddyDE/Webapp/compare/v0.0.7...v0.0.8) (2023-02-12)
+
+### Features
+
+- Display message when no data set ([dfb46cb](https://github.com/BudgetBuddyDE/Webapp/commit/dfb46cbc9fd0af42e79e90b1cf8097939d007926))
+- Use `<BarChart />` for daily-transactions ([735eaf3](https://github.com/BudgetBuddyDE/Webapp/commit/735eaf3bbdfc6266de255ede0906de73c32721d7))
+
+### Bug Fixes
+
+- Add missing folders ([0a0c4f2](https://github.com/BudgetBuddyDE/Webapp/commit/0a0c4f2be9d5d4f1ec1881ce026128a7adae7965))
+- Delete folder ([0532053](https://github.com/BudgetBuddyDE/Webapp/commit/0532053744d877b2b6c09cb180a918f3c0c80a7e))
+- Solve 'Cannot find name FC' ([1ecef25](https://github.com/BudgetBuddyDE/Webapp/commit/1ecef2526b2d8ed089b579f95919b4b6b7e4da4c))
+
 ### [0.0.7](https://github.com/BudgetBuddyDE/Webapp/compare/v0.0.6...v0.0.7) (2023-02-04)
 
 ### Features
