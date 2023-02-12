@@ -1,4 +1,4 @@
-import { Add as AddIcon, FlareSharp } from '@mui/icons-material';
+import { Add as AddIcon } from '@mui/icons-material';
 import {
   Box,
   Button,

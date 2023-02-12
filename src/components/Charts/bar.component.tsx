@@ -1,5 +1,4 @@
 import { alpha, useTheme } from '@mui/material';
-import { Box } from '@mui/material';
 import { Group } from '@visx/group';
 import { scaleBand, scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
@@ -20,11 +19,11 @@ export interface BarChartProps {
 
 export const VERTICAL_MARGIN = 18;
 
-export function getLabel(d: BarChartData) {
+function getLabel(d: BarChartData) {
   return d.label;
 }
 
-export function getValue(d: BarChartData) {
+function getValue(d: BarChartData) {
   return d.value * 100;
 }
 

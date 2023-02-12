@@ -1,5 +1,3 @@
-import { format } from 'date-fns';
-import type { IDailyTransaction } from '../components';
 import { supabase } from '../supabase';
 import type { DailyIncome, IIncome } from '../types/';
 

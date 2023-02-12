@@ -10,27 +10,32 @@ import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withToolti
 import { bisector, extent, max } from 'd3-array';
 import { format } from 'date-fns';
 import React from 'react';
+import { formatBalance } from '../../utils';
 
-export interface IDailyTransaction {
-  date: string;
-  sum: number;
-  created_by?: string;
-}
+export type AreaChartItem = { date: Date; sum: number };
 
-type TooltipData = IDailyTransaction;
-
-export type IAreaChartProps = {
-  data: IDailyTransaction[];
+export interface AreaChartProps {
+  data: AreaChartItem[];
   width: number;
   height: number;
-  margin?: { top: number; right: number; bottom: number; left: number };
-};
+  margin: { top: number; right: number; bottom: number; left: number };
+}
+
+export type TooltipData = AreaChartItem;
+
+function getDate(data: AreaChartItem) {
+  return data.date;
+}
+
+function getSum(data: AreaChartItem) {
+  return Math.abs(data.sum);
+}
 
 /**
  * Docs:
  * - [AirBnB](https://airbnb.io/visx/areas)
  */
-export default withTooltip<IAreaChartProps, TooltipData>(
+export default withTooltip<AreaChartProps, TooltipData>(
   ({
     data,
     width,
@@ -41,7 +46,7 @@ export default withTooltip<IAreaChartProps, TooltipData>(
     tooltipData,
     tooltipTop = 0,
     tooltipLeft = 0,
-  }: IAreaChartProps & WithTooltipProvidedProps<TooltipData>) => {
+  }: AreaChartProps & WithTooltipProvidedProps<TooltipData>) => {
     const theme = useTheme();
     if (width < 10) return null;
 
@@ -56,11 +61,7 @@ export default withTooltip<IAreaChartProps, TooltipData>(
       color: 'white',
     };
 
-    const getDate = (d: IDailyTransaction) => new Date(d.date);
-    const getValue = (d: IDailyTransaction) => Math.abs(d.sum);
-    const bisectDate = bisector<IDailyTransaction, Date>(
-      (d: IDailyTransaction) => new Date(d.date)
-    ).left;
+    const bisectDate = bisector<AreaChartItem, Date>((d: AreaChartItem) => d.date).left;
 
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
@@ -73,11 +74,12 @@ export default withTooltip<IAreaChartProps, TooltipData>(
         }),
       [innerWidth, margin.left, data]
     );
+
     const valueScale = React.useMemo(
       () =>
         scaleLinear({
           range: [innerHeight + margin.top, margin.top],
-          domain: [0, (max(data, getValue) || 0) + innerHeight / 3],
+          domain: [0, (max(data, getSum) || 0) + innerHeight / 3],
           nice: false,
         }),
       [margin.top, innerHeight, data]
@@ -97,10 +99,10 @@ export default withTooltip<IAreaChartProps, TooltipData>(
         showTooltip({
           tooltipData: d,
           tooltipLeft: x,
-          tooltipTop: valueScale(getValue(d)),
+          tooltipTop: valueScale(getSum(d)),
         });
       },
-      [showTooltip, valueScale, dateScale, data]
+      [showTooltip, valueScale, dateScale, bisectDate, data]
     );
 
     return (
@@ -134,10 +136,10 @@ export default withTooltip<IAreaChartProps, TooltipData>(
             strokeOpacity={0.2}
             pointerEvents="none"
           />
-          <AreaClosed<IDailyTransaction>
+          <AreaClosed<AreaChartItem>
             data={data}
             x={(d) => dateScale(getDate(d)) ?? 0}
-            y={(d) => valueScale(getValue(d)) ?? 0}
+            y={(d) => valueScale(getSum(d)) ?? 0}
             yScale={valueScale}
             strokeWidth={1}
             stroke="url(#area-gradient)"
@@ -197,10 +199,7 @@ export default withTooltip<IAreaChartProps, TooltipData>(
               left={tooltipLeft + 12}
               style={tooltipStyles}
             >
-              {getValue(tooltipData).toLocaleString('de-DE', {
-                style: 'currency',
-                currency: 'EUR',
-              })}
+              {formatBalance(getSum(tooltipData))}
             </TooltipWithBounds>
             <Tooltip
               top={margin.top - 14}

@@ -1,8 +1,5 @@
-import { format } from 'date-fns';
-import { IDailyTransaction } from '../components/Charts/area-chart.component';
 import { supabase } from '../supabase';
-import { DailyIncome, DailySpending } from '../types';
-import { IExpense } from '../types/transaction.interface';
+import type { DailySpending, IExpense } from '../types';
 
 export class ExpenseService {
   static async getAllTimeExpenses(userId: string): Promise<IExpense[] | null> {
