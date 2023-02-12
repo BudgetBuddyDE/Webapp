@@ -9,3 +9,5 @@ export * from './store-context.type';
 export * from './subscription.type';
 export * from './transaction.type';
 export * from './transaction.interface';
+export * from './income.type';
+export * from './spending.type';

@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import { IDailyTransaction } from '../components/Charts/area-chart.component';
 import { supabase } from '../supabase';
+import { DailyIncome, DailySpending } from '../types';
 import { IExpense } from '../types/transaction.interface';
 
 export class ExpenseService {
@@ -26,20 +27,19 @@ export class ExpenseService {
     });
   }
 
-  static async getDailyExpenses(
-    userId: string,
-    startDate: Date,
-    endDate: Date
-  ): Promise<IDailyTransaction[] | null> {
+  static async getDailyExpenses(startDate: Date, endDate: Date): Promise<DailySpending[] | null> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase
-        .from<IDailyTransaction>('DailyExpense')
-        .select('*')
-        .eq('created_by', userId)
-        .gte('date', format(startDate, 'yyyy/MM/dd'))
-        .lte('date', format(endDate, 'yyyy/MM/dd'));
+      const { data, error } = await supabase.rpc<DailySpending>('get_daily_transactions', {
+        requested_data: 'SPENDINGS',
+        end_date: endDate,
+        start_date: startDate,
+      });
       if (error) rej(error);
-      res(data);
+      res(
+        data && typeof data === 'object'
+          ? data.map((day) => ({ ...day, amount: Math.abs(day.amount) }))
+          : null
+      );
     });
   }
 

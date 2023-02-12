@@ -5,25 +5,28 @@ import {
   Divider,
   Grid,
   IconButton,
+  Paper,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import ParentSize from '@visx/responsive/lib/components/ParentSizeModern';
+import { format, isSameDay } from 'date-fns';
 import React from 'react';
 import {
   ActionPaper,
-  AreaChart,
+  BarChart,
+  BarChartData,
   Card,
   CategoryBudget,
   CategoryBudgetProps,
   CircularProgress,
   CreateBudget,
   EditBudget,
-  IDailyTransaction,
   NoResults,
   PageHeader,
   Transaction,
@@ -32,34 +35,41 @@ import { AuthContext, SnackbarContext, StoreContext } from '../context';
 import { useScreenSize } from '../hooks';
 import { Budget as BudgetModel } from '../models';
 import { ExpenseService, IncomeService } from '../services';
-import type { IExpense, IIncome } from '../types';
-import { getFirstDayOfMonth } from '../utils';
+import type { DailyIncome, DailySpending, IExpense, IIncome } from '../types';
+import { formatBalance, getFirstDayOfMonth } from '../utils';
 
 export type ChartContentType = 'INCOME' | 'SPENDINGS';
 
 export const ChartContentTypes = [
   { type: 'INCOME' as ChartContentType, label: 'Income' },
-  { type: 'SPENDIGNS' as ChartContentType, label: 'Spendings' },
+  { type: 'SPENDINGS' as ChartContentType, label: 'Spendings' },
 ];
 
 export const Budget = () => {
   const screenSize = useScreenSize();
+  const [, startTransition] = React.useTransition();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, budget, setBudget } = React.useContext(StoreContext);
   const [chart, setChart] = React.useState<ChartContentType>('INCOME');
   const [dateRange, setDateRange] = React.useState({ from: getFirstDayOfMonth(), to: new Date() });
-  const [dailyIncome, setDailyIncome] = React.useState<IDailyTransaction[]>([]);
+  const [dailyTransactions, setDailyTransactions] = React.useState<{
+    selected: DailyIncome | DailySpending | null;
+    income: DailyIncome[];
+    spendings: DailySpending[];
+  }>({ income: [], spendings: [], selected: null });
   const [income, setIncome] = React.useState<IIncome[]>([]);
-  const [dailyExpenses, setDailyExpenses] = React.useState<IDailyTransaction[]>([]);
   const [expenses, setExpenses] = React.useState<IExpense[]>([]);
   const [showAddBudgetForm, setShowAddBudgetForm] = React.useState(false);
-  const [, startTransition] = React.useTransition();
   const [editBudget, setEditBudget] = React.useState<BudgetModel | null>(null);
 
   const handler: {
     onBudgetEdit: CategoryBudgetProps['onEdit'];
     onBudgetDelete: CategoryBudgetProps['onDelete'];
+    charts: {
+      onEvent: (bar: BarChartData | null) => void;
+      onChangeChart: (event: React.BaseSyntheticEvent) => void;
+    };
   } = {
     onBudgetEdit: (budget) => {
       setEditBudget(budget);
@@ -84,77 +94,43 @@ export const Budget = () => {
         });
       }
     },
+    charts: {
+      onEvent(bar) {
+        if (!bar) return;
+        setDailyTransactions((prevState) => ({
+          ...prevState,
+          selected: {
+            date: new Date(bar.label),
+            amount: bar.value,
+          },
+        }));
+      },
+      onChangeChart(event) {
+        const newChart = event.target.value as ChartContentType;
+        if (newChart === chart) return;
+
+        setChart(newChart);
+        setDailyTransactions((prev) => {
+          const list = newChart === 'INCOME' ? prev.income : prev.spendings;
+          const today = list[list.length - 1];
+          return {
+            ...prev,
+            selected: {
+              amount: today.amount,
+              date: new Date(today.date),
+            },
+          };
+        });
+      },
+    },
   };
-
-  // TODO: Calculate stats in SQL and return them using a view or an RPC
-  /*const StatsCalculations = {
-    plannedIncome: React.useMemo(
-      () => SubscriptionService.getPlannedIncome(subscriptions),
-      [subscriptions]
-    ),
-    // totalPlannedIncome: useMemo(() => {
-    //   const receivedMoney = TransactionService.getReceivedEarnings(transactions);
-    //   const plannedIncome = SubscriptionService.getUpcomingEarnings(subscriptions);
-    //   return receivedMoney + plannedIncome;
-    // }, [transactions, subscriptions]),
-    plannedSpendings: React.useMemo(
-      () => SubscriptionService.getPlannedSpendings(subscriptions),
-      [subscriptions]
-    ),
-    totalPlannedSpendings: React.useMemo(() => {
-      const moneySpend = TransactionService.getPaidSpendings(transactions);
-      const futurePlannedPayments = SubscriptionService.getUpcomingSpendings(subscriptions);
-      return moneySpend + futurePlannedPayments;
-    }, [transactions, subscriptions]),
-    moneyLeft: React.useMemo(() => {
-      const plannedIncome = SubscriptionService.getPlannedIncome(subscriptions);
-      const moneySpend = TransactionService.getPaidSpendings(transactions);
-      const futurePlannedPayments = SubscriptionService.getUpcomingSpendings(subscriptions);
-      return plannedIncome - (moneySpend + futurePlannedPayments);
-    }, [transactions, subscriptions]),
-  };*/
-
-  /*const StatsCards: IStatsProps[] = [
-    {
-      title: StatsCalculations.plannedIncome.toLocaleString('de', {
-        style: 'currency',
-        currency: 'EUR',
-      }),
-      subtitle: 'Income',
-      info: 'Your monthly income based on your subscriptions.',
-    },
-    {
-      title: StatsCalculations.plannedSpendings.toLocaleString('de', {
-        style: 'currency',
-        currency: 'EUR',
-      }),
-      subtitle: 'Subscriptions',
-      info: 'Your planned monthly payments.',
-    },
-    {
-      title: StatsCalculations.totalPlannedSpendings.toLocaleString('de', {
-        style: 'currency',
-        currency: 'EUR',
-      }),
-      subtitle: 'Expenses',
-      info: 'Planned montly payments and current month total spendings.',
-    },
-    {
-      title: StatsCalculations.moneyLeft.toLocaleString('de', {
-        style: 'currency',
-        currency: 'EUR',
-      }),
-      subtitle: 'Balance',
-      info: 'Balance after subtracting your subscriptions and payments from your income.',
-    },
-  ];*/
 
   React.useEffect(() => {
     Promise.all([
       IncomeService.getIncome(session!.user!.id, dateRange.from, dateRange.to),
-      IncomeService.getDailyIncome(session!.user!.id, dateRange.from, dateRange.to),
+      IncomeService.getDailyIncome(dateRange.from, dateRange.to),
       ExpenseService.getExpenses(session!.user!.id, dateRange.from, dateRange.to),
-      ExpenseService.getDailyExpenses(session!.user!.id, dateRange.from, dateRange.to),
+      ExpenseService.getDailyExpenses(dateRange.from, dateRange.to),
     ])
       .then(async ([getIncome, getDailyIncome, getExpenses, getDailyExpenses]) => {
         if (getIncome) {
@@ -162,16 +138,26 @@ export const Budget = () => {
         } else setIncome([]);
 
         if (getDailyIncome) {
-          setDailyIncome(getDailyIncome);
-        } else setDailyIncome([]);
+          const today = getDailyIncome[getDailyIncome.length - 1];
+          setDailyTransactions((prev) => ({
+            ...prev,
+            income: getDailyIncome,
+            selected: today
+              ? {
+                  amount: today.amount,
+                  date: new Date(today.date),
+                }
+              : null,
+          }));
+        }
 
         if (getExpenses) {
           setExpenses(getExpenses);
         } else setExpenses([]);
 
         if (getDailyExpenses) {
-          setDailyExpenses(getDailyExpenses);
-        } else setDailyExpenses([]);
+          setDailyTransactions((prev) => ({ ...prev, spendings: getDailyExpenses }));
+        }
       })
       .catch((error) => console.error(error));
   }, [session, dateRange]);
@@ -196,9 +182,7 @@ export const Budget = () => {
                   size="small"
                   color="primary"
                   value={chart}
-                  onChange={(event: React.BaseSyntheticEvent) =>
-                    setChart(event.target.value as ChartContentType)
-                  }
+                  onChange={handler.charts.onChangeChart}
                   exclusive
                 >
                   {ChartContentTypes.map((button) => (
@@ -269,21 +253,52 @@ export const Budget = () => {
             {loading ? (
               <CircularProgress />
             ) : (
-              <Box sx={{ display: 'flex', flex: 1, mt: '1rem' }}>
+              <Paper elevation={0} sx={{ mt: '1rem' }}>
+                {dailyTransactions.selected && (
+                  <Box sx={{ ml: 2, mt: 1 }}>
+                    <Typography variant="caption">
+                      {isSameDay(dailyTransactions.selected.date, new Date())
+                        ? 'Today'
+                        : format(dailyTransactions.selected.date, 'dd.MM.yy')}
+                    </Typography>
+                    <Typography variant="subtitle1">
+                      {formatBalance(dailyTransactions.selected.amount)}
+                    </Typography>
+                  </Box>
+                )}
+
                 {chart === 'INCOME' ? (
                   <ParentSize>
                     {({ width }) => (
-                      <AreaChart width={width} height={width * 0.6} data={dailyIncome} />
+                      <BarChart
+                        width={width}
+                        height={width * 0.6}
+                        data={dailyTransactions.income.map((day) => ({
+                          label: day.date.toString(),
+                          value: day.amount,
+                        }))}
+                        onEvent={handler.charts.onEvent}
+                        events
+                      />
                     )}
                   </ParentSize>
                 ) : (
                   <ParentSize>
                     {({ width }) => (
-                      <AreaChart width={width} height={width * 0.6} data={dailyExpenses} />
+                      <BarChart
+                        width={width}
+                        height={width * 0.6}
+                        data={dailyTransactions.spendings.map((day) => ({
+                          label: day.date.toString(),
+                          value: day.amount,
+                        }))}
+                        onEvent={handler.charts.onEvent}
+                        events
+                      />
                     )}
                   </ParentSize>
                 )}
-              </Box>
+              </Paper>
             )}
 
             <Divider sx={{ mt: 2 }} />
@@ -320,15 +335,7 @@ export const Budget = () => {
       </Grid>
 
       <Grid item xs={12} md={12} lg={7} xl={7}>
-        {/*        <Grid item container spacing={3}>
-          {StatsCards.map((props) => (
-            <Grid key={props.title + props.subtitle} item xs={6} md={3} lg={3}>
-              <Stats {...props} />
-            </Grid>
-          ))}
-        </Grid>*/}
-
-        <Card sx={{ mt: 2 }}>
+        <Card>
           <Card.Header>
             <Box>
               <Card.Title>Category Budgets</Card.Title>

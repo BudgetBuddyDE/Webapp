@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
-import { IDailyTransaction } from '../components/Charts/area-chart.component';
+import type { IDailyTransaction } from '../components';
 import { supabase } from '../supabase';
-import { IIncome } from '../types/transaction.interface';
+import type { DailyIncome, IIncome } from '../types/';
 
 export class IncomeService {
   static async getAllTimeIncome(userId: string): Promise<IIncome[] | null> {
@@ -26,18 +26,13 @@ export class IncomeService {
     });
   }
 
-  static async getDailyIncome(
-    userId: string,
-    startDate: Date,
-    endDate: Date
-  ): Promise<IDailyTransaction[] | null> {
+  static async getDailyIncome(startDate: Date, endDate: Date): Promise<DailyIncome[] | null> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase
-        .from<IDailyTransaction>('DailyIncome')
-        .select('*')
-        .eq('created_by', userId)
-        .gte('date', format(startDate, 'yyyy/MM/dd'))
-        .lte('date', format(endDate, 'yyyy/MM/dd'));
+      const { data, error } = await supabase.rpc<DailyIncome>('get_daily_transactions', {
+        requested_data: 'INCOME',
+        end_date: endDate,
+        start_date: startDate,
+      });
       if (error) rej(error);
       res(data);
     });
