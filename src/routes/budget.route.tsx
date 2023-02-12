@@ -312,8 +312,8 @@ export const Budget = () => {
                 income.map(({ category, sum }) => (
                   <Transaction
                     key={category.id}
-                    category={category.name}
-                    date={category.description || 'No description'}
+                    title={category.name}
+                    subtitle={category.description || 'No description'}
                     amount={sum}
                   />
                 ))
@@ -324,8 +324,8 @@ export const Budget = () => {
               expenses.map(({ category, sum }) => (
                 <Transaction
                   key={category.id}
-                  category={category.name}
-                  date={category.description || 'No description'}
+                  title={category.name}
+                  subtitle={category.description || 'No description'}
                   amount={Math.abs(sum)}
                 />
               ))

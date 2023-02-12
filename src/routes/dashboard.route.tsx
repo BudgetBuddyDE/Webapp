@@ -15,6 +15,7 @@ import {
   SpendingChartType,
   Stats,
   StatsIconStyle,
+  Subscription,
   Transaction,
 } from '../components';
 import { AuthContext, StoreContext } from '../context';
@@ -26,7 +27,7 @@ import {
   TransactionService,
 } from '../services';
 import type { IExpense, IExpenseTransactionDTO, IMonthlyBalanceAvg } from '../types';
-import { addTransactionToExpenses, determineNextExecution, formatBalance } from '../utils';
+import { addTransactionToExpenses, formatBalance } from '../utils';
 
 /**
  * How many months do we wanna look back?
@@ -196,11 +197,11 @@ export const Dashboard = () => {
               <CircularProgress />
             ) : subscriptions.length > 0 ? (
               latestSubscriptions.map(({ id, categories, receiver, amount, execute_at }) => (
-                <Transaction
+                <Subscription
                   key={id}
-                  category={categories.name}
-                  date={determineNextExecution(execute_at)}
-                  receiver={receiver}
+                  title={receiver}
+                  subtitle={categories.name}
+                  executeAt={execute_at}
                   amount={amount}
                 />
               ))
@@ -276,9 +277,9 @@ export const Dashboard = () => {
               latestTransactions.map(({ id, categories, receiver, amount, date }) => (
                 <Transaction
                   key={id}
-                  category={categories.name}
+                  title={receiver}
+                  subtitle={categories.name}
                   date={new Date(date)}
-                  receiver={receiver}
                   amount={amount}
                 />
               ))

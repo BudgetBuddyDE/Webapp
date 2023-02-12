@@ -2,20 +2,21 @@ import { Receipt as ReceiptIcon } from '@mui/icons-material';
 import { Box, Chip, Typography } from '@mui/material';
 import format from 'date-fns/format';
 import React from 'react';
+import { formatBalance } from '../../utils';
 import { Icon } from '../Base/icon.component';
 
 export interface TransactionProps {
-  category: string;
-  receiver?: string;
-  date: Date | string;
-  amount: number;
   icon?: JSX.Element;
+  title: string;
+  subtitle: string | string[];
+  date?: Date;
+  amount: number;
 }
 
 export const Transaction: React.FC<TransactionProps> = ({
   icon = <ReceiptIcon />,
-  category,
-  receiver,
+  title,
+  subtitle,
   date,
   amount,
 }) => {
@@ -34,18 +35,26 @@ export const Transaction: React.FC<TransactionProps> = ({
           mr: 0.5,
         }}
       >
-        <Typography fontWeight="bold">{receiver && `${receiver}`}</Typography>
-        <Chip
-          label={typeof date === 'string' ? date : format(date, 'dd.MM')}
-          size="small"
-          variant="outlined"
-        />
-        <Chip label={category} size="small" variant="outlined" sx={{ ml: 1 }} />
+        <Typography fontWeight="bold">{title}</Typography>
+        {date && (
+          <Chip label={format(date, 'dd.MM')} size="small" variant="outlined" sx={{ mr: 1 }} />
+        )}
+        {typeof subtitle === 'string' ? (
+          <Chip label={subtitle} size="small" variant="outlined" sx={{ mr: 1 }} />
+        ) : (
+          subtitle.map((subtitleItem, index) => (
+            <Chip
+              key={'transaction-subtitle-' + index}
+              label={subtitleItem}
+              size="small"
+              variant="outlined"
+              sx={{ mr: 1 }}
+            />
+          ))
+        )}
       </Box>
       <Box sx={{ ml: 'auto' }}>
-        <Typography fontWeight="bold">
-          {amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-        </Typography>
+        <Typography fontWeight="bold">{formatBalance(amount)}</Typography>
       </Box>
     </Box>
   );
