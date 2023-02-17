@@ -17,13 +17,13 @@ import {
 import { CSSObject, Theme, styled } from '@mui/material/styles';
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { DrawerLinks } from '../constants/drawer-items.constant';
-import { AuthContext, StoreContext } from '../context';
-import { useScreenSize } from '../hooks';
-import { supabase } from '../supabase';
-import { drawerWidth } from '../theme/default.theme';
-import { DrawerItem } from './Core';
-import { ProfileAvatar } from './profile-avatar.component';
+import { DrawerLinks } from '../../../constants/drawer-items.constant';
+import { AuthContext, StoreContext } from '../../../context';
+import { useScreenSize } from '../../../hooks';
+import { supabase } from '../../../supabase';
+import { drawerWidth } from '../../../theme/default.theme';
+import { DrawerItem } from '../index';
+import { ProfileAvatar } from '../../profile-avatar.component';
 
 export function getSavedSidebarState() {
   const saved = localStorage.getItem('bb.sidebar.show');
@@ -187,7 +187,7 @@ const Profile: React.FC<{ open: boolean }> = ({ open }) => {
 /**
  * We're inverting the showDrawer-value on mobile devices because it should be hidden by default on mobile devices for better UX
  */
-const Drawer = () => {
+export const Drawer = () => {
   const location = useLocation();
   const { showDrawer, setShowDrawer } = React.useContext(StoreContext);
 
@@ -260,5 +260,3 @@ const Drawer = () => {
     </>
   );
 };
-
-export default Drawer;

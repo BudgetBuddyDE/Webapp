@@ -10,7 +10,6 @@ export * from './Inputs';
 
 export * from './chip.component';
 export * from './copyright.component';
-export * from './drawer.component';
 export * from './filter-drawer.component';
 export * from './profile-avatar.component';
 export * from './show-filter.component';
