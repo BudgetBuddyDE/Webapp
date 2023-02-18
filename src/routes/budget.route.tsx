@@ -37,7 +37,7 @@ import { AuthContext, SnackbarContext, StoreContext } from '../context';
 import { useScreenSize } from '../hooks';
 import { Budget as BudgetModel } from '../models';
 import { ExpenseService, IncomeService } from '../services';
-import type { DailyIncome, DailySpending, IExpense, IIncome } from '../types';
+import type { IExpense, IIncome } from '../types';
 import { formatBalance, getFirstDayOfMonth } from '../utils';
 
 export const DATE_RANGE_INPUT_FORMAT = 'dd.MM';
@@ -54,14 +54,10 @@ export const Budget = () => {
   const [, startTransition] = React.useTransition();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, budget, setBudget } = React.useContext(StoreContext);
+  const { loading, budget, setBudget, dailyTransactions, setDailyTransactions } =
+    React.useContext(StoreContext);
   const [chart, setChart] = React.useState<ChartContentType>('INCOME');
   const [dateRange, setDateRange] = React.useState({ from: getFirstDayOfMonth(), to: new Date() });
-  const [dailyTransactions, setDailyTransactions] = React.useState<{
-    selected: DailyIncome | DailySpending | null;
-    income: DailyIncome[];
-    spendings: DailySpending[];
-  }>({ income: [], spendings: [], selected: null });
   const [income, setIncome] = React.useState<IIncome[]>([]);
   const [expenses, setExpenses] = React.useState<IExpense[]>([]);
   const [showForm, setShowForm] = React.useState<{
@@ -134,29 +130,28 @@ export const Budget = () => {
     charts: {
       onEvent(bar) {
         if (!bar) return;
-        setDailyTransactions((prevState) => ({
-          ...prevState,
+        setDailyTransactions({
+          type: 'UPDATE_SELECTED',
           selected: {
             date: new Date(bar.label),
             amount: bar.value,
           },
-        }));
+        });
       },
       onChangeChart(event) {
         const newChart = event.target.value as ChartContentType;
         if (newChart === chart) return;
 
         setChart(newChart);
-        setDailyTransactions((prev) => {
-          const list = newChart === 'INCOME' ? prev.income : prev.spendings;
-          const today = list[list.length - 1];
-          return {
-            ...prev,
-            selected: {
-              amount: today.amount,
-              date: new Date(today.date),
-            },
-          };
+        const transactions =
+          newChart === 'INCOME' ? dailyTransactions.income : dailyTransactions.spendings;
+        const today = transactions[transactions.length - 1];
+        setDailyTransactions({
+          type: 'UPDATE_SELECTED',
+          selected: {
+            amount: today.amount,
+            date: new Date(today.date),
+          },
         });
       },
     },
@@ -178,16 +173,16 @@ export const Budget = () => {
 
         if (getDailyIncome) {
           const today = getDailyIncome[getDailyIncome.length - 1];
-          setDailyTransactions((prev) => ({
-            ...prev,
+          setDailyTransactions({
+            type: 'UPDATE_INCOME_SELECTED',
             income: getDailyIncome,
             selected: today
               ? {
-                  amount: today.amount,
                   date: new Date(today.date),
+                  amount: today.amount,
                 }
               : null,
-          }));
+          });
         }
 
         if (getExpenses) {
@@ -195,7 +190,7 @@ export const Budget = () => {
         } else setExpenses([]);
 
         if (getDailyExpenses) {
-          setDailyTransactions((prev) => ({ ...prev, spendings: getDailyExpenses }));
+          setDailyTransactions({ type: 'UPDATE_SPENDINGS', spendings: getDailyExpenses });
         }
       })
       .catch((error) => console.error(error));
@@ -210,9 +205,7 @@ export const Budget = () => {
           <Card.Header sx={{ mb: 2 }}>
             <Box>
               <Card.Title>Transactions</Card.Title>
-              <Card.Subtitle>
-                {chart === 'INCOME' ? 'Income' : 'Spendings'} grouped by their category!
-              </Card.Subtitle>
+              <Card.Subtitle>Your category statistics</Card.Subtitle>
             </Box>
 
             <Card.HeaderActions>
@@ -225,7 +218,9 @@ export const Budget = () => {
                   exclusive
                 >
                   {ChartContentTypes.map((button) => (
-                    <ToggleButton value={button.type}>{button.label}</ToggleButton>
+                    <ToggleButton key={button.type} value={button.type}>
+                      {button.label}
+                    </ToggleButton>
                   ))}
                 </ToggleButtonGroup>
               </ActionPaper>
@@ -390,6 +385,7 @@ export const Budget = () => {
             ) : budget.length > 0 ? (
               budget.map((item) => (
                 <CategoryBudget
+                  key={item.id}
                   budget={item}
                   onEdit={handler.editBudget.onEdit}
                   onDelete={handler.onBudgetDelete}

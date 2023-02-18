@@ -1,19 +1,16 @@
-import * as React from 'react';
-import { getSavedSidebarState, saveSidebarState } from '../components/drawer.component';
-import { DEFAULT_FILTER_VALUE } from '../components/filter-drawer.component';
-import { Budget } from '../models/budget.model';
-import { Category } from '../models/category.model';
-import { PaymentMethod } from '../models/paymentMethod.model';
-import { Subscription } from '../models/subscription.model';
-import { Transaction } from '../models/transaction.model';
-import { BudgetService } from '../services/budget.service';
-import { CategoryService } from '../services/category.service';
-import { PaymentMethodService } from '../services/payment-method.service';
-import { SubscriptionService } from '../services/subscription.service';
-import { TransactionService } from '../services/transaction.service';
-import type { IFilter } from '../types/filter.interface';
-import type { IStoreContext } from '../types/store-context.type';
-import { sortSubscriptionsByExecution } from '../utils/subscription/sortSubscriptions';
+import React from 'react';
+import { DEFAULT_FILTER_VALUE, getSavedSidebarState, saveSidebarState } from '../components';
+import { Budget, Category, PaymentMethod, Subscription, Transaction } from '../models/';
+import {
+  BudgetService,
+  CategoryService,
+  PaymentMethodService,
+  SubscriptionService,
+  TransactionService,
+} from '../services/';
+import { DailyTransactionReducer } from '../types';
+import type { IFilter, IStoreContext } from '../types/';
+import { sortSubscriptionsByExecution } from '../utils/';
 import { AuthContext } from './auth.context';
 
 export const StoreContext = React.createContext({} as IStoreContext);
@@ -29,6 +26,11 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   const [paymentMethods, setPaymentMethods] = React.useState<PaymentMethod[]>([]);
   const [showFilter, setShowFilter] = React.useState(false);
   const [filter, setFilter] = React.useState<IFilter>(DEFAULT_FILTER_VALUE);
+  const [dailyTransactions, setDailyTransactions] = React.useReducer(DailyTransactionReducer, {
+    selected: null,
+    income: [],
+    spendings: [],
+  });
 
   React.useMemo(() => saveSidebarState(showDrawer), [showDrawer]);
 
@@ -56,14 +58,14 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     }
   }, [session]);
 
-  const transactionReceiver = React.useMemo(
-    () =>
-      [...new Set(transactions.map((transaction) => transaction.receiver))].map((receiver) => ({
+  const transactionReceiver = React.useMemo(() => {
+    return [...new Set(transactions.map((transaction) => transaction.receiver))].map(
+      (receiver) => ({
         text: receiver,
         value: receiver,
-      })),
-    [transactions]
-  );
+      })
+    );
+  }, [transactions]);
 
   return (
     <StoreContext.Provider
@@ -73,6 +75,8 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
           setLoading,
           showDrawer,
           setShowDrawer,
+          dailyTransactions,
+          setDailyTransactions,
           transactions,
           setTransactions,
           transactionReceiver,
@@ -92,6 +96,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
         [
           loading,
           showDrawer,
+          dailyTransactions,
           transactions,
           transactionReceiver,
           budget,
