@@ -20,10 +20,16 @@ export interface PieChartProps {
   width: number;
   height: number;
   margin?: { top: number; right: number; bottom: number; left: number };
+  formatAsCurrency?: boolean;
+  showTotalSum?: boolean;
 }
 
 function getAbsoluteAmount(data: PieChartData) {
   return Math.abs(data.value);
+}
+
+function formatValue(amount: number, formatAsCurrency: boolean = false) {
+  return formatAsCurrency ? formatBalance(amount) : amount;
 }
 
 function hasSpaceForLabel(
@@ -40,6 +46,8 @@ export const PieChart: React.FC<PieChartProps> = ({
   width,
   height,
   margin = { top: 0, right: 0, bottom: 0, left: 0 },
+  formatAsCurrency,
+  showTotalSum = false,
 }) => {
   // Hooks
   const theme = useTheme();
@@ -92,7 +100,10 @@ export const PieChart: React.FC<PieChartProps> = ({
                 <React.Fragment key={`pie-arc-${i}`}>
                   <g>
                     <Tooltip
-                      title={`${arc.data.label}: ${formatBalance(Math.abs(arc.data.value))}`}
+                      title={`${arc.data.label}: ${formatValue(
+                        Math.abs(arc.data.value),
+                        formatAsCurrency
+                      )}`}
                     >
                       <path d={pie.path(arc) || ''} fill={getCategoryColor(arc.data.label)} />
                     </Tooltip>
@@ -119,7 +130,7 @@ export const PieChart: React.FC<PieChartProps> = ({
                           textAnchor="middle"
                           pointerEvents="none"
                         >
-                          {formatBalance(Math.abs(arc.data.value))}
+                          {formatValue(Math.abs(arc.data.value), formatAsCurrency)}
                         </text>
                         <text
                           fill="white"
@@ -136,15 +147,17 @@ export const PieChart: React.FC<PieChartProps> = ({
                   </g>
 
                   {/* Total sum */}
-                  <g>
-                    <text
-                      fill="white"
-                      textAnchor="middle"
-                      fontSize={screenSize === 'small' ? 20 : 28}
-                    >
-                      {formatBalance(sum)}
-                    </text>
-                  </g>
+                  {showTotalSum && (
+                    <g>
+                      <text
+                        fill="white"
+                        textAnchor="middle"
+                        fontSize={screenSize === 'small' ? 20 : 28}
+                      >
+                        {formatValue(sum, formatAsCurrency)}
+                      </text>
+                    </g>
+                  )}
                 </React.Fragment>
               );
             })
