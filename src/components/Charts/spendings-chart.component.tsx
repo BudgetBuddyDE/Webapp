@@ -14,7 +14,7 @@ export function getAbsoluteAmount(expense: IExpense) {
 
 export type SpendingChartType = 'MONTH' | 'ALL';
 
-export const PieChart: React.FC<{ expenses: IExpense[] }> = ({ expenses }) => {
+export const SpendingsChart: React.FC<{ expenses: IExpense[] }> = ({ expenses }) => {
   const theme = useTheme();
   const screenSize = useScreenSize();
   const MARGIN = { top: 0, right: 0, bottom: 0, left: 0 };

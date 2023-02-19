@@ -11,8 +11,8 @@ import {
   IStatsProps,
   NoResults,
   PageHeader,
-  PieChart,
   SpendingChartType,
+  SpendingsChart,
   Stats,
   StatsIconStyle,
   Subscription,
@@ -243,9 +243,9 @@ export const Dashboard = () => {
             ) : (
               <Box sx={{ display: 'flex', flex: 1, mt: '1rem' }}>
                 {chart === 'MONTH' ? (
-                  <PieChart expenses={currentMonthExpenses} />
+                  <SpendingsChart expenses={currentMonthExpenses} />
                 ) : (
-                  <PieChart expenses={allTimeExpenses} />
+                  <SpendingsChart expenses={allTimeExpenses} />
                 )}
               </Box>
             )}
