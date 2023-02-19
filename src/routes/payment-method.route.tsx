@@ -4,6 +4,7 @@ import {
   Button,
   Grid,
   IconButton,
+  Paper,
   Table,
   TableBody,
   TableCell,
@@ -11,32 +12,31 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  ToggleButton,
-  ToggleButtonGroup,
   Tooltip,
   Typography,
 } from '@mui/material';
-import { ParentSize } from '@visx/responsive';
 import React from 'react';
 import {
   ActionPaper,
   Card,
   CircularProgress,
   CreatePaymentMethod,
+  EarningsByPaymentMethod,
   EditPaymentMethod,
   Linkify,
   NoResults,
   PageHeader,
-  PieChart,
-  PieChartData,
   SearchInput,
+  UsedByPaymentMethod,
 } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
+import { useScreenSize } from '../hooks';
 import { PaymentMethod } from '../models';
 
 const rowsPerPageOptions = [10, 25, 50, 100];
 
 export const PaymentMethods = () => {
+  const screenSize = useScreenSize();
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, transactions, subscriptions, paymentMethods, setPaymentMethods } =
     React.useContext(StoreContext);
@@ -46,9 +46,6 @@ export const PaymentMethods = () => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);
   const [editPaymentMethod, setEditPaymentMethod] = React.useState<PaymentMethod | null>(null);
-  const [chartContent, setChartContent] = React.useState<'TRANSACTIONS' | 'SUBSCRIPTIONS'>(
-    'TRANSACTIONS'
-  );
 
   const handler: {
     onSearch: (keyword: string) => void;
@@ -103,38 +100,11 @@ export const PaymentMethods = () => {
     );
   }, [keyword, paymentMethods]);
 
-  const paymentMethodsUsedInTransactions = React.useMemo(() => {
-    if (paymentMethods.length < 1 || transactions.length < 1) return [];
-    return paymentMethods.map(({ id, name }) => ({
-      name: name,
-      count: transactions.reduce((prev, cur) => prev + (cur.paymentMethods.id === id ? 1 : 0), 0),
-    }));
-  }, [paymentMethods, transactions]);
-
-  const paymentMethodsUsedInSubscriptions = React.useMemo(() => {
-    if (paymentMethods.length < 1 || subscriptions.length < 1) return [];
-    return paymentMethods.map(({ id, name }) => ({
-      name: name,
-      count: subscriptions.reduce((prev, cur) => prev + (cur.paymentMethods.id === id ? 1 : 0), 0),
-    }));
-  }, [paymentMethods, subscriptions]);
-
-  const countedChartData: PieChartData[] = React.useMemo(() => {
-    return (
-      chartContent === 'TRANSACTIONS'
-        ? paymentMethodsUsedInTransactions
-        : paymentMethodsUsedInSubscriptions
-    ).map(({ name, count }) => ({
-      label: name,
-      value: count,
-    }));
-  }, [chartContent, paymentMethodsUsedInTransactions, paymentMethodsUsedInSubscriptions]);
-
   return (
     <Grid container spacing={3}>
       <PageHeader title="Payment Methods" description="How are u paying today, sir?" />
 
-      <Grid item xs={12} md={9} lg={8} xl={9} order={{ xs: 2, md: 1 }}>
+      <Grid item xs={12} md={9} lg={8} xl={9} order={{ xs: 1, md: 0 }}>
         <Card>
           <Card.Header>
             <Box>
@@ -237,38 +207,29 @@ export const PaymentMethods = () => {
         </Card>
       </Grid>
 
-      <Grid item xs={12} md={3} lg={4} xl={3} order={{ xs: 1, md: 2 }}>
-        <Card>
-          <Card.Header>
-            <Box>
-              <Card.Title>Counted</Card.Title>
-              <Card.Subtitle>How did u pay?</Card.Subtitle>
-            </Box>
+      <Grid container item xs={12} md={3} lg={4} xl={3} order={{ xs: 0, md: 1 }}>
+        <Grid item xs={12}>
+          {!loading && (
+            <UsedByPaymentMethod
+              paymentMethods={paymentMethods}
+              transactions={transactions}
+              subscriptions={subscriptions}
+            />
+          )}
+        </Grid>
 
-            <Card.HeaderActions>
-              <ActionPaper>
-                <ToggleButtonGroup
-                  size="small"
-                  color="primary"
-                  value={chartContent}
-                  onChange={(event: React.BaseSyntheticEvent) =>
-                    setChartContent(event.target.value)
-                  }
-                  exclusive
-                >
-                  <ToggleButton value={'TRANSACTIONS'}>Transactions</ToggleButton>
-                  <ToggleButton value={'SUBSCRIPTIONS'}>Subscriptions</ToggleButton>
-                </ToggleButtonGroup>
-              </ActionPaper>
-            </Card.HeaderActions>
-          </Card.Header>
-          <Card.Body sx={{ mt: 2 }}>
-            <ParentSize>
-              {({ width }) => <PieChart width={width} height={width} data={countedChartData} />}
-            </ParentSize>
-          </Card.Body>
-        </Card>
+        <Grid item xs={12}>
+          {screenSize !== 'small' && !loading && (
+            <EarningsByPaymentMethod paymentMethods={paymentMethods} transactions={transactions} />
+          )}
+        </Grid>
       </Grid>
+
+      {screenSize === 'small' && !loading && (
+        <Grid item xs={12} order={{ xs: 2 }}>
+          <EarningsByPaymentMethod paymentMethods={paymentMethods} transactions={transactions} />
+        </Grid>
+      )}
 
       <CreatePaymentMethod open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
 
