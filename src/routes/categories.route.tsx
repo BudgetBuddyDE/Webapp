@@ -20,6 +20,7 @@ import {
   Card,
   CircularProgress,
   CreateCategory,
+  EarningsByCategory,
   EditCategory,
   Linkify,
   NoResults,
@@ -27,54 +28,67 @@ import {
   SearchInput,
 } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
+import { useScreenSize } from '../hooks';
 import { Category } from '../models';
 
 export const Categories = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, categories, setCategories } = React.useContext(StoreContext);
+  const { loading, categories, transactions, subscriptions, setCategories } =
+    React.useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [keyword, setKeyword] = React.useState('');
-  const [shownCategories, setShownCategories] = React.useState<readonly Category[]>(categories);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);
   const [editCategory, setEditCategory] = React.useState<Category | null>(null);
   const [, startTransition] = React.useTransition();
 
-  const handleOnSearch = (text: string) => setKeyword(text.toLowerCase());
-
-  const handlePageChange = (event: unknown, newPage: number) => {
-    setPage(newPage);
+  const handler: {
+    onSearch: (keyword: string) => void;
+    pagination: {
+      onPageChange: (event: unknown, newPage: number) => void;
+      onChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    };
+    category: {
+      onDelete: (category: Category) => void;
+    };
+  } = {
+    onSearch(text) {
+      setKeyword(text.toLowerCase());
+    },
+    pagination: {
+      onPageChange(event, newPage) {
+        setPage(newPage);
+      },
+      onChangeRowsPerPage(event) {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+      },
+    },
+    category: {
+      async onDelete(category) {
+        try {
+          const deletedCategories = await category.delete();
+          if (!deletedCategories || deletedCategories.length < 1)
+            throw new Error('No category deleted');
+          startTransition(() => {
+            setCategories((prev) => prev.filter(({ id }) => id !== deletedCategories[0].id));
+          });
+          showSnackbar({ message: `Category ${deletedCategories[0].name} deleted` });
+        } catch (error) {
+          console.error(error);
+          showSnackbar({
+            message: `Could'nt delete category`,
+            action: <Button onClick={() => handler.category.onDelete(category)}>Retry</Button>,
+          });
+        }
+      },
+    },
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleDelete = async (category: Category) => {
-    try {
-      const deletedCategories = await category.delete();
-      if (!deletedCategories || deletedCategories.length < 1)
-        throw new Error('No category deleted');
-      startTransition(() => {
-        setCategories((prev) => prev.filter(({ id }) => id !== deletedCategories[0].id));
-      });
-      showSnackbar({ message: `Category ${deletedCategories[0].name} deleted` });
-    } catch (error) {
-      console.error(error);
-      showSnackbar({
-        message: `Could'nt delete category`,
-        action: <Button onClick={() => handleDelete(category)}>Retry</Button>,
-      });
-    }
-  };
-
-  React.useEffect(() => setShownCategories(categories), [categories]);
-
-  React.useEffect(() => {
-    if (keyword === '') setShownCategories(categories);
-    setShownCategories(categories.filter((item) => item.name.toLowerCase().includes(keyword)));
+  const shownCategories: Category[] = React.useMemo(() => {
+    if (keyword === '') return categories;
+    return categories.filter((item) => item.name.toLowerCase().includes(keyword));
   }, [keyword, categories]);
 
   return (
@@ -90,7 +104,7 @@ export const Categories = () => {
             </Box>
             <Card.HeaderActions>
               <ActionPaper sx={{ display: 'flex', flexDirection: 'row' }}>
-                <SearchInput onSearch={handleOnSearch} />
+                <SearchInput onSearch={handler.onSearch} />
                 <Tooltip title="Add Category">
                   <IconButton color="primary" onClick={() => setShowAddForm(true)}>
                     <AddIcon fontSize="inherit" />
@@ -102,7 +116,7 @@ export const Categories = () => {
           {loading ? (
             <CircularProgress />
           ) : categories.length > 0 ? (
-            <>
+            <React.Fragment>
               <Card.Body>
                 <TableContainer>
                   <Table sx={{ minWidth: 650 }} aria-label="Category Table">
@@ -140,7 +154,10 @@ export const Categories = () => {
                                   </IconButton>
                                 </Tooltip>
                                 <Tooltip title="Delete" placement="top">
-                                  <IconButton color="primary" onClick={() => handleDelete(row)}>
+                                  <IconButton
+                                    color="primary"
+                                    onClick={() => handler.category.onDelete(row)}
+                                  >
                                     <DeleteIcon />
                                   </IconButton>
                                 </Tooltip>
@@ -158,18 +175,22 @@ export const Categories = () => {
                     component="div"
                     count={shownCategories.length}
                     page={page}
-                    onPageChange={handlePageChange}
+                    onPageChange={handler.pagination.onPageChange}
                     labelRowsPerPage="Rows:"
                     rowsPerPage={rowsPerPage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    onRowsPerPageChange={handler.pagination.onChangeRowsPerPage}
                   />
                 </ActionPaper>
               </Card.Footer>
-            </>
+            </React.Fragment>
           ) : (
             <NoResults sx={{ mt: 2 }} text="No categories found" />
           )}
         </Card>
+      </Grid>
+
+      <Grid item xs={12} md={3} lg={4} xl={3} order={{ xs: 0, md: 1 }}>
+        {!loading && <EarningsByCategory categories={categories} transactions={transactions} />}
       </Grid>
 
       <CreateCategory open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
