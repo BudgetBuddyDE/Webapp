@@ -31,30 +31,29 @@ import {
   ShowFilterButton,
 } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
-import { useStateCallback } from '../hooks';
 import { Transaction } from '../models';
 import { filterTransactions } from '../utils';
+
+interface TransactionHandler {
+  onSearch: (text: string) => void;
+  onAddTransaction: (show: boolean) => void;
+  onPageChange: (event: unknown, newPage: number) => void;
+  onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onTransactionDelete: (transaction: Transaction) => void;
+}
 
 export const Transactions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, filter, transactions, setTransactions } = React.useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
   const [keyword, setKeyword] = React.useState('');
-  const [shownTransactions, setShownTransactions] =
-    useStateCallback<readonly Transaction[]>(transactions);
   const [page, setPage] = React.useState(0);
   const [, startTransition] = React.useTransition();
   const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
 
-  const handler: {
-    onSearch: (text: string) => void;
-    onAddTransaction: (show: boolean) => void;
-    onPageChange: (event: unknown, newPage: number) => void;
-    onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    onTransactionDelete: (transaction: Transaction) => void;
-  } = {
+  const handler: TransactionHandler = {
     onSearch(text) {
       setKeyword(text.toLowerCase());
     },
@@ -87,25 +86,21 @@ export const Transactions = () => {
     },
   };
 
+  const shownTransactions: Transaction[] = React.useMemo(() => {
+    return filterTransactions(keyword, filter, transactions);
+  }, [transactions, keyword, filter]);
+
   const currentPageTransactions: Transaction[] = React.useMemo(() => {
     return shownTransactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [shownTransactions, page, rowsPerPage]);
-
-  React.useEffect(() => {
-    setShownTransactions(transactions);
-  }, [transactions, setShownTransactions]);
-
-  React.useEffect(() => {
-    setShownTransactions(filterTransactions(keyword, filter, transactions));
-  }, [keyword, filter, transactions, setShownTransactions]);
 
   return (
     <Grid container spacing={3}>
       <PageHeader title="Transactions" description="What have you bought today?" />
 
       <Grid item xs={12} md={12}>
-        <Card>
-          <Card.Header>
+        <Card sx={{ p: 0 }}>
+          <Card.Header sx={{ p: 2, pb: 0 }}>
             <Box>
               <Card.Title>Transactions</Card.Title>
               <Card.Subtitle>Manage your transactions</Card.Subtitle>
@@ -125,7 +120,7 @@ export const Transactions = () => {
           {loading ? (
             <CircularProgress />
           ) : transactions.length > 0 ? (
-            <>
+            <React.Fragment>
               <Card.Body>
                 <TableContainer>
                   <Table sx={{ minWidth: 650 }} aria-label="Transaction Table">
@@ -207,7 +202,7 @@ export const Transactions = () => {
                   </Table>
                 </TableContainer>
               </Card.Body>
-              <Card.Footer>
+              <Card.Footer sx={{ p: 2, pt: 0 }}>
                 <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                   <TablePagination
                     component="div"
@@ -220,7 +215,7 @@ export const Transactions = () => {
                   />
                 </ActionPaper>
               </Card.Footer>
-            </>
+            </React.Fragment>
           ) : (
             <NoResults sx={{ mt: 2 }} text="No transactions found" />
           )}

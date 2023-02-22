@@ -4,7 +4,6 @@ import {
   Button,
   Grid,
   IconButton,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -33,6 +32,17 @@ import { SnackbarContext, StoreContext } from '../context';
 import { useScreenSize } from '../hooks';
 import { PaymentMethod } from '../models';
 
+interface PaymentMethodHandler {
+  onSearch: (keyword: string) => void;
+  paginator: {
+    onPageChange: (event: unknown, newPage: number) => void;
+    onChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  };
+  paymentMethod: {
+    onDelete: (paymentMethod: PaymentMethod) => void;
+  };
+}
+
 const rowsPerPageOptions = [10, 25, 50, 100];
 
 export const PaymentMethods = () => {
@@ -47,16 +57,7 @@ export const PaymentMethods = () => {
   const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);
   const [editPaymentMethod, setEditPaymentMethod] = React.useState<PaymentMethod | null>(null);
 
-  const handler: {
-    onSearch: (keyword: string) => void;
-    paginator: {
-      onPageChange: (event: unknown, newPage: number) => void;
-      onChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    };
-    paymentMethod: {
-      onDelete: (paymentMethod: PaymentMethod) => void;
-    };
-  } = {
+  const handler: PaymentMethodHandler = {
     onSearch(keyword) {
       setKeyword(keyword.toLowerCase());
     },
@@ -100,13 +101,17 @@ export const PaymentMethods = () => {
     );
   }, [keyword, paymentMethods]);
 
+  const currentPagePaymentMethods: PaymentMethod[] = React.useMemo(() => {
+    return shownPaymentMethods.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  }, [shownPaymentMethods, page, rowsPerPage]);
+
   return (
     <Grid container spacing={3}>
       <PageHeader title="Payment Methods" description="How are u paying today, sir?" />
 
       <Grid item xs={12} md={9} lg={8} xl={9} order={{ xs: 1, md: 0 }}>
-        <Card>
-          <Card.Header>
+        <Card sx={{ p: 0 }}>
+          <Card.Header sx={{ p: 2, pb: 0 }}>
             <Box>
               <Card.Title>Payment Methods</Card.Title>
               <Card.Subtitle>Manage your payment-methods</Card.Subtitle>
@@ -139,55 +144,53 @@ export const PaymentMethods = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {shownPaymentMethods
-                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                        .map((row) => (
-                          <TableRow
-                            key={row.id}
-                            sx={{
-                              '&:last-child td, &:last-child th': { border: 0 },
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            <TableCell>
-                              <Typography>{row.name}</Typography>
-                            </TableCell>
-                            <TableCell>
-                              <Linkify>{row.provider}</Linkify>
-                            </TableCell>
-                            <TableCell>
-                              <Linkify>{row.address}</Linkify>
-                            </TableCell>
-                            <TableCell>
-                              <Linkify>{row.description ?? 'No description'}</Linkify>
-                            </TableCell>
-                            <TableCell align="right">
-                              <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
-                                <Tooltip title="Edit" placement="top">
-                                  <IconButton
-                                    color="primary"
-                                    onClick={() => setEditPaymentMethod(row)}
-                                  >
-                                    <EditIcon />
-                                  </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Delete" placement="top">
-                                  <IconButton
-                                    color="primary"
-                                    onClick={() => handler.paymentMethod.onDelete(row)}
-                                  >
-                                    <DeleteIcon />
-                                  </IconButton>
-                                </Tooltip>
-                              </ActionPaper>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                      {currentPagePaymentMethods.map((row) => (
+                        <TableRow
+                          key={row.id}
+                          sx={{
+                            '&:last-child td, &:last-child th': { border: 0 },
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          <TableCell>
+                            <Typography>{row.name}</Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Linkify>{row.provider}</Linkify>
+                          </TableCell>
+                          <TableCell>
+                            <Linkify>{row.address}</Linkify>
+                          </TableCell>
+                          <TableCell>
+                            <Linkify>{row.description ?? 'No description'}</Linkify>
+                          </TableCell>
+                          <TableCell align="right">
+                            <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
+                              <Tooltip title="Edit" placement="top">
+                                <IconButton
+                                  color="primary"
+                                  onClick={() => setEditPaymentMethod(row)}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete" placement="top">
+                                <IconButton
+                                  color="primary"
+                                  onClick={() => handler.paymentMethod.onDelete(row)}
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </ActionPaper>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
               </Card.Body>
-              <Card.Footer>
+              <Card.Footer sx={{ p: 2, pt: 0 }}>
                 <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                   <TablePagination
                     component="div"

@@ -28,13 +28,22 @@ import {
   SearchInput,
 } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
-import { useScreenSize } from '../hooks';
 import { Category } from '../models';
+
+interface CategoryHandler {
+  onSearch: (keyword: string) => void;
+  pagination: {
+    onPageChange: (event: unknown, newPage: number) => void;
+    onChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  };
+  category: {
+    onDelete: (category: Category) => void;
+  };
+}
 
 export const Categories = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, categories, transactions, subscriptions, setCategories } =
-    React.useContext(StoreContext);
+  const { loading, categories, transactions, setCategories } = React.useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [keyword, setKeyword] = React.useState('');
@@ -43,16 +52,7 @@ export const Categories = () => {
   const [editCategory, setEditCategory] = React.useState<Category | null>(null);
   const [, startTransition] = React.useTransition();
 
-  const handler: {
-    onSearch: (keyword: string) => void;
-    pagination: {
-      onPageChange: (event: unknown, newPage: number) => void;
-      onChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    };
-    category: {
-      onDelete: (category: Category) => void;
-    };
-  } = {
+  const handler: CategoryHandler = {
     onSearch(text) {
       setKeyword(text.toLowerCase());
     },
@@ -91,13 +91,17 @@ export const Categories = () => {
     return categories.filter((item) => item.name.toLowerCase().includes(keyword));
   }, [keyword, categories]);
 
+  const currentPageCategories: Category[] = React.useMemo(() => {
+    return shownCategories.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  }, [shownCategories, page, rowsPerPage]);
+
   return (
     <Grid container spacing={3}>
       <PageHeader title="Categories" description="What kind of labels u wanna use?" />
 
       <Grid item xs={12} md={12} lg={8} xl={6}>
-        <Card>
-          <Card.Header>
+        <Card sx={{ p: 0 }}>
+          <Card.Header sx={{ p: 2, pb: 0 }}>
             <Box>
               <Card.Title>Categories</Card.Title>
               <Card.Subtitle>Manage your categories</Card.Subtitle>
@@ -169,7 +173,7 @@ export const Categories = () => {
                   </Table>
                 </TableContainer>
               </Card.Body>
-              <Card.Footer>
+              <Card.Footer sx={{ p: 2, pt: 0 }}>
                 <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                   <TablePagination
                     component="div"
