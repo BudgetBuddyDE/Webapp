@@ -11,19 +11,16 @@ import {
 } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import * as React from 'react';
-import { AuthContext } from '../../context/auth.context';
-import { SnackbarContext } from '../../context/snackbar.context';
-import { StoreContext } from '../../context/store.context';
-import { useScreenSize } from '../../hooks/useScreenSize.hook';
-import { Subscription } from '../../models/subscription.model';
-import { SubscriptionService } from '../../services/subscription.service';
+import React from 'react';
+import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
+import { useScreenSize } from '../../hooks/';
+import { Subscription } from '../../models/';
+import { SubscriptionService } from '../../services';
 import { FormStyle } from '../../theme/form-style';
-import type { IBaseSubscription } from '../../types/subscription.type';
-import { sortSubscriptionsByExecution } from '../../utils/subscription/sortSubscriptions';
-import { transformBalance } from '../../utils/transformBalance';
-import { FormDrawer } from '../Base/form-drawer.component';
-import { ReceiverAutocomplete } from '../Inputs/receiver-autocomplete.component';
+import type { IBaseSubscription } from '../../types/';
+import { sortSubscriptionsByExecution, transformBalance } from '../../utils/';
+import { FormDrawer } from '../Base/';
+import { ReceiverAutocomplete } from '../Inputs/';
 
 export interface ICreateSubscriptionProps {
   open: boolean;
@@ -179,11 +176,18 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({
         )}
       </LocalizationProvider>
 
-      <Box display="flex" flexDirection="row" justifyContent="space-between">
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+        }}
+      >
         <Autocomplete
           id="category"
           options={categories.map((item) => ({ label: item.name, value: item.id }))}
-          sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
+          sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
           onChange={(event, value) =>
             handler.autocompleteChange(event, 'category', Number(value?.value))
           }
@@ -196,7 +200,7 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({
             label: `${item.name} • ${item.provider}`,
             value: item.id,
           }))}
-          sx={{ width: 'calc(50% - .5rem)', mb: 2 }}
+          sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
           onChange={(event, value) =>
             handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))
           }
@@ -232,7 +236,7 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({
         name="description"
         sx={{ ...FormStyle, mb: 0 }}
         multiline
-        rows={3}
+        rows={2}
         onChange={handler.inputChange}
       />
     </FormDrawer>
