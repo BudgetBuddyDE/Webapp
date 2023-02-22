@@ -85,7 +85,10 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({
           category: form.category!,
           paymentMethod: form.paymentMethod!,
           amount: transformBalance(String(form.amount!)),
-          description: form.description!,
+          description:
+            typeof form.description === 'string' && form.description.length > 0
+              ? form.description
+              : null,
         });
         if (!updatedSubscriptions || updatedSubscriptions.length < 1)
           throw new Error('No subscription updated');

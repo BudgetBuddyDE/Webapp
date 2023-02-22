@@ -77,7 +77,10 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
             paymentMethod: Number(form.paymentMethod),
             receiver: String(form.receiver),
             amount: transformBalance(form.amount!.toString()),
-            description: form.description ? String(form.description) : null,
+            description:
+              typeof form.description === 'string' && form.description.length > 0
+                ? form.description
+                : null,
             created_by: session!.user!.id,
           },
         ]);

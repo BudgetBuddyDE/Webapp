@@ -78,7 +78,10 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({
             paymentMethod: Number(form.paymentMethod),
             receiver: String(form.receiver),
             amount: transformBalance(form.amount!.toString()),
-            description: form.description! ?? '',
+            description:
+              typeof form.description === 'string' && form.description.length > 0
+                ? form.description
+                : null,
             created_by: session!.user!.id,
           },
         ]);
