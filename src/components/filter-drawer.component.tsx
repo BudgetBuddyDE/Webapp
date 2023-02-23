@@ -10,12 +10,12 @@ import {
   Select,
   SelectChangeEvent,
 } from '@mui/material';
-import { ChangeEvent, FC, FormEvent, useContext, useState } from 'react';
-import { StoreContext } from '../context/store.context';
-import type { IFilter } from '../types/filter.interface';
-import { getLastDayOfMonth } from '../utils/getLastDayOfMonth';
-import { FormDrawer } from './Base/form-drawer.component';
-import { DateRange, IDateRange } from './Inputs/date-range.component';
+import React from 'react';
+import { StoreContext } from '../context/';
+import type { IFilter } from '../types/';
+import { getLastDayOfMonth } from '../utils/';
+import { FormDrawer } from './Base/';
+import { DateRange, IDateRange } from './Inputs/';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -39,18 +39,31 @@ export const DEFAULT_FILTER_VALUE: IFilter = {
   priceTo: 99999,
 };
 
+interface FilterDrawerHandler {
+  onClose: () => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  onReset: () => void;
+  onDateRangeChange: (props: IDateRange) => void;
+  onCategoriesChange: (event: SelectChangeEvent<number[]>) => void;
+  onDeleteCategory: (categoryId: number) => void;
+  onPaymentMethodsChange: (event: SelectChangeEvent<number[]>) => void;
+  onDeletePaymentMethod: (paymentMethodId: number) => void;
+  onPriceFromChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onPriceToChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+}
+
 export interface IFilterDrawerProps {}
 
-export const FilterDrawer: FC<IFilterDrawerProps> = () => {
+export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
   const { showFilter, setShowFilter, filter, setFilter, categories, paymentMethods } =
-    useContext(StoreContext);
-  const [unappliedFilter, setUnappliedFilter] = useState(filter);
+    React.useContext(StoreContext);
+  const [unappliedFilter, setUnappliedFilter] = React.useState(filter);
 
-  const handler = {
+  const handler: FilterDrawerHandler = {
     onClose: () => {
       setShowFilter(false);
     },
-    onSubmit: (event: FormEvent<HTMLFormElement>) => {
+    onSubmit: (event) => {
       event.preventDefault();
       setFilter(unappliedFilter);
       handler.onClose();
@@ -58,10 +71,10 @@ export const FilterDrawer: FC<IFilterDrawerProps> = () => {
     onReset: () => {
       setUnappliedFilter(DEFAULT_FILTER_VALUE);
     },
-    onDateRangeChange: ({ dateFrom, dateTo }: IDateRange) => {
+    onDateRangeChange: ({ dateFrom, dateTo }) => {
       setUnappliedFilter((prev) => ({ ...prev, dateFrom, dateTo }));
     },
-    onCategoriesChange: (event: SelectChangeEvent<number[]>) => {
+    onCategoriesChange: (event) => {
       const updateState = (state: number[] | null) => {
         if (Array.isArray(state) && state.length > 0) {
           setUnappliedFilter((prev) => ({ ...prev, categories: state }));
@@ -70,7 +83,7 @@ export const FilterDrawer: FC<IFilterDrawerProps> = () => {
       const value = event.target.value;
       updateState(typeof value === 'string' ? value.split(',').map((id) => Number(id)) : value);
     },
-    onDeleteCategory: (categoryId: number) => {
+    onDeleteCategory: (categoryId) => {
       if (unappliedFilter.categories) {
         const updatedList = unappliedFilter.categories.filter((id) => id !== categoryId);
         setUnappliedFilter((prev) => ({
@@ -79,7 +92,7 @@ export const FilterDrawer: FC<IFilterDrawerProps> = () => {
         }));
       }
     },
-    onPaymentMethodsChange: (event: SelectChangeEvent<number[]>) => {
+    onPaymentMethodsChange: (event) => {
       const updateState = (state: number[] | null) => {
         if (Array.isArray(state) && state.length > 0) {
           setUnappliedFilter((prev) => ({ ...prev, paymentMethods: state }));
@@ -88,7 +101,7 @@ export const FilterDrawer: FC<IFilterDrawerProps> = () => {
       const value = event.target.value;
       updateState(typeof value === 'string' ? value.split(',').map((id) => Number(id)) : value);
     },
-    onDeletePaymentMethod: (paymentMethodId: number) => {
+    onDeletePaymentMethod: (paymentMethodId) => {
       if (unappliedFilter.paymentMethods) {
         const updatedList = unappliedFilter.paymentMethods.filter((id) => id !== paymentMethodId);
         setUnappliedFilter((prev) => ({
@@ -97,10 +110,10 @@ export const FilterDrawer: FC<IFilterDrawerProps> = () => {
         }));
       }
     },
-    onPriceFromChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    onPriceFromChange: (event) => {
       setUnappliedFilter((prev) => ({ ...prev, priceFrom: Number(event.target.value) }));
     },
-    onPriceToChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    onPriceToChange: (event) => {
       setUnappliedFilter((prev) => ({ ...prev, priceTo: Number(event.target.value) }));
     },
   };

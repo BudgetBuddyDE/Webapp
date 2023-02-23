@@ -222,17 +222,11 @@ export const PaymentMethods = () => {
         </Grid>
 
         <Grid item xs={12}>
-          {screenSize !== 'small' && !loading && (
+          {!loading && (
             <EarningsByPaymentMethod paymentMethods={paymentMethods} transactions={transactions} />
           )}
         </Grid>
       </Grid>
-
-      {screenSize === 'small' && !loading && (
-        <Grid item xs={12} order={{ xs: 2 }}>
-          <EarningsByPaymentMethod paymentMethods={paymentMethods} transactions={transactions} />
-        </Grid>
-      )}
 
       <CreatePaymentMethod open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
 

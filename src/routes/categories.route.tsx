@@ -134,41 +134,39 @@ export const Categories = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {shownCategories
-                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                        .map((row) => (
-                          <TableRow
-                            key={row.id}
-                            sx={{
-                              '&:last-child td, &:last-child th': { border: 0 },
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            <TableCell>
-                              <Typography>{row.name}</Typography>
-                            </TableCell>
-                            <TableCell>
-                              <Linkify>{row.description ?? 'No Description'}</Linkify>
-                            </TableCell>
-                            <TableCell align="right">
-                              <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
-                                <Tooltip title="Edit" placement="top">
-                                  <IconButton color="primary" onClick={() => setEditCategory(row)}>
-                                    <EditIcon />
-                                  </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Delete" placement="top">
-                                  <IconButton
-                                    color="primary"
-                                    onClick={() => handler.category.onDelete(row)}
-                                  >
-                                    <DeleteIcon />
-                                  </IconButton>
-                                </Tooltip>
-                              </ActionPaper>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                      {currentPageCategories.map((row) => (
+                        <TableRow
+                          key={row.id}
+                          sx={{
+                            '&:last-child td, &:last-child th': { border: 0 },
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          <TableCell>
+                            <Typography>{row.name}</Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Linkify>{row.description ?? 'No Description'}</Linkify>
+                          </TableCell>
+                          <TableCell align="right">
+                            <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
+                              <Tooltip title="Edit" placement="top">
+                                <IconButton color="primary" onClick={() => setEditCategory(row)}>
+                                  <EditIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete" placement="top">
+                                <IconButton
+                                  color="primary"
+                                  onClick={() => handler.category.onDelete(row)}
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </ActionPaper>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
@@ -193,7 +191,7 @@ export const Categories = () => {
         </Card>
       </Grid>
 
-      <Grid item xs={12} md={3} lg={4} xl={3} order={{ xs: 0, md: 1 }}>
+      <Grid item xs={12} md={3} lg={4} xl={3}>
         {!loading && <EarningsByCategory categories={categories} transactions={transactions} />}
       </Grid>
 
