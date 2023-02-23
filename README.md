@@ -6,6 +6,14 @@
 
 More detailed informations about this project can be found in the [wiki](https://github.com/BudgetBuddyDE/Webapp/wiki).
 
+## Content
+
+| Section                          |
+| -------------------------------- |
+| [Installation](#installation)    |
+| [Run with Docker](#docker-setup) |
+| [Credits](#credits)              |
+
 ## Installation
 
 0. Create an Supabase project. For more steps follow [this](https://supabase.com/docs/guides/examples) guide.
@@ -50,11 +58,28 @@ More detailed informations about this project can be found in the [wiki](https:/
    npm run build
    ```
 
+## Docker
+
+**Build an image**
+
+```shell
+docker build . -t ghcr.io/budgetbuddyde/wapp:${{ github.ref_name }}
+```
+
+**Run the container**
+
+> The app will be reachable under `http://localhost:3000`
+
+```shell
+docker run -itd -p 3000:80 --env-file '.env' --restart on-failure:3 --name=budget-buddy-wapp ghcr.io/budgetbuddyde/wapp:<TAG>
+```
+
 ## Credits
 
-| Name       | Website                 | Usage                      |
-| ---------- | ----------------------- | -------------------------- |
-| MaterialUI | https://mui.com         | Frontend component library |
-| Supabase   | https://supabase.io     | Auth & Backend Provider    |
-| Netlify    | https://netlify.app     | Hosting                    |
-| AirBnB     | https://airbnb.io/visx/ | Chart Library              |
+| Name       | Website                 | Usage                       |
+| ---------- | ----------------------- | --------------------------- |
+| Netlify    | https://netlify.com     | Currently hosted on netlify |
+| MaterialUI | https://mui.com         | Frontend component library  |
+| Supabase   | https://supabase.io     | Auth & Backend Provider     |
+| Netlify    | https://netlify.app     | Hosting                     |
+| AirBnB     | https://airbnb.io/visx/ | Chart Library               |
