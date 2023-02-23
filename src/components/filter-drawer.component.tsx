@@ -10,10 +10,11 @@ import {
   Select,
   SelectChangeEvent,
 } from '@mui/material';
+import { subMonths } from 'date-fns';
 import React from 'react';
 import { StoreContext } from '../context/';
 import type { IFilter } from '../types/';
-import { getLastDayOfMonth } from '../utils/';
+import { getFirstDayOfMonth, getLastDayOfMonth } from '../utils/';
 import { FormDrawer } from './Base/';
 import { DateRange, IDateRange } from './Inputs/';
 
@@ -33,7 +34,7 @@ export const DEFAULT_FILTER_VALUE: IFilter = {
   keyword: null,
   categories: null,
   paymentMethods: null,
-  dateFrom: new Date(now.getFullYear(), 0, 1),
+  dateFrom: getFirstDayOfMonth(subMonths(now, 12)),
   dateTo: getLastDayOfMonth(),
   priceFrom: -99999,
   priceTo: 99999,

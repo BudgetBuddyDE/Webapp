@@ -22,8 +22,8 @@ import { AuthContext, StoreContext } from '../../../context';
 import { useScreenSize } from '../../../hooks';
 import { supabase } from '../../../supabase';
 import { drawerWidth } from '../../../theme/default.theme';
-import { DrawerItem } from '../index';
 import { ProfileAvatar } from '../../profile-avatar.component';
+import { DrawerItem } from '../index';
 
 export function getSavedSidebarState() {
   const saved = localStorage.getItem('bb.sidebar.show');
