@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.9](https://github.com/BudgetBuddyDE/Webapp/compare/v0.0.8...v0.0.9) (2023-02-23)
+
+
+### Features
+
+* Add `<PieChart />`-component ([60fae9c](https://github.com/BudgetBuddyDE/Webapp/commit/60fae9cdec83810042d216d6b0e9a204436b86ac))
+* Add chart for displaying category-stats ([c072ec8](https://github.com/BudgetBuddyDE/Webapp/commit/c072ec8574c749ffd824fab18dcc230d0fed0b73))
+* Add charts for detailed statistics ([bc31175](https://github.com/BudgetBuddyDE/Webapp/commit/bc311755f22443f5f8aedd53a9c53d5a04693456))
+* Add pie-chart ([857ab66](https://github.com/BudgetBuddyDE/Webapp/commit/857ab66e64b20fde5d30888afc5025f42e0a34e9))
+* Only format when wanted ([b51c8bc](https://github.com/BudgetBuddyDE/Webapp/commit/b51c8bcd2a793d510b7b5a0748d9cf4bb535b7ce))
+
+
+### Bug Fixes
+
+* Set `description` to `null` when not given ([83dd8ef](https://github.com/BudgetBuddyDE/Webapp/commit/83dd8ef7164a1d93ce01a374b1b7e3a30974af9f))
+
 ### [0.0.8](https://github.com/BudgetBuddyDE/Webapp/compare/v0.0.7...v0.0.8) (2023-02-12)
 
 ### Features
