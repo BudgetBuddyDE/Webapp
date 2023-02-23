@@ -22,6 +22,7 @@ import {
   CategoryChip,
   CircularProgress,
   CreateTransaction,
+  EarningsByCategory,
   EditTransaction,
   Linkify,
   NoResults,
@@ -29,6 +30,7 @@ import {
   PaymentMethodChip,
   SearchInput,
   ShowFilterButton,
+  UsedByPaymentMethod,
 } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
 import { Transaction } from '../models';
@@ -44,7 +46,15 @@ interface TransactionHandler {
 
 export const Transactions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, filter, transactions, setTransactions } = React.useContext(StoreContext);
+  const {
+    loading,
+    filter,
+    transactions,
+    setTransactions,
+    categories,
+    paymentMethods,
+    subscriptions,
+  } = React.useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
   const [keyword, setKeyword] = React.useState('');
   const [page, setPage] = React.useState(0);
@@ -98,7 +108,7 @@ export const Transactions = () => {
     <Grid container spacing={3}>
       <PageHeader title="Transactions" description="What have you bought today?" />
 
-      <Grid item xs={12} md={12}>
+      <Grid item xs={12} md={12} lg={12} xl={12}>
         <Card sx={{ p: 0 }}>
           <Card.Header sx={{ p: 2, pb: 0 }}>
             <Box>
@@ -220,6 +230,20 @@ export const Transactions = () => {
             <NoResults sx={{ mt: 2 }} text="No transactions found" />
           )}
         </Card>
+      </Grid>
+
+      <Grid item xs={12} md={3} lg={3} xl={3}>
+        {!loading && <EarningsByCategory categories={categories} transactions={transactions} />}
+      </Grid>
+
+      <Grid item xs={12} md={3} lg={3} xl={3}>
+        {!loading && (
+          <UsedByPaymentMethod
+            paymentMethods={paymentMethods}
+            transactions={transactions}
+            subscriptions={subscriptions}
+          />
+        )}
       </Grid>
 
       <CreateTransaction open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
