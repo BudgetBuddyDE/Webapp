@@ -20,6 +20,7 @@ import {
   CategoryChip,
   CircularProgress,
   CreateSubscription,
+  EarningsByCategory,
   EditSubscription,
   Linkify,
   NoResults,
@@ -27,6 +28,7 @@ import {
   PaymentMethodChip,
   SearchInput,
   ShowFilterButton,
+  UsedByPaymentMethod,
 } from '../components';
 import Card from '../components/Base/card.component';
 import { SnackbarContext, StoreContext } from '../context';
@@ -48,7 +50,15 @@ interface SubscriptionsHandler {
 
 export const Subscriptions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, filter, subscriptions, setSubscriptions } = React.useContext(StoreContext);
+  const {
+    loading,
+    filter,
+    subscriptions,
+    setSubscriptions,
+    categories,
+    paymentMethods,
+    transactions,
+  } = React.useContext(StoreContext);
   const rowsPerPageOptions = [10, 25, 50, 100];
   const [keyword, setKeyword] = React.useState('');
   const [, startTransition] = React.useTransition();
@@ -232,6 +242,20 @@ export const Subscriptions = () => {
             <NoResults sx={{ mt: 2 }} text="No subscriptions found" />
           )}
         </Card>
+      </Grid>
+
+      <Grid item xs={12} md={3} lg={3} xl={3}>
+        {!loading && <EarningsByCategory categories={categories} transactions={transactions} />}
+      </Grid>
+
+      <Grid item xs={12} md={3} lg={3} xl={3}>
+        {!loading && (
+          <UsedByPaymentMethod
+            paymentMethods={paymentMethods}
+            transactions={transactions}
+            subscriptions={subscriptions}
+          />
+        )}
       </Grid>
 
       <CreateSubscription open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
