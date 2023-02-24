@@ -9,7 +9,6 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   Tooltip,
   Typography,
@@ -24,12 +23,16 @@ import {
   CreateTransaction,
   EarningsByCategory,
   EditTransaction,
+  InitialTablePaginationState,
   Linkify,
   NoResults,
   PageHeader,
   PaymentMethodChip,
   SearchInput,
   ShowFilterButton,
+  TablePagination,
+  TablePaginationHandler,
+  TablePaginationReducer,
   UsedByPaymentMethod,
 } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
@@ -39,9 +42,8 @@ import { filterTransactions } from '../utils';
 interface TransactionHandler {
   onSearch: (text: string) => void;
   onAddTransaction: (show: boolean) => void;
-  onPageChange: (event: unknown, newPage: number) => void;
-  onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onTransactionDelete: (transaction: Transaction) => void;
+  pagination: TablePaginationHandler;
 }
 
 export const Transactions = () => {
@@ -55,13 +57,14 @@ export const Transactions = () => {
     paymentMethods,
     subscriptions,
   } = React.useContext(StoreContext);
-  const rowsPerPageOptions = [10, 25, 50, 100];
   const [keyword, setKeyword] = React.useState('');
-  const [page, setPage] = React.useState(0);
   const [, startTransition] = React.useTransition();
-  const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
+  const [tablePagination, setTablePagination] = React.useReducer(
+    TablePaginationReducer,
+    InitialTablePaginationState
+  );
 
   const handler: TransactionHandler = {
     onSearch(text) {
@@ -69,13 +72,6 @@ export const Transactions = () => {
     },
     onAddTransaction(show) {
       setShowAddForm(show);
-    },
-    onPageChange(_event, newPage) {
-      setPage(newPage);
-    },
-    onRowsPerPageChange(event) {
-      setRowsPerPage(parseInt(event.target.value, 10));
-      setPage(0);
     },
     async onTransactionDelete(transaction) {
       try {
@@ -94,6 +90,14 @@ export const Transactions = () => {
         });
       }
     },
+    pagination: {
+      onPageChange(newPage) {
+        setTablePagination({ type: 'CHANGE_PAGE', page: newPage });
+      },
+      onRowsPerPageChange(rowsPerPage) {
+        setTablePagination({ type: 'CHANGE_ROWS_PER_PAGE', rowsPerPage: rowsPerPage });
+      },
+    },
   };
 
   const shownTransactions: Transaction[] = React.useMemo(() => {
@@ -101,8 +105,9 @@ export const Transactions = () => {
   }, [transactions, keyword, filter]);
 
   const currentPageTransactions: Transaction[] = React.useMemo(() => {
+    const { page, rowsPerPage } = tablePagination;
     return shownTransactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  }, [shownTransactions, page, rowsPerPage]);
+  }, [shownTransactions, tablePagination]);
 
   return (
     <Grid container spacing={3}>
@@ -213,17 +218,12 @@ export const Transactions = () => {
                 </TableContainer>
               </Card.Body>
               <Card.Footer sx={{ p: 2, pt: 0 }}>
-                <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
-                  <TablePagination
-                    component="div"
-                    count={shownTransactions.length}
-                    page={page}
-                    onPageChange={handler.onPageChange}
-                    labelRowsPerPage="Rows:"
-                    rowsPerPage={rowsPerPage}
-                    onRowsPerPageChange={handler.onRowsPerPageChange}
-                  />
-                </ActionPaper>
+                <TablePagination
+                  {...tablePagination}
+                  count={shownTransactions.length}
+                  onPageChange={handler.pagination.onPageChange}
+                  onRowsPerPageChange={handler.pagination.onRowsPerPageChange}
+                />
               </Card.Footer>
             </React.Fragment>
           ) : (

@@ -9,7 +9,6 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   Tooltip,
   Typography,
@@ -22,20 +21,21 @@ import {
   CreateCategory,
   EarningsByCategory,
   EditCategory,
+  InitialTablePaginationState,
   Linkify,
   NoResults,
   PageHeader,
   SearchInput,
+  TablePagination,
+  TablePaginationHandler,
+  TablePaginationReducer,
 } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
 import { Category } from '../models';
 
 interface CategoryHandler {
   onSearch: (keyword: string) => void;
-  pagination: {
-    onPageChange: (event: unknown, newPage: number) => void;
-    onChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  };
+  pagination: TablePaginationHandler;
   category: {
     onDelete: (category: Category) => void;
   };
@@ -44,25 +44,25 @@ interface CategoryHandler {
 export const Categories = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, categories, transactions, setCategories } = React.useContext(StoreContext);
-  const rowsPerPageOptions = [10, 25, 50, 100];
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [keyword, setKeyword] = React.useState('');
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);
   const [editCategory, setEditCategory] = React.useState<Category | null>(null);
   const [, startTransition] = React.useTransition();
+  const [tablePagination, setTablePagination] = React.useReducer(
+    TablePaginationReducer,
+    InitialTablePaginationState
+  );
 
   const handler: CategoryHandler = {
     onSearch(text) {
       setKeyword(text.toLowerCase());
     },
     pagination: {
-      onPageChange(event, newPage) {
-        setPage(newPage);
+      onPageChange(newPage) {
+        setTablePagination({ type: 'CHANGE_PAGE', page: newPage });
       },
-      onChangeRowsPerPage(event) {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
+      onRowsPerPageChange(rowsPerPage) {
+        setTablePagination({ type: 'CHANGE_ROWS_PER_PAGE', rowsPerPage: rowsPerPage });
       },
     },
     category: {
@@ -92,8 +92,9 @@ export const Categories = () => {
   }, [keyword, categories]);
 
   const currentPageCategories: Category[] = React.useMemo(() => {
+    const { page, rowsPerPage } = tablePagination;
     return shownCategories.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  }, [shownCategories, page, rowsPerPage]);
+  }, [shownCategories, tablePagination]);
 
   return (
     <Grid container spacing={3}>
@@ -172,17 +173,12 @@ export const Categories = () => {
                 </TableContainer>
               </Card.Body>
               <Card.Footer sx={{ p: 2, pt: 0 }}>
-                <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
-                  <TablePagination
-                    component="div"
-                    count={shownCategories.length}
-                    page={page}
-                    onPageChange={handler.pagination.onPageChange}
-                    labelRowsPerPage="Rows:"
-                    rowsPerPage={rowsPerPage}
-                    onRowsPerPageChange={handler.pagination.onChangeRowsPerPage}
-                  />
-                </ActionPaper>
+                <TablePagination
+                  {...tablePagination}
+                  count={shownCategories.length}
+                  onPageChange={handler.pagination.onPageChange}
+                  onRowsPerPageChange={handler.pagination.onRowsPerPageChange}
+                />
               </Card.Footer>
             </React.Fragment>
           ) : (

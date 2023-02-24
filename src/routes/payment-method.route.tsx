@@ -9,7 +9,6 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   Tooltip,
   Typography,
@@ -22,52 +21,50 @@ import {
   CreatePaymentMethod,
   EarningsByPaymentMethod,
   EditPaymentMethod,
+  InitialTablePaginationState,
   Linkify,
   NoResults,
   PageHeader,
   SearchInput,
+  TablePagination,
+  TablePaginationHandler,
+  TablePaginationReducer,
   UsedByPaymentMethod,
 } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
-import { useScreenSize } from '../hooks';
 import { PaymentMethod } from '../models';
 
 interface PaymentMethodHandler {
   onSearch: (keyword: string) => void;
-  paginator: {
-    onPageChange: (event: unknown, newPage: number) => void;
-    onChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  };
+  pagination: TablePaginationHandler;
   paymentMethod: {
     onDelete: (paymentMethod: PaymentMethod) => void;
   };
 }
 
-const rowsPerPageOptions = [10, 25, 50, 100];
-
 export const PaymentMethods = () => {
-  const screenSize = useScreenSize();
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, transactions, subscriptions, paymentMethods, setPaymentMethods } =
     React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [keyword, setKeyword] = React.useState('');
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);
   const [editPaymentMethod, setEditPaymentMethod] = React.useState<PaymentMethod | null>(null);
+  const [tablePagination, setTablePagination] = React.useReducer(
+    TablePaginationReducer,
+    InitialTablePaginationState
+  );
 
   const handler: PaymentMethodHandler = {
     onSearch(keyword) {
       setKeyword(keyword.toLowerCase());
     },
-    paginator: {
-      onPageChange(event, newPage) {
-        setPage(newPage);
+    pagination: {
+      onPageChange(newPage) {
+        setTablePagination({ type: 'CHANGE_PAGE', page: newPage });
       },
-      onChangeRowsPerPage(event) {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
+      onRowsPerPageChange(rowsPerPage) {
+        setTablePagination({ type: 'CHANGE_ROWS_PER_PAGE', rowsPerPage: rowsPerPage });
       },
     },
     paymentMethod: {
@@ -102,8 +99,9 @@ export const PaymentMethods = () => {
   }, [keyword, paymentMethods]);
 
   const currentPagePaymentMethods: PaymentMethod[] = React.useMemo(() => {
+    const { page, rowsPerPage } = tablePagination;
     return shownPaymentMethods.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  }, [shownPaymentMethods, page, rowsPerPage]);
+  }, [shownPaymentMethods, tablePagination]);
 
   return (
     <Grid container spacing={3}>
@@ -191,17 +189,12 @@ export const PaymentMethods = () => {
                 </TableContainer>
               </Card.Body>
               <Card.Footer sx={{ p: 2, pt: 0 }}>
-                <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
-                  <TablePagination
-                    component="div"
-                    count={shownPaymentMethods.length}
-                    page={page}
-                    onPageChange={handler.paginator.onPageChange}
-                    labelRowsPerPage="Rows:"
-                    rowsPerPage={rowsPerPage}
-                    onRowsPerPageChange={handler.paginator.onChangeRowsPerPage}
-                  />
-                </ActionPaper>
+                <TablePagination
+                  {...tablePagination}
+                  count={shownPaymentMethods.length}
+                  onPageChange={handler.pagination.onPageChange}
+                  onRowsPerPageChange={handler.pagination.onRowsPerPageChange}
+                />
               </Card.Footer>
             </React.Fragment>
           ) : (
