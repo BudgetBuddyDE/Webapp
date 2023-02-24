@@ -4,6 +4,7 @@ import { supabase } from '../supabase';
 import type {
   IBaseCategory,
   ICategory,
+  ICategoryView,
   IEditCategory,
   IExportCategory,
 } from '../types/category.type';
@@ -85,6 +86,21 @@ export class CategoryService {
             });
           break;
       }
+    });
+  }
+
+  static getStats(
+    type: 'COUNT' | 'EARNINGS' | 'SPENDINGS'
+  ): Promise<{ value: number; category: ICategoryView }[]> {
+    return new Promise(async (res, rej) => {
+      const { data, error } = await supabase.rpc<{
+        value: number;
+        category: ICategoryView;
+      }>('get_category_stats', {
+        type: type,
+      });
+      if (error) rej(error);
+      res(data ?? []);
     });
   }
 }

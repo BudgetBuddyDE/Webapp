@@ -5,6 +5,7 @@ import type {
   IBasePaymentMethod,
   IExportPaymentMethod,
   IPaymentMethod,
+  IPaymentMethodView,
 } from '../types/paymentMethod.type';
 
 export class PaymentMethodService {
@@ -91,6 +92,21 @@ export class PaymentMethodService {
             });
           break;
       }
+    });
+  }
+
+  static getStats(
+    type: 'COUNT' | 'EARNINGS' | 'SPENDINGS'
+  ): Promise<{ value: number; paymentMethod: IPaymentMethodView }[]> {
+    return new Promise(async (res, rej) => {
+      const { data, error } = await supabase.rpc<{
+        value: number;
+        paymentMethod: IPaymentMethodView;
+      }>('get_pm_stats', {
+        type: type,
+      });
+      if (error) rej(error);
+      res(data ?? []);
     });
   }
 }
