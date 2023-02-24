@@ -119,6 +119,10 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
     },
   };
 
+  React.useEffect(() => {
+    setUnappliedFilter(filter);
+  }, [filter]);
+
   return (
     <FormDrawer
       open={showFilter}
