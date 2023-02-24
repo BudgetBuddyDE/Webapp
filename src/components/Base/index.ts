@@ -7,3 +7,4 @@ export * from './linkify.component';
 export * from './main.component';
 export * from './progress.component';
 export * from './protected.component';
+export * from './table-pagination.component';

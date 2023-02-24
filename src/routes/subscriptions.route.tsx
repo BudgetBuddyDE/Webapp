@@ -9,7 +9,6 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   Tooltip,
   Typography,
@@ -22,12 +21,16 @@ import {
   CreateSubscription,
   EarningsByCategory,
   EditSubscription,
+  InitialTablePaginationState,
   Linkify,
   NoResults,
   PageHeader,
   PaymentMethodChip,
   SearchInput,
   ShowFilterButton,
+  TablePagination,
+  TablePaginationHandler,
+  TablePaginationReducer,
   UsedByPaymentMethod,
 } from '../components';
 import Card from '../components/Base/card.component';
@@ -37,10 +40,7 @@ import { determineNextExecution, filterSubscriptions } from '../utils';
 
 interface SubscriptionsHandler {
   onSearch: (keyword: string) => void;
-  pagination: {
-    onPageChange: (event: unknown, newPage: number) => void;
-    onChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  };
+  pagination: TablePaginationHandler;
   subscription: {
     onDelete: (subscription: Subscription) => void;
     onEdit: (subscription: Subscription) => void;
@@ -59,25 +59,25 @@ export const Subscriptions = () => {
     paymentMethods,
     transactions,
   } = React.useContext(StoreContext);
-  const rowsPerPageOptions = [10, 25, 50, 100];
   const [keyword, setKeyword] = React.useState('');
   const [, startTransition] = React.useTransition();
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [editSubscription, setEditSubscription] = React.useState<Subscription | null>(null);
+  const [tablePagination, setTablePagination] = React.useReducer(
+    TablePaginationReducer,
+    InitialTablePaginationState
+  );
 
   const handler: SubscriptionsHandler = {
     onSearch(keyword) {
       setKeyword(keyword.toLowerCase());
     },
     pagination: {
-      onPageChange(_event, newPage) {
-        setPage(newPage);
+      onPageChange(newPage) {
+        setTablePagination({ type: 'CHANGE_PAGE', page: newPage });
       },
-      onChangeRowsPerPage(event) {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
+      onRowsPerPageChange(rowsPerPage) {
+        setTablePagination({ type: 'CHANGE_ROWS_PER_PAGE', rowsPerPage: rowsPerPage });
       },
     },
     subscription: {
@@ -114,8 +114,9 @@ export const Subscriptions = () => {
   }, [subscriptions, keyword, filter]);
 
   const currentPageSubscriptions: Subscription[] = React.useMemo(() => {
+    const { page, rowsPerPage } = tablePagination;
     return shownSubscriptions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  }, [shownSubscriptions, page, rowsPerPage]);
+  }, [shownSubscriptions, tablePagination]);
 
   return (
     <Grid container spacing={3}>
@@ -225,17 +226,12 @@ export const Subscriptions = () => {
                 </TableContainer>
               </Card.Body>
               <Card.Footer sx={{ p: 2, pt: 0 }}>
-                <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
-                  <TablePagination
-                    component="div"
-                    count={shownSubscriptions.length}
-                    page={page}
-                    onPageChange={handler.pagination.onPageChange}
-                    labelRowsPerPage="Rows:"
-                    rowsPerPage={rowsPerPage}
-                    onRowsPerPageChange={handler.pagination.onChangeRowsPerPage}
-                  />
-                </ActionPaper>
+                <TablePagination
+                  {...tablePagination}
+                  count={shownSubscriptions.length}
+                  onPageChange={handler.pagination.onPageChange}
+                  onRowsPerPageChange={handler.pagination.onRowsPerPageChange}
+                />
               </Card.Footer>
             </React.Fragment>
           ) : (
