@@ -1,8 +1,7 @@
 import { Chip, ChipProps } from '@mui/material';
-import * as React from 'react';
-import { StoreContext } from '../context/store.context';
-import type { ICategoryView } from '../types/category.type';
-import type { IPaymentMethodView } from '../types/paymentMethod.type';
+import React from 'react';
+import { StoreContext } from '../context/';
+import type { ICategoryView, IPaymentMethodView } from '../types/';
 
 export type CategoryChipProps = { category: ICategoryView } & ChipProps;
 export type PaymentMethodChipProps = { paymentMethod: IPaymentMethodView } & ChipProps;
