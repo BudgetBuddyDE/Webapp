@@ -203,7 +203,7 @@ export const PaymentMethods = () => {
         </Card>
       </Grid>
 
-      <Grid container item xs={12} md={3} lg={4} xl={3} order={{ xs: 0, md: 1 }}>
+      <Grid container item xs={12} md={3} lg={4} xl={3} spacing={3} order={{ xs: 0, md: 1 }}>
         <Grid item xs={12}>
           {!loading && (
             <UsedByPaymentMethod
