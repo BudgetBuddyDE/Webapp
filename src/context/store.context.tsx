@@ -35,8 +35,8 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   React.useMemo(() => saveSidebarState(showDrawer), [showDrawer]);
 
   React.useEffect(() => {
-    setLoading(true);
     if (session && session.user) {
+      setLoading(true);
       Promise.all([
         SubscriptionService.getSubscriptions(),
         TransactionService.getTransactions(),

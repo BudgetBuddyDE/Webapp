@@ -2,8 +2,8 @@ import {
   AccountBalanceWallet as AccountBalanceWalletIcon,
   Info as InfoIcon,
 } from '@mui/icons-material';
-import { Box, SxProps, Theme, Tooltip, Typography } from '@mui/material';
-import { FC } from 'react';
+import { Box, Skeleton, SxProps, Theme, Tooltip, Typography } from '@mui/material';
+import React from 'react';
 import { Card } from '../components';
 
 export interface IStatsProps {
@@ -11,6 +11,7 @@ export interface IStatsProps {
   subtitle: string;
   info?: string;
   icon?: JSX.Element;
+  loading?: boolean;
 }
 
 export const StatsIconStyle: SxProps<Theme> = {
@@ -23,16 +24,19 @@ export const StatsIconStyle: SxProps<Theme> = {
   color: (theme) => theme.palette.primary.main,
 };
 
-export const Stats: FC<IStatsProps> = ({
+export const Stats: React.FC<IStatsProps> = ({
   title,
   subtitle,
   info = '',
   icon = <AccountBalanceWalletIcon sx={StatsIconStyle} />,
+  loading = false,
 }) => {
   return (
     <Card sx={{ position: 'relative', textAlign: 'right', overflow: 'hidden' }}>
       {icon}
-      <Typography variant="h4">{title}</Typography>
+      <Typography variant="h4">
+        {loading ? <Skeleton width={70} sx={{ ml: 'auto' }} /> : title}
+      </Typography>
       <Tooltip title={info}>
         <Box
           display="flex"

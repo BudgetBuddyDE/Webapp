@@ -43,6 +43,12 @@ export type DailyTransactionReducerAction =
       type: 'UPDATE_INCOME_SELECTED';
       income: DailyTransactionReducerState['income'];
       selected: DailyTransactionReducerState['selected'];
+    }
+  | {
+      type: 'UPDATE_ALL';
+      income: DailyTransactionReducerState['income'];
+      selected: DailyTransactionReducerState['selected'];
+      spendings: DailyTransactionReducerState['spendings'];
     };
 
 export function DailyTransactionReducer(
@@ -59,7 +65,8 @@ export function DailyTransactionReducer(
     case 'UPDATE_INCOME_SELECTED':
       return {
         ...state,
-        ...action,
+        income: action.income,
+        selected: action.selected,
       };
 
     case 'UPDATE_SPENDINGS':
@@ -72,6 +79,12 @@ export function DailyTransactionReducer(
       return {
         ...state,
         selected: action.selected,
+      };
+
+    case 'UPDATE_ALL':
+      return {
+        ...state,
+        ...action,
       };
 
     default:

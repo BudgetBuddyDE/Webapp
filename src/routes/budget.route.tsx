@@ -54,7 +54,7 @@ export const Budget = () => {
   const [, startTransition] = React.useTransition();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, budget, setBudget, dailyTransactions, setDailyTransactions } =
+  const { loading, setLoading, budget, setBudget, dailyTransactions, setDailyTransactions } =
     React.useContext(StoreContext);
   const [chart, setChart] = React.useState<ChartContentType>('INCOME');
   const [dateRange, setDateRange] = React.useState({ from: getFirstDayOfMonth(), to: new Date() });
@@ -158,6 +158,8 @@ export const Budget = () => {
   };
 
   React.useEffect(() => {
+    if (!session || !session.user) return;
+    setLoading(true);
     const from = dateRange.from;
     const to = dateRange.to;
     Promise.all([
@@ -166,34 +168,30 @@ export const Budget = () => {
       ExpenseService.getExpenses(session!.user!.id, from, to),
       ExpenseService.getDailyExpenses(from, to),
     ])
-      .then(async ([getIncome, getDailyIncome, getExpenses, getDailyExpenses]) => {
+      .then(([getIncome, getDailyIncome, getExpenses, getDailyExpenses]) => {
         if (getIncome) {
           setIncome(getIncome);
         } else setIncome([]);
-
-        if (getDailyIncome) {
-          const today = getDailyIncome[getDailyIncome.length - 1];
-          setDailyTransactions({
-            type: 'UPDATE_INCOME_SELECTED',
-            income: getDailyIncome,
-            selected: today
-              ? {
-                  date: new Date(today.date),
-                  amount: today.amount,
-                }
-              : null,
-          });
-        }
 
         if (getExpenses) {
           setExpenses(getExpenses);
         } else setExpenses([]);
 
-        if (getDailyExpenses) {
-          setDailyTransactions({ type: 'UPDATE_SPENDINGS', spendings: getDailyExpenses });
-        }
+        const today = getDailyIncome ? getDailyIncome[getDailyIncome.length - 1] : null;
+        setDailyTransactions({
+          type: 'UPDATE_ALL',
+          income: getDailyIncome ?? [],
+          spendings: getDailyExpenses ?? [],
+          selected: today
+            ? {
+                date: new Date(today.date),
+                amount: today.amount,
+              }
+            : null,
+        });
       })
-      .catch((error) => console.error(error));
+      .catch((error) => console.error(error))
+      .finally(() => setLoading(false));
   }, [session, dateRange]);
 
   return (
@@ -293,37 +291,22 @@ export const Budget = () => {
                   </Box>
                 )}
 
-                {chart === 'INCOME' ? (
-                  <ParentSize>
-                    {({ width }) => (
-                      <BarChart
-                        width={width}
-                        height={width * 0.6}
-                        data={dailyTransactions.income.map((day) => ({
+                <ParentSize>
+                  {({ width }) => (
+                    <BarChart
+                      width={width}
+                      height={width * 0.6}
+                      data={dailyTransactions[chart === 'INCOME' ? 'income' : 'spendings'].map(
+                        (day) => ({
                           label: day.date.toString(),
                           value: day.amount,
-                        }))}
-                        onEvent={handler.charts.onEvent}
-                        events
-                      />
-                    )}
-                  </ParentSize>
-                ) : (
-                  <ParentSize>
-                    {({ width }) => (
-                      <BarChart
-                        width={width}
-                        height={width * 0.6}
-                        data={dailyTransactions.spendings.map((day) => ({
-                          label: day.date.toString(),
-                          value: day.amount,
-                        }))}
-                        onEvent={handler.charts.onEvent}
-                        events
-                      />
-                    )}
-                  </ParentSize>
-                )}
+                        })
+                      )}
+                      onEvent={handler.charts.onEvent}
+                      events
+                    />
+                  )}
+                </ParentSize>
               </Paper>
             ) : (
               <NoResults sx={{ mt: 2 }} text="Nothing was returned" />

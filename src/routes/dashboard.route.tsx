@@ -1,5 +1,6 @@
 import { Add as AddIcon, Schedule as ScheduleIcon } from '@mui/icons-material';
 import { Box, Grid, IconButton, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
+import { ParentSize } from '@visx/responsive';
 import { isSameMonth } from 'date-fns/esm';
 import React from 'react';
 import {
@@ -11,8 +12,9 @@ import {
   IStatsProps,
   NoResults,
   PageHeader,
+  PieChart,
+  PieChartData,
   SpendingChartType,
-  SpendingsChart,
   Stats,
   StatsIconStyle,
   Subscription,
@@ -26,12 +28,10 @@ import {
   SubscriptionService,
   TransactionService,
 } from '../services';
-import type { IExpense, IExpenseTransactionDTO, IMonthlyBalanceAvg } from '../types';
+import type { IMonthlyBalanceAvg } from '../types';
 import { addTransactionToExpenses, formatBalance } from '../utils';
 
-/**
- * How many months do we wanna look back?
- */
+/** How many months do we wanna look back? */
 export const MONTH_BACKLOG = 6;
 
 export const Dashboard = () => {
@@ -44,9 +44,11 @@ export const Dashboard = () => {
   ];
   const { session } = React.useContext(AuthContext);
   const { loading, setLoading, subscriptions, transactions } = React.useContext(StoreContext);
-  const [chart, setChart] = React.useState<SpendingChartType>(SPENDING_CHART_TYPES[0].type);
-  const [currentMonthExpenses, setCurrentMonthExpenses] = React.useState<IExpense[]>([]);
-  const [allTimeExpenses, setAllTimeExpenses] = React.useState<IExpense[]>([]);
+  const [categorySpendings, setCategorySpendings] = React.useReducer(categorySpendingsReducer, {
+    chart: 'MONTH',
+    month: [],
+    allTime: [],
+  });
   const [monthlyAvg, setMonthlyAvg] = React.useState<IMonthlyBalanceAvg | null>(null);
   const [showAddTransactionForm, setShowAddTransactionForm] = React.useState(false);
   const [showSubscriptionForm, setShowSubscriptionForm] = React.useState(false);
@@ -70,6 +72,7 @@ export const Dashboard = () => {
       subtitle: 'Planned expenses',
       info: 'Sum of transactions and subscriptions that will be executed this month',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
+      loading: loading,
     },
     {
       // TODO: Create test to verify the result
@@ -82,6 +85,7 @@ export const Dashboard = () => {
       subtitle: 'Upcoming expenses',
       info: 'Sum of transactions and subscriptions that have yet to be executed this month',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
+      loading: loading,
     },
     {
       // TODO: Create test to verify the result
@@ -91,6 +95,7 @@ export const Dashboard = () => {
       subtitle: 'Received earnings',
       info: 'Sum of transactions and subscriptions that have been executed in favor of you',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
+      loading: loading,
     },
     {
       // TODO: Create test to verify the result
@@ -103,6 +108,7 @@ export const Dashboard = () => {
       subtitle: 'Upcoming earnings',
       info: 'Sum of transactions and subscriptions that still have to be executed in favor of you',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
+      loading: loading,
     },
     {
       // TODO: Create test to verify the result
@@ -112,6 +118,7 @@ export const Dashboard = () => {
       subtitle: 'Estimated balance',
       info: `Estimated balance based on the past ${MONTH_BACKLOG} months`,
       icon: <ScheduleIcon sx={StatsIconStyle} />,
+      loading: loading,
     },
     {
       // TODO: Create test to verify the result
@@ -124,6 +131,7 @@ export const Dashboard = () => {
       subtitle: 'Current balance',
       info: 'Calculated balance after deduction of all expenses from the income',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
+      loading: loading,
     },
   ];
 
@@ -136,13 +144,23 @@ export const Dashboard = () => {
       BudgetService.getMonthlyBalanceAvg(MONTH_BACKLOG),
     ])
       .then(([getCurrentMonthExpenses, getAllTimeExpenses, getMonthlyBalance]) => {
-        if (getCurrentMonthExpenses) {
-          setCurrentMonthExpenses(getCurrentMonthExpenses);
-        } else setCurrentMonthExpenses([]);
-
-        if (getAllTimeExpenses) {
-          setAllTimeExpenses(getAllTimeExpenses);
-        } else setAllTimeExpenses([]);
+        setCategorySpendings({
+          type: 'UPDATE_ALL_DATA',
+          month:
+            getCurrentMonthExpenses !== null
+              ? getCurrentMonthExpenses.map(({ category, sum }) => ({
+                  label: category.name,
+                  value: Math.abs(sum),
+                }))
+              : [],
+          allTime:
+            getAllTimeExpenses !== null
+              ? getAllTimeExpenses.map(({ category, sum }) => ({
+                  label: category.name,
+                  value: Math.abs(sum),
+                }))
+              : [],
+        });
 
         if (getMonthlyBalance) {
           setMonthlyAvg(getMonthlyBalance);
@@ -150,7 +168,7 @@ export const Dashboard = () => {
       })
       .catch((error) => console.error(error))
       .finally(() => setLoading(false));
-  }, [session, transactions]);
+  }, [session]);
 
   return (
     <Grid container spacing={3}>
@@ -195,7 +213,7 @@ export const Dashboard = () => {
           <Card.Body>
             {loading ? (
               <CircularProgress />
-            ) : subscriptions.length > 0 ? (
+            ) : latestSubscriptions.length > 0 ? (
               latestSubscriptions.map(({ id, categories, receiver, amount, execute_at }) => (
                 <Subscription
                   key={id}
@@ -224,8 +242,10 @@ export const Dashboard = () => {
                 <ToggleButtonGroup
                   size="small"
                   color="primary"
-                  value={chart}
-                  onChange={(event: React.BaseSyntheticEvent) => setChart(event.target.value)}
+                  value={categorySpendings.chart}
+                  onChange={(event: React.BaseSyntheticEvent) =>
+                    setCategorySpendings({ type: 'CHANGE_CHART', chart: event.target.value })
+                  }
                   exclusive
                 >
                   {SPENDING_CHART_TYPES.map((button) => (
@@ -242,11 +262,21 @@ export const Dashboard = () => {
               <CircularProgress />
             ) : (
               <Box sx={{ display: 'flex', flex: 1, mt: '1rem' }}>
-                {chart === 'MONTH' ? (
-                  <SpendingsChart expenses={currentMonthExpenses} />
-                ) : (
-                  <SpendingsChart expenses={allTimeExpenses} />
-                )}
+                <ParentSize>
+                  {({ width }) => (
+                    <PieChart
+                      width={width}
+                      height={width}
+                      data={
+                        categorySpendings.chart === 'MONTH'
+                          ? categorySpendings.month
+                          : categorySpendings.allTime
+                      }
+                      formatAsCurrency
+                      showTotalSum
+                    />
+                  )}
+                </ParentSize>
               </Box>
             )}
           </Card.Body>
@@ -294,25 +324,25 @@ export const Dashboard = () => {
         open={showAddTransactionForm}
         setOpen={(show) => setShowAddTransactionForm(show)}
         afterSubmit={(transaction) => {
-          const expenseTransaction: IExpenseTransactionDTO = {
-            sum: transaction.amount,
-            category: {
-              id: transaction.categories.id,
-              name: transaction.categories.name,
-              description: transaction.categories.description,
-            },
-            created_by: transaction.created_by || '', // TODO: Remove undefined
-          };
-          if (
+          const forCurrentMonth =
             isSameMonth(new Date(transaction.date), new Date()) &&
-            new Date(transaction.date) <= new Date()
-          ) {
-            addTransactionToExpenses(expenseTransaction, currentMonthExpenses, (updatedExpenses) =>
-              setCurrentMonthExpenses(updatedExpenses)
-            );
-          }
-          addTransactionToExpenses(expenseTransaction, allTimeExpenses, (updatedExpenses) =>
-            setAllTimeExpenses(updatedExpenses)
+            new Date(transaction.date) <= new Date();
+
+          addTransactionToExpenses(
+            transaction,
+            forCurrentMonth ? categorySpendings.month : categorySpendings.allTime,
+            (updatedExpenses) =>
+              setCategorySpendings(
+                forCurrentMonth
+                  ? {
+                      type: 'UPDATE_MONTH_DATA',
+                      month: updatedExpenses,
+                    }
+                  : {
+                      type: 'UPDATE_ALL_TIME_DATA',
+                      allTime: updatedExpenses,
+                    }
+              )
           );
         }}
       />
@@ -324,3 +354,41 @@ export const Dashboard = () => {
     </Grid>
   );
 };
+
+export type CategorySpendingsState = {
+  chart: 'MONTH' | 'ALL_TIME';
+  month: PieChartData[];
+  allTime: PieChartData[];
+};
+
+export type CategorySpendingsAction =
+  | { type: 'CHANGE_CHART'; chart: CategorySpendingsState['chart'] }
+  | { type: 'UPDATE_MONTH_DATA'; month: CategorySpendingsState['month'] }
+  | { type: 'UPDATE_ALL_TIME_DATA'; allTime: CategorySpendingsState['allTime'] }
+  | {
+      type: 'UPDATE_ALL_DATA';
+      allTime: CategorySpendingsState['allTime'];
+      month: CategorySpendingsState['month'];
+    };
+
+export function categorySpendingsReducer(
+  state: CategorySpendingsState,
+  action: CategorySpendingsAction
+): CategorySpendingsState {
+  switch (action.type) {
+    case 'CHANGE_CHART':
+      return { ...state, chart: action.chart };
+
+    case 'UPDATE_MONTH_DATA':
+      return { ...state, month: action.month };
+
+    case 'UPDATE_ALL_TIME_DATA':
+      return { ...state, allTime: action.allTime };
+
+    case 'UPDATE_ALL_DATA':
+      return { ...state, month: action.month, allTime: action.allTime };
+
+    default:
+      throw new Error('Trying to execute unknown action');
+  }
+}

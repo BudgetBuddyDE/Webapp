@@ -1,22 +1,29 @@
-import { IExpense } from '../../types/transaction.interface';
-import type { IExpenseTransactionDTO } from '../../types/transaction.type';
+import { Transaction } from '../../models';
+import { CategorySpendingsState } from '../../routes/dashboard.route';
+
+type RequestedData = CategorySpendingsState['month'] | CategorySpendingsState['allTime'];
 
 export function addTransactionToExpenses(
-  expenseTransaction: IExpenseTransactionDTO,
-  expenses: IExpense[],
-  updateExpenses: (updatedExpenses: IExpense[]) => void
+  transaction: Transaction,
+  currentData: RequestedData,
+  updateExpenses: (
+    updated: CategorySpendingsState['month'] | CategorySpendingsState['allTime']
+  ) => void
 ) {
-  if (expenseTransaction.sum > 0) return;
+  if (transaction.amount > 0) return;
 
-  const index = expenses.findIndex(
-    (expense) => expense.category.id === expenseTransaction.category.id
-  );
+  const index = currentData.findIndex((entry) => entry.label === transaction.categories.name);
   if (index > 0) {
-    const outdated = expenses[index];
-    expenses[index] = {
+    const outdated = currentData[index];
+    currentData[index] = {
       ...outdated,
-      sum: Math.abs(outdated.sum) + Math.abs(expenseTransaction.sum),
+      value: Math.abs(outdated.value + transaction.amount),
     };
-    updateExpenses(expenses);
-  } else updateExpenses([...expenses, expenseTransaction]);
+    updateExpenses(currentData);
+  } else {
+    updateExpenses([
+      ...currentData,
+      { label: transaction.categories.name, value: Math.abs(transaction.amount) },
+    ]);
+  }
 }

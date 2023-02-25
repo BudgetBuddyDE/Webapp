@@ -1,13 +1,11 @@
 import { Tooltip } from '@mui/material';
 import { alpha, hexToRgb, useTheme } from '@mui/material';
 import { Group } from '@visx/group';
-import ParentSize from '@visx/responsive/lib/components/ParentSizeModern';
 import { scaleOrdinal } from '@visx/scale';
 import { Pie } from '@visx/shape';
 import { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 import React from 'react';
 import { useScreenSize } from '../../hooks';
-import type { IExpense } from '../../types';
 import { formatBalance } from '../../utils';
 
 export type PieChartData = {

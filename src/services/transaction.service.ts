@@ -19,7 +19,7 @@ export class TransactionService {
     });
   }
 
-  static async getTransactions(): Promise<Transaction[]> {
+  static async getTransactions(amount = 1000): Promise<Transaction[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<ITransaction>(this.table)
@@ -40,7 +40,8 @@ export class TransactionService {
             id, name, description
           )`
         )
-        .order('date', { ascending: false });
+        .order('date', { ascending: false })
+        .limit(amount);
       if (error) rej(error);
       res(data ? data.map((transaction) => new Transaction(transaction)) : []);
     });
