@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.10](https://github.com/BudgetBuddyDE/Webapp/compare/v0.0.9...v0.0.10) (2023-02-25)
+
+
+### Features
+
+* Add charts for general informations ([67ee67c](https://github.com/BudgetBuddyDE/Webapp/commit/67ee67cb3cc6807e471993609c1318928c2e7eb3))
+* Add charts for general stats ([c7cb8d7](https://github.com/BudgetBuddyDE/Webapp/commit/c7cb8d78dd55b2c9741cdb28981f2b4a616a4264))
+* Add RPC for retrieving stats ([7f170ce](https://github.com/BudgetBuddyDE/Webapp/commit/7f170cef15ab0bd76505603bc1525eaae87a7ae2))
+
+
+### Bug Fixes
+
+* Apply filters from chips ([7447ece](https://github.com/BudgetBuddyDE/Webapp/commit/7447ece5910afc38919a118533b9744429da6f80))
+* Get data from the past 12 months by default ([37757fc](https://github.com/BudgetBuddyDE/Webapp/commit/37757fc3e5c5195775db9dfcc8d1d4171208f392))
+
 ### [0.0.9](https://github.com/BudgetBuddyDE/Webapp/compare/v0.0.8...v0.0.9) (2023-02-23)
 
 
