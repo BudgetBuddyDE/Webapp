@@ -4,6 +4,7 @@ import {
   Button,
   Grid,
   IconButton,
+  Paper,
   Table,
   TableBody,
   TableCell,
@@ -227,7 +228,7 @@ export const Transactions = () => {
               </Card.Footer>
             </React.Fragment>
           ) : (
-            <NoResults sx={{ mt: 2 }} text="No transactions found" />
+            <NoResults sx={{ m: 2 }} text="No transactions found" />
           )}
         </Card>
       </Grid>

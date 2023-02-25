@@ -4,6 +4,7 @@ import React from 'react';
 import { PaymentMethod, Subscription, Transaction } from '../../../models';
 import { ActionPaper, Card } from '../../Base';
 import { PieChart, PieChartData } from '../../Charts';
+import { NoResults } from '../../Core';
 
 export interface UsedByPaymentMethodProps {
   paymentMethods: PaymentMethod[];
@@ -71,9 +72,13 @@ export const UsedByPaymentMethod: React.FC<UsedByPaymentMethodProps> = ({
         </Card.HeaderActions>
       </Card.Header>
       <Card.Body sx={{ mt: 2 }}>
-        <ParentSize>
-          {({ width }) => <PieChart width={width} height={width} data={countedChartData} />}
-        </ParentSize>
+        {countedChartData.length > 0 ? (
+          <ParentSize>
+            {({ width }) => <PieChart width={width} height={width} data={countedChartData} />}
+          </ParentSize>
+        ) : (
+          <NoResults />
+        )}
       </Card.Body>
     </Card>
   );

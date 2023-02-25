@@ -4,6 +4,7 @@ import React from 'react';
 import { PaymentMethod, Transaction } from '../../../models';
 import { ActionPaper, Card } from '../../Base';
 import { PieChart, PieChartData } from '../../Charts';
+import { NoResults } from '../../Core';
 
 export interface EarningsByPaymentMethodProps {
   paymentMethods: PaymentMethod[];
@@ -69,11 +70,15 @@ export const EarningsByPaymentMethod: React.FC<EarningsByPaymentMethodProps> = (
         </Card.HeaderActions>
       </Card.Header>
       <Card.Body sx={{ mt: 2 }}>
-        <ParentSize>
-          {({ width }) => (
-            <PieChart width={width} height={width} data={chartData} formatAsCurrency />
-          )}
-        </ParentSize>
+        {chartData.length > 0 ? (
+          <ParentSize>
+            {({ width }) => (
+              <PieChart width={width} height={width} data={chartData} formatAsCurrency />
+            )}
+          </ParentSize>
+        ) : (
+          <NoResults />
+        )}
       </Card.Body>
     </Card>
   );

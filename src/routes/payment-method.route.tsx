@@ -198,7 +198,7 @@ export const PaymentMethods = () => {
               </Card.Footer>
             </React.Fragment>
           ) : (
-            <NoResults sx={{ mt: 2 }} text="No payment-methods found" />
+            <NoResults sx={{ m: 2 }} text="No payment-methods found" />
           )}
         </Card>
       </Grid>

@@ -182,7 +182,7 @@ export const Categories = () => {
               </Card.Footer>
             </React.Fragment>
           ) : (
-            <NoResults sx={{ mt: 2 }} text="No categories found" />
+            <NoResults sx={{ m: 2 }} text="No categories found" />
           )}
         </Card>
       </Grid>

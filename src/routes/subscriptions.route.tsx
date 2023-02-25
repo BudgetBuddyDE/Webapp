@@ -235,16 +235,16 @@ export const Subscriptions = () => {
               </Card.Footer>
             </React.Fragment>
           ) : (
-            <NoResults sx={{ mt: 2 }} text="No subscriptions found" />
+            <NoResults sx={{ m: 2 }} text="No subscriptions found" />
           )}
         </Card>
       </Grid>
 
-      <Grid item xs={12} md={3} lg={3} xl={3}>
+      <Grid item xs={12} md={4} lg={4} xl={4}>
         {!loading && <EarningsByCategory categories={categories} transactions={transactions} />}
       </Grid>
 
-      <Grid item xs={12} md={3} lg={3} xl={3}>
+      <Grid item xs={12} md={4} lg={4} xl={4}>
         {!loading && (
           <UsedByPaymentMethod
             paymentMethods={paymentMethods}
