@@ -1,6 +1,5 @@
-LABEL org.opencontainers.image.source https://github.com/BudgetBuddyDE/Webapp
-
 FROM node:16-alpine as builder
+LABEL org.opencontainers.image.source https://github.com/BudgetBuddyDE/Webapp
 # Set the working directory to /app inside the container
 WORKDIR /app
 # Copy app files
