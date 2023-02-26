@@ -12,9 +12,10 @@ import {
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
-import { SnackbarContext, StoreContext } from '../../context/';
+import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
 import { useScreenSize } from '../../hooks/';
-import { Transaction } from '../../models/';
+import { Category, Transaction } from '../../models/';
+import { CategoryService } from '../../services';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseTransaction } from '../../types/';
 import { getCategoryFromList, getPaymentMethodFromList, transformBalance } from '../../utils/';
@@ -43,8 +44,10 @@ interface EditTransactionHandler {
 
 export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen, afterSubmit, transaction }) => {
   const screenSize = useScreenSize();
+  const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setTransactions, transactionReceiver, categories, paymentMethods } = React.useContext(StoreContext);
+  const { loading, setLoading, setTransactions, transactionReceiver, categories, setCategories, paymentMethods } =
+    React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();
   const [form, setForm] = React.useState<Partial<IBaseTransaction> | null>(null);
   const [errorMessage, setErrorMessage] = React.useState('');
@@ -99,7 +102,8 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen
         } = updatedTransactions[0];
         const updatedItem = new Transaction({
           id: id,
-          categories: categories.find((c) => c.id === category)!.categoryView,
+          // We can 100% assure that categories are provided by this point
+          categories: (categories.data as Category[]).find((c) => c.id === category)!.categoryView,
           paymentMethods: paymentMethods.find((pm) => pm.id === paymentMethod)!.paymentMethodView,
           receiver: receiver,
           description: description,
@@ -142,6 +146,16 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen
     );
   }, [transaction]);
 
+  React.useEffect(() => {
+    if (!session || !session.user) return;
+    if (categories.fetched && categories.data !== null) return;
+    setLoading(true);
+    CategoryService.getCategories()
+      .then((rows) => setCategories({ type: 'FETCH_DATA', data: rows }))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [session, categories]);
+
   if (loading) return null;
   return (
     <FormDrawer
@@ -158,13 +172,15 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen
         </Alert>
       )}
 
-      {categories.length < 1 && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          <AlertTitle>Info</AlertTitle>
-          To be able to create a transaction you have to create a category under{' '}
-          <strong>Categories {'>'} Add Category</strong> before.{' '}
-        </Alert>
-      )}
+      {!categories.data ||
+        !categories.fetched ||
+        (categories.data.length < 1 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <AlertTitle>Info</AlertTitle>
+            To be able to create a transaction you have to create a category under{' '}
+            <strong>Categories {'>'} Add Category</strong> before.{' '}
+          </Alert>
+        ))}
 
       {paymentMethods.length < 1 && (
         <Alert severity="info" sx={{ mb: 2 }}>
@@ -204,13 +220,13 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen
               flexWrap: 'wrap',
             }}
           >
-            {categories.length > 0 && (
+            {categories.data && categories.data.length > 0 && (
               <Autocomplete
                 id="category"
-                options={categories.map((item) => ({ label: item.name, value: item.id }))}
+                options={categories.data.map((item) => ({ label: item.name, value: item.id }))}
                 sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
                 onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
-                defaultValue={getCategoryFromList(Number(form.category), categories)}
+                defaultValue={getCategoryFromList(Number(form.category), categories.data ?? [])}
                 renderInput={(props) => <TextField {...props} label="Category" />}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
               />

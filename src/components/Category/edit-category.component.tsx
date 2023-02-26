@@ -1,10 +1,14 @@
 import { Alert, TextField } from '@mui/material';
-import * as React from 'react';
-import { SnackbarContext } from '../../context/snackbar.context';
-import { StoreContext } from '../../context/store.context';
-import { Category } from '../../models/category.model';
+import React from 'react';
+import { SnackbarContext, StoreContext } from '../../context/';
+import { Category } from '../../models/';
 import { FormStyle } from '../../theme/form-style';
-import { FormDrawer } from '../Base/form-drawer.component';
+import { FormDrawer } from '../Base/';
+
+interface EditCategoryHandler {
+  onClose: () => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+}
 
 export const EditCategory: React.FC<{
   open: boolean;
@@ -18,9 +22,9 @@ export const EditCategory: React.FC<{
   const [form, setForm] = React.useState<{ name: string; description: string | null } | null>(null);
   const [errorMessage, setErrorMessage] = React.useState('');
 
-  const handler = {
+  const handler: EditCategoryHandler = {
     onClose: () => setOpen(false),
-    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event) => {
       try {
         event.preventDefault();
         if (!category) throw new Error('No category provided');
@@ -32,15 +36,7 @@ export const EditCategory: React.FC<{
         const updatedItem = update[0];
         if (afterSubmit) afterSubmit(updatedItem);
         startTransition(() => {
-          setCategories((prev) => {
-            return prev.map((item) => {
-              if (item.id === updatedItem.id) {
-                item.name = updatedItem.name;
-                item.description = updatedItem.description;
-                return item;
-              } else return item;
-            });
-          });
+          setCategories({ type: 'UPDATE_BY_ID', entry: updatedItem });
         });
         handler.onClose();
         showSnackbar({

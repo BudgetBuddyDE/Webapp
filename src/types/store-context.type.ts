@@ -21,8 +21,8 @@ export interface IStoreContext {
   setSubscriptions: React.Dispatch<React.SetStateAction<IStoreContext['subscriptions']>>;
   budget: Budget[];
   setBudget: React.Dispatch<React.SetStateAction<IStoreContext['budget']>>;
-  categories: Category[];
-  setCategories: React.Dispatch<React.SetStateAction<IStoreContext['categories']>>;
+  categories: BaseListReducerState<Category>;
+  setCategories: React.Dispatch<BaseListReducerAction<Category>>;
   paymentMethods: PaymentMethod[];
   setPaymentMethods: React.Dispatch<React.SetStateAction<IStoreContext['paymentMethods']>>;
   showFilter: boolean;

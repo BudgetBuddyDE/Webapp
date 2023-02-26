@@ -14,8 +14,8 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
 import { useScreenSize } from '../../hooks/';
-import { Subscription } from '../../models/';
-import { SubscriptionService } from '../../services';
+import { Category, Subscription } from '../../models/';
+import { CategoryService } from '../../services';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseSubscription } from '../../types/';
 import {
@@ -34,36 +34,47 @@ export interface IEditSubscriptionProps {
   subscription: Subscription | null;
 }
 
+interface EditSubscriptionHandler {
+  onClose: () => void;
+  onDateChange: (date: Date | null) => void;
+  autocompleteChange: (
+    event: React.SyntheticEvent<Element, Event>,
+    key: 'category' | 'paymentMethod',
+    value: string | number
+  ) => void;
+  inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  receiverChange: (value: string | number) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+}
+
 export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOpen, afterSubmit, subscription }) => {
   const screenSize = useScreenSize();
+  const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setSubscriptions, transactionReceiver, categories, paymentMethods } = React.useContext(StoreContext);
+  const { loading, setLoading, setSubscriptions, transactionReceiver, categories, setCategories, paymentMethods } =
+    React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();
   const [executionDate, setExecutionDate] = React.useState(new Date());
   const [form, setForm] = React.useState<Partial<IBaseSubscription> | null>(null);
   const [errorMessage, setErrorMessage] = React.useState('');
 
-  const handler = {
+  const handler: EditSubscriptionHandler = {
     onClose: () => {
       setOpen(false);
     },
-    onDateChange: (date: Date | null) => {
+    onDateChange: (date) => {
       if (date) setExecutionDate(date);
     },
-    autocompleteChange: (
-      event: React.SyntheticEvent<Element, Event>,
-      key: 'category' | 'paymentMethod',
-      value: string | number
-    ) => {
+    autocompleteChange: (event, key, value) => {
       setForm((prev) => ({ ...prev, [key]: value }));
     },
-    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    inputChange: (event) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    receiverChange: (value: string | number) => {
+    receiverChange: (value) => {
       setForm((prev) => ({ ...prev, receiver: String(value) }));
     },
-    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event) => {
       try {
         event.preventDefault();
         if (!subscription) throw new Error('No subscription provided');
@@ -97,7 +108,8 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
         } = updatedSubscriptions[0];
         const updatedItem = new Subscription({
           id: id,
-          categories: categories.find((c) => c.id === category)!.categoryView,
+          // We can assure that categories are provided
+          categories: (categories.data as Category[]).find((c) => c.id === category)!.categoryView,
           paymentMethods: paymentMethods.find((pm) => pm.id === paymentMethod)!.paymentMethodView,
           receiver: receiver,
           description: description,
@@ -150,6 +162,16 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
     } else setForm(null);
   }, [subscription]);
 
+  React.useEffect(() => {
+    if (!session || !session.user) return;
+    if (categories.fetched && categories.data !== null) return;
+    setLoading(true);
+    CategoryService.getCategories()
+      .then((rows) => setCategories({ type: 'FETCH_DATA', data: rows }))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [session, categories]);
+
   if (loading) return null;
   return (
     <FormDrawer
@@ -166,13 +188,14 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
         </Alert>
       )}
 
-      {categories.length < 1 && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          <AlertTitle>Info</AlertTitle>
-          To be able to create a subscription you have to create a category under{' '}
-          <strong>Categories {'>'} Add Category</strong> before.{' '}
-        </Alert>
-      )}
+      {!categories.fetched ||
+        (categories.data && categories.data.length < 1 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <AlertTitle>Info</AlertTitle>
+            To be able to create a subscription you have to create a category under{' '}
+            <strong>Categories {'>'} Add Category</strong> before.{' '}
+          </Alert>
+        ))}
 
       {paymentMethods.length < 1 && (
         <Alert severity="info" sx={{ mb: 2 }}>
@@ -212,13 +235,13 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
               flexWrap: 'wrap',
             }}
           >
-            {categories.length > 0 && (
+            {categories.data && categories.data.length > 0 && (
               <Autocomplete
                 id="category"
-                options={categories.map((item) => ({ label: item.name, value: item.id }))}
+                options={categories.data.map((item) => ({ label: item.name, value: item.id }))}
                 sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
                 onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
-                defaultValue={getCategoryFromList(Number(form.category), categories)}
+                defaultValue={getCategoryFromList(Number(form.category), categories.data)}
                 renderInput={(props) => <TextField {...props} label="Category" />}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
               />

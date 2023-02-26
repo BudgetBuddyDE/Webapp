@@ -29,9 +29,10 @@ import {
   TablePagination,
   TablePaginationHandler,
 } from '../components';
-import { SnackbarContext, StoreContext } from '../context';
+import { AuthContext, SnackbarContext, StoreContext } from '../context';
 import { Category } from '../models';
 import { TablePaginationReducer } from '../reducer';
+import { CategoryService } from '../services';
 
 interface CategoryHandler {
   onSearch: (keyword: string) => void;
@@ -42,8 +43,9 @@ interface CategoryHandler {
 }
 
 export const Categories = () => {
+  const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, categories, transactions, setCategories } = React.useContext(StoreContext);
+  const { loading, setLoading, categories, transactions, setCategories } = React.useContext(StoreContext);
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [keyword, setKeyword] = React.useState('');
   const [editCategory, setEditCategory] = React.useState<Category | null>(null);
@@ -68,7 +70,7 @@ export const Categories = () => {
           const deletedCategories = await category.delete();
           if (!deletedCategories || deletedCategories.length < 1) throw new Error('No category deleted');
           startTransition(() => {
-            setCategories((prev) => prev.filter(({ id }) => id !== deletedCategories[0].id));
+            setCategories({ type: 'REMOVE_BY_ID', id: deletedCategories[0].id });
           });
           showSnackbar({ message: `Category ${deletedCategories[0].name} deleted` });
         } catch (error) {
@@ -83,14 +85,25 @@ export const Categories = () => {
   };
 
   const shownCategories: Category[] = React.useMemo(() => {
-    if (keyword === '') return categories;
-    return categories.filter((item) => item.name.toLowerCase().includes(keyword));
+    if (categories.data === null) return [];
+    if (keyword === '') return categories.data;
+    return categories.data.filter((item) => item.name.toLowerCase().includes(keyword));
   }, [keyword, categories]);
 
   const currentPageCategories: Category[] = React.useMemo(() => {
     const { page, rowsPerPage } = tablePagination;
     return shownCategories.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [shownCategories, tablePagination]);
+
+  React.useEffect(() => {
+    if (!session || !session.user) return;
+    if (categories.fetched && categories.data !== null) return;
+    setLoading(true);
+    CategoryService.getCategories()
+      .then((rows) => setCategories({ type: 'FETCH_DATA', data: rows }))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [session, categories]);
 
   return (
     <Grid container spacing={3}>
@@ -114,9 +127,9 @@ export const Categories = () => {
               </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
-          {loading ? (
+          {loading && !categories.fetched ? (
             <CircularProgress />
-          ) : categories.length > 0 ? (
+          ) : categories.data && categories.data.length > 0 ? (
             <React.Fragment>
               <Card.Body>
                 <TableContainer>
@@ -181,7 +194,7 @@ export const Categories = () => {
       </Grid>
 
       <Grid item xs={12} md={3} lg={4} xl={3}>
-        {!loading && <EarningsByCategory categories={categories} transactions={transactions.data ?? []} />}
+        {!loading && <EarningsByCategory categories={categories.data ?? []} transactions={transactions.data ?? []} />}
       </Grid>
 
       <CreateCategory open={showAddForm} setOpen={(show) => setShowAddForm(show)} />

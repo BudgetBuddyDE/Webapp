@@ -214,7 +214,7 @@ export const Subscriptions = () => {
       </Grid>
 
       <Grid item xs={12} md={4} lg={4} xl={4}>
-        {!loading && <EarningsByCategory categories={categories} transactions={transactions.data ?? []} />}
+        {!loading && <EarningsByCategory categories={categories.data ?? []} transactions={transactions.data ?? []} />}
       </Grid>
 
       <Grid item xs={12} md={4} lg={4} xl={4}>

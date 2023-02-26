@@ -2,7 +2,7 @@ import React from 'react';
 import { DEFAULT_FILTER_VALUE, getSavedSidebarState, saveSidebarState } from '../components';
 import { Budget, Category, PaymentMethod, Subscription, Transaction } from '../models/';
 import { BaseListReducer, DailyTransactionReducer, generateBaseState } from '../reducer';
-import { BudgetService, CategoryService, PaymentMethodService, SubscriptionService } from '../services';
+import { BudgetService, PaymentMethodService, SubscriptionService } from '../services';
 import type { IFilter, IStoreContext } from '../types/';
 import { sortSubscriptionsByExecution } from '../utils';
 import { AuthContext } from './auth.context';
@@ -19,7 +19,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   );
   const [subscriptions, setSubscriptions] = React.useState<Subscription[]>([]);
   const [budget, setBudget] = React.useState<Budget[]>([]);
-  const [categories, setCategories] = React.useState<Category[]>([]);
+  const [categories, setCategories] = React.useReducer(BaseListReducer<Category>, generateBaseState<Category[]>());
   const [paymentMethods, setPaymentMethods] = React.useState<PaymentMethod[]>([]);
   const [showFilter, setShowFilter] = React.useState(false);
   const [filter, setFilter] = React.useState<IFilter>(DEFAULT_FILTER_VALUE);
@@ -37,13 +37,11 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
       Promise.all([
         SubscriptionService.getSubscriptions(),
         BudgetService.getBudget(String(session?.user?.id)),
-        CategoryService.getCategories(),
         PaymentMethodService.getPaymentMethods(),
       ])
-        .then(([getSubscriptions, getBudget, getCategories, getPaymentMethods]) => {
+        .then(([getSubscriptions, getBudget, getPaymentMethods]) => {
           setSubscriptions(sortSubscriptionsByExecution(getSubscriptions));
           setBudget(getBudget);
-          setCategories(getCategories);
           setPaymentMethods(getPaymentMethods);
         })
         .catch(console.error)

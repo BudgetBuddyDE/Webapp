@@ -9,15 +9,13 @@ import {
   TextField,
 } from '@mui/material';
 import { isSameMonth } from 'date-fns';
-import * as React from 'react';
-import { AuthContext } from '../../context/auth.context';
-import { SnackbarContext } from '../../context/snackbar.context';
-import { StoreContext } from '../../context/store.context';
-import { Budget } from '../../models/budget.model';
-import { BudgetService } from '../../services/budget.service';
-import { IBaseBudget } from '../../types/budget.type';
-import { transformBalance } from '../../utils/transformBalance';
-import { FormDrawer } from '../Base/form-drawer.component';
+import React from 'react';
+import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
+import { Budget, Category } from '../../models/';
+import { BudgetService, CategoryService } from '../../services/';
+import { IBaseBudget } from '../../types/';
+import { transformBalance } from '../../utils/';
+import { FormDrawer } from '../Base/';
 
 export interface ICreateBudgetProps {
   open: boolean;
@@ -25,25 +23,33 @@ export interface ICreateBudgetProps {
   afterSubmit?: (budget: Budget) => void;
 }
 
+interface CreateBudgetHandler {
+  onClose: () => void;
+  autocompleteChange: (event: React.SyntheticEvent<Element, Event>, value: string | number) => void;
+  inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+}
+
 export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afterSubmit }) => {
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, categories, budget, setBudget, transactions } = React.useContext(StoreContext);
+  const { loading, setLoading, categories, setCategories, budget, setBudget, transactions } =
+    React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();
   const [form, setForm] = React.useState<Partial<IBaseBudget>>({});
   const [errorMessage, setErrorMessage] = React.useState('');
 
-  const handler = {
+  const handler: CreateBudgetHandler = {
     onClose: () => {
       setOpen(false);
     },
-    autocompleteChange: (event: React.SyntheticEvent<Element, Event>, value: string | number) => {
+    autocompleteChange: (event, value) => {
       setForm((prev) => ({ ...prev, category: Number(value) }));
     },
-    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    inputChange: (event) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event) => {
       try {
         event.preventDefault();
         // Check if the user has already set an budget for this category
@@ -67,7 +73,8 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
         const createdBudget = createdBudgets[0];
         const addedBudget = new Budget({
           id: createdBudget.id,
-          category: categories.find((c) => c.id === createdBudget.category)!.categoryView,
+          // We can 100% assure that categories are provided
+          category: (categories.data as Category[]).find((c) => c.id === createdBudget.category)!.categoryView,
           budget: createdBudget.budget,
           currentlySpent:
             transactions.data !== null
@@ -104,6 +111,16 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
     },
   };
 
+  React.useEffect(() => {
+    if (!session || !session.user) return;
+    if (categories.fetched && categories.data !== null) return;
+    setLoading(true);
+    CategoryService.getCategories()
+      .then((rows) => setCategories({ type: 'FETCH_DATA', data: rows }))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [session, categories]);
+
   if (loading) return null;
   return (
     <FormDrawer
@@ -120,18 +137,20 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
         </Alert>
       )}
 
-      {categories.length === 0 && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          <AlertTitle>Info</AlertTitle>
-          To be able to create a transaction you have to create a category under{' '}
-          <strong>Categories {'>'} Add Category</strong> before.{' '}
-        </Alert>
-      )}
+      {!categories.data ||
+        !categories.fetched ||
+        (categories.data.length === 0 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <AlertTitle>Info</AlertTitle>
+            To be able to create a transaction you have to create a category under{' '}
+            <strong>Categories {'>'} Add Category</strong> before.{' '}
+          </Alert>
+        ))}
 
-      {categories.length > 0 && (
+      {categories.data && categories.data.length > 0 && (
         <Autocomplete
           id="add-category"
-          options={categories.map((item) => ({ label: item.name, value: item.id }))}
+          options={categories.data.map((item) => ({ label: item.name, value: item.id }))}
           sx={{ mb: 2 }}
           onChange={(event, value) => handler.autocompleteChange(event, Number(value?.value))}
           renderInput={(props) => <TextField {...props} label="Category" />}

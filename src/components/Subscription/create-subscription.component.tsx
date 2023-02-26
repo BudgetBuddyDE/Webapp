@@ -14,8 +14,8 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
 import { useScreenSize } from '../../hooks/';
-import { Subscription } from '../../models/';
-import { SubscriptionService } from '../../services';
+import { Category, Subscription } from '../../models/';
+import { CategoryService, SubscriptionService } from '../../services';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseSubscription } from '../../types/';
 import { sortSubscriptionsByExecution, transformBalance } from '../../utils/';
@@ -28,37 +28,47 @@ export interface ICreateSubscriptionProps {
   afterSubmit?: (subscription: Subscription) => void;
 }
 
+interface CreateSubscriptionHandler {
+  onClose: () => void;
+  onDateChange: (date: Date | null) => void;
+  autocompleteChange: (
+    event: React.SyntheticEvent<Element, Event>,
+    key: 'category' | 'paymentMethod',
+    value: string | number
+  ) => void;
+  inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  receiverChange: (value: string | number) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+}
+
 export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, setOpen, afterSubmit }) => {
   const screenSize = useScreenSize();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, transactionReceiver, setSubscriptions, categories, paymentMethods } = React.useContext(StoreContext);
+  const { loading, setLoading, transactionReceiver, setSubscriptions, categories, setCategories, paymentMethods } =
+    React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();
   const [executionDate, setExecutionDate] = React.useState(new Date());
   const [form, setForm] = React.useState<Partial<IBaseSubscription>>({});
   const [errorMessage, setErrorMessage] = React.useState('');
 
-  const handler = {
+  const handler: CreateSubscriptionHandler = {
     onClose: () => {
       setOpen(false);
     },
-    onDateChange: (date: Date | null) => {
+    onDateChange: (date) => {
       if (date) setExecutionDate(date);
     },
-    autocompleteChange: (
-      event: React.SyntheticEvent<Element, Event>,
-      key: 'category' | 'paymentMethod',
-      value: string | number
-    ) => {
+    autocompleteChange: (event, key, value) => {
       setForm((prev) => ({ ...prev, [key]: value }));
     },
-    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    inputChange: (event) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    receiverChange: (value: string | number) => {
+    receiverChange: (value) => {
       setForm((prev) => ({ ...prev, receiver: String(value) }));
     },
-    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event) => {
       try {
         event.preventDefault();
         const values = Object.keys(form);
@@ -93,7 +103,8 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
         } = addedSubscriptions[0];
         const addedSubscription = new Subscription({
           id: id,
-          categories: categories.find((c) => c.id === category)!.categoryView,
+          // We can assure that categories are provided by this point
+          categories: (categories.data as Category[]).find((c) => c.id === category)!.categoryView,
           paymentMethods: paymentMethods.find((pm) => pm.id === paymentMethod)!.paymentMethodView,
           receiver: receiver,
           description: description,
@@ -119,6 +130,16 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
     },
   };
 
+  React.useEffect(() => {
+    if (!session || !session.user) return;
+    if (categories.fetched && categories.data !== null) return;
+    setLoading(true);
+    CategoryService.getCategories()
+      .then((rows) => setCategories({ type: 'FETCH_DATA', data: rows }))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [session, categories]);
+
   if (loading) return null;
   return (
     <FormDrawer
@@ -135,13 +156,15 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
         </Alert>
       )}
 
-      {categories.length === 0 && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          <AlertTitle>Info</AlertTitle>
-          To be able to create a transaction you have to create a category under{' '}
-          <strong>Categories {'>'} Add Category</strong> before.{' '}
-        </Alert>
-      )}
+      {!categories.fetched ||
+        (categories.data && categories.data.length === 0 && (
+          // TODO: Create standalone component
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <AlertTitle>Info</AlertTitle>
+            To be able to create a transaction you have to create a category under{' '}
+            <strong>Categories {'>'} Add Category</strong> before.{' '}
+          </Alert>
+        ))}
 
       {paymentMethods.length === 0 && (
         <Alert severity="info" sx={{ mb: 2 }}>
@@ -179,14 +202,16 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
           flexWrap: 'wrap',
         }}
       >
-        <Autocomplete
-          id="category"
-          options={categories.map((item) => ({ label: item.name, value: item.id }))}
-          sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-          onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
-          renderInput={(props) => <TextField {...props} label="Category" />}
-          isOptionEqualToValue={(option, value) => option.value === value.value}
-        />
+        {categories.data && categories.data.length > 0 && (
+          <Autocomplete
+            id="category"
+            options={categories.data.map((item) => ({ label: item.name, value: item.id }))}
+            sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+            onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
+            renderInput={(props) => <TextField {...props} label="Category" />}
+            isOptionEqualToValue={(option, value) => option.value === value.value}
+          />
+        )}
         <Autocomplete
           id="payment-method"
           options={paymentMethods.map((item) => ({

@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertTitle,
   Box,
   Button,
   Chip,
@@ -12,7 +14,8 @@ import {
 } from '@mui/material';
 import { subMonths } from 'date-fns';
 import React from 'react';
-import { StoreContext } from '../context/';
+import { AuthContext, StoreContext } from '../context/';
+import { CategoryService } from '../services';
 import type { IFilter } from '../types/';
 import { getFirstDayOfMonth, getLastDayOfMonth } from '../utils/';
 import { FormDrawer } from './Base/';
@@ -56,7 +59,18 @@ interface FilterDrawerHandler {
 export interface IFilterDrawerProps {}
 
 export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
-  const { showFilter, setShowFilter, filter, setFilter, categories, paymentMethods } = React.useContext(StoreContext);
+  const { session } = React.useContext(AuthContext);
+  const {
+    loading,
+    setLoading,
+    showFilter,
+    setShowFilter,
+    filter,
+    setFilter,
+    categories,
+    setCategories,
+    paymentMethods,
+  } = React.useContext(StoreContext);
   const [unappliedFilter, setUnappliedFilter] = React.useState(filter);
 
   const handler: FilterDrawerHandler = {
@@ -122,6 +136,17 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
     setUnappliedFilter(filter);
   }, [filter]);
 
+  React.useEffect(() => {
+    if (!session || !session.user) return;
+    if (categories.fetched && categories.data !== null) return;
+    setLoading(true);
+    CategoryService.getCategories()
+      .then((rows) => setCategories({ type: 'FETCH_DATA', data: rows }))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [session, categories]);
+
+  if (loading) return null;
   return (
     <FormDrawer
       open={showFilter}
@@ -139,52 +164,62 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
         />
       </Box>
 
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel id="filter-category-label">Category</InputLabel>
-        <Select
-          labelId="filter-category-label"
-          multiple
-          value={unappliedFilter.categories ?? []}
-          onChange={handler.onCategoriesChange}
-          input={<OutlinedInput id="filter-category" label="Category" />}
-          renderValue={(selected) => (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-              {selected.map((categoryId) => {
-                const matchedCategory = categories.find((category) => category.id === categoryId);
-                if (!matchedCategory) return null;
-                return (
-                  <Chip
-                    key={matchedCategory.id}
-                    label={matchedCategory.name}
-                    onDelete={() => handler.onDeleteCategory(categoryId)}
-                    // In order to make chpis deletable we need to cancel the mouse-down event
-                    onMouseDown={(event) => event.stopPropagation()}
-                  />
-                );
-              })}
-            </Box>
-          )}
-          MenuProps={MenuProps}
-        >
-          {categories.map((category) => {
-            const selected =
-              Array.isArray(unappliedFilter.categories) && unappliedFilter.categories.includes(category.id);
-            return (
-              <MenuItem
-                key={category.id}
-                value={category.id}
-                sx={{
-                  fontWeight: (theme) =>
-                    selected ? theme.typography.fontWeightBold : theme.typography.fontWeightRegular,
-                  backgroundColor: (theme) => (selected ? theme.palette.action.selected : 'unset'),
-                }}
-              >
-                {category.name}
-              </MenuItem>
-            );
-          })}
-        </Select>
-      </FormControl>
+      {categories.fetched && categories.data && categories.data.length > 0 ? (
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="filter-category-label">Category</InputLabel>
+          <Select
+            labelId="filter-category-label"
+            multiple
+            value={unappliedFilter.categories ?? []}
+            onChange={handler.onCategoriesChange}
+            input={<OutlinedInput id="filter-category" label="Category" />}
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {selected.map((categoryId) => {
+                  if (!categories.data) return null;
+                  const matchedCategory = categories.data.find((category) => category.id === categoryId);
+                  if (!matchedCategory) return null;
+                  return (
+                    <Chip
+                      key={matchedCategory.id}
+                      label={matchedCategory.name}
+                      onDelete={() => handler.onDeleteCategory(categoryId)}
+                      // In order to make chpis deletable we need to cancel the mouse-down event
+                      onMouseDown={(event) => event.stopPropagation()}
+                    />
+                  );
+                })}
+              </Box>
+            )}
+            MenuProps={MenuProps}
+          >
+            {categories.data.map((category) => {
+              const selected =
+                Array.isArray(unappliedFilter.categories) && unappliedFilter.categories.includes(category.id);
+              return (
+                <MenuItem
+                  key={category.id}
+                  value={category.id}
+                  sx={{
+                    fontWeight: (theme) =>
+                      selected ? theme.typography.fontWeightBold : theme.typography.fontWeightRegular,
+                    backgroundColor: (theme) => (selected ? theme.palette.action.selected : 'unset'),
+                  }}
+                >
+                  {category.name}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+      ) : (
+        // TODO: Create standalone component
+        <Alert severity="info" sx={{ mb: 2 }}>
+          <AlertTitle>Info</AlertTitle>
+          To be able to create a transaction you have to create a category under{' '}
+          <strong>Categories {'>'} Add Category</strong> before.{' '}
+        </Alert>
+      )}
 
       <FormControl fullWidth sx={{ mb: 2 }}>
         <InputLabel id="filter-payment-method-label">Payment Method</InputLabel>

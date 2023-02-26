@@ -14,8 +14,8 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
 import { useScreenSize } from '../../hooks/';
-import { Transaction } from '../../models/';
-import { TransactionService } from '../../services/';
+import { Category, Transaction } from '../../models/';
+import { CategoryService, TransactionService } from '../../services/';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseTransaction } from '../../types/';
 import { transformBalance } from '../../utils/';
@@ -45,7 +45,8 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
   const screenSize = useScreenSize();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, transactionReceiver, setTransactions, categories, paymentMethods } = React.useContext(StoreContext);
+  const { loading, setLoading, transactionReceiver, setTransactions, categories, setCategories, paymentMethods } =
+    React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();
   const [form, setForm] = React.useState<Partial<IBaseTransaction>>({ date: new Date() });
   const [errorMessage, setErrorMessage] = React.useState('');
@@ -101,7 +102,8 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
         } = createdTransactions[0];
         const addedTransaction = new Transaction({
           id: id,
-          categories: categories.find((c) => c.id === category)!.categoryView,
+          // We can assure that categories are provided
+          categories: (categories.data as Category[]).find((c) => c.id === category)!.categoryView,
           paymentMethods: paymentMethods.find((pm) => pm.id === paymentMethod)!.paymentMethodView,
           receiver: receiver,
           description: description,
@@ -125,6 +127,16 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
     },
   };
 
+  React.useEffect(() => {
+    if (!session || !session.user) return;
+    if (categories.fetched && categories.data !== null) return;
+    setLoading(true);
+    CategoryService.getCategories()
+      .then((rows) => setCategories({ type: 'FETCH_DATA', data: rows }))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [session, categories]);
+
   if (loading) return null;
   return (
     <FormDrawer
@@ -141,13 +153,15 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
         </Alert>
       )}
 
-      {categories.length < 1 && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          <AlertTitle>Info</AlertTitle>
-          To be able to create a transaction you have to create a category under{' '}
-          <strong>Categories {'>'} Add Category</strong> before.{' '}
-        </Alert>
-      )}
+      {!categories.fetched ||
+        (categories.data && categories.data.length < 1 && (
+          // TODO: Create standalone component
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <AlertTitle>Info</AlertTitle>
+            To be able to create a transaction you have to create a category under{' '}
+            <strong>Categories {'>'} Add Category</strong> before.{' '}
+          </Alert>
+        ))}
 
       {paymentMethods.length < 1 && (
         <Alert severity="info" sx={{ mb: 2 }}>
@@ -185,14 +199,16 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
           flexWrap: 'wrap',
         }}
       >
-        <Autocomplete
-          id="category"
-          options={categories.map((item) => ({ label: item.name, value: item.id }))}
-          sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-          onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
-          renderInput={(props) => <TextField {...props} label="Category" />}
-          isOptionEqualToValue={(option, value) => option.value === value.value}
-        />
+        {categories.data && (
+          <Autocomplete
+            id="category"
+            options={categories.data.map((item) => ({ label: item.name, value: item.id }))}
+            sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+            onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
+            renderInput={(props) => <TextField {...props} label="Category" />}
+            isOptionEqualToValue={(option, value) => option.value === value.value}
+          />
+        )}
         <Autocomplete
           id="payment-method"
           options={paymentMethods.map((item) => ({

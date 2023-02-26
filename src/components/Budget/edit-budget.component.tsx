@@ -1,11 +1,10 @@
 import { Alert, AlertTitle, FormControl, InputAdornment, InputLabel, OutlinedInput } from '@mui/material';
-import * as React from 'react';
-import { SnackbarContext } from '../../context/snackbar.context';
-import { StoreContext } from '../../context/store.context';
-import { Budget } from '../../models/budget.model';
-import { IBaseBudget } from '../../types/budget.type';
-import { transformBalance } from '../../utils/transformBalance';
-import { FormDrawer } from '../Base/form-drawer.component';
+import React from 'react';
+import { SnackbarContext, StoreContext } from '../../context/';
+import { Budget } from '../../models/';
+import { IBaseBudget } from '../../types/';
+import { transformBalance } from '../../utils/';
+import { FormDrawer } from '../Base/';
 
 export interface IEditBudgetProps {
   open: boolean;
@@ -14,23 +13,34 @@ export interface IEditBudgetProps {
   budget: Budget | null;
 }
 
+interface EditBudgetHandler {
+  onClose: () => void;
+  autocompleteChange: (
+    event: React.SyntheticEvent<Element, Event>,
+    key: 'category' | 'paymentMethod',
+    value: string | number
+  ) => void;
+  inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+}
+
 export const EditBudget: React.FC<IEditBudgetProps> = ({ open, setOpen, afterSubmit, budget }) => {
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, categories, setBudget } = React.useContext(StoreContext);
   const [form, setForm] = React.useState<Partial<IBaseBudget> | null>(null);
   const [errorMessage, setErrorMessage] = React.useState('');
 
-  const handler = {
+  const handler: EditBudgetHandler = {
     onClose: () => {
       setOpen(false);
     },
-    autocompleteChange: (event: React.SyntheticEvent<Element, Event>, value: string | number) => {
+    autocompleteChange: (event, value) => {
       setForm((prev) => ({ ...prev, category: Number(value) }));
     },
-    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    inputChange: (event) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event) => {
       try {
         event.preventDefault();
         if (!budget) throw new Error('No budget provided');
@@ -88,13 +98,14 @@ export const EditBudget: React.FC<IEditBudgetProps> = ({ open, setOpen, afterSub
         </Alert>
       )}
 
-      {categories.length === 0 && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          <AlertTitle>Info</AlertTitle>
-          To be able to create set a budget you have to create a category under{' '}
-          <strong>Categories {'>'} Add Category</strong> before.{' '}
-        </Alert>
-      )}
+      {!categories.fetched ||
+        (categories.data && categories.data.length === 0 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <AlertTitle>Info</AlertTitle>
+            To be able to create set a budget you have to create a category under{' '}
+            <strong>Categories {'>'} Add Category</strong> before.{' '}
+          </Alert>
+        ))}
 
       {form && (
         <React.Fragment>

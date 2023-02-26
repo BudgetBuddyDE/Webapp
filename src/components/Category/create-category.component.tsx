@@ -1,18 +1,21 @@
 import { Alert, TextField } from '@mui/material';
-import * as React from 'react';
-import { AuthContext } from '../../context/auth.context';
-import { SnackbarContext } from '../../context/snackbar.context';
-import { StoreContext } from '../../context/store.context';
-import { Category } from '../../models/category.model';
-import { CategoryService } from '../../services/category.service';
+import React from 'react';
+import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
+import { Category } from '../../models/';
+import { CategoryService } from '../../services/';
 import { FormStyle } from '../../theme/form-style';
-import type { IBaseCategory } from '../../types/category.type';
-import { FormDrawer } from '../Base/form-drawer.component';
+import type { IBaseCategory } from '../../types/';
+import { FormDrawer } from '../Base/';
 
 export interface ICreateCategoryProps {
   open: boolean;
   setOpen: (show: boolean) => void;
   afterSubmit?: (category: Category) => void;
+}
+
+interface CreateCategoryHandler {
+  onClose: () => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
 export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, afterSubmit }) => {
@@ -23,9 +26,9 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
   const [form, setForm] = React.useState<Partial<IBaseCategory>>({});
   const [errorMessage, setErrorMessage] = React.useState('');
 
-  const handler = {
+  const handler: CreateCategoryHandler = {
     onClose: () => setOpen(false),
-    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event) => {
       try {
         event.preventDefault();
         if (!form.name) throw new Error('No name provided');
@@ -42,7 +45,7 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
         const createdCategory = createdCategories[0];
         if (afterSubmit) afterSubmit(createdCategory);
         startTransition(() => {
-          setCategories((prev) => [createdCategory, ...prev]);
+          setCategories({ type: 'ADD_ITEM', entry: createdCategory });
         });
         handler.onClose();
         showSnackbar({
