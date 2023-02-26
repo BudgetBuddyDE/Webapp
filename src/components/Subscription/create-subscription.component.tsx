@@ -126,7 +126,7 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
         });
         if (afterSubmit) afterSubmit(addedSubscription);
         startTransition(() => {
-          setSubscriptions((prev) => sortSubscriptionsByExecution([addedSubscription, ...prev]));
+          setSubscriptions({ type: 'ADD_ITEM', entry: addedSubscription });
         });
         handler.onClose();
         showSnackbar({

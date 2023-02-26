@@ -41,7 +41,8 @@ export const Dashboard = () => {
     { type: 'ALL', text: 'All' },
   ];
   const { session } = React.useContext(AuthContext);
-  const { loading, setLoading, subscriptions, transactions, setTransactions } = React.useContext(StoreContext);
+  const { loading, setLoading, subscriptions, setSubscriptions, transactions, setTransactions } =
+    React.useContext(StoreContext);
   const [categorySpendings, setCategorySpendings] = React.useReducer(categorySpendingsReducer, {
     chart: 'MONTH',
     month: [],
@@ -69,14 +70,25 @@ export const Dashboard = () => {
   }, [transactions]);
 
   const latestSubscriptions: SubscriptionModel[] = React.useMemo(() => {
-    return subscriptions.slice(0, LATEST_ITEMS);
-  }, [subscriptions]);
+    if (!subscriptions.fetched) {
+      // Fetch 'em & set em
+      // After we've done that, the useMemo-hook will run again and should return the previous fetched rows
+      // FIXME: Fetch me asynchronously
+      SubscriptionService.getSubscriptions()
+        .then((rows) => setSubscriptions({ type: 'FETCH_DATA', data: rows }))
+        .catch(console.error);
+      return [];
+    }
+
+    if (!subscriptions.data) return [];
+    return subscriptions.data.slice(0, LATEST_ITEMS);
+  }, [transactions]);
 
   const StatsCards: IStatsProps[] = [
     {
       // TODO: Create test to verify the result
       title: React.useMemo(() => {
-        return formatBalance(SubscriptionService.getPlannedSpendings(subscriptions));
+        return formatBalance(SubscriptionService.getPlannedSpendings(subscriptions.data ?? []));
       }, [subscriptions, transactions]),
       subtitle: 'Planned expenses',
       info: 'Sum of transactions and subscriptions that will be executed this month',
@@ -87,7 +99,7 @@ export const Dashboard = () => {
       // TODO: Create test to verify the result
       title: React.useMemo(() => {
         return formatBalance(
-          SubscriptionService.getUpcomingSpendings(subscriptions) +
+          SubscriptionService.getUpcomingSpendings(subscriptions.data ?? []) +
             TransactionService.getUpcomingSpendings(transactions.data ?? [])
         );
       }, [subscriptions, transactions]),
@@ -110,7 +122,7 @@ export const Dashboard = () => {
       // TODO: Create test to verify the result
       title: React.useMemo(() => {
         return formatBalance(
-          SubscriptionService.getUpcomingEarnings(subscriptions) +
+          SubscriptionService.getUpcomingEarnings(subscriptions.data ?? []) +
             TransactionService.getUpcomingEarnings(transactions.data ?? [])
         );
       }, [subscriptions, transactions]),
@@ -220,7 +232,7 @@ export const Dashboard = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            {loading ? (
+            {loading && !subscriptions.fetched ? (
               <CircularProgress />
             ) : latestSubscriptions.length > 0 ? (
               latestSubscriptions.map(({ id, categories, receiver, amount, execute_at }) => (

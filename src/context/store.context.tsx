@@ -2,7 +2,7 @@ import React from 'react';
 import { DEFAULT_FILTER_VALUE, getSavedSidebarState, saveSidebarState } from '../components';
 import { Budget, Category, PaymentMethod, Subscription, Transaction } from '../models/';
 import { BaseListReducer, DailyTransactionReducer, generateBaseState } from '../reducer';
-import { BudgetService, SubscriptionService } from '../services';
+import { BudgetService } from '../services';
 import type { IFilter, IStoreContext } from '../types/';
 import { sortSubscriptionsByExecution } from '../utils';
 import { AuthContext } from './auth.context';
@@ -17,7 +17,10 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     BaseListReducer<Transaction>,
     generateBaseState<Transaction[]>()
   );
-  const [subscriptions, setSubscriptions] = React.useState<Subscription[]>([]);
+  const [subscriptions, setSubscriptions] = React.useReducer(
+    BaseListReducer<Subscription>,
+    generateBaseState<Subscription[]>()
+  );
   const [budget, setBudget] = React.useState<Budget[]>([]);
   const [categories, setCategories] = React.useReducer(BaseListReducer<Category>, generateBaseState<Category[]>());
   const [paymentMethods, setPaymentMethods] = React.useReducer(
@@ -34,12 +37,15 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
 
   React.useMemo(() => saveSidebarState(showDrawer), [showDrawer]);
 
+  const sortedSubscriptions: Subscription[] = React.useMemo(() => {
+    return sortSubscriptionsByExecution(subscriptions.data ?? []);
+  }, [subscriptions]);
+
   React.useEffect(() => {
     if (session && session.user) {
       setLoading(true);
-      Promise.all([SubscriptionService.getSubscriptions(), BudgetService.getBudget(String(session?.user?.id))])
-        .then(([getSubscriptions, getBudget]) => {
-          setSubscriptions(sortSubscriptionsByExecution(getSubscriptions));
+      Promise.all([BudgetService.getBudget(String(session?.user?.id))])
+        .then(([getBudget]) => {
           setBudget(getBudget);
         })
         .catch(console.error)
@@ -70,7 +76,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
           transactionReceiver,
           budget,
           setBudget,
-          subscriptions,
+          subscriptions: { ...subscriptions, data: sortedSubscriptions },
           setSubscriptions,
           categories,
           setCategories,

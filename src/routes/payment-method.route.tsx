@@ -209,7 +209,7 @@ export const PaymentMethods = () => {
             <UsedByPaymentMethod
               paymentMethods={paymentMethods.data ?? []}
               transactions={transactions.data ?? []}
-              subscriptions={subscriptions}
+              subscriptions={subscriptions.data ?? []}
             />
           )}
         </Grid>

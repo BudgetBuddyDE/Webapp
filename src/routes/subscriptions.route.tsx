@@ -33,9 +33,10 @@ import {
   UsedByPaymentMethod,
 } from '../components';
 import Card from '../components/Base/card.component';
-import { SnackbarContext, StoreContext } from '../context';
+import { AuthContext, SnackbarContext, StoreContext } from '../context';
 import { Subscription } from '../models';
 import { TablePaginationReducer } from '../reducer';
+import { SubscriptionService } from '../services';
 import { determineNextExecution, filterSubscriptions } from '../utils';
 
 interface SubscriptionsHandler {
@@ -49,8 +50,9 @@ interface SubscriptionsHandler {
 }
 
 export const Subscriptions = () => {
+  const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, filter, subscriptions, setSubscriptions, categories, paymentMethods, transactions } =
+  const { loading, setLoading, filter, subscriptions, setSubscriptions, categories, paymentMethods, transactions } =
     React.useContext(StoreContext);
   const [keyword, setKeyword] = React.useState('');
   const [, startTransition] = React.useTransition();
@@ -76,7 +78,7 @@ export const Subscriptions = () => {
           const deletedSubscriptions = await subscription.delete();
           if (!deletedSubscriptions || deletedSubscriptions.length < 1) throw new Error('No subscription deleted');
           startTransition(() => {
-            setSubscriptions((prev) => prev.filter(({ id }) => id !== subscription.id));
+            setSubscriptions({ type: 'REMOVE_BY_ID', id: deletedSubscriptions[0].id });
           });
           showSnackbar({ message: `Subscription ${subscription.receiver} deleted` });
         } catch (error) {
@@ -97,13 +99,24 @@ export const Subscriptions = () => {
   };
 
   const shownSubscriptions: Subscription[] = React.useMemo(() => {
-    return filterSubscriptions(keyword, filter, subscriptions);
+    if (!subscriptions.data) return [];
+    return filterSubscriptions(keyword, filter, subscriptions.data ?? []);
   }, [subscriptions, keyword, filter]);
 
   const currentPageSubscriptions: Subscription[] = React.useMemo(() => {
     const { page, rowsPerPage } = tablePagination;
     return shownSubscriptions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [shownSubscriptions, tablePagination]);
+
+  React.useEffect(() => {
+    if (!session || !session.user) return;
+    if (subscriptions.fetched && subscriptions.data !== null) return;
+    setLoading(true);
+    SubscriptionService.getSubscriptions()
+      .then((rows) => setSubscriptions({ type: 'FETCH_DATA', data: rows }))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [session, subscriptions]);
 
   return (
     <Grid container spacing={3}>
@@ -128,9 +141,9 @@ export const Subscriptions = () => {
               </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
-          {loading ? (
+          {loading && !subscriptions.fetched ? (
             <CircularProgress />
-          ) : subscriptions.length > 0 ? (
+          ) : subscriptions.data && subscriptions.data.length > 0 ? (
             <React.Fragment>
               <Card.Body>
                 <TableContainer>
@@ -222,7 +235,7 @@ export const Subscriptions = () => {
           <UsedByPaymentMethod
             paymentMethods={paymentMethods.data ?? []}
             transactions={transactions.data ?? []}
-            subscriptions={subscriptions}
+            subscriptions={subscriptions.data ?? []}
           />
         )}
       </Grid>

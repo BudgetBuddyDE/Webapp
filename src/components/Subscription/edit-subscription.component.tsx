@@ -131,23 +131,9 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
         });
 
         if (afterSubmit) afterSubmit(updatedItem);
-        startTransition(() => {
-          setSubscriptions((prev) => {
-            const updatedList = prev.map((subscription) => {
-              if (subscription.id === updatedItem.id) {
-                return updatedItem;
-              } else return subscription;
-            });
-
-            return updatedItem.execute_at === subscription.execute_at
-              ? updatedList
-              : sortSubscriptionsByExecution(updatedList);
-          });
-        });
+        startTransition(() => setSubscriptions({ type: 'UPDATE_BY_ID', entry: updatedItem }));
         handler.onClose();
-        showSnackbar({
-          message: 'Subscription updated',
-        });
+        showSnackbar({ message: 'Subscription updated' });
       } catch (error) {
         console.error(error);
         // @ts-ignore

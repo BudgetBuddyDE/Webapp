@@ -17,8 +17,8 @@ export interface IStoreContext {
     text: string;
     value: string;
   }[];
-  subscriptions: Subscription[];
-  setSubscriptions: React.Dispatch<React.SetStateAction<IStoreContext['subscriptions']>>;
+  subscriptions: BaseListReducerState<Subscription>;
+  setSubscriptions: React.Dispatch<BaseListReducerAction<Subscription>>;
   budget: Budget[];
   setBudget: React.Dispatch<React.SetStateAction<IStoreContext['budget']>>;
   categories: BaseListReducerState<Category>;
