@@ -9,3 +9,4 @@ export * from './getLastDayOfMonth';
 export * from './getPaymentMethodFromList';
 export * from './getRandomFromList';
 export * from './transformBalance';
+export * from './genericObjectHasNumericId.util';
