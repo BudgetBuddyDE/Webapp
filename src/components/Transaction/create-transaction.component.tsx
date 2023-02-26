@@ -20,6 +20,7 @@ import { FormStyle } from '../../theme/form-style';
 import type { IBaseTransaction } from '../../types/';
 import { transformBalance } from '../../utils/';
 import { FormDrawer } from '../Base/';
+import { CreateCategoryInfo } from '../Category';
 import { ReceiverAutocomplete } from '../Inputs/';
 
 export interface ICreateTransactionProps {
@@ -153,16 +154,6 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
         </Alert>
       )}
 
-      {!categories.fetched ||
-        (categories.data && categories.data.length < 1 && (
-          // TODO: Create standalone component
-          <Alert severity="info" sx={{ mb: 2 }}>
-            <AlertTitle>Info</AlertTitle>
-            To be able to create a transaction you have to create a category under{' '}
-            <strong>Categories {'>'} Add Category</strong> before.{' '}
-          </Alert>
-        ))}
-
       {paymentMethods.length < 1 && (
         <Alert severity="info" sx={{ mb: 2 }}>
           <AlertTitle>Info</AlertTitle>
@@ -199,7 +190,7 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
           flexWrap: 'wrap',
         }}
       >
-        {categories.data && (
+        {categories.fetched && categories.data && categories.data.length > 0 ? (
           <Autocomplete
             id="category"
             options={categories.data.map((item) => ({ label: item.name, value: item.id }))}
@@ -208,7 +199,10 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
             renderInput={(props) => <TextField {...props} label="Category" />}
             isOptionEqualToValue={(option, value) => option.value === value.value}
           />
+        ) : (
+          <CreateCategoryInfo sx={{ mb: 2 }} />
         )}
+
         <Autocomplete
           id="payment-method"
           options={paymentMethods.map((item) => ({

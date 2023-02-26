@@ -1,6 +1,4 @@
 import {
-  Alert,
-  AlertTitle,
   Box,
   Button,
   Chip,
@@ -19,6 +17,7 @@ import { CategoryService } from '../services';
 import type { IFilter } from '../types/';
 import { getFirstDayOfMonth, getLastDayOfMonth } from '../utils/';
 import { FormDrawer } from './Base/';
+import { CreateCategoryInfo } from './Category/Cards/';
 import { DateRange, IDateRange } from './Inputs/';
 
 const ITEM_HEIGHT = 48;
@@ -213,12 +212,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
           </Select>
         </FormControl>
       ) : (
-        // TODO: Create standalone component
-        <Alert severity="info" sx={{ mb: 2 }}>
-          <AlertTitle>Info</AlertTitle>
-          To be able to create a transaction you have to create a category under{' '}
-          <strong>Categories {'>'} Add Category</strong> before.{' '}
-        </Alert>
+        <CreateCategoryInfo sx={{ mb: 2 }} />
       )}
 
       <FormControl fullWidth sx={{ mb: 2 }}>

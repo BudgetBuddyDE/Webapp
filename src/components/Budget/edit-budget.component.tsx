@@ -26,7 +26,7 @@ interface EditBudgetHandler {
 
 export const EditBudget: React.FC<IEditBudgetProps> = ({ open, setOpen, afterSubmit, budget }) => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, categories, setBudget } = React.useContext(StoreContext);
+  const { loading, setBudget } = React.useContext(StoreContext);
   const [form, setForm] = React.useState<Partial<IBaseBudget> | null>(null);
   const [errorMessage, setErrorMessage] = React.useState('');
 
@@ -97,15 +97,6 @@ export const EditBudget: React.FC<IEditBudgetProps> = ({ open, setOpen, afterSub
           {errorMessage}
         </Alert>
       )}
-
-      {!categories.fetched ||
-        (categories.data && categories.data.length === 0 && (
-          <Alert severity="info" sx={{ mb: 2 }}>
-            <AlertTitle>Info</AlertTitle>
-            To be able to create set a budget you have to create a category under{' '}
-            <strong>Categories {'>'} Add Category</strong> before.{' '}
-          </Alert>
-        ))}
 
       {form && (
         <React.Fragment>
