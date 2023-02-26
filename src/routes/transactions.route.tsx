@@ -4,7 +4,6 @@ import {
   Button,
   Grid,
   IconButton,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -33,11 +32,11 @@ import {
   ShowFilterButton,
   TablePagination,
   TablePaginationHandler,
-  TablePaginationReducer,
   UsedByPaymentMethod,
 } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
 import { Transaction } from '../models';
+import { TablePaginationReducer } from '../reducer';
 import { filterTransactions } from '../utils';
 
 interface TransactionHandler {

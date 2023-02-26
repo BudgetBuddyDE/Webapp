@@ -28,10 +28,10 @@ import {
   SearchInput,
   TablePagination,
   TablePaginationHandler,
-  TablePaginationReducer,
 } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
 import { Category } from '../models';
+import { TablePaginationReducer } from '../reducer';
 
 interface CategoryHandler {
   onSearch: (keyword: string) => void;

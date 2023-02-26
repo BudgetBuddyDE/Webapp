@@ -28,11 +28,11 @@ import {
   SearchInput,
   TablePagination,
   TablePaginationHandler,
-  TablePaginationReducer,
   UsedByPaymentMethod,
 } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
 import { PaymentMethod } from '../models';
+import { TablePaginationReducer } from '../reducer';
 
 interface PaymentMethodHandler {
   onSearch: (keyword: string) => void;

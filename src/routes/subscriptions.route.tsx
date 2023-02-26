@@ -30,12 +30,12 @@ import {
   ShowFilterButton,
   TablePagination,
   TablePaginationHandler,
-  TablePaginationReducer,
   UsedByPaymentMethod,
 } from '../components';
 import Card from '../components/Base/card.component';
 import { SnackbarContext, StoreContext } from '../context';
 import { Subscription } from '../models';
+import { TablePaginationReducer } from '../reducer';
 import { determineNextExecution, filterSubscriptions } from '../utils';
 
 interface SubscriptionsHandler {
