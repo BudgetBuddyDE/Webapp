@@ -2,7 +2,7 @@ import React from 'react';
 import { DEFAULT_FILTER_VALUE, getSavedSidebarState, saveSidebarState } from '../components';
 import { Budget, Category, PaymentMethod, Subscription, Transaction } from '../models/';
 import { BaseListReducer, DailyTransactionReducer, generateBaseState } from '../reducer';
-import { BudgetService, PaymentMethodService, SubscriptionService } from '../services';
+import { BudgetService, SubscriptionService } from '../services';
 import type { IFilter, IStoreContext } from '../types/';
 import { sortSubscriptionsByExecution } from '../utils';
 import { AuthContext } from './auth.context';
@@ -20,7 +20,10 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   const [subscriptions, setSubscriptions] = React.useState<Subscription[]>([]);
   const [budget, setBudget] = React.useState<Budget[]>([]);
   const [categories, setCategories] = React.useReducer(BaseListReducer<Category>, generateBaseState<Category[]>());
-  const [paymentMethods, setPaymentMethods] = React.useState<PaymentMethod[]>([]);
+  const [paymentMethods, setPaymentMethods] = React.useReducer(
+    BaseListReducer<PaymentMethod>,
+    generateBaseState<PaymentMethod[]>()
+  );
   const [showFilter, setShowFilter] = React.useState(false);
   const [filter, setFilter] = React.useState<IFilter>(DEFAULT_FILTER_VALUE);
   const [dailyTransactions, setDailyTransactions] = React.useReducer(DailyTransactionReducer, {
@@ -34,15 +37,10 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   React.useEffect(() => {
     if (session && session.user) {
       setLoading(true);
-      Promise.all([
-        SubscriptionService.getSubscriptions(),
-        BudgetService.getBudget(String(session?.user?.id)),
-        PaymentMethodService.getPaymentMethods(),
-      ])
-        .then(([getSubscriptions, getBudget, getPaymentMethods]) => {
+      Promise.all([SubscriptionService.getSubscriptions(), BudgetService.getBudget(String(session?.user?.id))])
+        .then(([getSubscriptions, getBudget]) => {
           setSubscriptions(sortSubscriptionsByExecution(getSubscriptions));
           setBudget(getBudget);
-          setPaymentMethods(getPaymentMethods);
         })
         .catch(console.error)
         .finally(() => setLoading(false));

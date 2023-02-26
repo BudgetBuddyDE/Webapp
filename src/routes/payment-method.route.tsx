@@ -30,9 +30,10 @@ import {
   TablePaginationHandler,
   UsedByPaymentMethod,
 } from '../components';
-import { SnackbarContext, StoreContext } from '../context';
+import { AuthContext, SnackbarContext, StoreContext } from '../context';
 import { PaymentMethod } from '../models';
 import { TablePaginationReducer } from '../reducer';
+import { PaymentMethodService } from '../services';
 
 interface PaymentMethodHandler {
   onSearch: (keyword: string) => void;
@@ -43,8 +44,10 @@ interface PaymentMethodHandler {
 }
 
 export const PaymentMethods = () => {
+  const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, transactions, subscriptions, paymentMethods, setPaymentMethods } = React.useContext(StoreContext);
+  const { loading, setLoading, transactions, subscriptions, paymentMethods, setPaymentMethods } =
+    React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [keyword, setKeyword] = React.useState('');
@@ -69,7 +72,7 @@ export const PaymentMethods = () => {
           const deletedPaymentMethods = await paymentMethod.delete();
           if (!deletedPaymentMethods || deletedPaymentMethods.length < 1) throw new Error('No payment-method deleted');
           startTransition(() => {
-            setPaymentMethods((prev) => prev.filter(({ id }) => id !== paymentMethod.id));
+            setPaymentMethods({ type: 'REMOVE_BY_ID', id: paymentMethod.id });
           });
           showSnackbar({ message: `Payment Method ${paymentMethod.name} deleted` });
         } catch (error) {
@@ -84,8 +87,9 @@ export const PaymentMethods = () => {
   };
 
   const shownPaymentMethods: PaymentMethod[] = React.useMemo(() => {
-    if (keyword === '') return paymentMethods;
-    return paymentMethods.filter(
+    if (paymentMethods.data === null) return [];
+    if (keyword === '') return paymentMethods.data;
+    return paymentMethods.data.filter(
       (item) => item.name.toLowerCase().includes(keyword) || item.provider.toLowerCase().includes(keyword)
     );
   }, [keyword, paymentMethods]);
@@ -94,6 +98,16 @@ export const PaymentMethods = () => {
     const { page, rowsPerPage } = tablePagination;
     return shownPaymentMethods.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [shownPaymentMethods, tablePagination]);
+
+  React.useEffect(() => {
+    if (!session || !session.user) return;
+    if (paymentMethods.fetched && paymentMethods.data !== null) return;
+    setLoading(true);
+    PaymentMethodService.getPaymentMethods()
+      .then((rows) => setPaymentMethods({ type: 'FETCH_DATA', data: rows }))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [session, paymentMethods]);
 
   return (
     <Grid container spacing={3}>
@@ -117,9 +131,9 @@ export const PaymentMethods = () => {
               </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
-          {loading ? (
+          {loading && !paymentMethods.fetched ? (
             <CircularProgress />
-          ) : paymentMethods.length > 0 ? (
+          ) : paymentMethods.data && paymentMethods.data.length > 0 ? (
             <React.Fragment>
               <Card.Body>
                 <TableContainer>
@@ -193,7 +207,7 @@ export const PaymentMethods = () => {
         <Grid item xs={12}>
           {!loading && (
             <UsedByPaymentMethod
-              paymentMethods={paymentMethods}
+              paymentMethods={paymentMethods.data ?? []}
               transactions={transactions.data ?? []}
               subscriptions={subscriptions}
             />
@@ -202,7 +216,10 @@ export const PaymentMethods = () => {
 
         <Grid item xs={12}>
           {!loading && (
-            <EarningsByPaymentMethod paymentMethods={paymentMethods} transactions={transactions.data ?? []} />
+            <EarningsByPaymentMethod
+              paymentMethods={paymentMethods.data ?? []}
+              transactions={transactions.data ?? []}
+            />
           )}
         </Grid>
       </Grid>

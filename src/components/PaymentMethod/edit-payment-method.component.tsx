@@ -1,11 +1,10 @@
 import { Alert, TextField } from '@mui/material';
 import React from 'react';
-import { SnackbarContext } from '../../context/snackbar.context';
-import { StoreContext } from '../../context/store.context';
-import { PaymentMethod } from '../../models/paymentMethod.model';
+import { SnackbarContext, StoreContext } from '../../context';
+import { PaymentMethod } from '../../models';
 import { FormStyle } from '../../theme/form-style';
-import type { IBasePaymentMethod } from '../../types/paymentMethod.type';
-import { FormDrawer } from '../Base/form-drawer.component';
+import type { IBasePaymentMethod } from '../../types';
+import { FormDrawer } from '../Base';
 
 export interface IEditPaymentMethodProps {
   open: boolean;
@@ -41,24 +40,9 @@ export const EditPaymentMethod: React.FC<IEditPaymentMethodProps> = ({ open, set
 
         const updatedItem = updatedPaymentMethods[0];
         if (afterSubmit) afterSubmit(updatedItem);
-        startTransition(() => {
-          setPaymentMethods((prev) => {
-            return prev.map((item) => {
-              if (item.id === updatedItem.id) {
-                item.name = updatedItem.name;
-                item.address = updatedItem.address;
-                item.provider = updatedItem.provider;
-                item.description = updatedItem.description;
-                return item;
-              }
-              return item;
-            });
-          });
-        });
+        startTransition(() => setPaymentMethods({ type: 'UPDATE_BY_ID', entry: updatedItem }));
         handler.onClose();
-        showSnackbar({
-          message: 'Payment method updated',
-        });
+        showSnackbar({ message: 'Payment method updated' });
       } catch (error) {
         console.error(error);
         // @ts-ignore

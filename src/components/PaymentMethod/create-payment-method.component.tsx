@@ -1,11 +1,10 @@
 import { Alert, TextField } from '@mui/material';
 import React from 'react';
-import { SnackbarContext } from '../../context/snackbar.context';
-import { StoreContext } from '../../context/store.context';
-import { PaymentMethodService } from '../../services/payment-method.service';
+import { AuthContext, SnackbarContext, StoreContext } from '../../context';
+import { PaymentMethodService } from '../../services';
 import { FormStyle } from '../../theme/form-style';
-import type { IBasePaymentMethod, IPaymentMethod } from '../../types/paymentMethod.type';
-import { FormDrawer } from '../Base/form-drawer.component';
+import type { IBasePaymentMethod, IPaymentMethod } from '../../types';
+import { FormDrawer } from '../Base';
 
 export interface ICreatePaymentMethodProps {
   open: boolean;
@@ -41,7 +40,7 @@ export const CreatePaymentMethod: React.FC<ICreatePaymentMethodProps> = ({ open,
         const createdPaymentMethod = createdPaymentMethods[0];
         if (afterSubmit) afterSubmit(createdPaymentMethod);
         startTransition(() => {
-          setPaymentMethods((prev) => [createdPaymentMethod, ...prev]);
+          setPaymentMethods({ type: 'ADD_ITEM', entry: createdPaymentMethod });
         });
         handler.onClose();
         showSnackbar({

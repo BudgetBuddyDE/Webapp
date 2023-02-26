@@ -23,8 +23,8 @@ export interface IStoreContext {
   setBudget: React.Dispatch<React.SetStateAction<IStoreContext['budget']>>;
   categories: BaseListReducerState<Category>;
   setCategories: React.Dispatch<BaseListReducerAction<Category>>;
-  paymentMethods: PaymentMethod[];
-  setPaymentMethods: React.Dispatch<React.SetStateAction<IStoreContext['paymentMethods']>>;
+  paymentMethods: BaseListReducerState<PaymentMethod>;
+  setPaymentMethods: React.Dispatch<BaseListReducerAction<PaymentMethod>>;
   showFilter: boolean;
   setShowFilter: React.Dispatch<React.SetStateAction<IStoreContext['showFilter']>>;
   filter: IFilter;

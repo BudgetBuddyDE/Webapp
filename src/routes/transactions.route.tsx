@@ -232,7 +232,7 @@ export const Transactions = () => {
       <Grid item xs={12} md={4} lg={4} xl={4}>
         {!loading && (
           <UsedByPaymentMethod
-            paymentMethods={paymentMethods}
+            paymentMethods={paymentMethods.data ?? []}
             transactions={transactions.data ?? []}
             subscriptions={subscriptions}
           />
