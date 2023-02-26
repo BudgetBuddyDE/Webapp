@@ -50,11 +50,7 @@ export interface SearchInputProps {
   sx?: SxProps<Theme>;
 }
 
-export const SearchInput: React.FC<SearchInputProps> = ({
-  placeholder = 'Search…',
-  onSearch,
-  sx,
-}) => {
+export const SearchInput: React.FC<SearchInputProps> = ({ placeholder = 'Search…', onSearch, sx }) => {
   return (
     <Search sx={sx}>
       <SearchIconWrapper>

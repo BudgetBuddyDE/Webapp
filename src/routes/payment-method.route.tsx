@@ -44,16 +44,12 @@ interface PaymentMethodHandler {
 
 export const PaymentMethods = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, transactions, subscriptions, paymentMethods, setPaymentMethods } =
-    React.useContext(StoreContext);
+  const { loading, transactions, subscriptions, paymentMethods, setPaymentMethods } = React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [keyword, setKeyword] = React.useState('');
   const [editPaymentMethod, setEditPaymentMethod] = React.useState<PaymentMethod | null>(null);
-  const [tablePagination, setTablePagination] = React.useReducer(
-    TablePaginationReducer,
-    InitialTablePaginationState
-  );
+  const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
 
   const handler: PaymentMethodHandler = {
     onSearch(keyword) {
@@ -71,8 +67,7 @@ export const PaymentMethods = () => {
       async onDelete(paymentMethod) {
         try {
           const deletedPaymentMethods = await paymentMethod.delete();
-          if (!deletedPaymentMethods || deletedPaymentMethods.length < 1)
-            throw new Error('No payment-method deleted');
+          if (!deletedPaymentMethods || deletedPaymentMethods.length < 1) throw new Error('No payment-method deleted');
           startTransition(() => {
             setPaymentMethods((prev) => prev.filter(({ id }) => id !== paymentMethod.id));
           });
@@ -81,9 +76,7 @@ export const PaymentMethods = () => {
           console.error(error);
           showSnackbar({
             message: `Could'nt delete payment method`,
-            action: (
-              <Button onClick={() => handler.paymentMethod.onDelete(paymentMethod)}>Retry</Button>
-            ),
+            action: <Button onClick={() => handler.paymentMethod.onDelete(paymentMethod)}>Retry</Button>,
           });
         }
       },
@@ -93,8 +86,7 @@ export const PaymentMethods = () => {
   const shownPaymentMethods: PaymentMethod[] = React.useMemo(() => {
     if (keyword === '') return paymentMethods;
     return paymentMethods.filter(
-      (item) =>
-        item.name.toLowerCase().includes(keyword) || item.provider.toLowerCase().includes(keyword)
+      (item) => item.name.toLowerCase().includes(keyword) || item.provider.toLowerCase().includes(keyword)
     );
   }, [keyword, paymentMethods]);
 
@@ -165,18 +157,12 @@ export const PaymentMethods = () => {
                           <TableCell align="right">
                             <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                               <Tooltip title="Edit" placement="top">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => setEditPaymentMethod(row)}
-                                >
+                                <IconButton color="primary" onClick={() => setEditPaymentMethod(row)}>
                                   <EditIcon />
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Delete" placement="top">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => handler.paymentMethod.onDelete(row)}
-                                >
+                                <IconButton color="primary" onClick={() => handler.paymentMethod.onDelete(row)}>
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
@@ -216,10 +202,7 @@ export const PaymentMethods = () => {
 
         <Grid item xs={12}>
           {!loading && (
-            <EarningsByPaymentMethod
-              paymentMethods={paymentMethods}
-              transactions={transactions.data ?? []}
-            />
+            <EarningsByPaymentMethod paymentMethods={paymentMethods} transactions={transactions.data ?? []} />
           )}
         </Grid>
       </Grid>

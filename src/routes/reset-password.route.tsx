@@ -87,10 +87,7 @@ export const ResetPassword = () => {
 
           <Divider sx={{ my: 3 }} />
 
-          <Button
-            sx={{ width: '100%', mb: 2 }}
-            onClick={() => navigate('/reset-password', { replace: true })}
-          >
+          <Button sx={{ width: '100%', mb: 2 }} onClick={() => navigate('/reset-password', { replace: true })}>
             Wanna sign in?
           </Button>
 

@@ -10,14 +10,7 @@ export interface ProfileAvatarProps extends MuiAvatarProps {
 export const ProfileAvatar: React.FC<ProfileAvatarProps> = (props) => {
   const metadata = props.user.user_metadata;
   if (metadata.avatar.length > 0) {
-    return (
-      <MuiAvatar
-        variant="rounded"
-        src={metadata.avatar}
-        alt={metadata.username + ' Avatar'}
-        {...props}
-      />
-    );
+    return <MuiAvatar variant="rounded" src={metadata.avatar} alt={metadata.username + ' Avatar'} {...props} />;
   } else {
     return (
       <MuiAvatar variant="rounded" {...props}>
@@ -65,9 +58,7 @@ export const ProfileAvatarWithUpload: React.FC<ProfileAvatarWithUploadProps> = (
           borderRadius: '50%',
         }}
       >
-        <UploadIcon
-          sx={{ fontSize: '1rem', color: (theme) => theme.palette.primary.contrastText }}
-        />
+        <UploadIcon sx={{ fontSize: '1rem', color: (theme) => theme.palette.primary.contrastText }} />
       </Box>
       {metadata.avatar.length > 0 ? (
         <MuiAvatar
@@ -85,12 +76,7 @@ export const ProfileAvatarWithUpload: React.FC<ProfileAvatarWithUploadProps> = (
           </MuiAvatar>
         </Badge>
       )}
-      <input
-        ref={uploadInputRef}
-        type="file"
-        hidden
-        onChange={(event) => props.onUpload(event.target.files)}
-      />
+      <input ref={uploadInputRef} type="file" hidden onChange={(event) => props.onUpload(event.target.files)} />
     </Box>
   );
 };

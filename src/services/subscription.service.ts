@@ -2,23 +2,15 @@ import type { TExportType } from '../components/user-profile.component';
 import { BaseSubscription, Subscription } from '../models/subscription.model';
 import { Transaction } from '../models/transaction.model';
 import { supabase } from '../supabase';
-import type {
-  IBaseSubscription,
-  IExportSubscription,
-  ISubscription,
-} from '../types/subscription.type';
+import type { IBaseSubscription, IExportSubscription, ISubscription } from '../types/subscription.type';
 import { TransactionService } from './transaction.service';
 
 export class SubscriptionService {
   private static table = 'subscriptions';
 
-  static async createSubscriptions(
-    subscriptions: Partial<IBaseSubscription>[]
-  ): Promise<BaseSubscription[]> {
+  static async createSubscriptions(subscriptions: Partial<IBaseSubscription>[]): Promise<BaseSubscription[]> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase
-        .from<IBaseSubscription>(this.table)
-        .insert(subscriptions);
+      const { data, error } = await supabase.from<IBaseSubscription>(this.table).insert(subscriptions);
       if (error) rej(error);
       res(data ? data.map((subscription) => new BaseSubscription(subscription)) : []);
     });
@@ -67,10 +59,7 @@ export class SubscriptionService {
    */
   static async deleteSubscriptionById(id: number): Promise<BaseSubscription[]> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase
-        .from<IBaseSubscription>(this.table)
-        .delete()
-        .match({ id: id });
+      const { data, error } = await supabase.from<IBaseSubscription>(this.table).delete().match({ id: id });
       if (error) rej(error);
       res(data ? data.map((subscription) => new BaseSubscription(subscription)) : []);
     });
@@ -81,9 +70,7 @@ export class SubscriptionService {
    */
   static getPlannedIncome(subscriptions: Subscription[]) {
     return Math.abs(
-      subscriptions
-        .filter((subscription) => subscription.amount > 0)
-        .reduce((prev, cur) => prev + cur.amount, 0)
+      subscriptions.filter((subscription) => subscription.amount > 0).reduce((prev, cur) => prev + cur.amount, 0)
     );
   }
 
@@ -94,9 +81,7 @@ export class SubscriptionService {
     const now = new Date();
     const processedSubscriptions = Math.abs(
       subscriptions
-        .filter(
-          (subscription) => subscription.execute_at > now.getDate() && subscription.amount > 0
-        )
+        .filter((subscription) => subscription.execute_at > now.getDate() && subscription.amount > 0)
         .reduce((prev, cur) => prev + cur.amount, 0)
     );
     if (transactions) {
@@ -110,9 +95,7 @@ export class SubscriptionService {
    */
   static getPlannedSpendings(subscriptions: Subscription[]) {
     return Math.abs(
-      subscriptions
-        .filter((subscription) => subscription.amount < 0)
-        .reduce((prev, cur) => prev + cur.amount, 0)
+      subscriptions.filter((subscription) => subscription.amount < 0).reduce((prev, cur) => prev + cur.amount, 0)
     );
   }
 
@@ -123,9 +106,7 @@ export class SubscriptionService {
     const now = new Date();
     const processedSubscriptions = Math.abs(
       subscriptions
-        .filter(
-          (subscription) => subscription.execute_at > now.getDate() && subscription.amount < 0
-        )
+        .filter((subscription) => subscription.execute_at > now.getDate() && subscription.amount < 0)
         .reduce((prev, cur) => prev + cur.amount, 0)
     );
     if (transactions) {

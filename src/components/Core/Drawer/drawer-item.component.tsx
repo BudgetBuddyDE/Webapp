@@ -1,12 +1,4 @@
-import {
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Tooltip,
-  Typography,
-  alpha,
-} from '@mui/material';
+import { ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip, Typography, alpha } from '@mui/material';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { StoreContext } from '../../../context';
@@ -40,8 +32,7 @@ export const DrawerItem: React.FC<{
             minHeight: 48,
             justifyContent: open ? 'initial' : 'center',
             px: 2,
-            backgroundColor: (theme) =>
-              active ? alpha(theme.palette.primary.main, 0.2) : 'transparent',
+            backgroundColor: (theme) => (active ? alpha(theme.palette.primary.main, 0.2) : 'transparent'),
             color: (theme) => (active ? theme.palette.primary.main : theme.palette.text.primary),
             borderRadius: (theme) => `${theme.shape.borderRadius}px`,
             ':hover': {

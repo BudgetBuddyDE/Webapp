@@ -2,14 +2,7 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import * as React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import {
-  Copyright,
-  Drawer,
-  FilterDrawer,
-  Main,
-  ProtectedComponent,
-  ProtectedRoute,
-} from './components/';
+import { Copyright, Drawer, FilterDrawer, Main, ProtectedComponent, ProtectedRoute } from './components/';
 import { Budget } from './routes/budget.route';
 import { Categories } from './routes/categories.route';
 import { Dashboard } from './routes/dashboard.route';

@@ -11,13 +11,9 @@ import type {
 export class PaymentMethodService {
   private static table = 'paymentMethods';
 
-  static async createPaymentMethods(
-    paymentMethods: Partial<IBasePaymentMethod>[]
-  ): Promise<PaymentMethod[]> {
+  static async createPaymentMethods(paymentMethods: Partial<IBasePaymentMethod>[]): Promise<PaymentMethod[]> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase
-        .from<IBasePaymentMethod>(this.table)
-        .insert(paymentMethods);
+      const { data, error } = await supabase.from<IBasePaymentMethod>(this.table).insert(paymentMethods);
       if (error) rej(error);
       res(data ? data.map((paymentMethod) => new PaymentMethod(paymentMethod)) : []);
     });
@@ -56,10 +52,7 @@ export class PaymentMethodService {
    */
   static async deletePaymentMethodById(id: number): Promise<PaymentMethod[]> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase
-        .from<IBasePaymentMethod>(this.table)
-        .delete()
-        .match({ id: id });
+      const { data, error } = await supabase.from<IBasePaymentMethod>(this.table).delete().match({ id: id });
       if (error) rej(error);
       res(data ? data.map((paymentMethod) => new PaymentMethod(paymentMethod)) : []);
     });

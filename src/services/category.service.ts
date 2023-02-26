@@ -1,13 +1,7 @@
 import type { TExportType } from '../components/user-profile.component';
 import { Category } from '../models/category.model';
 import { supabase } from '../supabase';
-import type {
-  IBaseCategory,
-  ICategory,
-  ICategoryView,
-  IEditCategory,
-  IExportCategory,
-} from '../types/category.type';
+import type { IBaseCategory, ICategory, ICategoryView, IEditCategory, IExportCategory } from '../types/category.type';
 
 export class CategoryService {
   private static table = 'categories';
@@ -36,10 +30,7 @@ export class CategoryService {
    */
   static async updateCategory(id: number, updatedCategory: IEditCategory): Promise<Category[]> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase
-        .from<IBaseCategory>(this.table)
-        .update(updatedCategory)
-        .match({ id: id });
+      const { data, error } = await supabase.from<IBaseCategory>(this.table).update(updatedCategory).match({ id: id });
       if (error) rej(error);
       res(data ? data.map((category) => new Category(category)) : []);
     });
@@ -50,10 +41,7 @@ export class CategoryService {
    */
   static async deleteCategoryById(id: number): Promise<Category[]> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase
-        .from<IBaseCategory>(this.table)
-        .delete()
-        .match({ id: id });
+      const { data, error } = await supabase.from<IBaseCategory>(this.table).delete().match({ id: id });
       if (error) rej(error);
       res(data ? data.map((category) => new Category(category)) : []);
     });
@@ -89,9 +77,7 @@ export class CategoryService {
     });
   }
 
-  static getStats(
-    type: 'COUNT' | 'EARNINGS' | 'SPENDINGS'
-  ): Promise<{ value: number; category: ICategoryView }[]> {
+  static getStats(type: 'COUNT' | 'EARNINGS' | 'SPENDINGS'): Promise<{ value: number; category: ICategoryView }[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase.rpc<{
         value: number;

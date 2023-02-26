@@ -32,19 +32,9 @@ export function generateTransactionList(
   categories = generateCategories(),
   paymentMethods = generatePaymentMethods()
 ): Transaction[] {
-  const FUTURE_TRANSACTIONS = generateTransactions(
-    5,
-    faker.date.soon(5),
-    categories,
-    paymentMethods
-  );
+  const FUTURE_TRANSACTIONS = generateTransactions(5, faker.date.soon(5), categories, paymentMethods);
   const TODAYS_TRANSACTIONS = generateTransactions(3, new Date(), categories, paymentMethods);
-  const PAST_TRANSACTIONS = generateTransactions(
-    20,
-    faker.date.past(20),
-    categories,
-    paymentMethods
-  );
+  const PAST_TRANSACTIONS = generateTransactions(20, faker.date.past(20), categories, paymentMethods);
 
   return [...FUTURE_TRANSACTIONS, ...TODAYS_TRANSACTIONS, ...PAST_TRANSACTIONS].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()

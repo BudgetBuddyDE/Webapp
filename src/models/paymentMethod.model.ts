@@ -11,16 +11,7 @@ export class PaymentMethod {
   updated_at: Date;
   inserted_at: Date;
 
-  constructor({
-    id,
-    name,
-    provider,
-    address,
-    description,
-    created_by,
-    updated_at,
-    inserted_at,
-  }: IBasePaymentMethod) {
+  constructor({ id, name, provider, address, description, created_by, updated_at, inserted_at }: IBasePaymentMethod) {
     this.id = id;
     this.name = name;
     this.provider = provider;
@@ -42,12 +33,7 @@ export class PaymentMethod {
     return view;
   }
 
-  async update(updatedInformation: {
-    name: string;
-    address: string;
-    provider: string;
-    description: string | null;
-  }) {
+  async update(updatedInformation: { name: string; address: string; provider: string; description: string | null }) {
     try {
       return await PaymentMethodService.updatePaymentMethod(this.id, {
         ...updatedInformation,

@@ -11,10 +11,7 @@ export interface EarningsByPaymentMethodProps {
   transactions: Transaction[];
 }
 
-export const EarningsByPaymentMethod: React.FC<EarningsByPaymentMethodProps> = ({
-  paymentMethods,
-  transactions,
-}) => {
+export const EarningsByPaymentMethod: React.FC<EarningsByPaymentMethodProps> = ({ paymentMethods, transactions }) => {
   const [chartContent, setChartContent] = React.useState<'INCOME' | 'SPENDINGS'>('INCOME');
 
   const incomeStats = React.useMemo(() => {
@@ -59,9 +56,7 @@ export const EarningsByPaymentMethod: React.FC<EarningsByPaymentMethodProps> = (
       <Card.Header>
         <Box>
           <Card.Title>Balance</Card.Title>
-          <Card.Subtitle>
-            How much did u {chartContent === 'INCOME' ? 'earn' : 'spend'}?
-          </Card.Subtitle>
+          <Card.Subtitle>How much did u {chartContent === 'INCOME' ? 'earn' : 'spend'}?</Card.Subtitle>
         </Box>
 
         <Card.HeaderActions>
@@ -82,9 +77,7 @@ export const EarningsByPaymentMethod: React.FC<EarningsByPaymentMethodProps> = (
       <Card.Body sx={{ mt: 2 }}>
         {chartData.length > 0 ? (
           <ParentSize>
-            {({ width }) => (
-              <PieChart width={width} height={width} data={chartData} formatAsCurrency />
-            )}
+            {({ width }) => <PieChart width={width} height={width} data={chartData} formatAsCurrency />}
           </ParentSize>
         ) : warnMsg.length > 0 ? (
           <Alert severity="warning">{warnMsg}</Alert>

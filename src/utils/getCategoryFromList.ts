@@ -1,9 +1,6 @@
 import { Category } from '../models/category.model';
 
-export function getCategoryFromList(
-  categoryId: number,
-  categories: Category[]
-): { label: string; value: number } {
+export function getCategoryFromList(categoryId: number, categories: Category[]): { label: string; value: number } {
   const match = categories.find((category) => category.id === categoryId);
   if (!match) {
     const { id, name } = categories[0]; // Fallback

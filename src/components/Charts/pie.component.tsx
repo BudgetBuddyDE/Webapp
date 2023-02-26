@@ -30,13 +30,8 @@ function formatValue(amount: number, formatAsCurrency: boolean = false) {
   return formatAsCurrency ? formatBalance(amount) : amount;
 }
 
-function hasSpaceForLabel(
-  screenSize: ReturnType<typeof useScreenSize>,
-  arc: PieArcDatum<PieChartData>
-) {
-  return screenSize === 'small'
-    ? arc.endAngle - arc.startAngle >= 0.15
-    : arc.endAngle - arc.startAngle >= 0.2;
+function hasSpaceForLabel(screenSize: ReturnType<typeof useScreenSize>, arc: PieArcDatum<PieChartData>) {
+  return screenSize === 'small' ? arc.endAngle - arc.startAngle >= 0.15 : arc.endAngle - arc.startAngle >= 0.2;
 }
 
 export const PieChart: React.FC<PieChartProps> = ({
@@ -97,12 +92,7 @@ export const PieChart: React.FC<PieChartProps> = ({
               return (
                 <React.Fragment key={`pie-arc-${i}`}>
                   <g>
-                    <Tooltip
-                      title={`${arc.data.label}: ${formatValue(
-                        Math.abs(arc.data.value),
-                        formatAsCurrency
-                      )}`}
-                    >
+                    <Tooltip title={`${arc.data.label}: ${formatValue(Math.abs(arc.data.value), formatAsCurrency)}`}>
                       <path d={pie.path(arc) || ''} fill={getCategoryColor(arc.data.label)} />
                     </Tooltip>
                     {/* Arc label */}
@@ -147,11 +137,7 @@ export const PieChart: React.FC<PieChartProps> = ({
                   {/* Total sum */}
                   {showTotalSum && (
                     <g>
-                      <text
-                        fill="white"
-                        textAnchor="middle"
-                        fontSize={screenSize === 'small' ? 20 : 28}
-                      >
+                      <text fill="white" textAnchor="middle" fontSize={screenSize === 'small' ? 20 : 28}>
                         {formatValue(sum, formatAsCurrency)}
                       </text>
                     </g>

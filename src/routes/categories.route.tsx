@@ -48,10 +48,7 @@ export const Categories = () => {
   const [keyword, setKeyword] = React.useState('');
   const [editCategory, setEditCategory] = React.useState<Category | null>(null);
   const [, startTransition] = React.useTransition();
-  const [tablePagination, setTablePagination] = React.useReducer(
-    TablePaginationReducer,
-    InitialTablePaginationState
-  );
+  const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
 
   const handler: CategoryHandler = {
     onSearch(text) {
@@ -69,8 +66,7 @@ export const Categories = () => {
       async onDelete(category) {
         try {
           const deletedCategories = await category.delete();
-          if (!deletedCategories || deletedCategories.length < 1)
-            throw new Error('No category deleted');
+          if (!deletedCategories || deletedCategories.length < 1) throw new Error('No category deleted');
           startTransition(() => {
             setCategories((prev) => prev.filter(({ id }) => id !== deletedCategories[0].id));
           });
@@ -157,10 +153,7 @@ export const Categories = () => {
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Delete" placement="top">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => handler.category.onDelete(row)}
-                                >
+                                <IconButton color="primary" onClick={() => handler.category.onDelete(row)}>
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
@@ -188,9 +181,7 @@ export const Categories = () => {
       </Grid>
 
       <Grid item xs={12} md={3} lg={4} xl={3}>
-        {!loading && (
-          <EarningsByCategory categories={categories} transactions={transactions.data ?? []} />
-        )}
+        {!loading && <EarningsByCategory categories={categories} transactions={transactions.data ?? []} />}
       </Grid>
 
       <CreateCategory open={showAddForm} setOpen={(show) => setShowAddForm(show)} />

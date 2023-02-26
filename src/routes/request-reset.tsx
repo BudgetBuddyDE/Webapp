@@ -70,10 +70,7 @@ export const RequestReset = () => {
 
           <Divider sx={{ my: 3 }} />
 
-          <Button
-            sx={{ width: '100%', mb: 2 }}
-            onClick={() => navigate('/sign-in', { replace: true })}
-          >
+          <Button sx={{ width: '100%', mb: 2 }} onClick={() => navigate('/sign-in', { replace: true })}>
             Wanna sign in?
           </Button>
 

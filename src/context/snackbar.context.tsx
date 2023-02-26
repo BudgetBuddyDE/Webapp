@@ -22,10 +22,7 @@ export const SnackbarProvider: React.FC<React.PropsWithChildren> = ({ children }
   const [messageInfo, setMessageInfo] = React.useState<ISnackbarProps | undefined>(undefined);
 
   const showSnackbar = (props: IShowSnackbarProps) => {
-    setSnackPack((prev) => [
-      ...prev,
-      { message: props.message, action: props.action, key: new Date().getTime() },
-    ]);
+    setSnackPack((prev) => [...prev, { message: props.message, action: props.action, key: new Date().getTime() }]);
   };
 
   const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {

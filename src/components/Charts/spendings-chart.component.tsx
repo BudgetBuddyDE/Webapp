@@ -67,17 +67,12 @@ export const SpendingsChart: React.FC<{ expenses: IExpense[] }> = ({ expenses })
                       <React.Fragment key={`pie-arc-${i}`}>
                         <g>
                           <Tooltip
-                            title={`${arc.data.category.name}: ${Math.abs(
-                              arc.data.sum
-                            ).toLocaleString('de', {
+                            title={`${arc.data.category.name}: ${Math.abs(arc.data.sum).toLocaleString('de', {
                               style: 'currency',
                               currency: 'EUR',
                             })}`}
                           >
-                            <path
-                              d={pie.path(arc) || ''}
-                              fill={getCategoryColor(arc.data.category.name)}
-                            />
+                            <path d={pie.path(arc) || ''} fill={getCategoryColor(arc.data.category.name)} />
                           </Tooltip>
                           {hasSpaceForLabel && (
                             <g>
@@ -120,11 +115,7 @@ export const SpendingsChart: React.FC<{ expenses: IExpense[] }> = ({ expenses })
                           )}
                         </g>
                         <g>
-                          <text
-                            fill="white"
-                            textAnchor="middle"
-                            fontSize={screenSize === 'small' ? 20 : 28}
-                          >
+                          <text fill="white" textAnchor="middle" fontSize={screenSize === 'small' ? 20 : 28}>
                             {TOTAL_SPENDINGS.toLocaleString('de-DE', {
                               style: 'currency',
                               currency: 'EUR',

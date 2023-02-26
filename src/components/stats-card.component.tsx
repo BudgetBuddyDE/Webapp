@@ -1,7 +1,4 @@
-import {
-  AccountBalanceWallet as AccountBalanceWalletIcon,
-  Info as InfoIcon,
-} from '@mui/icons-material';
+import { AccountBalanceWallet as AccountBalanceWalletIcon, Info as InfoIcon } from '@mui/icons-material';
 import { Box, Skeleton, SxProps, Theme, Tooltip, Typography } from '@mui/material';
 import React from 'react';
 import { Card } from '../components';
@@ -34,17 +31,9 @@ export const Stats: React.FC<IStatsProps> = ({
   return (
     <Card sx={{ position: 'relative', textAlign: 'right', overflow: 'hidden' }}>
       {icon}
-      <Typography variant="h4">
-        {loading ? <Skeleton width={70} sx={{ ml: 'auto' }} /> : title}
-      </Typography>
+      <Typography variant="h4">{loading ? <Skeleton width={70} sx={{ ml: 'auto' }} /> : title}</Typography>
       <Tooltip title={info}>
-        <Box
-          display="flex"
-          flexDirection="row"
-          justifyContent="flex-end"
-          alignItems="center"
-          flexShrink={1}
-        >
+        <Box display="flex" flexDirection="row" justifyContent="flex-end" alignItems="center" flexShrink={1}>
           <Typography variant="h6" sx={{ whiteSpace: { xs: 'wrap', md: 'nowrap' } }}>
             {subtitle}
           </Typography>

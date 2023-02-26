@@ -1,19 +1,5 @@
-import {
-  Logout as LogoutIcon,
-  Menu as MenuIcon,
-  MenuOpen as MenuOpenIcon,
-} from '@mui/icons-material';
-import {
-  Box,
-  Button,
-  Chip,
-  Divider,
-  Fab,
-  IconButton,
-  List,
-  Drawer as MuiDrawer,
-  Typography,
-} from '@mui/material';
+import { Logout as LogoutIcon, Menu as MenuIcon, MenuOpen as MenuOpenIcon } from '@mui/icons-material';
+import { Box, Button, Chip, Divider, Fab, IconButton, List, Drawer as MuiDrawer, Typography } from '@mui/material';
 import { CSSObject, Theme, styled } from '@mui/material/styles';
 import React from 'react';
 import { useLocation } from 'react-router-dom';
@@ -66,22 +52,20 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
-const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    ...(open && {
-      ...openedMixin(theme),
-      '& .MuiDrawer-paper': openedMixin(theme),
-    }),
-    ...(!open && {
-      ...closedMixin(theme),
-      '& .MuiDrawer-paper': closedMixin(theme),
-    }),
-  })
-);
+const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+  boxSizing: 'border-box',
+  ...(open && {
+    ...openedMixin(theme),
+    '& .MuiDrawer-paper': openedMixin(theme),
+  }),
+  ...(!open && {
+    ...closedMixin(theme),
+    '& .MuiDrawer-paper': closedMixin(theme),
+  }),
+}));
 
 const Hamburger: React.FC<{ open: boolean }> = ({ open }) => {
   const screenSize = useScreenSize();
@@ -116,10 +100,7 @@ const Header = () => {
   );
 };
 
-const DrawerItems: React.FC<{ open: boolean; closeOnClick?: boolean }> = ({
-  open,
-  closeOnClick = false,
-}) => {
+const DrawerItems: React.FC<{ open: boolean; closeOnClick?: boolean }> = ({ open, closeOnClick = false }) => {
   return (
     <>
       <Divider />
@@ -160,9 +141,7 @@ const Profile: React.FC<{ open: boolean }> = ({ open }) => {
         >
           {session && session.user && <ProfileAvatar user={session.user} />}
           <Box sx={{ ml: '.5rem' }}>
-            <Typography fontWeight="bold">
-              {session && session.user && session.user.user_metadata.username}
-            </Typography>
+            <Typography fontWeight="bold">{session && session.user && session.user.user_metadata.username}</Typography>
             <Chip label="Basic" variant="outlined" size="small" />
           </Box>
         </Box>
@@ -224,19 +203,12 @@ export const Drawer = () => {
         }}
       >
         <Header />
-        <DrawerItems
-          open={!showDrawer} /*For information about the inverted value see comment above*/
-          closeOnClick
-        />
+        <DrawerItems open={!showDrawer} /*For information about the inverted value see comment above*/ closeOnClick />
         <Profile open={!showDrawer} />
       </MuiDrawer>
 
       {/* Desktop */}
-      <StyledDrawer
-        variant="permanent"
-        open={showDrawer}
-        sx={{ display: { xs: 'none', md: 'unset' } }}
-      >
+      <StyledDrawer variant="permanent" open={showDrawer} sx={{ display: { xs: 'none', md: 'unset' } }}>
         <Header />
         <DrawerItems open={showDrawer} />
         <Profile open={showDrawer} />

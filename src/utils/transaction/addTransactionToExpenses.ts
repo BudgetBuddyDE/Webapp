@@ -6,9 +6,7 @@ type RequestedData = CategorySpendingsState['month'] | CategorySpendingsState['a
 export function addTransactionToExpenses(
   transaction: Transaction,
   currentData: RequestedData,
-  updateExpenses: (
-    updated: CategorySpendingsState['month'] | CategorySpendingsState['allTime']
-  ) => void
+  updateExpenses: (updated: CategorySpendingsState['month'] | CategorySpendingsState['allTime']) => void
 ) {
   if (transaction.amount > 0) return;
 
@@ -21,9 +19,6 @@ export function addTransactionToExpenses(
     };
     updateExpenses(currentData);
   } else {
-    updateExpenses([
-      ...currentData,
-      { label: transaction.categories.name, value: Math.abs(transaction.amount) },
-    ]);
+    updateExpenses([...currentData, { label: transaction.categories.name, value: Math.abs(transaction.amount) }]);
   }
 }

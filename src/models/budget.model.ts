@@ -10,15 +10,7 @@ export class Budget {
   updated_at: Date;
   inserted_at: Date;
 
-  constructor({
-    id,
-    category,
-    budget,
-    currentlySpent,
-    created_by,
-    updated_at,
-    inserted_at,
-  }: IBudgetProgressView) {
+  constructor({ id, category, budget, currentlySpent, created_by, updated_at, inserted_at }: IBudgetProgressView) {
     this.id = id;
     this.category = category;
     this.budget = budget;

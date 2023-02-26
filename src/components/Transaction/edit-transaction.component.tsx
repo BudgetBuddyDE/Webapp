@@ -41,16 +41,10 @@ interface EditTransactionHandler {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export const EditTransaction: React.FC<IEditTransactionProps> = ({
-  open,
-  setOpen,
-  afterSubmit,
-  transaction,
-}) => {
+export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen, afterSubmit, transaction }) => {
   const screenSize = useScreenSize();
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setTransactions, transactionReceiver, categories, paymentMethods } =
-    React.useContext(StoreContext);
+  const { loading, setTransactions, transactionReceiver, categories, paymentMethods } = React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();
   const [form, setForm] = React.useState<Partial<IBaseTransaction> | null>(null);
   const [errorMessage, setErrorMessage] = React.useState('');
@@ -87,13 +81,9 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({
           category: form.category!,
           paymentMethod: form.paymentMethod!,
           amount: transformBalance(String(form.amount!)),
-          description:
-            typeof form.description === 'string' && form.description.length > 0
-              ? form.description
-              : null,
+          description: typeof form.description === 'string' && form.description.length > 0 ? form.description : null,
         });
-        if (!updatedTransactions || updatedTransactions.length < 1)
-          throw new Error('No transaction updated');
+        if (!updatedTransactions || updatedTransactions.length < 1) throw new Error('No transaction updated');
 
         const {
           id,
@@ -219,9 +209,7 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({
                 id="category"
                 options={categories.map((item) => ({ label: item.name, value: item.id }))}
                 sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-                onChange={(event, value) =>
-                  handler.autocompleteChange(event, 'category', Number(value?.value))
-                }
+                onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
                 defaultValue={getCategoryFromList(Number(form.category), categories)}
                 renderInput={(props) => <TextField {...props} label="Category" />}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
@@ -236,9 +224,7 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({
                   value: item.id,
                 }))}
                 sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-                onChange={(event, value) =>
-                  handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))
-                }
+                onChange={(event, value) => handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))}
                 defaultValue={getPaymentMethodFromList(Number(form.paymentMethod), paymentMethods)}
                 renderInput={(props) => <TextField {...props} label="Payment Method" />}
                 isOptionEqualToValue={(option, value) => option.value === value.value}

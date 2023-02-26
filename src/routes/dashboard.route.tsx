@@ -22,13 +22,7 @@ import {
 } from '../components';
 import { AuthContext, StoreContext } from '../context';
 import { Subscription as SubscriptionModel, Transaction as TransactionModel } from '../models';
-import {
-  BudgetService,
-  DateService,
-  ExpenseService,
-  SubscriptionService,
-  TransactionService,
-} from '../services';
+import { BudgetService, DateService, ExpenseService, SubscriptionService, TransactionService } from '../services';
 import type { IMonthlyBalanceAvg } from '../types';
 import { addTransactionToExpenses, formatBalance } from '../utils';
 
@@ -47,8 +41,7 @@ export const Dashboard = () => {
     { type: 'ALL', text: 'All' },
   ];
   const { session } = React.useContext(AuthContext);
-  const { loading, setLoading, subscriptions, transactions, setTransactions } =
-    React.useContext(StoreContext);
+  const { loading, setLoading, subscriptions, transactions, setTransactions } = React.useContext(StoreContext);
   const [categorySpendings, setCategorySpendings] = React.useReducer(categorySpendingsReducer, {
     chart: 'MONTH',
     month: [],
@@ -189,9 +182,7 @@ export const Dashboard = () => {
   return (
     <Grid container spacing={3}>
       <PageHeader
-        title={`Welcome, ${
-          (session && session.user && session.user.user_metadata.username) || 'Username'
-        }!`}
+        title={`Welcome, ${(session && session.user && session.user.user_metadata.username) || 'Username'}!`}
         description="All in one page"
       />
 
@@ -286,11 +277,7 @@ export const Dashboard = () => {
                     <PieChart
                       width={width}
                       height={width}
-                      data={
-                        categorySpendings.chart === 'MONTH'
-                          ? categorySpendings.month
-                          : categorySpendings.allTime
-                      }
+                      data={categorySpendings.chart === 'MONTH' ? categorySpendings.month : categorySpendings.allTime}
                       formatAsCurrency
                       showTotalSum
                     />
@@ -345,8 +332,7 @@ export const Dashboard = () => {
         setOpen={(show) => setShowAddTransactionForm(show)}
         afterSubmit={(transaction) => {
           const forCurrentMonth =
-            isSameMonth(new Date(transaction.date), new Date()) &&
-            new Date(transaction.date) <= new Date();
+            isSameMonth(new Date(transaction.date), new Date()) && new Date(transaction.date) <= new Date();
 
           addTransactionToExpenses(
             transaction,
@@ -367,10 +353,7 @@ export const Dashboard = () => {
         }}
       />
 
-      <CreateSubscription
-        open={showSubscriptionForm}
-        setOpen={(show) => setShowSubscriptionForm(show)}
-      />
+      <CreateSubscription open={showSubscriptionForm} setOpen={(show) => setShowSubscriptionForm(show)} />
     </Grid>
   );
 };

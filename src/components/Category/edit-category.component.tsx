@@ -81,9 +81,7 @@ export const EditCategory: React.FC<{
         name="name"
         sx={FormStyle}
         value={form ? form.name : ''}
-        onChange={(event) =>
-          setForm((prev) => (prev ? { ...prev, name: event.target.value } : prev))
-        }
+        onChange={(event) => setForm((prev) => (prev ? { ...prev, name: event.target.value } : prev))}
       />
 
       <TextField

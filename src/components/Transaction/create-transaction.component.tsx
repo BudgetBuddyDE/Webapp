@@ -41,16 +41,11 @@ interface CreateTransactionHandler {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
-  open,
-  setOpen,
-  afterSubmit,
-}) => {
+export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, setOpen, afterSubmit }) => {
   const screenSize = useScreenSize();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, transactionReceiver, setTransactions, categories, paymentMethods } =
-    React.useContext(StoreContext);
+  const { loading, transactionReceiver, setTransactions, categories, paymentMethods } = React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();
   const [form, setForm] = React.useState<Partial<IBaseTransaction>>({ date: new Date() });
   const [errorMessage, setErrorMessage] = React.useState('');
@@ -86,10 +81,7 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
             paymentMethod: Number(form.paymentMethod),
             receiver: String(form.receiver),
             amount: transformBalance(form.amount!.toString()),
-            description:
-              typeof form.description === 'string' && form.description.length > 0
-                ? form.description
-                : null,
+            description: typeof form.description === 'string' && form.description.length > 0 ? form.description : null,
             created_by: session!.user!.id,
           },
         ]);
@@ -197,9 +189,7 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
           id="category"
           options={categories.map((item) => ({ label: item.name, value: item.id }))}
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-          onChange={(event, value) =>
-            handler.autocompleteChange(event, 'category', Number(value?.value))
-          }
+          onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
           renderInput={(props) => <TextField {...props} label="Category" />}
           isOptionEqualToValue={(option, value) => option.value === value.value}
         />
@@ -210,9 +200,7 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
             value: item.id,
           }))}
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-          onChange={(event, value) =>
-            handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))
-          }
+          onChange={(event, value) => handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))}
           renderInput={(props) => <TextField {...props} label="Payment Method" />}
           isOptionEqualToValue={(option, value) => option.value === value.value}
         />

@@ -41,10 +41,7 @@ export function BaseListReducer<T>(
         return {
           ...state,
           data: state.data.map((value) => {
-            if (
-              genericObjectHasNumericId(value) &&
-              (value as any).id === (action.entry as any).id
-            ) {
+            if (genericObjectHasNumericId(value) && (value as any).id === (action.entry as any).id) {
               return action.entry;
             } else return value;
           }),

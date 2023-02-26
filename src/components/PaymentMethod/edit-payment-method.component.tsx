@@ -14,12 +14,7 @@ export interface IEditPaymentMethodProps {
   paymentMethod: PaymentMethod | null;
 }
 
-export const EditPaymentMethod: React.FC<IEditPaymentMethodProps> = ({
-  open,
-  setOpen,
-  afterSubmit,
-  paymentMethod,
-}) => {
+export const EditPaymentMethod: React.FC<IEditPaymentMethodProps> = ({ open, setOpen, afterSubmit, paymentMethod }) => {
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, setPaymentMethods } = React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();
@@ -42,8 +37,7 @@ export const EditPaymentMethod: React.FC<IEditPaymentMethodProps> = ({
 
         // @ts-expect-error will work because we're checking if the object contains all required keys at the top
         const updatedPaymentMethods = await paymentMethod.update(form);
-        if (!updatedPaymentMethods || updatedPaymentMethods.length < 1)
-          throw new Error('No payment-method updated');
+        if (!updatedPaymentMethods || updatedPaymentMethods.length < 1) throw new Error('No payment-method updated');
 
         const updatedItem = updatedPaymentMethods[0];
         if (afterSubmit) afterSubmit(updatedItem);

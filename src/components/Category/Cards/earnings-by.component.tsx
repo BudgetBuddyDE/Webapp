@@ -11,10 +11,7 @@ export interface EarningsByCategoryProps {
   transactions: Transaction[];
 }
 
-export const EarningsByCategory: React.FC<EarningsByCategoryProps> = ({
-  categories,
-  transactions,
-}) => {
+export const EarningsByCategory: React.FC<EarningsByCategoryProps> = ({ categories, transactions }) => {
   const [chartContent, setChartContent] = React.useState<'INCOME' | 'SPENDINGS'>('INCOME');
 
   const incomeStats = React.useMemo(() => {
@@ -59,9 +56,7 @@ export const EarningsByCategory: React.FC<EarningsByCategoryProps> = ({
       <Card.Header>
         <Box>
           <Card.Title>Balance</Card.Title>
-          <Card.Subtitle>
-            How much did u {chartContent === 'INCOME' ? 'earn' : 'spend'}?
-          </Card.Subtitle>
+          <Card.Subtitle>How much did u {chartContent === 'INCOME' ? 'earn' : 'spend'}?</Card.Subtitle>
         </Box>
 
         <Card.HeaderActions>
@@ -82,9 +77,7 @@ export const EarningsByCategory: React.FC<EarningsByCategoryProps> = ({
       <Card.Body sx={{ mt: 2 }}>
         {chartData.length > 0 ? (
           <ParentSize>
-            {({ width }) => (
-              <PieChart width={width} height={width} data={chartData} formatAsCurrency />
-            )}
+            {({ width }) => <PieChart width={width} height={width} data={chartData} formatAsCurrency />}
           </ParentSize>
         ) : warnMsg.length > 0 ? (
           <Alert severity="warning">{warnMsg}</Alert>

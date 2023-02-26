@@ -57,21 +57,20 @@ export const UserProfile = () => {
     try {
       setPreparingDownload(true);
       if (downloadButtonRef) {
-        const [budget, categories, paymentMethods, profiles, subscriptions, transactions] =
-          await Promise.all([
-            // @ts-ignore
-            BudgetService.export(exportType),
-            // @ts-ignore
-            CategoryService.export(exportType),
-            // @ts-ignore
-            PaymentMethodService.export(exportType),
-            // @ts-ignore
-            ProfileService.export(session!.user!.id, exportType),
-            // @ts-ignore
-            SubscriptionService.export(exportType),
-            // @ts-ignore
-            TransactionService.export(exportType),
-          ]);
+        const [budget, categories, paymentMethods, profiles, subscriptions, transactions] = await Promise.all([
+          // @ts-ignore
+          BudgetService.export(exportType),
+          // @ts-ignore
+          CategoryService.export(exportType),
+          // @ts-ignore
+          PaymentMethodService.export(exportType),
+          // @ts-ignore
+          ProfileService.export(session!.user!.id, exportType),
+          // @ts-ignore
+          SubscriptionService.export(exportType),
+          // @ts-ignore
+          TransactionService.export(exportType),
+        ]);
 
         switch (exportType) {
           case 'json':
@@ -91,10 +90,7 @@ export const UserProfile = () => {
                 );
                 downloadButtonRef.current?.setAttribute(
                   'download',
-                  `budget_buddy_${session?.user?.email}_${format(
-                    new Date(),
-                    'dd.MM.yy'
-                  )}.${exportType}`
+                  `budget_buddy_${session?.user?.email}_${format(new Date(), 'dd.MM.yy')}.${exportType}`
                 );
                 downloadButtonRef.current?.click(); // Trigger file download
                 afterFileDownload();
@@ -121,10 +117,7 @@ export const UserProfile = () => {
                   );
                   downloadButtonRef.current?.setAttribute(
                     'download',
-                    `budget_buddy_${category}_${session?.user?.email}_${format(
-                      new Date(),
-                      'dd.MM.yy'
-                    )}.${exportType}`
+                    `budget_buddy_${category}_${session?.user?.email}_${format(new Date(), 'dd.MM.yy')}.${exportType}`
                   );
                   downloadButtonRef.current?.click(); // Trigger file download
                   if (index + 1 === list.length) afterFileDownload();
@@ -185,8 +178,7 @@ export const UserProfile = () => {
         });
         if (updateUser.error) throw updateUser.error;
         showSnackbar({
-          message:
-            'Your avatar has been uploaded. It may take a moment for the changes to be applied',
+          message: 'Your avatar has been uploaded. It may take a moment for the changes to be applied',
         });
       }
     } catch (error) {
@@ -243,12 +235,7 @@ export const UserProfile = () => {
           />
 
           <Box>
-            <Button
-              disabled={saving}
-              variant="contained"
-              sx={{ mt: 2 }}
-              onClick={handleProfileSave}
-            >
+            <Button disabled={saving} variant="contained" sx={{ mt: 2 }} onClick={handleProfileSave}>
               {saving && <CircularProgress size={20} sx={{ mr: 1 }} />}
               Save
             </Button>
@@ -273,12 +260,7 @@ export const UserProfile = () => {
             </Select>
           </FormControl>
         </Box>
-        <Button
-          disabled={preparingDownload}
-          variant="contained"
-          sx={{ mt: 2 }}
-          onClick={handleDataExport}
-        >
+        <Button disabled={preparingDownload} variant="contained" sx={{ mt: 2 }} onClick={handleDataExport}>
           {preparingDownload && <CircularProgress size={20} sx={{ mr: 1 }} />}
           Start export
         </Button>

@@ -13,11 +13,7 @@ export interface ICreatePaymentMethodProps {
   afterSubmit?: (paymentMethod: IPaymentMethod) => void;
 }
 
-export const CreatePaymentMethod: React.FC<ICreatePaymentMethodProps> = ({
-  open,
-  setOpen,
-  afterSubmit,
-}) => {
+export const CreatePaymentMethod: React.FC<ICreatePaymentMethodProps> = ({ open, setOpen, afterSubmit }) => {
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, setPaymentMethods } = React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();

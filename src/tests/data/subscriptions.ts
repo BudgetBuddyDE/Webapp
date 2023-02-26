@@ -33,19 +33,9 @@ export function generateSubscriptionList(
   categories = generateCategories(),
   paymentMethods = generatePaymentMethods()
 ): Subscription[] {
-  const FUTURE_TRANSACTIONS = generateSubscriptions(
-    5,
-    faker.date.soon(5),
-    categories,
-    paymentMethods
-  );
+  const FUTURE_TRANSACTIONS = generateSubscriptions(5, faker.date.soon(5), categories, paymentMethods);
   const TODAYS_TRANSACTIONS = generateSubscriptions(3, new Date(), categories, paymentMethods);
-  const PAST_TRANSACTIONS = generateSubscriptions(
-    4,
-    getFirstDayOfMonth(),
-    categories,
-    paymentMethods
-  );
+  const PAST_TRANSACTIONS = generateSubscriptions(4, getFirstDayOfMonth(), categories, paymentMethods);
 
   return [...FUTURE_TRANSACTIONS, ...TODAYS_TRANSACTIONS, ...PAST_TRANSACTIONS].sort(
     (a, b) => a.execute_at - b.execute_at

@@ -56,8 +56,7 @@ interface FilterDrawerHandler {
 export interface IFilterDrawerProps {}
 
 export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
-  const { showFilter, setShowFilter, filter, setFilter, categories, paymentMethods } =
-    React.useContext(StoreContext);
+  const { showFilter, setShowFilter, filter, setFilter, categories, paymentMethods } = React.useContext(StoreContext);
   const [unappliedFilter, setUnappliedFilter] = React.useState(filter);
 
   const handler: FilterDrawerHandler = {
@@ -169,8 +168,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
         >
           {categories.map((category) => {
             const selected =
-              Array.isArray(unappliedFilter.categories) &&
-              unappliedFilter.categories.includes(category.id);
+              Array.isArray(unappliedFilter.categories) && unappliedFilter.categories.includes(category.id);
             return (
               <MenuItem
                 key={category.id}

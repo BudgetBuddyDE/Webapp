@@ -27,13 +27,7 @@ function getValue(d: BarChartData) {
   return d.value * 100;
 }
 
-export const BarChart: React.FC<BarChartProps> = ({
-  width,
-  height,
-  events = true,
-  onEvent,
-  data,
-}) => {
+export const BarChart: React.FC<BarChartProps> = ({ width, height, events = true, onEvent, data }) => {
   const theme = useTheme();
   const [selectedBar, setSelectedBar] = React.useState<BarChartData | null>(null);
   const xMax = width;

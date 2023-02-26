@@ -34,16 +34,10 @@ export interface IEditSubscriptionProps {
   subscription: Subscription | null;
 }
 
-export const EditSubscription: React.FC<IEditSubscriptionProps> = ({
-  open,
-  setOpen,
-  afterSubmit,
-  subscription,
-}) => {
+export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOpen, afterSubmit, subscription }) => {
   const screenSize = useScreenSize();
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setSubscriptions, transactionReceiver, categories, paymentMethods } =
-    React.useContext(StoreContext);
+  const { loading, setSubscriptions, transactionReceiver, categories, paymentMethods } = React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();
   const [executionDate, setExecutionDate] = React.useState(new Date());
   const [form, setForm] = React.useState<Partial<IBaseSubscription> | null>(null);
@@ -85,13 +79,9 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({
           category: form.category!,
           paymentMethod: form.paymentMethod!,
           amount: transformBalance(String(form.amount!)),
-          description:
-            typeof form.description === 'string' && form.description.length > 0
-              ? form.description
-              : null,
+          description: typeof form.description === 'string' && form.description.length > 0 ? form.description : null,
         });
-        if (!updatedSubscriptions || updatedSubscriptions.length < 1)
-          throw new Error('No subscription updated');
+        if (!updatedSubscriptions || updatedSubscriptions.length < 1) throw new Error('No subscription updated');
 
         const {
           id,
@@ -227,9 +217,7 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({
                 id="category"
                 options={categories.map((item) => ({ label: item.name, value: item.id }))}
                 sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-                onChange={(event, value) =>
-                  handler.autocompleteChange(event, 'category', Number(value?.value))
-                }
+                onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
                 defaultValue={getCategoryFromList(Number(form.category), categories)}
                 renderInput={(props) => <TextField {...props} label="Category" />}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
@@ -244,9 +232,7 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({
                   value: item.id,
                 }))}
                 sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-                onChange={(event, value) =>
-                  handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))
-                }
+                onChange={(event, value) => handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))}
                 defaultValue={getPaymentMethodFromList(Number(form.paymentMethod), paymentMethods)}
                 renderInput={(props) => <TextField {...props} label="Payment Method" />}
                 isOptionEqualToValue={(option, value) => option.value === value.value}

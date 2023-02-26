@@ -2,12 +2,7 @@ import React from 'react';
 import { DEFAULT_FILTER_VALUE, getSavedSidebarState, saveSidebarState } from '../components';
 import { Budget, Category, PaymentMethod, Subscription, Transaction } from '../models/';
 import { BaseListReducer, DailyTransactionReducer, generateBaseState } from '../reducer';
-import {
-  BudgetService,
-  CategoryService,
-  PaymentMethodService,
-  SubscriptionService,
-} from '../services';
+import { BudgetService, CategoryService, PaymentMethodService, SubscriptionService } from '../services';
 import type { IFilter, IStoreContext } from '../types/';
 import { sortSubscriptionsByExecution } from '../utils';
 import { AuthContext } from './auth.context';
@@ -58,12 +53,10 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
 
   const transactionReceiver = React.useMemo(() => {
     if (!transactions.data) return [];
-    return [...new Set(transactions.data.map((transaction) => transaction.receiver))].map(
-      (receiver) => ({
-        text: receiver,
-        value: receiver,
-      })
-    );
+    return [...new Set(transactions.data.map((transaction) => transaction.receiver))].map((receiver) => ({
+      text: receiver,
+      value: receiver,
+    }));
   }, [transactions]);
 
   return (

@@ -50,24 +50,13 @@ interface TransactionHandler {
 export const Transactions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { session } = React.useContext(AuthContext);
-  const {
-    loading,
-    setLoading,
-    filter,
-    transactions,
-    setTransactions,
-    categories,
-    paymentMethods,
-    subscriptions,
-  } = React.useContext(StoreContext);
+  const { loading, setLoading, filter, transactions, setTransactions, categories, paymentMethods, subscriptions } =
+    React.useContext(StoreContext);
   const [keyword, setKeyword] = React.useState('');
   const [, startTransition] = React.useTransition();
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
-  const [tablePagination, setTablePagination] = React.useReducer(
-    TablePaginationReducer,
-    InitialTablePaginationState
-  );
+  const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
 
   const handler: TransactionHandler = {
     onSearch(text) {
@@ -79,8 +68,7 @@ export const Transactions = () => {
     async onTransactionDelete(transaction) {
       try {
         const deletedTransactions = await transaction.delete();
-        if (!deletedTransactions || deletedTransactions.length < 0)
-          throw new Error('No transaction deleted');
+        if (!deletedTransactions || deletedTransactions.length < 0) throw new Error('No transaction deleted');
         startTransition(() => {
           setTransactions({
             type: 'REMOVE_BY_ID',
@@ -158,19 +146,13 @@ export const Transactions = () => {
                   <Table sx={{ minWidth: 650 }} aria-label="Transaction Table">
                     <TableHead>
                       <TableRow>
-                        {[
-                          'Date',
-                          'Category',
-                          'Receiver',
-                          'Amount',
-                          'Payment Method',
-                          'Information',
-                          '',
-                        ].map((cell, index) => (
-                          <TableCell key={index}>
-                            <Typography fontWeight="bolder">{cell}</Typography>
-                          </TableCell>
-                        ))}
+                        {['Date', 'Category', 'Receiver', 'Amount', 'Payment Method', 'Information', ''].map(
+                          (cell, index) => (
+                            <TableCell key={index}>
+                              <Typography fontWeight="bolder">{cell}</Typography>
+                            </TableCell>
+                          )
+                        )}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -211,18 +193,12 @@ export const Transactions = () => {
                           <TableCell align="right">
                             <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                               <Tooltip title="Edit" placement="top">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => setEditTransaction(transaction)}
-                                >
+                                <IconButton color="primary" onClick={() => setEditTransaction(transaction)}>
                                   <EditIcon />
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Delete" placement="top">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => handler.onTransactionDelete(transaction)}
-                                >
+                                <IconButton color="primary" onClick={() => handler.onTransactionDelete(transaction)}>
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
@@ -250,9 +226,7 @@ export const Transactions = () => {
       </Grid>
 
       <Grid item xs={12} md={4} lg={4} xl={4}>
-        {!loading && (
-          <EarningsByCategory categories={categories} transactions={transactions.data ?? []} />
-        )}
+        {!loading && <EarningsByCategory categories={categories} transactions={transactions.data ?? []} />}
       </Grid>
 
       <Grid item xs={12} md={4} lg={4} xl={4}>

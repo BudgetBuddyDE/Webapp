@@ -143,8 +143,7 @@ export const Budget = () => {
         if (newChart === chart) return;
 
         setChart(newChart);
-        const transactions =
-          newChart === 'INCOME' ? dailyTransactions.income : dailyTransactions.spendings;
+        const transactions = newChart === 'INCOME' ? dailyTransactions.income : dailyTransactions.spendings;
         const today = transactions[transactions.length - 1];
         setDailyTransactions({
           type: 'UPDATE_SELECTED',
@@ -233,9 +232,7 @@ export const Budget = () => {
                     inputFormat={DATE_RANGE_INPUT_FORMAT}
                     value={dateRange.from}
                     onChange={handler.onDateFromChange}
-                    renderInput={(params) => (
-                      <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
-                    )}
+                    renderInput={(params) => <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />}
                   />
                 ) : (
                   <DesktopDatePicker
@@ -243,9 +240,7 @@ export const Budget = () => {
                     inputFormat={DATE_RANGE_INPUT_FORMAT}
                     value={dateRange.from}
                     onChange={handler.onDateFromChange}
-                    renderInput={(params) => (
-                      <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
-                    )}
+                    renderInput={(params) => <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />}
                   />
                 )}
 
@@ -255,9 +250,7 @@ export const Budget = () => {
                     inputFormat={DATE_RANGE_INPUT_FORMAT}
                     value={dateRange.to}
                     onChange={handler.onDateToChange}
-                    renderInput={(params) => (
-                      <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
-                    )}
+                    renderInput={(params) => <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />}
                   />
                 ) : (
                   <DesktopDatePicker
@@ -265,9 +258,7 @@ export const Budget = () => {
                     inputFormat={DATE_RANGE_INPUT_FORMAT}
                     value={dateRange.to}
                     onChange={handler.onDateToChange}
-                    renderInput={(params) => (
-                      <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
-                    )}
+                    renderInput={(params) => <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />}
                   />
                 )}
               </LocalizationProvider>
@@ -285,9 +276,7 @@ export const Budget = () => {
                         ? 'Today'
                         : format(dailyTransactions.selected.date, 'dd.MM.yy')}
                     </Typography>
-                    <Typography variant="subtitle1">
-                      {formatBalance(dailyTransactions.selected.amount)}
-                    </Typography>
+                    <Typography variant="subtitle1">{formatBalance(dailyTransactions.selected.amount)}</Typography>
                   </Box>
                 )}
 
@@ -296,12 +285,10 @@ export const Budget = () => {
                     <BarChart
                       width={width}
                       height={width * 0.6}
-                      data={dailyTransactions[chart === 'INCOME' ? 'income' : 'spendings'].map(
-                        (day) => ({
-                          label: day.date.toString(),
-                          value: day.amount,
-                        })
-                      )}
+                      data={dailyTransactions[chart === 'INCOME' ? 'income' : 'spendings'].map((day) => ({
+                        label: day.date.toString(),
+                        value: day.amount,
+                      }))}
                       onEvent={handler.charts.onEvent}
                       events
                     />

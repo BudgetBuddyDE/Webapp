@@ -1,7 +1,4 @@
-import {
-  TablePagination as MuiTablePagination,
-  TablePaginationProps as MuiTablePaginationProps,
-} from '@mui/material';
+import { TablePagination as MuiTablePagination, TablePaginationProps as MuiTablePaginationProps } from '@mui/material';
 import React from 'react';
 import { TablePaginationState } from '../../reducer';
 import { ActionPaper } from './action-paper.component';

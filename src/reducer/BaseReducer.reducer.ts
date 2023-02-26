@@ -17,10 +17,7 @@ export function generateBaseState<T>(): BaseReducerState<T> {
   };
 }
 
-export function BaseReducer<T>(
-  state: BaseReducerState<T>,
-  action: BaseReducerAction<T>
-): BaseReducerState<T> {
+export function BaseReducer<T>(state: BaseReducerState<T>, action: BaseReducerAction<T>): BaseReducerState<T> {
   switch (action.type) {
     case 'FETCH_DATA':
     case 'REFRESH_DATA':

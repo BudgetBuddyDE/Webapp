@@ -1,7 +1,4 @@
-import {
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-} from '@mui/icons-material';
+import { Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -123,10 +120,7 @@ export const SignIn = () => {
 
           <Divider sx={{ my: 3 }} />
 
-          <Button
-            sx={{ width: '100%', mb: 2 }}
-            onClick={() => navigate('/request-reset', { replace: true })}
-          >
+          <Button sx={{ width: '100%', mb: 2 }} onClick={() => navigate('/request-reset', { replace: true })}>
             Reset password?
           </Button>
 

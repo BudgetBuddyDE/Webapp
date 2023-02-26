@@ -50,23 +50,13 @@ interface SubscriptionsHandler {
 
 export const Subscriptions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const {
-    loading,
-    filter,
-    subscriptions,
-    setSubscriptions,
-    categories,
-    paymentMethods,
-    transactions,
-  } = React.useContext(StoreContext);
+  const { loading, filter, subscriptions, setSubscriptions, categories, paymentMethods, transactions } =
+    React.useContext(StoreContext);
   const [keyword, setKeyword] = React.useState('');
   const [, startTransition] = React.useTransition();
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [editSubscription, setEditSubscription] = React.useState<Subscription | null>(null);
-  const [tablePagination, setTablePagination] = React.useReducer(
-    TablePaginationReducer,
-    InitialTablePaginationState
-  );
+  const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
 
   const handler: SubscriptionsHandler = {
     onSearch(keyword) {
@@ -84,8 +74,7 @@ export const Subscriptions = () => {
       async onDelete(subscription) {
         try {
           const deletedSubscriptions = await subscription.delete();
-          if (!deletedSubscriptions || deletedSubscriptions.length < 1)
-            throw new Error('No subscription deleted');
+          if (!deletedSubscriptions || deletedSubscriptions.length < 1) throw new Error('No subscription deleted');
           startTransition(() => {
             setSubscriptions((prev) => prev.filter(({ id }) => id !== subscription.id));
           });
@@ -94,9 +83,7 @@ export const Subscriptions = () => {
           console.error(error);
           showSnackbar({
             message: `Could'nt delete transaction`,
-            action: (
-              <Button onClick={() => handler.subscription.onDelete(subscription)}>Retry</Button>
-            ),
+            action: <Button onClick={() => handler.subscription.onDelete(subscription)}>Retry</Button>,
           });
         }
       },
@@ -150,19 +137,13 @@ export const Subscriptions = () => {
                   <Table sx={{ minWidth: 650 }} aria-label="Subscriptions Table">
                     <TableHead>
                       <TableRow>
-                        {[
-                          'Next execution',
-                          'Category',
-                          'Receiver',
-                          'Amount',
-                          'Payment Method',
-                          'Information',
-                          '',
-                        ].map((cell, index) => (
-                          <TableCell key={index}>
-                            <Typography fontWeight="bolder">{cell}</Typography>
-                          </TableCell>
-                        ))}
+                        {['Next execution', 'Category', 'Receiver', 'Amount', 'Payment Method', 'Information', ''].map(
+                          (cell, index) => (
+                            <TableCell key={index}>
+                              <Typography fontWeight="bolder">{cell}</Typography>
+                            </TableCell>
+                          )
+                        )}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -175,9 +156,7 @@ export const Subscriptions = () => {
                           }}
                         >
                           <TableCell>
-                            <Typography fontWeight="bolder">
-                              {determineNextExecution(row.execute_at)}
-                            </Typography>
+                            <Typography fontWeight="bolder">{determineNextExecution(row.execute_at)}</Typography>
                           </TableCell>
                           <TableCell>
                             <CategoryChip category={row.categories} />
@@ -202,18 +181,12 @@ export const Subscriptions = () => {
                           <TableCell align="right">
                             <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                               <Tooltip title="Edit" placement="top">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => handler.subscription.onEdit(row)}
-                                >
+                                <IconButton color="primary" onClick={() => handler.subscription.onEdit(row)}>
                                   <EditIcon />
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Delete" placement="top">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => handler.subscription.onDelete(row)}
-                                >
+                                <IconButton color="primary" onClick={() => handler.subscription.onDelete(row)}>
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
@@ -241,9 +214,7 @@ export const Subscriptions = () => {
       </Grid>
 
       <Grid item xs={12} md={4} lg={4} xl={4}>
-        {!loading && (
-          <EarningsByCategory categories={categories} transactions={transactions.data ?? []} />
-        )}
+        {!loading && <EarningsByCategory categories={categories} transactions={transactions.data ?? []} />}
       </Grid>
 
       <Grid item xs={12} md={4} lg={4} xl={4}>
