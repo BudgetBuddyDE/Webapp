@@ -1,4 +1,4 @@
-import { Box, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { Alert, Box, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { ParentSize } from '@visx/responsive';
 import React from 'react';
 import { PaymentMethod, Subscription, Transaction } from '../../../models';
@@ -48,6 +48,17 @@ export const UsedByPaymentMethod: React.FC<UsedByPaymentMethodProps> = ({
     }));
   }, [chartContent, paymentMethodsUsedInTransactions, paymentMethodsUsedInSubscriptions]);
 
+  const warnMsg: string = React.useMemo(() => {
+    if (countedChartData.length > 0) return '';
+    let missing: string[] = [];
+
+    if (transactions.length < 1) missing.push('transactions');
+    if (paymentMethods.length < 1) missing.push('payment-methods');
+    if (subscriptions.length < 1) missing.push('subscriptions');
+
+    return 'You are missing out on ' + missing.join(', ') + '!';
+  }, [countedChartData]);
+
   return (
     <Card>
       <Card.Header>
@@ -76,6 +87,8 @@ export const UsedByPaymentMethod: React.FC<UsedByPaymentMethodProps> = ({
           <ParentSize>
             {({ width }) => <PieChart width={width} height={width} data={countedChartData} />}
           </ParentSize>
+        ) : warnMsg.length > 0 ? (
+          <Alert severity="warning">{warnMsg}</Alert>
         ) : (
           <NoResults />
         )}
