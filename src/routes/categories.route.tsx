@@ -188,7 +188,9 @@ export const Categories = () => {
       </Grid>
 
       <Grid item xs={12} md={3} lg={4} xl={3}>
-        {!loading && <EarningsByCategory categories={categories} transactions={transactions} />}
+        {!loading && (
+          <EarningsByCategory categories={categories} transactions={transactions.data ?? []} />
+        )}
       </Grid>
 
       <CreateCategory open={showAddForm} setOpen={(show) => setShowAddForm(show)} />

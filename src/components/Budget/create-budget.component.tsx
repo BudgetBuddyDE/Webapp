@@ -69,17 +69,20 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
           id: createdBudget.id,
           category: categories.find((c) => c.id === createdBudget.category)!.categoryView,
           budget: createdBudget.budget,
-          currentlySpent: Math.abs(
-            transactions
-              .filter(
-                (transaction) =>
-                  transaction.amount < 0 &&
-                  isSameMonth(new Date(transaction.date), new Date()) &&
-                  new Date(transaction.date) <= new Date() &&
-                  transaction.categories.id === createdBudget.category
-              )
-              .reduce((prev, cur) => prev + cur.amount, 0)
-          ),
+          currentlySpent:
+            transactions.data !== null
+              ? Math.abs(
+                  transactions.data
+                    .filter(
+                      (transaction) =>
+                        transaction.amount < 0 &&
+                        isSameMonth(new Date(transaction.date), new Date()) &&
+                        new Date(transaction.date) <= new Date() &&
+                        transaction.categories.id === createdBudget.category
+                    )
+                    .reduce((prev, cur) => prev + cur.amount, 0)
+                )
+              : 0,
           created_by: createdBudget.created_by,
           updated_at: createdBudget.updated_at.toString(),
           inserted_at: createdBudget.inserted_at.toString(),

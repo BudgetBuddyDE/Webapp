@@ -21,6 +21,7 @@ import {
   Transaction,
 } from '../components';
 import { AuthContext, StoreContext } from '../context';
+import { Subscription as SubscriptionModel, Transaction as TransactionModel } from '../models';
 import {
   BudgetService,
   DateService,
@@ -34,6 +35,9 @@ import { addTransactionToExpenses, formatBalance } from '../utils';
 /** How many months do we wanna look back? */
 export const MONTH_BACKLOG = 6;
 
+/** How many items do we wanna show? */
+export const LATEST_ITEMS = 6;
+
 export const Dashboard = () => {
   const SPENDING_CHART_TYPES: { type: SpendingChartType; text: string }[] = [
     {
@@ -43,7 +47,8 @@ export const Dashboard = () => {
     { type: 'ALL', text: 'All' },
   ];
   const { session } = React.useContext(AuthContext);
-  const { loading, setLoading, subscriptions, transactions } = React.useContext(StoreContext);
+  const { loading, setLoading, subscriptions, transactions, setTransactions } =
+    React.useContext(StoreContext);
   const [categorySpendings, setCategorySpendings] = React.useReducer(categorySpendingsReducer, {
     chart: 'MONTH',
     month: [],
@@ -53,14 +58,25 @@ export const Dashboard = () => {
   const [showAddTransactionForm, setShowAddTransactionForm] = React.useState(false);
   const [showSubscriptionForm, setShowSubscriptionForm] = React.useState(false);
 
-  const latestTransactions = React.useMemo(() => {
-    return transactions
+  const latestTransactions: TransactionModel[] = React.useMemo(() => {
+    if (!transactions.fetched) {
+      // Fetch 'em & set em
+      // After we've done that, the useMemo-hook will run again and should return the previous fetched rows
+      // FIXME: Fetch me asynchronously
+      TransactionService.getTransactions()
+        .then((rows) => setTransactions({ type: 'FETCH_DATA', data: rows }))
+        .catch(console.error);
+      return [];
+    }
+
+    if (!transactions.data) return [];
+    return transactions.data
       .filter(({ date }) => new Date(new Date(date).toDateString()) <= new Date())
-      .slice(0, 6);
+      .slice(0, LATEST_ITEMS);
   }, [transactions]);
 
-  const latestSubscriptions = React.useMemo(() => {
-    return subscriptions.slice(0, 6);
+  const latestSubscriptions: SubscriptionModel[] = React.useMemo(() => {
+    return subscriptions.slice(0, LATEST_ITEMS);
   }, [subscriptions]);
 
   const StatsCards: IStatsProps[] = [
@@ -79,7 +95,7 @@ export const Dashboard = () => {
       title: React.useMemo(() => {
         return formatBalance(
           SubscriptionService.getUpcomingSpendings(subscriptions) +
-            TransactionService.getUpcomingSpendings(transactions)
+            TransactionService.getUpcomingSpendings(transactions.data ?? [])
         );
       }, [subscriptions, transactions]),
       subtitle: 'Upcoming expenses',
@@ -90,7 +106,7 @@ export const Dashboard = () => {
     {
       // TODO: Create test to verify the result
       title: React.useMemo(() => {
-        return formatBalance(TransactionService.getReceivedEarnings(transactions));
+        return formatBalance(TransactionService.getReceivedEarnings(transactions.data ?? []));
       }, [transactions]),
       subtitle: 'Received earnings',
       info: 'Sum of transactions and subscriptions that have been executed in favor of you',
@@ -102,7 +118,7 @@ export const Dashboard = () => {
       title: React.useMemo(() => {
         return formatBalance(
           SubscriptionService.getUpcomingEarnings(subscriptions) +
-            TransactionService.getUpcomingEarnings(transactions)
+            TransactionService.getUpcomingEarnings(transactions.data ?? [])
         );
       }, [subscriptions, transactions]),
       subtitle: 'Upcoming earnings',
@@ -124,8 +140,8 @@ export const Dashboard = () => {
       // TODO: Create test to verify the result
       title: React.useMemo(() => {
         return formatBalance(
-          TransactionService.getReceivedEarnings(transactions) -
-            TransactionService.getPaidSpendings(transactions)
+          TransactionService.getReceivedEarnings(transactions.data ?? []) -
+            TransactionService.getPaidSpendings(transactions.data ?? [])
         );
       }, [transactions]),
       subtitle: 'Current balance',
@@ -166,7 +182,7 @@ export const Dashboard = () => {
           setMonthlyAvg(getMonthlyBalance);
         }
       })
-      .catch((error) => console.error(error))
+      .catch(console.error)
       .finally(() => setLoading(false));
   }, [session]);
 
@@ -179,6 +195,7 @@ export const Dashboard = () => {
         description="All in one page"
       />
 
+      {/* Stats */}
       <Grid container item columns={12} spacing={3}>
         {StatsCards.map((props, index, list) =>
           index + 1 === list.length && list.length % 2 > 0 ? (
@@ -193,6 +210,7 @@ export const Dashboard = () => {
         )}
       </Grid>
 
+      {/* Subscriptions */}
       <Grid item xs={12} md={6} lg={4} order={{ xs: 3, md: 1 }}>
         <Card>
           <Card.Header>
@@ -230,6 +248,7 @@ export const Dashboard = () => {
         </Card>
       </Grid>
 
+      {/* Spendings chart */}
       <Grid item xs={12} md={6} lg={4} order={{ xs: 1, md: 2 }}>
         <Card>
           <Card.Header>
@@ -283,6 +302,7 @@ export const Dashboard = () => {
         </Card>
       </Grid>
 
+      {/* Transactions */}
       <Grid item xs={12} md={6} lg={4} order={{ xs: 2, md: 3 }}>
         <Card>
           <Card.Header>
@@ -301,7 +321,7 @@ export const Dashboard = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            {loading ? (
+            {loading && !transactions.fetched ? (
               <CircularProgress />
             ) : latestTransactions.length > 0 ? (
               latestTransactions.map(({ id, categories, receiver, amount, date }) => (

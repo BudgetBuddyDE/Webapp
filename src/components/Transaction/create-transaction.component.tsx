@@ -28,6 +28,19 @@ export interface ICreateTransactionProps {
   afterSubmit?: (transaction: Transaction) => void;
 }
 
+interface CreateTransactionHandler {
+  onClose: () => void;
+  onDateChange: (date: Date | null) => void;
+  autocompleteChange: (
+    event: React.SyntheticEvent<Element, Event>,
+    key: 'category' | 'paymentMethod',
+    value: string | number
+  ) => void;
+  inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  receiverChange: (value: string | number) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+}
+
 export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
   open,
   setOpen,
@@ -42,27 +55,23 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
   const [form, setForm] = React.useState<Partial<IBaseTransaction>>({ date: new Date() });
   const [errorMessage, setErrorMessage] = React.useState('');
 
-  const handler = {
+  const handler: CreateTransactionHandler = {
     onClose: () => {
       setOpen(false);
     },
-    onDateChange: (date: Date | null) => {
+    onDateChange: (date) => {
       if (date) setForm((prev) => ({ ...prev, date: date ?? new Date() }));
     },
-    autocompleteChange: (
-      event: React.SyntheticEvent<Element, Event>,
-      key: 'category' | 'paymentMethod',
-      value: string | number
-    ) => {
+    autocompleteChange: (event, key, value) => {
       setForm((prev) => ({ ...prev, [key]: value }));
     },
-    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    inputChange: (event) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    receiverChange: (value: string | number) => {
+    receiverChange: (value) => {
       setForm((prev) => ({ ...prev, receiver: String(value) }));
     },
-    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event) => {
       try {
         event.preventDefault();
         const values = Object.keys(form);
@@ -112,12 +121,10 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
         });
         if (afterSubmit) afterSubmit(addedTransaction);
         startTransition(() => {
-          setTransactions((prev) => [addedTransaction, ...prev]);
+          setTransactions({ type: 'ADD_ITEM', entry: addedTransaction });
         });
         handler.onClose();
-        showSnackbar({
-          message: 'Transaction added',
-        });
+        showSnackbar({ message: 'Transaction added' });
       } catch (error) {
         console.error(error);
         // @ts-ignore

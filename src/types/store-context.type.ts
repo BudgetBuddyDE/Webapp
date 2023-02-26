@@ -1,7 +1,8 @@
 import React from 'react';
 import { Budget, Category, PaymentMethod, Subscription, Transaction } from '../models';
-import type { DailyIncome, DailySpending, IFilter } from './index';
 import { DailyTransactionReducerAction, DailyTransactionReducerState } from '../reducer/';
+import { BaseListReducerAction, BaseListReducerState } from '../reducer/BaseListReducer.reducer';
+import type { IFilter } from './index';
 
 export interface IStoreContext {
   loading: boolean;
@@ -10,8 +11,8 @@ export interface IStoreContext {
   setShowDrawer: React.Dispatch<React.SetStateAction<IStoreContext['showDrawer']>>;
   dailyTransactions: DailyTransactionReducerState;
   setDailyTransactions: React.Dispatch<DailyTransactionReducerAction>;
-  transactions: Transaction[];
-  setTransactions: React.Dispatch<React.SetStateAction<IStoreContext['transactions']>>;
+  transactions: BaseListReducerState<Transaction>;
+  setTransactions: React.Dispatch<BaseListReducerAction<Transaction>>;
   transactionReceiver: {
     text: string;
     value: string;

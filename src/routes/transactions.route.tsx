@@ -34,9 +34,10 @@ import {
   TablePaginationHandler,
   UsedByPaymentMethod,
 } from '../components';
-import { SnackbarContext, StoreContext } from '../context';
+import { AuthContext, SnackbarContext, StoreContext } from '../context';
 import { Transaction } from '../models';
 import { TablePaginationReducer } from '../reducer';
+import { TransactionService } from '../services';
 import { filterTransactions } from '../utils';
 
 interface TransactionHandler {
@@ -48,8 +49,10 @@ interface TransactionHandler {
 
 export const Transactions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
+  const { session } = React.useContext(AuthContext);
   const {
     loading,
+    setLoading,
     filter,
     transactions,
     setTransactions,
@@ -79,7 +82,10 @@ export const Transactions = () => {
         if (!deletedTransactions || deletedTransactions.length < 0)
           throw new Error('No transaction deleted');
         startTransition(() => {
-          setTransactions((prev) => prev.filter(({ id }) => id !== transaction.id));
+          setTransactions({
+            type: 'REMOVE_BY_ID',
+            id: transaction.id,
+          });
         });
         showSnackbar({ message: `Transaction ${transaction.receiver} deleted` });
       } catch (error) {
@@ -101,13 +107,24 @@ export const Transactions = () => {
   };
 
   const shownTransactions: Transaction[] = React.useMemo(() => {
-    return filterTransactions(keyword, filter, transactions);
+    if (!transactions.data) return [];
+    return filterTransactions(keyword, filter, transactions.data);
   }, [transactions, keyword, filter]);
 
   const currentPageTransactions: Transaction[] = React.useMemo(() => {
     const { page, rowsPerPage } = tablePagination;
     return shownTransactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [shownTransactions, tablePagination]);
+
+  React.useEffect(() => {
+    if (!session || !session.user) return;
+    if (transactions.fetched && transactions.data !== null) return;
+    setLoading(true);
+    TransactionService.getTransactions()
+      .then((rows) => setTransactions({ type: 'FETCH_DATA', data: rows }))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [session, transactions]);
 
   return (
     <Grid container spacing={3}>
@@ -132,9 +149,9 @@ export const Transactions = () => {
               </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
-          {loading ? (
+          {loading && !transactions.fetched ? (
             <CircularProgress />
-          ) : transactions.length > 0 ? (
+          ) : transactions.data && transactions.data.length > 0 ? (
             <React.Fragment>
               <Card.Body>
                 <TableContainer>
@@ -233,14 +250,16 @@ export const Transactions = () => {
       </Grid>
 
       <Grid item xs={12} md={4} lg={4} xl={4}>
-        {!loading && <EarningsByCategory categories={categories} transactions={transactions} />}
+        {!loading && (
+          <EarningsByCategory categories={categories} transactions={transactions.data ?? []} />
+        )}
       </Grid>
 
       <Grid item xs={12} md={4} lg={4} xl={4}>
         {!loading && (
           <UsedByPaymentMethod
             paymentMethods={paymentMethods}
-            transactions={transactions}
+            transactions={transactions.data ?? []}
             subscriptions={subscriptions}
           />
         )}

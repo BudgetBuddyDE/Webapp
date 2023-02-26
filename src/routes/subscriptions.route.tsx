@@ -241,14 +241,16 @@ export const Subscriptions = () => {
       </Grid>
 
       <Grid item xs={12} md={4} lg={4} xl={4}>
-        {!loading && <EarningsByCategory categories={categories} transactions={transactions} />}
+        {!loading && (
+          <EarningsByCategory categories={categories} transactions={transactions.data ?? []} />
+        )}
       </Grid>
 
       <Grid item xs={12} md={4} lg={4} xl={4}>
         {!loading && (
           <UsedByPaymentMethod
             paymentMethods={paymentMethods}
-            transactions={transactions}
+            transactions={transactions.data ?? []}
             subscriptions={subscriptions}
           />
         )}

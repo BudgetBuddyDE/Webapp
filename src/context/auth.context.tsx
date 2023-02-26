@@ -14,7 +14,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
   React.useEffect(() => {
     supabase.auth.onAuthStateChange((event, session) => setSession(session));
-  }, [session]);
+  }, []);
 
   return <AuthContext.Provider value={{ session, setSession }}>{children}</AuthContext.Provider>;
 };

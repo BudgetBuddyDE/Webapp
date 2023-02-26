@@ -1,16 +1,15 @@
 import React from 'react';
 import { DEFAULT_FILTER_VALUE, getSavedSidebarState, saveSidebarState } from '../components';
 import { Budget, Category, PaymentMethod, Subscription, Transaction } from '../models/';
+import { BaseListReducer, DailyTransactionReducer, generateBaseState } from '../reducer';
 import {
   BudgetService,
   CategoryService,
   PaymentMethodService,
   SubscriptionService,
-  TransactionService,
-} from '../services/';
-import { DailyTransactionReducer } from '../types';
+} from '../services';
 import type { IFilter, IStoreContext } from '../types/';
-import { sortSubscriptionsByExecution } from '../utils/';
+import { sortSubscriptionsByExecution } from '../utils';
 import { AuthContext } from './auth.context';
 
 export const StoreContext = React.createContext({} as IStoreContext);
@@ -19,7 +18,10 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   const { session } = React.useContext(AuthContext);
   const [loading, setLoading] = React.useState(false);
   const [showDrawer, setShowDrawer] = React.useState(getSavedSidebarState());
-  const [transactions, setTransactions] = React.useState<Transaction[]>([]);
+  const [transactions, setTransactions] = React.useReducer(
+    BaseListReducer<Transaction>,
+    generateBaseState<Transaction[]>()
+  );
   const [subscriptions, setSubscriptions] = React.useState<Subscription[]>([]);
   const [budget, setBudget] = React.useState<Budget[]>([]);
   const [categories, setCategories] = React.useState<Category[]>([]);
@@ -39,27 +41,24 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
       setLoading(true);
       Promise.all([
         SubscriptionService.getSubscriptions(),
-        TransactionService.getTransactions(),
         BudgetService.getBudget(String(session?.user?.id)),
         CategoryService.getCategories(),
         PaymentMethodService.getPaymentMethods(),
       ])
-        .then(
-          ([getSubscriptions, getTransactions, getBudget, getCategories, getPaymentMethods]) => {
-            setSubscriptions(sortSubscriptionsByExecution(getSubscriptions));
-            setTransactions(getTransactions);
-            setBudget(getBudget);
-            setCategories(getCategories);
-            setPaymentMethods(getPaymentMethods);
-          }
-        )
-        .catch((error) => console.error(error))
+        .then(([getSubscriptions, getBudget, getCategories, getPaymentMethods]) => {
+          setSubscriptions(sortSubscriptionsByExecution(getSubscriptions));
+          setBudget(getBudget);
+          setCategories(getCategories);
+          setPaymentMethods(getPaymentMethods);
+        })
+        .catch(console.error)
         .finally(() => setLoading(false));
     }
   }, [session]);
 
   const transactionReceiver = React.useMemo(() => {
-    return [...new Set(transactions.map((transaction) => transaction.receiver))].map(
+    if (!transactions.data) return [];
+    return [...new Set(transactions.data.map((transaction) => transaction.receiver))].map(
       (receiver) => ({
         text: receiver,
         value: receiver,

@@ -28,6 +28,19 @@ export interface IEditTransactionProps {
   transaction: Transaction | null;
 }
 
+interface EditTransactionHandler {
+  onClose: () => void;
+  onDateChange: (date: Date | null) => void;
+  autocompleteChange: (
+    event: React.SyntheticEvent<Element, Event>,
+    key: 'category' | 'paymentMethod',
+    value: string | number
+  ) => void;
+  inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  receiverChange: (value: string | number) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+}
+
 export const EditTransaction: React.FC<IEditTransactionProps> = ({
   open,
   setOpen,
@@ -42,27 +55,23 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({
   const [form, setForm] = React.useState<Partial<IBaseTransaction> | null>(null);
   const [errorMessage, setErrorMessage] = React.useState('');
 
-  const handler = {
+  const handler: EditTransactionHandler = {
     onClose: () => {
       setOpen(false);
     },
-    onDateChange: (date: Date | null) => {
+    onDateChange: (date) => {
       if (date) setForm((prev) => ({ ...prev, date: date.toString() }));
     },
-    autocompleteChange: (
-      event: React.SyntheticEvent<Element, Event>,
-      key: 'category' | 'paymentMethod',
-      value: string | number
-    ) => {
+    autocompleteChange: (event, key, value) => {
       setForm((prev) => ({ ...prev, [key]: value }));
     },
-    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    inputChange: (event) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    receiverChange: (value: string | number) => {
+    receiverChange: (value) => {
       setForm((prev) => ({ ...prev, receiver: String(value) }));
     },
-    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event) => {
       try {
         event.preventDefault();
         if (!transaction) throw new Error('No transaction provided');
@@ -113,13 +122,7 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({
 
         if (afterSubmit) afterSubmit(updatedItem);
         startTransition(() => {
-          setTransactions((prev) => {
-            return prev.map((transaction) => {
-              if (transaction.id === updatedItem.id) {
-                return updatedItem;
-              } else return transaction;
-            });
-          });
+          setTransactions({ type: 'UPDATE_BY_ID', entry: updatedItem });
         });
         handler.onClose();
         showSnackbar({

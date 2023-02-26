@@ -208,7 +208,7 @@ export const PaymentMethods = () => {
           {!loading && (
             <UsedByPaymentMethod
               paymentMethods={paymentMethods}
-              transactions={transactions}
+              transactions={transactions.data ?? []}
               subscriptions={subscriptions}
             />
           )}
@@ -216,7 +216,10 @@ export const PaymentMethods = () => {
 
         <Grid item xs={12}>
           {!loading && (
-            <EarningsByPaymentMethod paymentMethods={paymentMethods} transactions={transactions} />
+            <EarningsByPaymentMethod
+              paymentMethods={paymentMethods}
+              transactions={transactions.data ?? []}
+            />
           )}
         </Grid>
       </Grid>
