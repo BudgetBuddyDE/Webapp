@@ -1,4 +1,4 @@
-import { Alert, AlertTitle, FormControl, InputAdornment, InputLabel, OutlinedInput } from '@mui/material';
+import { Alert, FormControl, InputAdornment, InputLabel, OutlinedInput } from '@mui/material';
 import React from 'react';
 import { SnackbarContext, StoreContext } from '../../context/';
 import { Budget } from '../../models/';
@@ -59,17 +59,9 @@ export const EditBudget: React.FC<IEditBudgetProps> = ({ open, setOpen, afterSub
         const updatedBudget = budget;
         updatedBudget.budget = updatedBaseBudget.budget;
         if (afterSubmit) afterSubmit(updatedBudget);
-        setBudget((prev) => {
-          return prev.map((item) => {
-            if (item.id === updatedBudget.id) {
-              return updatedBudget;
-            } else return item;
-          });
-        });
+        setBudget({ type: 'UPDATE_BY_ID', entry: updatedBudget });
         handler.onClose();
-        showSnackbar({
-          message: `Budget for category '${updatedBudget.category.name}' saved`,
-        });
+        showSnackbar({ message: `Budget for category '${updatedBudget.category.name}' saved` });
       } catch (error) {
         console.error(error);
         // @ts-ignore

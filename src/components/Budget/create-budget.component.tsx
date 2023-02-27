@@ -1,13 +1,4 @@
-import {
-  Alert,
-  AlertTitle,
-  Autocomplete,
-  FormControl,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
-  TextField,
-} from '@mui/material';
+import { Alert, Autocomplete, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
 import { isSameMonth } from 'date-fns';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
@@ -53,8 +44,12 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
     onSubmit: async (event) => {
       try {
         event.preventDefault();
+
+        if (!budget.fetched || (budget.fetched && !budget.data))
+          throw new Error('Something went wrong when retrieving our budget from the database');
+
         // Check if the user has already set an budget for this category
-        if (budget.some((budget) => budget.category.id === form.category))
+        if ((budget.data as Budget[]).some((budget) => budget.category.id === form.category))
           throw new Error("You've already set an Budget for this category");
 
         const values = Object.keys(form);
@@ -98,12 +93,10 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
 
         if (afterSubmit) afterSubmit(addedBudget);
         startTransition(() => {
-          setBudget((prev) => [...prev, addedBudget]);
+          setBudget({ type: 'ADD_ITEM', entry: addedBudget });
         });
         handler.onClose();
-        showSnackbar({
-          message: `Budget for category '${addedBudget.category.name}' saved`,
-        });
+        showSnackbar({ message: `Budget for category '${addedBudget.category.name}' saved` });
       } catch (error) {
         console.error(error);
         // @ts-ignore

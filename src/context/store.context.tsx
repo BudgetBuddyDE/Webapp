@@ -2,15 +2,12 @@ import React from 'react';
 import { DEFAULT_FILTER_VALUE, getSavedSidebarState, saveSidebarState } from '../components';
 import { Budget, Category, PaymentMethod, Subscription, Transaction } from '../models/';
 import { BaseListReducer, DailyTransactionReducer, generateBaseState } from '../reducer';
-import { BudgetService } from '../services';
 import type { IFilter, IStoreContext } from '../types/';
 import { sortSubscriptionsByExecution } from '../utils';
-import { AuthContext } from './auth.context';
 
 export const StoreContext = React.createContext({} as IStoreContext);
 
 export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const { session } = React.useContext(AuthContext);
   const [loading, setLoading] = React.useState(false);
   const [showDrawer, setShowDrawer] = React.useState(getSavedSidebarState());
   const [transactions, setTransactions] = React.useReducer(
@@ -21,7 +18,7 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     BaseListReducer<Subscription>,
     generateBaseState<Subscription[]>()
   );
-  const [budget, setBudget] = React.useState<Budget[]>([]);
+  const [budget, setBudget] = React.useReducer(BaseListReducer<Budget>, generateBaseState<Budget[]>());
   const [categories, setCategories] = React.useReducer(BaseListReducer<Category>, generateBaseState<Category[]>());
   const [paymentMethods, setPaymentMethods] = React.useReducer(
     BaseListReducer<PaymentMethod>,
@@ -40,18 +37,6 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   const sortedSubscriptions: Subscription[] = React.useMemo(() => {
     return sortSubscriptionsByExecution(subscriptions.data ?? []);
   }, [subscriptions]);
-
-  React.useEffect(() => {
-    if (session && session.user) {
-      setLoading(true);
-      Promise.all([BudgetService.getBudget(String(session?.user?.id))])
-        .then(([getBudget]) => {
-          setBudget(getBudget);
-        })
-        .catch(console.error)
-        .finally(() => setLoading(false));
-    }
-  }, [session]);
 
   const transactionReceiver = React.useMemo(() => {
     if (!transactions.data) return [];

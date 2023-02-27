@@ -36,7 +36,7 @@ import {
 import { AuthContext, SnackbarContext, StoreContext } from '../context';
 import { useScreenSize } from '../hooks';
 import { Budget as BudgetModel } from '../models';
-import { ExpenseService, IncomeService } from '../services';
+import { BudgetService, ExpenseService, IncomeService } from '../services';
 import type { IExpense, IIncome } from '../types';
 import { formatBalance, getFirstDayOfMonth } from '../utils';
 
@@ -96,7 +96,7 @@ export const Budget = () => {
         const deletedBudgets = await deleteBudget;
         if (!deletedBudgets || deletedBudgets.length < 1) throw new Error('No budget deleted');
         startTransition(() => {
-          setBudget((prev) => prev.filter(({ id }) => id !== deletedBudgets[0].id));
+          setBudget({ type: 'REMOVE_BY_ID', id: deletedBudgets[0].id });
         });
         showSnackbar({ message: `Budget deleted` });
       } catch (error) {
@@ -192,6 +192,16 @@ export const Budget = () => {
       .catch((error) => console.error(error))
       .finally(() => setLoading(false));
   }, [session, dateRange]);
+
+  React.useEffect(() => {
+    if (!session || !session.user) return;
+    if (budget.fetched && budget.data !== null) return;
+    setLoading(true);
+    BudgetService.getBudget(session.user.id)
+      .then((rows) => setBudget({ type: 'FETCH_DATA', data: rows }))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [session, budget]);
 
   return (
     <Grid container spacing={3}>
@@ -350,10 +360,10 @@ export const Budget = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            {loading ? (
+            {loading && !budget.fetched ? (
               <CircularProgress />
-            ) : budget.length > 0 ? (
-              budget.map((item) => (
+            ) : budget.data && budget.data.length > 0 ? (
+              budget.data.map((item) => (
                 <CategoryBudget
                   key={item.id}
                   budget={item}
