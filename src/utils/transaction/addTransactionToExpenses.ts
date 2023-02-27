@@ -1,5 +1,5 @@
 import { Transaction } from '../../models';
-import { CategorySpendingsState } from '../../routes/dashboard.route';
+import type { CategorySpendingsState } from '../../reducer/CategorySpendings.reducer';
 
 type RequestedData = CategorySpendingsState['month'] | CategorySpendingsState['allTime'];
 
