@@ -1,23 +1,14 @@
-import {
-  Alert,
-  AlertTitle,
-  Autocomplete,
-  FormControl,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
-  TextField,
-} from '@mui/material';
+import { Alert, Autocomplete, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
 import { isSameMonth } from 'date-fns';
-import * as React from 'react';
-import { AuthContext } from '../../context/auth.context';
-import { SnackbarContext } from '../../context/snackbar.context';
-import { StoreContext } from '../../context/store.context';
-import { Budget } from '../../models/budget.model';
-import { BudgetService } from '../../services/budget.service';
-import { IBaseBudget } from '../../types/budget.type';
-import { transformBalance } from '../../utils/transformBalance';
-import { FormDrawer } from '../Base/form-drawer.component';
+import React from 'react';
+import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
+import { useFetchCategories, useFetchTransactions } from '../../hooks';
+import { Budget } from '../../models/';
+import { BudgetService } from '../../services/';
+import { IBaseBudget } from '../../types/';
+import { transformBalance } from '../../utils/';
+import { FormDrawer } from '../Base/';
+import { CreateCategoryInfo } from '../Category';
 
 export interface ICreateBudgetProps {
   open: boolean;
@@ -25,29 +16,42 @@ export interface ICreateBudgetProps {
   afterSubmit?: (budget: Budget) => void;
 }
 
+interface CreateBudgetHandler {
+  onClose: () => void;
+  autocompleteChange: (event: React.SyntheticEvent<Element, Event>, value: string | number) => void;
+  inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+}
+
 export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afterSubmit }) => {
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, categories, budget, setBudget, transactions } = React.useContext(StoreContext);
+  const { loading, budget, setBudget } = React.useContext(StoreContext);
+  const fetchTransactions = useFetchTransactions();
+  const fetchCategories = useFetchCategories();
   const [, startTransition] = React.useTransition();
   const [form, setForm] = React.useState<Partial<IBaseBudget>>({});
   const [errorMessage, setErrorMessage] = React.useState('');
 
-  const handler = {
+  const handler: CreateBudgetHandler = {
     onClose: () => {
       setOpen(false);
     },
-    autocompleteChange: (event: React.SyntheticEvent<Element, Event>, value: string | number) => {
+    autocompleteChange: (event, value) => {
       setForm((prev) => ({ ...prev, category: Number(value) }));
     },
-    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    inputChange: (event) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event) => {
       try {
         event.preventDefault();
+
+        if (!budget.fetched || (budget.fetched && !budget.data))
+          throw new Error('Something went wrong when retrieving our budget from the database');
+
         // Check if the user has already set an budget for this category
-        if (budget.some((budget) => budget.category.id === form.category))
+        if ((budget.data as Budget[]).some((budget) => budget.category.id === form.category))
           throw new Error("You've already set an Budget for this category");
 
         const values = Object.keys(form);
@@ -67,10 +71,10 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
         const createdBudget = createdBudgets[0];
         const addedBudget = new Budget({
           id: createdBudget.id,
-          category: categories.find((c) => c.id === createdBudget.category)!.categoryView,
+          category: fetchCategories.categories.find((c) => c.id === createdBudget.category)!.categoryView,
           budget: createdBudget.budget,
           currentlySpent: Math.abs(
-            transactions
+            fetchTransactions.transactions
               .filter(
                 (transaction) =>
                   transaction.amount < 0 &&
@@ -87,12 +91,10 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
 
         if (afterSubmit) afterSubmit(addedBudget);
         startTransition(() => {
-          setBudget((prev) => [...prev, addedBudget]);
+          setBudget({ type: 'ADD_ITEM', entry: addedBudget });
         });
         handler.onClose();
-        showSnackbar({
-          message: `Budget for category '${addedBudget.category.name}' saved`,
-        });
+        showSnackbar({ message: `Budget for category '${addedBudget.category.name}' saved` });
       } catch (error) {
         console.error(error);
         // @ts-ignore
@@ -117,23 +119,17 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
         </Alert>
       )}
 
-      {categories.length === 0 && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          <AlertTitle>Info</AlertTitle>
-          To be able to create a transaction you have to create a category under{' '}
-          <strong>Categories {'>'} Add Category</strong> before.{' '}
-        </Alert>
-      )}
-
-      {categories.length > 0 && (
+      {!fetchCategories.loading && fetchCategories.categories.length > 0 ? (
         <Autocomplete
           id="add-category"
-          options={categories.map((item) => ({ label: item.name, value: item.id }))}
+          options={fetchCategories.categories.map((item) => ({ label: item.name, value: item.id }))}
           sx={{ mb: 2 }}
           onChange={(event, value) => handler.autocompleteChange(event, Number(value?.value))}
           renderInput={(props) => <TextField {...props} label="Category" />}
           isOptionEqualToValue={(option, value) => option.value === value.value}
         />
+      ) : (
+        <CreateCategoryInfo sx={{ mb: 2 }} />
       )}
 
       <FormControl fullWidth sx={{ mb: 2 }}>

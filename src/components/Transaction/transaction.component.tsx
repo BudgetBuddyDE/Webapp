@@ -13,13 +13,7 @@ export interface TransactionProps {
   amount: number;
 }
 
-export const Transaction: React.FC<TransactionProps> = ({
-  icon = <ReceiptIcon />,
-  title,
-  subtitle,
-  date,
-  amount,
-}) => {
+export const Transaction: React.FC<TransactionProps> = ({ icon = <ReceiptIcon />, title, subtitle, date, amount }) => {
   return (
     <Box
       sx={{
@@ -36,9 +30,7 @@ export const Transaction: React.FC<TransactionProps> = ({
         }}
       >
         <Typography fontWeight="bold">{title}</Typography>
-        {date && (
-          <Chip label={format(date, 'dd.MM')} size="small" variant="outlined" sx={{ mr: 1 }} />
-        )}
+        {date && <Chip label={format(date, 'dd.MM')} size="small" variant="outlined" sx={{ mr: 1 }} />}
         {typeof subtitle === 'string' ? (
           <Chip label={subtitle} size="small" variant="outlined" sx={{ mr: 1 }} />
         ) : (

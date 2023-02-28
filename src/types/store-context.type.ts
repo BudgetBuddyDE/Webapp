@@ -1,80 +1,43 @@
 import React from 'react';
 import { Budget, Category, PaymentMethod, Subscription, Transaction } from '../models';
-import type { DailyIncome, DailySpending, IFilter } from './index';
+import {
+  BaseListReducerAction,
+  BaseListReducerState,
+  BaseReducerAction,
+  BaseReducerState,
+  BudgetTransactionsReducerAction,
+  BudgetTransactionsReducerState,
+} from '../reducer/';
+import { CategorySpendingsState } from '../reducer/CategorySpendings.reducer';
+import type { IFilter, IMonthlyBalanceAvg } from './index';
 
 export interface IStoreContext {
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<IStoreContext['loading']>>;
   showDrawer: boolean;
   setShowDrawer: React.Dispatch<React.SetStateAction<IStoreContext['showDrawer']>>;
-  dailyTransactions: DailyTransactionReducerState;
-  setDailyTransactions: React.Dispatch<DailyTransactionReducerAction>;
-  transactions: Transaction[];
-  setTransactions: React.Dispatch<React.SetStateAction<IStoreContext['transactions']>>;
+  transactions: BaseListReducerState<Transaction>;
+  setTransactions: React.Dispatch<BaseListReducerAction<Transaction>>;
   transactionReceiver: {
     text: string;
     value: string;
   }[];
-  subscriptions: Subscription[];
-  setSubscriptions: React.Dispatch<React.SetStateAction<IStoreContext['subscriptions']>>;
-  budget: Budget[];
-  setBudget: React.Dispatch<React.SetStateAction<IStoreContext['budget']>>;
-  categories: Category[];
-  setCategories: React.Dispatch<React.SetStateAction<IStoreContext['categories']>>;
-  paymentMethods: PaymentMethod[];
-  setPaymentMethods: React.Dispatch<React.SetStateAction<IStoreContext['paymentMethods']>>;
+  subscriptions: BaseListReducerState<Subscription>;
+  setSubscriptions: React.Dispatch<BaseListReducerAction<Subscription>>;
+  budget: BaseListReducerState<Budget>;
+  setBudget: React.Dispatch<BaseListReducerAction<Budget>>;
+  budgetTransactions: BudgetTransactionsReducerState;
+  setBudgetTransactions: React.Dispatch<BudgetTransactionsReducerAction>;
+  categories: BaseListReducerState<Category>;
+  setCategories: React.Dispatch<BaseListReducerAction<Category>>;
+  paymentMethods: BaseListReducerState<PaymentMethod>;
+  setPaymentMethods: React.Dispatch<BaseListReducerAction<PaymentMethod>>;
   showFilter: boolean;
   setShowFilter: React.Dispatch<React.SetStateAction<IStoreContext['showFilter']>>;
   filter: IFilter;
   setFilter: React.Dispatch<React.SetStateAction<IStoreContext['filter']>>;
-}
-
-export type DailyTransactionReducerState = {
-  selected: DailyIncome | DailySpending | null;
-  income: DailyIncome[];
-  spendings: DailySpending[];
-};
-
-export type DailyTransactionReducerAction =
-  | { type: 'UPDATE_INCOME'; income: DailyTransactionReducerState['income'] }
-  | { type: 'UPDATE_SPENDINGS'; spendings: DailyTransactionReducerState['spendings'] }
-  | { type: 'UPDATE_SELECTED'; selected: DailyTransactionReducerState['selected'] }
-  | {
-      type: 'UPDATE_INCOME_SELECTED';
-      income: DailyTransactionReducerState['income'];
-      selected: DailyTransactionReducerState['selected'];
-    };
-
-export function DailyTransactionReducer(
-  state: DailyTransactionReducerState,
-  action: DailyTransactionReducerAction
-): DailyTransactionReducerState {
-  switch (action.type) {
-    case 'UPDATE_INCOME':
-      return {
-        ...state,
-        income: action.income,
-      };
-
-    case 'UPDATE_INCOME_SELECTED':
-      return {
-        ...state,
-        ...action,
-      };
-
-    case 'UPDATE_SPENDINGS':
-      return {
-        ...state,
-        spendings: action.spendings,
-      };
-
-    case 'UPDATE_SELECTED':
-      return {
-        ...state,
-        selected: action.selected,
-      };
-
-    default:
-      throw new Error('Trying to execute unknown action');
-  }
+  categorySpendings: BaseReducerState<CategorySpendingsState>;
+  setCategorySpendings: React.Dispatch<BaseReducerAction<CategorySpendingsState>>;
+  monthlyAvg: BaseReducerState<IMonthlyBalanceAvg>;
+  setMonthlyAvg: React.Dispatch<BaseReducerAction<IMonthlyBalanceAvg>>;
 }

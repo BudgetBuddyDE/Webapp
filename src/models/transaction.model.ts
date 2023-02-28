@@ -1,11 +1,5 @@
 import { TransactionService } from '../services/transaction.service';
-import type {
-  IBaseTransaction,
-  ICategoryView,
-  IPaymentMethodView,
-  ITransaction,
-  uuid,
-} from '../types';
+import type { IBaseTransaction, ICategoryView, IPaymentMethodView, ITransaction, uuid } from '../types';
 
 export class Transaction {
   id: number;

@@ -108,14 +108,7 @@ export default withTooltip<AreaChartProps, TooltipData>(
     return (
       <div>
         <svg width={width} height={height}>
-          <rect
-            x={0}
-            y={0}
-            width={width}
-            height={height}
-            fill="url(#area-background-gradient)"
-            rx={14}
-          />
+          <rect x={0} y={0} width={width} height={height} fill="url(#area-background-gradient)" rx={14} />
           <LinearGradient id="area-background-gradient" from={background} to={background2} />
           <LinearGradient id="area-gradient" from={accentColor} to={accentColor} toOpacity={0.1} />
           <GridRows
@@ -193,12 +186,7 @@ export default withTooltip<AreaChartProps, TooltipData>(
         </svg>
         {tooltipData && (
           <div>
-            <TooltipWithBounds
-              key={Math.random()}
-              top={tooltipTop - 12}
-              left={tooltipLeft + 12}
-              style={tooltipStyles}
-            >
+            <TooltipWithBounds key={Math.random()} top={tooltipTop - 12} left={tooltipLeft + 12} style={tooltipStyles}>
               {formatBalance(getSum(tooltipData))}
             </TooltipWithBounds>
             <Tooltip

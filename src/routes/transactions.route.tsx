@@ -32,11 +32,12 @@ import {
   ShowFilterButton,
   TablePagination,
   TablePaginationHandler,
-  TablePaginationReducer,
   UsedByPaymentMethod,
 } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
+import { useFetchCategories, useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { Transaction } from '../models';
+import { TablePaginationReducer } from '../reducer';
 import { filterTransactions } from '../utils';
 
 interface TransactionHandler {
@@ -48,23 +49,16 @@ interface TransactionHandler {
 
 export const Transactions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const {
-    loading,
-    filter,
-    transactions,
-    setTransactions,
-    categories,
-    paymentMethods,
-    subscriptions,
-  } = React.useContext(StoreContext);
+  const { filter, setTransactions } = React.useContext(StoreContext);
+  const fetchTransactions = useFetchTransactions();
+  const fetchSubscriptions = useFetchSubscriptions();
+  const fetchCategories = useFetchCategories();
+  const fetchPaymentMethods = useFetchPaymentMethods();
   const [keyword, setKeyword] = React.useState('');
   const [, startTransition] = React.useTransition();
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
-  const [tablePagination, setTablePagination] = React.useReducer(
-    TablePaginationReducer,
-    InitialTablePaginationState
-  );
+  const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
 
   const handler: TransactionHandler = {
     onSearch(text) {
@@ -76,10 +70,12 @@ export const Transactions = () => {
     async onTransactionDelete(transaction) {
       try {
         const deletedTransactions = await transaction.delete();
-        if (!deletedTransactions || deletedTransactions.length < 0)
-          throw new Error('No transaction deleted');
+        if (!deletedTransactions || deletedTransactions.length < 0) throw new Error('No transaction deleted');
         startTransition(() => {
-          setTransactions((prev) => prev.filter(({ id }) => id !== transaction.id));
+          setTransactions({
+            type: 'REMOVE_BY_ID',
+            id: transaction.id,
+          });
         });
         showSnackbar({ message: `Transaction ${transaction.receiver} deleted` });
       } catch (error) {
@@ -101,8 +97,9 @@ export const Transactions = () => {
   };
 
   const shownTransactions: Transaction[] = React.useMemo(() => {
-    return filterTransactions(keyword, filter, transactions);
-  }, [transactions, keyword, filter]);
+    if (!fetchTransactions.transactions) return [];
+    return filterTransactions(keyword, filter, fetchTransactions.transactions);
+  }, [fetchTransactions.transactions, keyword, filter]);
 
   const currentPageTransactions: Transaction[] = React.useMemo(() => {
     const { page, rowsPerPage } = tablePagination;
@@ -132,28 +129,22 @@ export const Transactions = () => {
               </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
-          {loading ? (
+          {fetchTransactions.loading ? (
             <CircularProgress />
-          ) : transactions.length > 0 ? (
+          ) : shownTransactions.length > 0 ? (
             <React.Fragment>
               <Card.Body>
                 <TableContainer>
                   <Table sx={{ minWidth: 650 }} aria-label="Transaction Table">
                     <TableHead>
                       <TableRow>
-                        {[
-                          'Date',
-                          'Category',
-                          'Receiver',
-                          'Amount',
-                          'Payment Method',
-                          'Information',
-                          '',
-                        ].map((cell, index) => (
-                          <TableCell key={index}>
-                            <Typography fontWeight="bolder">{cell}</Typography>
-                          </TableCell>
-                        ))}
+                        {['Date', 'Category', 'Receiver', 'Amount', 'Payment Method', 'Information', ''].map(
+                          (cell, index) => (
+                            <TableCell key={index}>
+                              <Typography fontWeight="bolder">{cell}</Typography>
+                            </TableCell>
+                          )
+                        )}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -194,18 +185,12 @@ export const Transactions = () => {
                           <TableCell align="right">
                             <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                               <Tooltip title="Edit" placement="top">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => setEditTransaction(transaction)}
-                                >
+                                <IconButton color="primary" onClick={() => setEditTransaction(transaction)}>
                                   <EditIcon />
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Delete" placement="top">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => handler.onTransactionDelete(transaction)}
-                                >
+                                <IconButton color="primary" onClick={() => handler.onTransactionDelete(transaction)}>
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
@@ -227,21 +212,23 @@ export const Transactions = () => {
               </Card.Footer>
             </React.Fragment>
           ) : (
-            <NoResults sx={{ mt: 2 }} text="No transactions found" />
+            <NoResults sx={{ m: 2 }} text="No transactions found" />
           )}
         </Card>
       </Grid>
 
-      <Grid item xs={12} md={3} lg={3} xl={3}>
-        {!loading && <EarningsByCategory categories={categories} transactions={transactions} />}
+      <Grid item xs={12} md={4} lg={4} xl={4}>
+        {!fetchCategories.loading && !fetchTransactions.loading && (
+          <EarningsByCategory categories={fetchCategories.categories} transactions={fetchTransactions.transactions} />
+        )}
       </Grid>
 
-      <Grid item xs={12} md={3} lg={3} xl={3}>
-        {!loading && (
+      <Grid item xs={12} md={4} lg={4} xl={4}>
+        {!fetchPaymentMethods.loading && !fetchTransactions.loading && !fetchSubscriptions.subscriptions && (
           <UsedByPaymentMethod
-            paymentMethods={paymentMethods}
-            transactions={transactions}
-            subscriptions={subscriptions}
+            paymentMethods={fetchPaymentMethods.paymentMethods}
+            transactions={fetchTransactions.transactions}
+            subscriptions={fetchSubscriptions.subscriptions}
           />
         )}
       </Grid>

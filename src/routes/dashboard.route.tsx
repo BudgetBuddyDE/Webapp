@@ -1,5 +1,6 @@
 import { Add as AddIcon, Schedule as ScheduleIcon } from '@mui/icons-material';
 import { Box, Grid, IconButton, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
+import { ParentSize } from '@visx/responsive';
 import { isSameMonth } from 'date-fns/esm';
 import React from 'react';
 import {
@@ -11,28 +12,25 @@ import {
   IStatsProps,
   NoResults,
   PageHeader,
+  PieChart,
   SpendingChartType,
-  SpendingsChart,
   Stats,
   StatsIconStyle,
   Subscription,
   Transaction,
 } from '../components';
 import { AuthContext, StoreContext } from '../context';
-import {
-  BudgetService,
-  DateService,
-  ExpenseService,
-  SubscriptionService,
-  TransactionService,
-} from '../services';
-import type { IExpense, IExpenseTransactionDTO, IMonthlyBalanceAvg } from '../types';
+import { useFetchSubscriptions, useFetchTransactions } from '../hooks';
+import { Subscription as SubscriptionModel, Transaction as TransactionModel } from '../models';
+import { BudgetService, DateService, ExpenseService, SubscriptionService, TransactionService } from '../services';
+import type { IMonthlyBalanceAvg } from '../types';
 import { addTransactionToExpenses, formatBalance } from '../utils';
 
-/**
- * How many months do we wanna look back?
- */
+/** How many months do we wanna look back? */
 export const MONTH_BACKLOG = 6;
+
+/** How many items do we wanna show? */
+export const LATEST_ITEMS = 6;
 
 export const Dashboard = () => {
   const SPENDING_CHART_TYPES: { type: SpendingChartType; text: string }[] = [
@@ -43,124 +41,147 @@ export const Dashboard = () => {
     { type: 'ALL', text: 'All' },
   ];
   const { session } = React.useContext(AuthContext);
-  const { loading, setLoading, subscriptions, transactions } = React.useContext(StoreContext);
-  const [chart, setChart] = React.useState<SpendingChartType>(SPENDING_CHART_TYPES[0].type);
-  const [currentMonthExpenses, setCurrentMonthExpenses] = React.useState<IExpense[]>([]);
-  const [allTimeExpenses, setAllTimeExpenses] = React.useState<IExpense[]>([]);
-  const [monthlyAvg, setMonthlyAvg] = React.useState<IMonthlyBalanceAvg | null>(null);
+  const { loading, setLoading, categorySpendings, setCategorySpendings, monthlyAvg, setMonthlyAvg } =
+    React.useContext(StoreContext);
+  const fetchTransactions = useFetchTransactions();
+  const fetchSubscriptions = useFetchSubscriptions();
   const [showAddTransactionForm, setShowAddTransactionForm] = React.useState(false);
   const [showSubscriptionForm, setShowSubscriptionForm] = React.useState(false);
 
-  const latestTransactions = React.useMemo(() => {
-    return transactions
+  const latestTransactions: TransactionModel[] = React.useMemo(() => {
+    return fetchTransactions.transactions
       .filter(({ date }) => new Date(new Date(date).toDateString()) <= new Date())
-      .slice(0, 6);
-  }, [transactions]);
+      .slice(0, LATEST_ITEMS);
+  }, [fetchTransactions.transactions]);
 
-  const latestSubscriptions = React.useMemo(() => {
-    return subscriptions.slice(0, 6);
-  }, [subscriptions]);
+  const latestSubscriptions: SubscriptionModel[] = React.useMemo(() => {
+    return fetchSubscriptions.subscriptions.slice(0, LATEST_ITEMS);
+  }, [fetchSubscriptions.subscriptions]);
 
   const StatsCards: IStatsProps[] = [
     {
       // TODO: Create test to verify the result
       title: React.useMemo(() => {
-        return formatBalance(SubscriptionService.getPlannedSpendings(subscriptions));
-      }, [subscriptions, transactions]),
+        return formatBalance(SubscriptionService.getPlannedSpendings(fetchSubscriptions.subscriptions));
+      }, [fetchSubscriptions.subscriptions]),
       subtitle: 'Planned expenses',
       info: 'Sum of transactions and subscriptions that will be executed this month',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
+      loading: fetchSubscriptions.loading,
     },
     {
       // TODO: Create test to verify the result
       title: React.useMemo(() => {
         return formatBalance(
-          SubscriptionService.getUpcomingSpendings(subscriptions) +
-            TransactionService.getUpcomingSpendings(transactions)
+          SubscriptionService.getUpcomingSpendings(fetchSubscriptions.subscriptions) +
+            TransactionService.getUpcomingSpendings(fetchTransactions.transactions)
         );
-      }, [subscriptions, transactions]),
+      }, [fetchSubscriptions.subscriptions, fetchTransactions.transactions]),
       subtitle: 'Upcoming expenses',
       info: 'Sum of transactions and subscriptions that have yet to be executed this month',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
+      loading: fetchSubscriptions.loading || fetchTransactions.loading,
     },
     {
       // TODO: Create test to verify the result
       title: React.useMemo(() => {
-        return formatBalance(TransactionService.getReceivedEarnings(transactions));
-      }, [transactions]),
+        return formatBalance(TransactionService.getReceivedEarnings(fetchTransactions.transactions));
+      }, [fetchTransactions.transactions]),
       subtitle: 'Received earnings',
       info: 'Sum of transactions and subscriptions that have been executed in favor of you',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
+      loading: fetchTransactions.loading,
     },
     {
       // TODO: Create test to verify the result
       title: React.useMemo(() => {
         return formatBalance(
-          SubscriptionService.getUpcomingEarnings(subscriptions) +
-            TransactionService.getUpcomingEarnings(transactions)
+          SubscriptionService.getUpcomingEarnings(fetchSubscriptions.subscriptions) +
+            TransactionService.getUpcomingEarnings(fetchTransactions.transactions)
         );
-      }, [subscriptions, transactions]),
+      }, [fetchSubscriptions.subscriptions, fetchTransactions.transactions]),
       subtitle: 'Upcoming earnings',
       info: 'Sum of transactions and subscriptions that still have to be executed in favor of you',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
+      loading: fetchSubscriptions.loading || fetchTransactions.loading,
     },
     {
       // TODO: Create test to verify the result
       title: React.useMemo(() => {
-        return formatBalance(monthlyAvg ? monthlyAvg.avg : 0);
+        return formatBalance(monthlyAvg.data ? monthlyAvg.data.avg : 0);
       }, [monthlyAvg]),
       subtitle: 'Estimated balance',
       info: `Estimated balance based on the past ${MONTH_BACKLOG} months`,
       icon: <ScheduleIcon sx={StatsIconStyle} />,
+      loading: loading && !monthlyAvg.fetched,
     },
     {
       // TODO: Create test to verify the result
       title: React.useMemo(() => {
         return formatBalance(
-          TransactionService.getReceivedEarnings(transactions) -
-            TransactionService.getPaidSpendings(transactions)
+          TransactionService.getReceivedEarnings(fetchTransactions.transactions) -
+            TransactionService.getPaidSpendings(fetchTransactions.transactions)
         );
-      }, [transactions]),
+      }, [fetchTransactions.transactions]),
       subtitle: 'Current balance',
       info: 'Calculated balance after deduction of all expenses from the income',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
+      loading: fetchTransactions.loading,
     },
   ];
 
   React.useEffect(() => {
     if (!session || !session.user) return;
+    if (categorySpendings.fetched && categorySpendings.data) return;
     setLoading(true);
     Promise.all([
       ExpenseService.getCurrentMonthExpenses(session.user.id),
       ExpenseService.getAllTimeExpenses(session.user.id),
-      BudgetService.getMonthlyBalanceAvg(MONTH_BACKLOG),
     ])
-      .then(([getCurrentMonthExpenses, getAllTimeExpenses, getMonthlyBalance]) => {
-        if (getCurrentMonthExpenses) {
-          setCurrentMonthExpenses(getCurrentMonthExpenses);
-        } else setCurrentMonthExpenses([]);
-
-        if (getAllTimeExpenses) {
-          setAllTimeExpenses(getAllTimeExpenses);
-        } else setAllTimeExpenses([]);
-
-        if (getMonthlyBalance) {
-          setMonthlyAvg(getMonthlyBalance);
-        }
+      .then(([getCurrentMonthExpenses, getAllTimeExpenses]) => {
+        setCategorySpendings({
+          type: 'FETCH_DATA',
+          data: {
+            chart: 'MONTH',
+            month:
+              getCurrentMonthExpenses !== null
+                ? getCurrentMonthExpenses.map(({ category, sum }) => ({
+                    label: category.name,
+                    value: Math.abs(sum),
+                  }))
+                : [],
+            allTime:
+              getAllTimeExpenses !== null
+                ? getAllTimeExpenses.map(({ category, sum }) => ({
+                    label: category.name,
+                    value: Math.abs(sum),
+                  }))
+                : [],
+          },
+        });
       })
-      .catch((error) => console.error(error))
+      .catch(console.error)
       .finally(() => setLoading(false));
-  }, [session, transactions]);
+  }, [session, categorySpendings]);
+
+  React.useEffect(() => {
+    if (!session || !session.user) return;
+    if (monthlyAvg.fetched && monthlyAvg.data) return;
+    setLoading(true);
+    BudgetService.getMonthlyBalanceAvg(MONTH_BACKLOG)
+      .then((result) => setMonthlyAvg({ type: 'FETCH_DATA', data: result }))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [session, monthlyAvg]);
 
   return (
     <Grid container spacing={3}>
       <PageHeader
-        title={`Welcome, ${
-          (session && session.user && session.user.user_metadata.username) || 'Username'
-        }!`}
+        title={`Welcome, ${(session && session.user && session.user.user_metadata.username) || 'Username'}!`}
         description="All in one page"
       />
 
+      {/* Stats */}
       <Grid container item columns={12} spacing={3}>
         {StatsCards.map((props, index, list) =>
           index + 1 === list.length && list.length % 2 > 0 ? (
@@ -175,6 +196,7 @@ export const Dashboard = () => {
         )}
       </Grid>
 
+      {/* Subscriptions */}
       <Grid item xs={12} md={6} lg={4} order={{ xs: 3, md: 1 }}>
         <Card>
           <Card.Header>
@@ -193,9 +215,9 @@ export const Dashboard = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            {loading ? (
+            {fetchSubscriptions.loading ? (
               <CircularProgress />
-            ) : subscriptions.length > 0 ? (
+            ) : latestSubscriptions.length > 0 ? (
               latestSubscriptions.map(({ id, categories, receiver, amount, execute_at }) => (
                 <Subscription
                   key={id}
@@ -212,6 +234,7 @@ export const Dashboard = () => {
         </Card>
       </Grid>
 
+      {/* Spendings chart */}
       <Grid item xs={12} md={6} lg={4} order={{ xs: 1, md: 2 }}>
         <Card>
           <Card.Header>
@@ -224,8 +247,17 @@ export const Dashboard = () => {
                 <ToggleButtonGroup
                   size="small"
                   color="primary"
-                  value={chart}
-                  onChange={(event: React.BaseSyntheticEvent) => setChart(event.target.value)}
+                  value={categorySpendings.data?.chart}
+                  onChange={(event: React.BaseSyntheticEvent) => {
+                    setCategorySpendings({
+                      type: 'REFRESH_DATA',
+                      data: {
+                        chart: event.target.value,
+                        month: categorySpendings.data?.month || [],
+                        allTime: categorySpendings.data?.allTime || [],
+                      },
+                    });
+                  }}
                   exclusive
                 >
                   {SPENDING_CHART_TYPES.map((button) => (
@@ -238,21 +270,34 @@ export const Dashboard = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            {loading ? (
+            {loading && !categorySpendings.fetched ? (
               <CircularProgress />
             ) : (
               <Box sx={{ display: 'flex', flex: 1, mt: '1rem' }}>
-                {chart === 'MONTH' ? (
-                  <SpendingsChart expenses={currentMonthExpenses} />
-                ) : (
-                  <SpendingsChart expenses={allTimeExpenses} />
-                )}
+                <ParentSize>
+                  {({ width }) => (
+                    <PieChart
+                      width={width}
+                      height={width}
+                      data={
+                        categorySpendings.data
+                          ? categorySpendings.data.chart === 'MONTH'
+                            ? categorySpendings.data.month
+                            : categorySpendings.data.allTime
+                          : []
+                      }
+                      formatAsCurrency
+                      showTotalSum
+                    />
+                  )}
+                </ParentSize>
               </Box>
             )}
           </Card.Body>
         </Card>
       </Grid>
 
+      {/* Transactions */}
       <Grid item xs={12} md={6} lg={4} order={{ xs: 2, md: 3 }}>
         <Card>
           <Card.Header>
@@ -271,7 +316,7 @@ export const Dashboard = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            {loading ? (
+            {fetchTransactions.loading ? (
               <CircularProgress />
             ) : latestTransactions.length > 0 ? (
               latestTransactions.map(({ id, categories, receiver, amount, date }) => (
@@ -294,33 +339,28 @@ export const Dashboard = () => {
         open={showAddTransactionForm}
         setOpen={(show) => setShowAddTransactionForm(show)}
         afterSubmit={(transaction) => {
-          const expenseTransaction: IExpenseTransactionDTO = {
-            sum: transaction.amount,
-            category: {
-              id: transaction.categories.id,
-              name: transaction.categories.name,
-              description: transaction.categories.description,
-            },
-            created_by: transaction.created_by || '', // TODO: Remove undefined
-          };
-          if (
-            isSameMonth(new Date(transaction.date), new Date()) &&
-            new Date(transaction.date) <= new Date()
-          ) {
-            addTransactionToExpenses(expenseTransaction, currentMonthExpenses, (updatedExpenses) =>
-              setCurrentMonthExpenses(updatedExpenses)
-            );
-          }
-          addTransactionToExpenses(expenseTransaction, allTimeExpenses, (updatedExpenses) =>
-            setAllTimeExpenses(updatedExpenses)
-          );
+          const forCurrentMonth =
+            isSameMonth(new Date(transaction.date), new Date()) && new Date(transaction.date) <= new Date();
+          const currentData = categorySpendings.data
+            ? forCurrentMonth
+              ? categorySpendings.data.month
+              : categorySpendings.data.allTime
+            : [];
+
+          addTransactionToExpenses(transaction, currentData, (updatedExpenses) => {
+            setCategorySpendings({
+              type: 'REFRESH_DATA',
+              data: {
+                chart: categorySpendings.data!.chart,
+                month: forCurrentMonth ? updatedExpenses : categorySpendings.data!.month,
+                allTime: !forCurrentMonth ? updatedExpenses : categorySpendings.data!.allTime,
+              },
+            });
+          });
         }}
       />
 
-      <CreateSubscription
-        open={showSubscriptionForm}
-        setOpen={(show) => setShowSubscriptionForm(show)}
-      />
+      <CreateSubscription open={showSubscriptionForm} setOpen={(show) => setShowSubscriptionForm(show)} />
     </Grid>
   );
 };

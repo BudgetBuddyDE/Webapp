@@ -13,12 +13,7 @@ export interface CategoryBudgetProps {
   onDelete?: (budget: ReturnType<BudgetModel['delete']>) => void;
 }
 
-export const CategoryBudget: FC<CategoryBudgetProps> = ({
-  budget,
-  icon = <LabelIcon />,
-  onEdit,
-  onDelete,
-}) => {
+export const CategoryBudget: FC<CategoryBudgetProps> = ({ budget, icon = <LabelIcon />, onEdit, onDelete }) => {
   return (
     <Box>
       <Box
@@ -44,17 +39,11 @@ export const CategoryBudget: FC<CategoryBudgetProps> = ({
             <Typography variant="subtitle1" fontWeight="bold">
               {budget.category.name}
             </Typography>
-            <Typography variant="subtitle2">
-              {budget.category.description || 'No description'}
-            </Typography>
+            <Typography variant="subtitle2">{budget.category.description || 'No description'}</Typography>
           </Box>
           <Box sx={{ ml: 'auto', display: 'flex', flexDirection: 'row' }}>
             <Tooltip
-              title={
-                budget.budget > budget.currentlySpent
-                  ? "You'r still in budget"
-                  : "You've spent a little too much"
-              }
+              title={budget.budget > budget.currentlySpent ? "You'r still in budget" : "You've spent a little too much"}
             >
               <Typography
                 sx={{
@@ -64,9 +53,7 @@ export const CategoryBudget: FC<CategoryBudgetProps> = ({
                   fontWeight: 'bold',
                   fontSize: '90%',
                   color: (theme) =>
-                    budget.budget >= budget.currentlySpent
-                      ? theme.palette.success.main
-                      : theme.palette.error.main,
+                    budget.budget >= budget.currentlySpent ? theme.palette.success.main : theme.palette.error.main,
                 }}
               >
                 {formatBalance(Math.abs(budget.currentlySpent))}

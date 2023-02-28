@@ -1,14 +1,14 @@
-import { FC, PropsWithChildren, useContext } from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { AuthContext } from '../../context/auth.context';
+import { AuthContext } from '../../context/';
 
-export const ProtectedRoute: FC<PropsWithChildren> = ({ children }) => {
-  const { session } = useContext(AuthContext);
+export const ProtectedRoute: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const { session } = React.useContext(AuthContext);
   return session === null ? <Navigate to="/sign-in" replace /> : <>{children}</>;
 };
 
-export const ProtectedComponent: FC<PropsWithChildren> = ({ children }) => {
-  const { session } = useContext(AuthContext);
+export const ProtectedComponent: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const { session } = React.useContext(AuthContext);
   if (session === null) return null;
   return <>{children}</>;
 };

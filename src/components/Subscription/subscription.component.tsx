@@ -7,13 +7,7 @@ export type SubscriptionProps = Omit<TransactionProps, 'date'> & {
   executeAt: number;
 };
 
-export const Subscription: React.FC<SubscriptionProps> = ({
-  icon,
-  title,
-  subtitle,
-  executeAt,
-  amount,
-}) => {
+export const Subscription: React.FC<SubscriptionProps> = ({ icon, title, subtitle, executeAt, amount }) => {
   const nextExecutionDate = determineNextExecutionDate(executeAt);
   const formattedExecutionDate = `Next ${format(nextExecutionDate, 'dd.MM')}`;
   return (
@@ -21,9 +15,7 @@ export const Subscription: React.FC<SubscriptionProps> = ({
       icon={icon}
       title={title}
       subtitle={
-        typeof subtitle === 'string'
-          ? [formattedExecutionDate, subtitle]
-          : [formattedExecutionDate, ...subtitle]
+        typeof subtitle === 'string' ? [formattedExecutionDate, subtitle] : [formattedExecutionDate, ...subtitle]
       }
       amount={amount}
     />

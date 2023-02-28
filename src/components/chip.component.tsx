@@ -63,12 +63,10 @@ export const PaymentMethodChip: React.FC<PaymentMethodChipProps> = (props) => {
               if (filter.paymentMethods === null) return;
               if (filter.paymentMethods.includes(paymentMethod.id)) {
                 setFilter((prev) => {
-                  const filteredList =
-                    prev.paymentMethods?.filter((id) => id !== paymentMethod.id) ?? [];
+                  const filteredList = prev.paymentMethods?.filter((id) => id !== paymentMethod.id) ?? [];
                   return {
                     ...prev,
-                    paymentMethods:
-                      prev.paymentMethods && filteredList.length > 0 ? filteredList : null,
+                    paymentMethods: prev.paymentMethods && filteredList.length > 0 ? filteredList : null,
                   };
                 });
               }

@@ -4,10 +4,7 @@ import type { DailySpending, IExpense } from '../types';
 export class ExpenseService {
   static async getAllTimeExpenses(userId: string): Promise<IExpense[] | null> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase
-        .from<IExpense>('AllTimeExpenses')
-        .select('*')
-        .eq('created_by', userId);
+      const { data, error } = await supabase.from<IExpense>('AllTimeExpenses').select('*').eq('created_by', userId);
       if (error) rej(error);
       res(data);
     });
@@ -32,19 +29,11 @@ export class ExpenseService {
         start_date: startDate,
       });
       if (error) rej(error);
-      res(
-        data && typeof data === 'object'
-          ? data.map((day) => ({ ...day, amount: Math.abs(day.amount) }))
-          : null
-      );
+      res(data && typeof data === 'object' ? data.map((day) => ({ ...day, amount: Math.abs(day.amount) })) : null);
     });
   }
 
-  static async getExpenses(
-    userId: string,
-    startDate: Date,
-    endDate: Date
-  ): Promise<IExpense[] | null> {
+  static async getExpenses(userId: string, startDate: Date, endDate: Date): Promise<IExpense[] | null> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase.rpc('getExpenses', {
         endDate: endDate,

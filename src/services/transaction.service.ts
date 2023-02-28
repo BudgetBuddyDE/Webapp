@@ -7,19 +7,15 @@ import type { IBaseTransaction, IExportTransaction, ITransaction } from '../type
 export class TransactionService {
   private static table = 'transactions';
 
-  static async createTransactions(
-    transactions: Partial<IBaseTransaction>[]
-  ): Promise<BaseTransaction[]> {
+  static async createTransactions(transactions: Partial<IBaseTransaction>[]): Promise<BaseTransaction[]> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase
-        .from<IBaseTransaction>(this.table)
-        .insert(transactions);
+      const { data, error } = await supabase.from<IBaseTransaction>(this.table).insert(transactions);
       if (error) rej(error);
       res(data ? data.map((transaction) => new BaseTransaction(transaction)) : []);
     });
   }
 
-  static async getTransactions(): Promise<Transaction[]> {
+  static async getTransactions(amount = 1000): Promise<Transaction[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase
         .from<ITransaction>(this.table)
@@ -40,7 +36,8 @@ export class TransactionService {
             id, name, description
           )`
         )
-        .order('date', { ascending: false });
+        .order('date', { ascending: false })
+        .limit(amount);
       if (error) rej(error);
       res(data ? data.map((transaction) => new Transaction(transaction)) : []);
     });
@@ -68,10 +65,7 @@ export class TransactionService {
    */
   static async deleteTransactionById(id: number): Promise<BaseTransaction[]> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase
-        .from<IBaseTransaction>(this.table)
-        .delete()
-        .match({ id: id });
+      const { data, error } = await supabase.from<IBaseTransaction>(this.table).delete().match({ id: id });
       if (error) rej(error);
       res(data ? data.map((transaction) => new BaseTransaction(transaction)) : []);
     });
@@ -86,9 +80,7 @@ export class TransactionService {
       transactions
         .filter(
           (transaction) =>
-            isSameMonth(new Date(transaction.date), now) &&
-            new Date(transaction.date) <= now &&
-            transaction.amount > 0
+            isSameMonth(new Date(transaction.date), now) && new Date(transaction.date) <= now && transaction.amount > 0
         )
         .reduce((prev, cur) => prev + cur.amount, 0)
     );
@@ -103,9 +95,7 @@ export class TransactionService {
       transactions
         .filter(
           (transaction) =>
-            isSameMonth(new Date(transaction.date), now) &&
-            new Date(transaction.date) > now &&
-            transaction.amount > 0
+            isSameMonth(new Date(transaction.date), now) && new Date(transaction.date) > now && transaction.amount > 0
         )
         .reduce((prev, cur) => prev + cur.amount, 0)
     );
@@ -120,9 +110,7 @@ export class TransactionService {
       transactions
         .filter(
           (transaction) =>
-            isSameMonth(new Date(transaction.date), now) &&
-            new Date(transaction.date) <= now &&
-            transaction.amount < 0
+            isSameMonth(new Date(transaction.date), now) && new Date(transaction.date) <= now && transaction.amount < 0
         )
         .reduce((prev, cur) => prev + cur.amount, 0)
     );
@@ -137,9 +125,7 @@ export class TransactionService {
       transactions
         .filter(
           (transaction) =>
-            isSameMonth(new Date(transaction.date), now) &&
-            new Date(transaction.date) > now &&
-            transaction.amount < 0
+            isSameMonth(new Date(transaction.date), now) && new Date(transaction.date) > now && transaction.amount < 0
         )
         .reduce((prev, cur) => prev + cur.amount, 0)
     );

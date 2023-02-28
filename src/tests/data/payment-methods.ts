@@ -3,11 +3,7 @@ import { PaymentMethod } from '../../models/paymentMethod.model';
 import type { uuid } from '../../types/profile.type';
 import { generateRandomId } from '../generateRandomId';
 
-export function generatePaymentMethods(
-  amount = 3,
-  date = new Date(),
-  countryCode = 'DE'
-): PaymentMethod[] {
+export function generatePaymentMethods(amount = 3, date = new Date(), countryCode = 'DE'): PaymentMethod[] {
   const CARD_ISSUER = faker.helpers.uniqueArray(faker.finance.creditCardIssuer, amount);
   return CARD_ISSUER.map((provider) => {
     const inserted_at = faker.date.recent();

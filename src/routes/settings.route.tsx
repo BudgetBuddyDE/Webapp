@@ -1,13 +1,4 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  Grid,
-  Rating,
-  TextField,
-} from '@mui/material';
+import { Box, Button, Checkbox, FormControlLabel, FormGroup, Grid, Rating, TextField } from '@mui/material';
 import React from 'react';
 import { Card, PageHeader, UserProfile } from '../components';
 import { AuthContext, SnackbarContext } from '../context';
@@ -16,9 +7,7 @@ import { FeedbackService } from '../services';
 export const Settings = () => {
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const [feedbackForm, setFeedbackForm] = React.useState<Record<string, string | number | boolean>>(
-    {}
-  );
+  const [feedbackForm, setFeedbackForm] = React.useState<Record<string, string | number | boolean>>({});
 
   const feedbackHandler = {
     starChange: (event: React.SyntheticEvent<Element, Event>, value: number | null) => {

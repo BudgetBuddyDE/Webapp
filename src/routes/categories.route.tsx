@@ -28,10 +28,11 @@ import {
   SearchInput,
   TablePagination,
   TablePaginationHandler,
-  TablePaginationReducer,
 } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
+import { useFetchCategories, useFetchTransactions } from '../hooks';
 import { Category } from '../models';
+import { TablePaginationReducer } from '../reducer';
 
 interface CategoryHandler {
   onSearch: (keyword: string) => void;
@@ -43,15 +44,14 @@ interface CategoryHandler {
 
 export const Categories = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, categories, transactions, setCategories } = React.useContext(StoreContext);
+  const { setCategories } = React.useContext(StoreContext);
+  const fetchTransactions = useFetchTransactions();
+  const fetchCategories = useFetchCategories();
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [keyword, setKeyword] = React.useState('');
   const [editCategory, setEditCategory] = React.useState<Category | null>(null);
   const [, startTransition] = React.useTransition();
-  const [tablePagination, setTablePagination] = React.useReducer(
-    TablePaginationReducer,
-    InitialTablePaginationState
-  );
+  const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
 
   const handler: CategoryHandler = {
     onSearch(text) {
@@ -69,10 +69,9 @@ export const Categories = () => {
       async onDelete(category) {
         try {
           const deletedCategories = await category.delete();
-          if (!deletedCategories || deletedCategories.length < 1)
-            throw new Error('No category deleted');
+          if (!deletedCategories || deletedCategories.length < 1) throw new Error('No category deleted');
           startTransition(() => {
-            setCategories((prev) => prev.filter(({ id }) => id !== deletedCategories[0].id));
+            setCategories({ type: 'REMOVE_BY_ID', id: deletedCategories[0].id });
           });
           showSnackbar({ message: `Category ${deletedCategories[0].name} deleted` });
         } catch (error) {
@@ -87,9 +86,9 @@ export const Categories = () => {
   };
 
   const shownCategories: Category[] = React.useMemo(() => {
-    if (keyword === '') return categories;
-    return categories.filter((item) => item.name.toLowerCase().includes(keyword));
-  }, [keyword, categories]);
+    if (keyword === '') return fetchCategories.categories;
+    return fetchCategories.categories.filter((item) => item.name.toLowerCase().includes(keyword));
+  }, [keyword, fetchCategories.categories]);
 
   const currentPageCategories: Category[] = React.useMemo(() => {
     const { page, rowsPerPage } = tablePagination;
@@ -118,9 +117,9 @@ export const Categories = () => {
               </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
-          {loading ? (
+          {fetchCategories.loading ? (
             <CircularProgress />
-          ) : categories.length > 0 ? (
+          ) : fetchCategories.categories.length > 0 ? (
             <React.Fragment>
               <Card.Body>
                 <TableContainer>
@@ -157,10 +156,7 @@ export const Categories = () => {
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Delete" placement="top">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => handler.category.onDelete(row)}
-                                >
+                                <IconButton color="primary" onClick={() => handler.category.onDelete(row)}>
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
@@ -182,13 +178,15 @@ export const Categories = () => {
               </Card.Footer>
             </React.Fragment>
           ) : (
-            <NoResults sx={{ mt: 2 }} text="No categories found" />
+            <NoResults sx={{ m: 2 }} text="No categories found" />
           )}
         </Card>
       </Grid>
 
       <Grid item xs={12} md={3} lg={4} xl={3}>
-        {!loading && <EarningsByCategory categories={categories} transactions={transactions} />}
+        {!fetchTransactions.loading && !fetchCategories.loading && (
+          <EarningsByCategory categories={fetchCategories.categories} transactions={fetchTransactions.transactions} />
+        )}
       </Grid>
 
       <CreateCategory open={showAddForm} setOpen={(show) => setShowAddForm(show)} />

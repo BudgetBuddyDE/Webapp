@@ -8,33 +8,24 @@ export function filterTransactions(keyword: string, filter: IFilter, transaction
   if (keyword.length > 0) {
     transactions = transactions.filter(
       (item) =>
-        item.receiver.toLowerCase().includes(keyword) ||
-        item.description?.toString().toLowerCase().includes(keyword)
+        item.receiver.toLowerCase().includes(keyword) || item.description?.toString().toLowerCase().includes(keyword)
     );
   }
 
   if (filter.dateFrom) {
-    transactions = transactions.filter(
-      (transaction) => new Date(transaction.date) >= filter.dateFrom!
-    );
+    transactions = transactions.filter((transaction) => new Date(transaction.date) >= filter.dateFrom!);
   }
 
   if (filter.dateTo) {
-    transactions = transactions.filter(
-      (transaction) => new Date(transaction.date) <= filter.dateTo!
-    );
+    transactions = transactions.filter((transaction) => new Date(transaction.date) <= filter.dateTo!);
   }
 
   if (filter.categories) {
-    transactions = transactions.filter((transaction) =>
-      filter.categories?.includes(transaction.categories.id)
-    );
+    transactions = transactions.filter((transaction) => filter.categories?.includes(transaction.categories.id));
   }
 
   if (filter.paymentMethods) {
-    transactions = transactions.filter((transaction) =>
-      filter.paymentMethods?.includes(transaction.paymentMethods.id)
-    );
+    transactions = transactions.filter((transaction) => filter.paymentMethods?.includes(transaction.paymentMethods.id));
   }
 
   if (filter.priceFrom !== null) {
@@ -48,37 +39,26 @@ export function filterTransactions(keyword: string, filter: IFilter, transaction
   return transactions;
 }
 
-export function filterSubscriptions(
-  keyword: string,
-  filter: IFilter,
-  subscriptions: Subscription[]
-) {
+export function filterSubscriptions(keyword: string, filter: IFilter, subscriptions: Subscription[]) {
   if (subscriptions.length === 0) return [];
 
   if (keyword.length > 0) {
     subscriptions = subscriptions.filter(
       (item) =>
-        item.receiver.toLowerCase().includes(keyword) ||
-        item.description?.toString().toLowerCase().includes(keyword)
+        item.receiver.toLowerCase().includes(keyword) || item.description?.toString().toLowerCase().includes(keyword)
     );
   }
 
   if (filter.dateFrom) {
-    subscriptions = subscriptions.filter(
-      (subscription) => subscription.execute_at >= filter.dateFrom!.getDate()
-    );
+    subscriptions = subscriptions.filter((subscription) => subscription.execute_at >= filter.dateFrom!.getDate());
   }
 
   if (filter.dateTo) {
-    subscriptions = subscriptions.filter(
-      (subscription) => subscription.execute_at <= filter.dateTo!.getDate()
-    );
+    subscriptions = subscriptions.filter((subscription) => subscription.execute_at <= filter.dateTo!.getDate());
   }
 
   if (filter.categories) {
-    subscriptions = subscriptions.filter((subscription) =>
-      filter.categories?.includes(subscription.categories.id)
-    );
+    subscriptions = subscriptions.filter((subscription) => filter.categories?.includes(subscription.categories.id));
   }
 
   if (filter.paymentMethods) {
@@ -88,9 +68,7 @@ export function filterSubscriptions(
   }
 
   if (filter.priceFrom !== null) {
-    subscriptions = subscriptions.filter(
-      (subscription) => subscription.amount >= filter.priceFrom!
-    );
+    subscriptions = subscriptions.filter((subscription) => subscription.amount >= filter.priceFrom!);
   }
 
   if (filter.priceTo !== null) {

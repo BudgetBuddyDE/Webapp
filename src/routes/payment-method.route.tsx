@@ -28,11 +28,12 @@ import {
   SearchInput,
   TablePagination,
   TablePaginationHandler,
-  TablePaginationReducer,
   UsedByPaymentMethod,
 } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
+import { useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { PaymentMethod } from '../models';
+import { TablePaginationReducer } from '../reducer';
 
 interface PaymentMethodHandler {
   onSearch: (keyword: string) => void;
@@ -44,16 +45,15 @@ interface PaymentMethodHandler {
 
 export const PaymentMethods = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, transactions, subscriptions, paymentMethods, setPaymentMethods } =
-    React.useContext(StoreContext);
+  const { setPaymentMethods } = React.useContext(StoreContext);
+  const fetchTransactions = useFetchTransactions();
+  const fetchSubscriptions = useFetchSubscriptions();
+  const fetchPaymentMethods = useFetchPaymentMethods();
   const [, startTransition] = React.useTransition();
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [keyword, setKeyword] = React.useState('');
   const [editPaymentMethod, setEditPaymentMethod] = React.useState<PaymentMethod | null>(null);
-  const [tablePagination, setTablePagination] = React.useReducer(
-    TablePaginationReducer,
-    InitialTablePaginationState
-  );
+  const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
 
   const handler: PaymentMethodHandler = {
     onSearch(keyword) {
@@ -71,19 +71,16 @@ export const PaymentMethods = () => {
       async onDelete(paymentMethod) {
         try {
           const deletedPaymentMethods = await paymentMethod.delete();
-          if (!deletedPaymentMethods || deletedPaymentMethods.length < 1)
-            throw new Error('No payment-method deleted');
+          if (!deletedPaymentMethods || deletedPaymentMethods.length < 1) throw new Error('No payment-method deleted');
           startTransition(() => {
-            setPaymentMethods((prev) => prev.filter(({ id }) => id !== paymentMethod.id));
+            setPaymentMethods({ type: 'REMOVE_BY_ID', id: paymentMethod.id });
           });
           showSnackbar({ message: `Payment Method ${paymentMethod.name} deleted` });
         } catch (error) {
           console.error(error);
           showSnackbar({
             message: `Could'nt delete payment method`,
-            action: (
-              <Button onClick={() => handler.paymentMethod.onDelete(paymentMethod)}>Retry</Button>
-            ),
+            action: <Button onClick={() => handler.paymentMethod.onDelete(paymentMethod)}>Retry</Button>,
           });
         }
       },
@@ -91,12 +88,11 @@ export const PaymentMethods = () => {
   };
 
   const shownPaymentMethods: PaymentMethod[] = React.useMemo(() => {
-    if (keyword === '') return paymentMethods;
-    return paymentMethods.filter(
-      (item) =>
-        item.name.toLowerCase().includes(keyword) || item.provider.toLowerCase().includes(keyword)
+    if (keyword === '') return fetchPaymentMethods.paymentMethods;
+    return fetchPaymentMethods.paymentMethods.filter(
+      (item) => item.name.toLowerCase().includes(keyword) || item.provider.toLowerCase().includes(keyword)
     );
-  }, [keyword, paymentMethods]);
+  }, [keyword, fetchPaymentMethods.paymentMethods]);
 
   const currentPagePaymentMethods: PaymentMethod[] = React.useMemo(() => {
     const { page, rowsPerPage } = tablePagination;
@@ -125,9 +121,9 @@ export const PaymentMethods = () => {
               </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
-          {loading ? (
+          {fetchPaymentMethods.loading ? (
             <CircularProgress />
-          ) : paymentMethods.length > 0 ? (
+          ) : fetchPaymentMethods.paymentMethods.length > 0 ? (
             <React.Fragment>
               <Card.Body>
                 <TableContainer>
@@ -165,18 +161,12 @@ export const PaymentMethods = () => {
                           <TableCell align="right">
                             <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                               <Tooltip title="Edit" placement="top">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => setEditPaymentMethod(row)}
-                                >
+                                <IconButton color="primary" onClick={() => setEditPaymentMethod(row)}>
                                   <EditIcon />
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Delete" placement="top">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => handler.paymentMethod.onDelete(row)}
-                                >
+                                <IconButton color="primary" onClick={() => handler.paymentMethod.onDelete(row)}>
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
@@ -198,25 +188,28 @@ export const PaymentMethods = () => {
               </Card.Footer>
             </React.Fragment>
           ) : (
-            <NoResults sx={{ mt: 2 }} text="No payment-methods found" />
+            <NoResults sx={{ m: 2 }} text="No payment-methods found" />
           )}
         </Card>
       </Grid>
 
-      <Grid container item xs={12} md={3} lg={4} xl={3} order={{ xs: 0, md: 1 }}>
+      <Grid container item xs={12} md={3} lg={4} xl={3} spacing={3} order={{ xs: 0, md: 1 }}>
         <Grid item xs={12}>
-          {!loading && (
+          {!fetchPaymentMethods.loading && !fetchSubscriptions.loading && !fetchTransactions.loading && (
             <UsedByPaymentMethod
-              paymentMethods={paymentMethods}
-              transactions={transactions}
-              subscriptions={subscriptions}
+              paymentMethods={fetchPaymentMethods.paymentMethods}
+              transactions={fetchTransactions.transactions}
+              subscriptions={fetchSubscriptions.subscriptions}
             />
           )}
         </Grid>
 
         <Grid item xs={12}>
-          {!loading && (
-            <EarningsByPaymentMethod paymentMethods={paymentMethods} transactions={transactions} />
+          {!fetchPaymentMethods.loading && !fetchTransactions.loading && (
+            <EarningsByPaymentMethod
+              paymentMethods={fetchPaymentMethods.paymentMethods}
+              transactions={fetchTransactions.transactions}
+            />
           )}
         </Grid>
       </Grid>

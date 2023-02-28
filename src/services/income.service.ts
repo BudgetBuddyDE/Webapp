@@ -4,10 +4,7 @@ import type { DailyIncome, IIncome } from '../types/';
 export class IncomeService {
   static async getAllTimeIncome(userId: string): Promise<IIncome[] | null> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase
-        .from<IIncome>('AllTimeIncome')
-        .select('*')
-        .eq('created_by', userId);
+      const { data, error } = await supabase.from<IIncome>('AllTimeIncome').select('*').eq('created_by', userId);
       if (error) rej(error);
       res(data);
     });
@@ -15,10 +12,7 @@ export class IncomeService {
 
   static async getCurrentMonthIncome(userId: string): Promise<IIncome[] | null> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase
-        .from<IIncome>('CurrentMonthIncome')
-        .select('*')
-        .eq('created_by', userId);
+      const { data, error } = await supabase.from<IIncome>('CurrentMonthIncome').select('*').eq('created_by', userId);
       if (error) rej(error);
       res(data);
     });
@@ -36,11 +30,7 @@ export class IncomeService {
     });
   }
 
-  static async getIncome(
-    userId: string,
-    startDate: Date,
-    endDate: Date
-  ): Promise<IIncome[] | null> {
+  static async getIncome(userId: string, startDate: Date, endDate: Date): Promise<IIncome[] | null> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase.rpc('getIncome', {
         endDate: endDate,

@@ -1,6 +1,5 @@
 import {
   Alert,
-  AlertTitle,
   Autocomplete,
   Box,
   FormControl,
@@ -13,14 +12,16 @@ import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
-import { useScreenSize } from '../../hooks/';
+import { useFetchCategories, useFetchPaymentMethods, useScreenSize } from '../../hooks/';
 import { Transaction } from '../../models/';
 import { TransactionService } from '../../services/';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseTransaction } from '../../types/';
 import { transformBalance } from '../../utils/';
 import { FormDrawer } from '../Base/';
+import { CreateCategoryInfo } from '../Category';
 import { ReceiverAutocomplete } from '../Inputs/';
+import { CreatePaymentMethodInfo } from '../PaymentMethod';
 
 export interface ICreateTransactionProps {
   open: boolean;
@@ -28,41 +29,47 @@ export interface ICreateTransactionProps {
   afterSubmit?: (transaction: Transaction) => void;
 }
 
-export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
-  open,
-  setOpen,
-  afterSubmit,
-}) => {
+interface CreateTransactionHandler {
+  onClose: () => void;
+  onDateChange: (date: Date | null) => void;
+  autocompleteChange: (
+    event: React.SyntheticEvent<Element, Event>,
+    key: 'category' | 'paymentMethod',
+    value: string | number
+  ) => void;
+  inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  receiverChange: (value: string | number) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+}
+
+export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, setOpen, afterSubmit }) => {
   const screenSize = useScreenSize();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, transactionReceiver, setTransactions, categories, paymentMethods } =
-    React.useContext(StoreContext);
+  const { loading, transactionReceiver, setTransactions } = React.useContext(StoreContext);
+  const fetchCategories = useFetchCategories();
+  const fetchPaymentMethods = useFetchPaymentMethods();
   const [, startTransition] = React.useTransition();
   const [form, setForm] = React.useState<Partial<IBaseTransaction>>({ date: new Date() });
   const [errorMessage, setErrorMessage] = React.useState('');
 
-  const handler = {
+  const handler: CreateTransactionHandler = {
     onClose: () => {
       setOpen(false);
     },
-    onDateChange: (date: Date | null) => {
+    onDateChange: (date) => {
       if (date) setForm((prev) => ({ ...prev, date: date ?? new Date() }));
     },
-    autocompleteChange: (
-      event: React.SyntheticEvent<Element, Event>,
-      key: 'category' | 'paymentMethod',
-      value: string | number
-    ) => {
+    autocompleteChange: (event, key, value) => {
       setForm((prev) => ({ ...prev, [key]: value }));
     },
-    inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    inputChange: (event) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    receiverChange: (value: string | number) => {
+    receiverChange: (value) => {
       setForm((prev) => ({ ...prev, receiver: String(value) }));
     },
-    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+    onSubmit: async (event) => {
       try {
         event.preventDefault();
         const values = Object.keys(form);
@@ -77,10 +84,7 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
             paymentMethod: Number(form.paymentMethod),
             receiver: String(form.receiver),
             amount: transformBalance(form.amount!.toString()),
-            description:
-              typeof form.description === 'string' && form.description.length > 0
-                ? form.description
-                : null,
+            description: typeof form.description === 'string' && form.description.length > 0 ? form.description : null,
             created_by: session!.user!.id,
           },
         ]);
@@ -100,8 +104,8 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
         } = createdTransactions[0];
         const addedTransaction = new Transaction({
           id: id,
-          categories: categories.find((c) => c.id === category)!.categoryView,
-          paymentMethods: paymentMethods.find((pm) => pm.id === paymentMethod)!.paymentMethodView,
+          categories: fetchCategories.categories.find((c) => c.id === category)!.categoryView,
+          paymentMethods: fetchPaymentMethods.paymentMethods.find((pm) => pm.id === paymentMethod)!.paymentMethodView,
           receiver: receiver,
           description: description,
           amount: amount,
@@ -112,12 +116,10 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
         });
         if (afterSubmit) afterSubmit(addedTransaction);
         startTransition(() => {
-          setTransactions((prev) => [addedTransaction, ...prev]);
+          setTransactions({ type: 'ADD_ITEM', entry: addedTransaction });
         });
         handler.onClose();
-        showSnackbar({
-          message: 'Transaction added',
-        });
+        showSnackbar({ message: 'Transaction added' });
       } catch (error) {
         console.error(error);
         // @ts-ignore
@@ -139,22 +141,6 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
       {errorMessage.length > 1 && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {errorMessage}
-        </Alert>
-      )}
-
-      {categories.length < 1 && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          <AlertTitle>Info</AlertTitle>
-          To be able to create a transaction you have to create a category under{' '}
-          <strong>Categories {'>'} Add Category</strong> before.{' '}
-        </Alert>
-      )}
-
-      {paymentMethods.length < 1 && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          <AlertTitle>Info</AlertTitle>
-          To be able to create a transaction you have to create a payment method under{' '}
-          <strong>Payment Methods {'>'} Add Payment Method</strong> before.{' '}
         </Alert>
       )}
 
@@ -186,29 +172,34 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({
           flexWrap: 'wrap',
         }}
       >
-        <Autocomplete
-          id="category"
-          options={categories.map((item) => ({ label: item.name, value: item.id }))}
-          sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-          onChange={(event, value) =>
-            handler.autocompleteChange(event, 'category', Number(value?.value))
-          }
-          renderInput={(props) => <TextField {...props} label="Category" />}
-          isOptionEqualToValue={(option, value) => option.value === value.value}
-        />
-        <Autocomplete
-          id="payment-method"
-          options={paymentMethods.map((item) => ({
-            label: `${item.name} • ${item.provider}`,
-            value: item.id,
-          }))}
-          sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-          onChange={(event, value) =>
-            handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))
-          }
-          renderInput={(props) => <TextField {...props} label="Payment Method" />}
-          isOptionEqualToValue={(option, value) => option.value === value.value}
-        />
+        {!fetchCategories.loading && fetchCategories.categories.length > 0 ? (
+          <Autocomplete
+            id="category"
+            options={fetchCategories.categories.map((item) => ({ label: item.name, value: item.id }))}
+            sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+            onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
+            renderInput={(props) => <TextField {...props} label="Category" />}
+            isOptionEqualToValue={(option, value) => option.value === value.value}
+          />
+        ) : (
+          <CreateCategoryInfo sx={{ mb: 2 }} />
+        )}
+
+        {!fetchPaymentMethods.loading && fetchPaymentMethods.paymentMethods.length > 0 ? (
+          <Autocomplete
+            id="payment-method"
+            options={fetchPaymentMethods.paymentMethods.map((item) => ({
+              label: `${item.name} • ${item.provider}`,
+              value: item.id,
+            }))}
+            sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+            onChange={(event, value) => handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))}
+            renderInput={(props) => <TextField {...props} label="Payment Method" />}
+            isOptionEqualToValue={(option, value) => option.value === value.value}
+          />
+        ) : (
+          <CreatePaymentMethodInfo sx={{ mb: 2 }} />
+        )}
       </Box>
 
       <ReceiverAutocomplete

@@ -13,10 +13,13 @@ import {
 import { subMonths } from 'date-fns';
 import React from 'react';
 import { StoreContext } from '../context/';
+import { useFetchCategories, useFetchPaymentMethods } from '../hooks';
 import type { IFilter } from '../types/';
 import { getFirstDayOfMonth, getLastDayOfMonth } from '../utils/';
 import { FormDrawer } from './Base/';
+import { CreateCategoryInfo } from './Category/Cards/';
 import { DateRange, IDateRange } from './Inputs/';
+import { CreatePaymentMethodInfo } from './PaymentMethod';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -56,8 +59,9 @@ interface FilterDrawerHandler {
 export interface IFilterDrawerProps {}
 
 export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
-  const { showFilter, setShowFilter, filter, setFilter, categories, paymentMethods } =
-    React.useContext(StoreContext);
+  const { loading, showFilter, setShowFilter, filter, setFilter } = React.useContext(StoreContext);
+  const fetchCategories = useFetchCategories();
+  const fetchPaymentMethods = useFetchPaymentMethods();
   const [unappliedFilter, setUnappliedFilter] = React.useState(filter);
 
   const handler: FilterDrawerHandler = {
@@ -123,6 +127,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
     setUnappliedFilter(filter);
   }, [filter]);
 
+  if (loading) return null;
   return (
     <FormDrawer
       open={showFilter}
@@ -140,103 +145,110 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
         />
       </Box>
 
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel id="filter-category-label">Category</InputLabel>
-        <Select
-          labelId="filter-category-label"
-          multiple
-          value={unappliedFilter.categories ?? []}
-          onChange={handler.onCategoriesChange}
-          input={<OutlinedInput id="filter-category" label="Category" />}
-          renderValue={(selected) => (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-              {selected.map((categoryId) => {
-                const matchedCategory = categories.find((category) => category.id === categoryId);
-                if (!matchedCategory) return null;
-                return (
-                  <Chip
-                    key={matchedCategory.id}
-                    label={matchedCategory.name}
-                    onDelete={() => handler.onDeleteCategory(categoryId)}
-                    // In order to make chpis deletable we need to cancel the mouse-down event
-                    onMouseDown={(event) => event.stopPropagation()}
-                  />
-                );
-              })}
-            </Box>
-          )}
-          MenuProps={MenuProps}
-        >
-          {categories.map((category) => {
-            const selected =
-              Array.isArray(unappliedFilter.categories) &&
-              unappliedFilter.categories.includes(category.id);
-            return (
-              <MenuItem
-                key={category.id}
-                value={category.id}
-                sx={{
-                  fontWeight: (theme) =>
-                    selected ? theme.typography.fontWeightBold : theme.typography.fontWeightRegular,
-                  backgroundColor: (theme) => (selected ? theme.palette.action.selected : 'unset'),
-                }}
-              >
-                {category.name}
-              </MenuItem>
-            );
-          })}
-        </Select>
-      </FormControl>
+      {!fetchCategories.loading && fetchCategories.categories.length > 0 ? (
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="filter-category-label">Category</InputLabel>
+          <Select
+            labelId="filter-category-label"
+            multiple
+            value={unappliedFilter.categories ?? []}
+            onChange={handler.onCategoriesChange}
+            input={<OutlinedInput id="filter-category" label="Category" />}
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {selected.map((categoryId) => {
+                  const matchedCategory = fetchCategories.categories.find((category) => category.id === categoryId);
+                  if (!matchedCategory) return null;
+                  return (
+                    <Chip
+                      key={matchedCategory.id}
+                      label={matchedCategory.name}
+                      onDelete={() => handler.onDeleteCategory(categoryId)}
+                      // In order to make chpis deletable we need to cancel the mouse-down event
+                      onMouseDown={(event) => event.stopPropagation()}
+                    />
+                  );
+                })}
+              </Box>
+            )}
+            MenuProps={MenuProps}
+          >
+            {fetchCategories.categories.map((category) => {
+              const selected =
+                Array.isArray(unappliedFilter.categories) && unappliedFilter.categories.includes(category.id);
+              return (
+                <MenuItem
+                  key={category.id}
+                  value={category.id}
+                  sx={{
+                    fontWeight: (theme) =>
+                      selected ? theme.typography.fontWeightBold : theme.typography.fontWeightRegular,
+                    backgroundColor: (theme) => (selected ? theme.palette.action.selected : 'unset'),
+                  }}
+                >
+                  {category.name}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+      ) : (
+        <CreateCategoryInfo sx={{ mb: 2 }} />
+      )}
 
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel id="filter-payment-method-label">Payment Method</InputLabel>
-        <Select
-          labelId="filter-payment-method-label"
-          multiple
-          value={unappliedFilter.paymentMethods ?? []}
-          onChange={handler.onPaymentMethodsChange}
-          input={<OutlinedInput id="filter-paymnet-method" label="Payment Method" />}
-          renderValue={(selected) => (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-              {selected.map((paymentMethodId) => {
-                const matchedPaymentMethod = paymentMethods.find(
-                  (paymentMethod) => paymentMethod.id === paymentMethodId
-                );
-                if (!matchedPaymentMethod) return null;
-                return (
-                  <Chip
-                    key={matchedPaymentMethod.id}
-                    label={matchedPaymentMethod.name}
-                    onDelete={() => handler.onDeletePaymentMethod(paymentMethodId)}
-                    // In order to make chpis deletable we need to cancel the mouse-down event
-                    onMouseDown={(event) => event.stopPropagation()}
-                  />
-                );
-              })}
-            </Box>
-          )}
-          MenuProps={MenuProps}
-        >
-          {paymentMethods.map((paymentMethod) => {
-            const selected =
-              Array.isArray(unappliedFilter.paymentMethods) &&
-              unappliedFilter.paymentMethods.includes(paymentMethod.id);
-            return (
-              <MenuItem
-                key={paymentMethod.id}
-                value={paymentMethod.id}
-                sx={{
-                  fontWeight: (theme) =>
-                    selected ? theme.typography.fontWeightBold : theme.typography.fontWeightRegular,
-                  backgroundColor: (theme) => (selected ? theme.palette.action.selected : 'unset'),
-                }}
-              >
-                {paymentMethod.name}
-              </MenuItem>
-            );
-          })}
-        </Select>
-      </FormControl>
+      {!fetchPaymentMethods.loading && fetchPaymentMethods.paymentMethods.length > 0 ? (
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="filter-payment-method-label">Payment Method</InputLabel>
+          <Select
+            labelId="filter-payment-method-label"
+            multiple
+            value={unappliedFilter.paymentMethods ?? []}
+            onChange={handler.onPaymentMethodsChange}
+            input={<OutlinedInput id="filter-paymnet-method" label="Payment Method" />}
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {selected.map((paymentMethodId) => {
+                  const matchedPaymentMethod = fetchPaymentMethods.paymentMethods.find(
+                    (paymentMethod) => paymentMethod.id === paymentMethodId
+                  );
+                  if (!matchedPaymentMethod) return null;
+                  return (
+                    <Chip
+                      key={matchedPaymentMethod.id}
+                      label={matchedPaymentMethod.name}
+                      onDelete={() => handler.onDeletePaymentMethod(paymentMethodId)}
+                      // In order to make chpis deletable we need to cancel the mouse-down event
+                      onMouseDown={(event) => event.stopPropagation()}
+                    />
+                  );
+                })}
+              </Box>
+            )}
+            MenuProps={MenuProps}
+          >
+            {fetchPaymentMethods.paymentMethods.map((paymentMethod) => {
+              const selected =
+                Array.isArray(unappliedFilter.paymentMethods) &&
+                unappliedFilter.paymentMethods.includes(paymentMethod.id);
+              return (
+                <MenuItem
+                  key={paymentMethod.id}
+                  value={paymentMethod.id}
+                  sx={{
+                    fontWeight: (theme) =>
+                      selected ? theme.typography.fontWeightBold : theme.typography.fontWeightRegular,
+                    backgroundColor: (theme) => (selected ? theme.palette.action.selected : 'unset'),
+                  }}
+                >
+                  {paymentMethod.name}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+      ) : (
+        <CreatePaymentMethodInfo sx={{ mb: 2 }} />
+      )}
 
       <Box
         sx={{

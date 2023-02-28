@@ -16,6 +16,7 @@ import {
 import React from 'react';
 import {
   ActionPaper,
+  Card,
   CategoryChip,
   CircularProgress,
   CreateSubscription,
@@ -30,12 +31,12 @@ import {
   ShowFilterButton,
   TablePagination,
   TablePaginationHandler,
-  TablePaginationReducer,
   UsedByPaymentMethod,
 } from '../components';
-import Card from '../components/Base/card.component';
 import { SnackbarContext, StoreContext } from '../context';
+import { useFetchCategories, useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { Subscription } from '../models';
+import { TablePaginationReducer } from '../reducer';
 import { determineNextExecution, filterSubscriptions } from '../utils';
 
 interface SubscriptionsHandler {
@@ -50,23 +51,16 @@ interface SubscriptionsHandler {
 
 export const Subscriptions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const {
-    loading,
-    filter,
-    subscriptions,
-    setSubscriptions,
-    categories,
-    paymentMethods,
-    transactions,
-  } = React.useContext(StoreContext);
+  const { filter, setSubscriptions } = React.useContext(StoreContext);
+  const fetchTransactions = useFetchTransactions();
+  const fetchSubscriptions = useFetchSubscriptions();
+  const fetchCategories = useFetchCategories();
+  const fetchPaymentMethods = useFetchPaymentMethods();
   const [keyword, setKeyword] = React.useState('');
   const [, startTransition] = React.useTransition();
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [editSubscription, setEditSubscription] = React.useState<Subscription | null>(null);
-  const [tablePagination, setTablePagination] = React.useReducer(
-    TablePaginationReducer,
-    InitialTablePaginationState
-  );
+  const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
 
   const handler: SubscriptionsHandler = {
     onSearch(keyword) {
@@ -84,19 +78,16 @@ export const Subscriptions = () => {
       async onDelete(subscription) {
         try {
           const deletedSubscriptions = await subscription.delete();
-          if (!deletedSubscriptions || deletedSubscriptions.length < 1)
-            throw new Error('No subscription deleted');
+          if (!deletedSubscriptions || deletedSubscriptions.length < 1) throw new Error('No subscription deleted');
           startTransition(() => {
-            setSubscriptions((prev) => prev.filter(({ id }) => id !== subscription.id));
+            setSubscriptions({ type: 'REMOVE_BY_ID', id: deletedSubscriptions[0].id });
           });
           showSnackbar({ message: `Subscription ${subscription.receiver} deleted` });
         } catch (error) {
           console.error(error);
           showSnackbar({
             message: `Could'nt delete transaction`,
-            action: (
-              <Button onClick={() => handler.subscription.onDelete(subscription)}>Retry</Button>
-            ),
+            action: <Button onClick={() => handler.subscription.onDelete(subscription)}>Retry</Button>,
           });
         }
       },
@@ -110,8 +101,8 @@ export const Subscriptions = () => {
   };
 
   const shownSubscriptions: Subscription[] = React.useMemo(() => {
-    return filterSubscriptions(keyword, filter, subscriptions);
-  }, [subscriptions, keyword, filter]);
+    return filterSubscriptions(keyword, filter, fetchSubscriptions.subscriptions);
+  }, [fetchSubscriptions.subscriptions, keyword, filter]);
 
   const currentPageSubscriptions: Subscription[] = React.useMemo(() => {
     const { page, rowsPerPage } = tablePagination;
@@ -141,28 +132,22 @@ export const Subscriptions = () => {
               </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
-          {loading ? (
+          {fetchSubscriptions.loading ? (
             <CircularProgress />
-          ) : subscriptions.length > 0 ? (
+          ) : shownSubscriptions.length > 0 ? (
             <React.Fragment>
               <Card.Body>
                 <TableContainer>
                   <Table sx={{ minWidth: 650 }} aria-label="Subscriptions Table">
                     <TableHead>
                       <TableRow>
-                        {[
-                          'Next execution',
-                          'Category',
-                          'Receiver',
-                          'Amount',
-                          'Payment Method',
-                          'Information',
-                          '',
-                        ].map((cell, index) => (
-                          <TableCell key={index}>
-                            <Typography fontWeight="bolder">{cell}</Typography>
-                          </TableCell>
-                        ))}
+                        {['Next execution', 'Category', 'Receiver', 'Amount', 'Payment Method', 'Information', ''].map(
+                          (cell, index) => (
+                            <TableCell key={index}>
+                              <Typography fontWeight="bolder">{cell}</Typography>
+                            </TableCell>
+                          )
+                        )}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -175,9 +160,7 @@ export const Subscriptions = () => {
                           }}
                         >
                           <TableCell>
-                            <Typography fontWeight="bolder">
-                              {determineNextExecution(row.execute_at)}
-                            </Typography>
+                            <Typography fontWeight="bolder">{determineNextExecution(row.execute_at)}</Typography>
                           </TableCell>
                           <TableCell>
                             <CategoryChip category={row.categories} />
@@ -202,18 +185,12 @@ export const Subscriptions = () => {
                           <TableCell align="right">
                             <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                               <Tooltip title="Edit" placement="top">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => handler.subscription.onEdit(row)}
-                                >
+                                <IconButton color="primary" onClick={() => handler.subscription.onEdit(row)}>
                                   <EditIcon />
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Delete" placement="top">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => handler.subscription.onDelete(row)}
-                                >
+                                <IconButton color="primary" onClick={() => handler.subscription.onDelete(row)}>
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
@@ -235,21 +212,23 @@ export const Subscriptions = () => {
               </Card.Footer>
             </React.Fragment>
           ) : (
-            <NoResults sx={{ mt: 2 }} text="No subscriptions found" />
+            <NoResults sx={{ m: 2 }} text="No subscriptions found" />
           )}
         </Card>
       </Grid>
 
-      <Grid item xs={12} md={3} lg={3} xl={3}>
-        {!loading && <EarningsByCategory categories={categories} transactions={transactions} />}
+      <Grid item xs={12} md={4} lg={4} xl={4}>
+        {!fetchCategories.loading && !fetchTransactions.loading && (
+          <EarningsByCategory categories={fetchCategories.categories} transactions={fetchTransactions.transactions} />
+        )}
       </Grid>
 
-      <Grid item xs={12} md={3} lg={3} xl={3}>
-        {!loading && (
+      <Grid item xs={12} md={4} lg={4} xl={4}>
+        {!fetchPaymentMethods.loading && !fetchTransactions.loading && !fetchSubscriptions.loading && (
           <UsedByPaymentMethod
-            paymentMethods={paymentMethods}
-            transactions={transactions}
-            subscriptions={subscriptions}
+            paymentMethods={fetchPaymentMethods.paymentMethods}
+            transactions={fetchTransactions.transactions}
+            subscriptions={fetchSubscriptions.subscriptions}
           />
         )}
       </Grid>

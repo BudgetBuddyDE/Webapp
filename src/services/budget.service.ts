@@ -54,10 +54,7 @@ export class BudgetService {
    */
   static async update(id: number, updatedBudget: Partial<IBaseBudget>): Promise<BaseBudget[]> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase
-        .from<IBaseBudget>(this.table)
-        .update(updatedBudget)
-        .match({ id: id });
+      const { data, error } = await supabase.from<IBaseBudget>(this.table).update(updatedBudget).match({ id: id });
       if (error) rej(error);
       res(data ? data.map((budget) => new BaseBudget(budget)) : []);
     });
@@ -68,10 +65,7 @@ export class BudgetService {
    */
   static async deleteById(id: number): Promise<IBaseBudget[]> {
     return new Promise(async (res, rej) => {
-      const { data, error } = await supabase
-        .from<IBaseBudget>(this.table)
-        .delete()
-        .match({ id: id });
+      const { data, error } = await supabase.from<IBaseBudget>(this.table).delete().match({ id: id });
       if (error) rej(error);
       res(data ? data.map((budget) => new BaseBudget(budget)) : []);
     });

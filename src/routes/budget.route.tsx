@@ -36,8 +36,7 @@ import {
 import { AuthContext, SnackbarContext, StoreContext } from '../context';
 import { useScreenSize } from '../hooks';
 import { Budget as BudgetModel } from '../models';
-import { ExpenseService, IncomeService } from '../services';
-import type { IExpense, IIncome } from '../types';
+import { BudgetService, ExpenseService, IncomeService } from '../services';
 import { formatBalance, getFirstDayOfMonth } from '../utils';
 
 export const DATE_RANGE_INPUT_FORMAT = 'dd.MM';
@@ -54,12 +53,10 @@ export const Budget = () => {
   const [, startTransition] = React.useTransition();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, budget, setBudget, dailyTransactions, setDailyTransactions } =
+  const { loading, setLoading, budget, setBudget, budgetTransactions, setBudgetTransactions } =
     React.useContext(StoreContext);
   const [chart, setChart] = React.useState<ChartContentType>('INCOME');
   const [dateRange, setDateRange] = React.useState({ from: getFirstDayOfMonth(), to: new Date() });
-  const [income, setIncome] = React.useState<IIncome[]>([]);
-  const [expenses, setExpenses] = React.useState<IExpense[]>([]);
   const [showForm, setShowForm] = React.useState<{
     createBudget: boolean;
     editBudget: BudgetModel | null;
@@ -96,7 +93,7 @@ export const Budget = () => {
         const deletedBudgets = await deleteBudget;
         if (!deletedBudgets || deletedBudgets.length < 1) throw new Error('No budget deleted');
         startTransition(() => {
-          setBudget((prev) => prev.filter(({ id }) => id !== deletedBudgets[0].id));
+          setBudget({ type: 'REMOVE_BY_ID', id: deletedBudgets[0].id });
         });
         showSnackbar({ message: `Budget deleted` });
       } catch (error) {
@@ -130,7 +127,7 @@ export const Budget = () => {
     charts: {
       onEvent(bar) {
         if (!bar) return;
-        setDailyTransactions({
+        setBudgetTransactions({
           type: 'UPDATE_SELECTED',
           selected: {
             date: new Date(bar.label),
@@ -144,9 +141,9 @@ export const Budget = () => {
 
         setChart(newChart);
         const transactions =
-          newChart === 'INCOME' ? dailyTransactions.income : dailyTransactions.spendings;
+          newChart === 'INCOME' ? budgetTransactions.data.income.daily : budgetTransactions.data.spendings.daily;
         const today = transactions[transactions.length - 1];
-        setDailyTransactions({
+        setBudgetTransactions({
           type: 'UPDATE_SELECTED',
           selected: {
             amount: today.amount,
@@ -158,6 +155,10 @@ export const Budget = () => {
   };
 
   React.useEffect(() => {
+    if (!session || !session.user) return;
+    if (budgetTransactions.fetched) return;
+
+    setLoading(true);
     const from = dateRange.from;
     const to = dateRange.to;
     Promise.all([
@@ -166,35 +167,41 @@ export const Budget = () => {
       ExpenseService.getExpenses(session!.user!.id, from, to),
       ExpenseService.getDailyExpenses(from, to),
     ])
-      .then(async ([getIncome, getDailyIncome, getExpenses, getDailyExpenses]) => {
-        if (getIncome) {
-          setIncome(getIncome);
-        } else setIncome([]);
-
-        if (getDailyIncome) {
-          const today = getDailyIncome[getDailyIncome.length - 1];
-          setDailyTransactions({
-            type: 'UPDATE_INCOME_SELECTED',
-            income: getDailyIncome,
+      .then(([getIncome, getDailyIncome, getExpenses, getDailyExpenses]) => {
+        const today = getDailyIncome ? getDailyIncome[getDailyIncome.length - 1] : null;
+        setBudgetTransactions({
+          type: 'FETCH_DATA',
+          data: {
             selected: today
               ? {
                   date: new Date(today.date),
                   amount: today.amount,
                 }
               : null,
-          });
-        }
-
-        if (getExpenses) {
-          setExpenses(getExpenses);
-        } else setExpenses([]);
-
-        if (getDailyExpenses) {
-          setDailyTransactions({ type: 'UPDATE_SPENDINGS', spendings: getDailyExpenses });
-        }
+            income: {
+              daily: getDailyIncome ?? [],
+              grouped: getIncome ?? [],
+            },
+            spendings: {
+              daily: getDailyExpenses ?? [],
+              grouped: getExpenses ?? [],
+            },
+          },
+        });
       })
-      .catch((error) => console.error(error));
-  }, [session, dateRange]);
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [session, dateRange, budgetTransactions]);
+
+  React.useEffect(() => {
+    if (!session || !session.user) return;
+    if (budget.fetched && budget.data !== null) return;
+    setLoading(true);
+    BudgetService.getBudget(session.user.id)
+      .then((rows) => setBudget({ type: 'FETCH_DATA', data: rows }))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [session, budget]);
 
   return (
     <Grid container spacing={3}>
@@ -235,9 +242,7 @@ export const Budget = () => {
                     inputFormat={DATE_RANGE_INPUT_FORMAT}
                     value={dateRange.from}
                     onChange={handler.onDateFromChange}
-                    renderInput={(params) => (
-                      <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
-                    )}
+                    renderInput={(params) => <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />}
                   />
                 ) : (
                   <DesktopDatePicker
@@ -245,9 +250,7 @@ export const Budget = () => {
                     inputFormat={DATE_RANGE_INPUT_FORMAT}
                     value={dateRange.from}
                     onChange={handler.onDateFromChange}
-                    renderInput={(params) => (
-                      <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
-                    )}
+                    renderInput={(params) => <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />}
                   />
                 )}
 
@@ -257,9 +260,7 @@ export const Budget = () => {
                     inputFormat={DATE_RANGE_INPUT_FORMAT}
                     value={dateRange.to}
                     onChange={handler.onDateToChange}
-                    renderInput={(params) => (
-                      <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
-                    )}
+                    renderInput={(params) => <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />}
                   />
                 ) : (
                   <DesktopDatePicker
@@ -267,63 +268,44 @@ export const Budget = () => {
                     inputFormat={DATE_RANGE_INPUT_FORMAT}
                     value={dateRange.to}
                     onChange={handler.onDateToChange}
-                    renderInput={(params) => (
-                      <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
-                    )}
+                    renderInput={(params) => <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />}
                   />
                 )}
               </LocalizationProvider>
             </Box>
           </Card.Header>
           <Card.Body>
-            {loading ? (
+            {loading && !budgetTransactions.fetched ? (
               <CircularProgress />
-            ) : dailyTransactions.income && dailyTransactions.spendings ? (
+            ) : budgetTransactions.data.income.daily && budgetTransactions.data.spendings.daily ? (
               <Paper elevation={0} sx={{ mt: '1rem' }}>
-                {dailyTransactions.selected && (
+                {budgetTransactions.data.selected && (
                   <Box sx={{ ml: 2, mt: 1 }}>
                     <Typography variant="caption">
-                      {isSameDay(dailyTransactions.selected.date, new Date())
+                      {isSameDay(budgetTransactions.data.selected.date, new Date())
                         ? 'Today'
-                        : format(dailyTransactions.selected.date, 'dd.MM.yy')}
+                        : format(budgetTransactions.data.selected.date, 'dd.MM.yy')}
                     </Typography>
                     <Typography variant="subtitle1">
-                      {formatBalance(dailyTransactions.selected.amount)}
+                      {formatBalance(budgetTransactions.data.selected.amount)}
                     </Typography>
                   </Box>
                 )}
 
-                {chart === 'INCOME' ? (
-                  <ParentSize>
-                    {({ width }) => (
-                      <BarChart
-                        width={width}
-                        height={width * 0.6}
-                        data={dailyTransactions.income.map((day) => ({
-                          label: day.date.toString(),
-                          value: day.amount,
-                        }))}
-                        onEvent={handler.charts.onEvent}
-                        events
-                      />
-                    )}
-                  </ParentSize>
-                ) : (
-                  <ParentSize>
-                    {({ width }) => (
-                      <BarChart
-                        width={width}
-                        height={width * 0.6}
-                        data={dailyTransactions.spendings.map((day) => ({
-                          label: day.date.toString(),
-                          value: day.amount,
-                        }))}
-                        onEvent={handler.charts.onEvent}
-                        events
-                      />
-                    )}
-                  </ParentSize>
-                )}
+                <ParentSize>
+                  {({ width }) => (
+                    <BarChart
+                      width={width}
+                      height={width * 0.6}
+                      data={budgetTransactions.data[chart === 'INCOME' ? 'income' : 'spendings'].daily.map((day) => ({
+                        label: day.date.toString(),
+                        value: day.amount,
+                      }))}
+                      onEvent={handler.charts.onEvent}
+                      events
+                    />
+                  )}
+                </ParentSize>
               </Paper>
             ) : (
               <NoResults sx={{ mt: 2 }} text="Nothing was returned" />
@@ -331,11 +313,11 @@ export const Budget = () => {
 
             <Divider sx={{ mt: 2 }} />
 
-            {loading ? (
+            {loading && !budgetTransactions.fetched ? (
               <CircularProgress />
             ) : chart === 'INCOME' ? (
-              income.length > 0 ? (
-                income.map(({ category, sum }) => (
+              budgetTransactions.data.income.grouped.length > 0 ? (
+                budgetTransactions.data.income.grouped.map(({ category, sum }) => (
                   <Transaction
                     key={category.id}
                     title={category.name}
@@ -346,8 +328,8 @@ export const Budget = () => {
               ) : (
                 <NoResults sx={{ mt: 2 }} text="No results for the timespan" />
               )
-            ) : expenses.length > 0 ? (
-              expenses.map(({ category, sum }) => (
+            ) : budgetTransactions.data.spendings.grouped.length > 0 ? (
+              budgetTransactions.data.spendings.grouped.map(({ category, sum }) => (
                 <Transaction
                   key={category.id}
                   title={category.name}
@@ -380,10 +362,10 @@ export const Budget = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            {loading ? (
+            {loading && !budget.fetched ? (
               <CircularProgress />
-            ) : budget.length > 0 ? (
-              budget.map((item) => (
+            ) : budget.data && budget.data.length > 0 ? (
+              budget.data.map((item) => (
                 <CategoryBudget
                   key={item.id}
                   budget={item}

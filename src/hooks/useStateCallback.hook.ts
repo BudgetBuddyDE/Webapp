@@ -3,9 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 /**
  * Author: https://stackoverflow.com/a/61842546
  */
-export function useStateCallback<T>(
-  initialState: T
-): [T, (state: T, cb?: (state: T) => void) => void] {
+export function useStateCallback<T>(initialState: T): [T, (state: T, cb?: (state: T) => void) => void] {
   const [state, setState] = useState(initialState);
 
   const cbRef = useRef<((state: T) => void) | undefined>(undefined); // init mutable ref container for callbacks
