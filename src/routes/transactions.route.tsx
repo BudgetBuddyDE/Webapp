@@ -35,7 +35,7 @@ import {
   UsedByPaymentMethod,
 } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
-import { useFetchCategories, useFetchSubscriptions, useFetchTransactions } from '../hooks';
+import { useFetchCategories, useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { Transaction } from '../models';
 import { TablePaginationReducer } from '../reducer';
 import { filterTransactions } from '../utils';
@@ -49,10 +49,11 @@ interface TransactionHandler {
 
 export const Transactions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, filter, setTransactions, paymentMethods } = React.useContext(StoreContext);
+  const { filter, setTransactions } = React.useContext(StoreContext);
   const fetchTransactions = useFetchTransactions();
   const fetchSubscriptions = useFetchSubscriptions();
   const fetchCategories = useFetchCategories();
+  const fetchPaymentMethods = useFetchPaymentMethods();
   const [keyword, setKeyword] = React.useState('');
   const [, startTransition] = React.useTransition();
   const [showAddForm, setShowAddForm] = React.useState(false);
@@ -223,9 +224,9 @@ export const Transactions = () => {
       </Grid>
 
       <Grid item xs={12} md={4} lg={4} xl={4}>
-        {!loading && !fetchTransactions.loading && !fetchSubscriptions.subscriptions && (
+        {!fetchPaymentMethods.loading && !fetchTransactions.loading && !fetchSubscriptions.subscriptions && (
           <UsedByPaymentMethod
-            paymentMethods={paymentMethods.data ?? []}
+            paymentMethods={fetchPaymentMethods.paymentMethods}
             transactions={fetchTransactions.transactions}
             subscriptions={fetchSubscriptions.subscriptions}
           />

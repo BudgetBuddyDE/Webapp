@@ -30,11 +30,10 @@ import {
   TablePaginationHandler,
   UsedByPaymentMethod,
 } from '../components';
-import { AuthContext, SnackbarContext, StoreContext } from '../context';
-import { useFetchSubscriptions, useFetchTransactions } from '../hooks';
+import { SnackbarContext, StoreContext } from '../context';
+import { useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { PaymentMethod } from '../models';
 import { TablePaginationReducer } from '../reducer';
-import { PaymentMethodService } from '../services';
 
 interface PaymentMethodHandler {
   onSearch: (keyword: string) => void;
@@ -45,11 +44,11 @@ interface PaymentMethodHandler {
 }
 
 export const PaymentMethods = () => {
-  const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setLoading, paymentMethods, setPaymentMethods } = React.useContext(StoreContext);
+  const { loading, setPaymentMethods } = React.useContext(StoreContext);
   const fetchTransactions = useFetchTransactions();
   const fetchSubscriptions = useFetchSubscriptions();
+  const fetchPaymentMethods = useFetchPaymentMethods();
   const [, startTransition] = React.useTransition();
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [keyword, setKeyword] = React.useState('');
@@ -89,27 +88,16 @@ export const PaymentMethods = () => {
   };
 
   const shownPaymentMethods: PaymentMethod[] = React.useMemo(() => {
-    if (paymentMethods.data === null) return [];
-    if (keyword === '') return paymentMethods.data;
-    return paymentMethods.data.filter(
+    if (keyword === '') return fetchPaymentMethods.paymentMethods;
+    return fetchPaymentMethods.paymentMethods.filter(
       (item) => item.name.toLowerCase().includes(keyword) || item.provider.toLowerCase().includes(keyword)
     );
-  }, [keyword, paymentMethods]);
+  }, [keyword, fetchPaymentMethods.paymentMethods]);
 
   const currentPagePaymentMethods: PaymentMethod[] = React.useMemo(() => {
     const { page, rowsPerPage } = tablePagination;
     return shownPaymentMethods.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [shownPaymentMethods, tablePagination]);
-
-  React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (paymentMethods.fetched && paymentMethods.data !== null) return;
-    setLoading(true);
-    PaymentMethodService.getPaymentMethods()
-      .then((rows) => setPaymentMethods({ type: 'FETCH_DATA', data: rows }))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [session, paymentMethods]);
 
   return (
     <Grid container spacing={3}>
@@ -133,9 +121,9 @@ export const PaymentMethods = () => {
               </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
-          {loading && !paymentMethods.fetched ? (
+          {!fetchPaymentMethods.loading ? (
             <CircularProgress />
-          ) : paymentMethods.data && paymentMethods.data.length > 0 ? (
+          ) : fetchPaymentMethods.paymentMethods.length > 0 ? (
             <React.Fragment>
               <Card.Body>
                 <TableContainer>
@@ -207,9 +195,9 @@ export const PaymentMethods = () => {
 
       <Grid container item xs={12} md={3} lg={4} xl={3} spacing={3} order={{ xs: 0, md: 1 }}>
         <Grid item xs={12}>
-          {!loading && !fetchTransactions.loading && (
+          {!fetchPaymentMethods.loading && !fetchSubscriptions.loading && !fetchTransactions.loading && (
             <UsedByPaymentMethod
-              paymentMethods={paymentMethods.data ?? []}
+              paymentMethods={fetchPaymentMethods.paymentMethods}
               transactions={fetchTransactions.transactions}
               subscriptions={fetchSubscriptions.subscriptions}
             />
@@ -217,9 +205,9 @@ export const PaymentMethods = () => {
         </Grid>
 
         <Grid item xs={12}>
-          {!loading && (
+          {!fetchPaymentMethods.loading && !fetchTransactions.loading && (
             <EarningsByPaymentMethod
-              paymentMethods={paymentMethods.data ?? []}
+              paymentMethods={fetchPaymentMethods.paymentMethods}
               transactions={fetchTransactions.transactions}
             />
           )}

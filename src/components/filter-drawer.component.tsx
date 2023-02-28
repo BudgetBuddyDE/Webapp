@@ -12,9 +12,8 @@ import {
 } from '@mui/material';
 import { subMonths } from 'date-fns';
 import React from 'react';
-import { AuthContext, StoreContext } from '../context/';
-import { useFetchCategories } from '../hooks';
-import { PaymentMethodService } from '../services';
+import { StoreContext } from '../context/';
+import { useFetchCategories, useFetchPaymentMethods } from '../hooks';
 import type { IFilter } from '../types/';
 import { getFirstDayOfMonth, getLastDayOfMonth } from '../utils/';
 import { FormDrawer } from './Base/';
@@ -60,10 +59,9 @@ interface FilterDrawerHandler {
 export interface IFilterDrawerProps {}
 
 export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
-  const { session } = React.useContext(AuthContext);
-  const { loading, setLoading, showFilter, setShowFilter, filter, setFilter, paymentMethods, setPaymentMethods } =
-    React.useContext(StoreContext);
+  const { loading, showFilter, setShowFilter, filter, setFilter } = React.useContext(StoreContext);
   const fetchCategories = useFetchCategories();
+  const fetchPaymentMethods = useFetchPaymentMethods();
   const [unappliedFilter, setUnappliedFilter] = React.useState(filter);
 
   const handler: FilterDrawerHandler = {
@@ -128,16 +126,6 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
   React.useEffect(() => {
     setUnappliedFilter(filter);
   }, [filter]);
-
-  React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (paymentMethods.fetched && paymentMethods.data !== null) return;
-    setLoading(true);
-    PaymentMethodService.getPaymentMethods()
-      .then((rows) => setPaymentMethods({ type: 'FETCH_DATA', data: rows }))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [session, paymentMethods]);
 
   if (loading) return null;
   return (
@@ -208,7 +196,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
         <CreateCategoryInfo sx={{ mb: 2 }} />
       )}
 
-      {paymentMethods.fetched && paymentMethods.data && paymentMethods.data.length > 0 ? (
+      {!fetchPaymentMethods.loading && fetchPaymentMethods.paymentMethods.length > 0 ? (
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel id="filter-payment-method-label">Payment Method</InputLabel>
           <Select
@@ -220,8 +208,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
             renderValue={(selected) => (
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                 {selected.map((paymentMethodId) => {
-                  if (!paymentMethods.data) return null;
-                  const matchedPaymentMethod = paymentMethods.data.find(
+                  const matchedPaymentMethod = fetchPaymentMethods.paymentMethods.find(
                     (paymentMethod) => paymentMethod.id === paymentMethodId
                   );
                   if (!matchedPaymentMethod) return null;
@@ -239,7 +226,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
             )}
             MenuProps={MenuProps}
           >
-            {paymentMethods.data.map((paymentMethod) => {
+            {fetchPaymentMethods.paymentMethods.map((paymentMethod) => {
               const selected =
                 Array.isArray(unappliedFilter.paymentMethods) &&
                 unappliedFilter.paymentMethods.includes(paymentMethod.id);

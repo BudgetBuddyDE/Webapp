@@ -12,9 +12,9 @@ import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
-import { useFetchCategories, useScreenSize } from '../../hooks/';
-import { PaymentMethod, Transaction } from '../../models/';
-import { PaymentMethodService, TransactionService } from '../../services/';
+import { useFetchCategories, useFetchPaymentMethods, useScreenSize } from '../../hooks/';
+import { Transaction } from '../../models/';
+import { TransactionService } from '../../services/';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseTransaction } from '../../types/';
 import { transformBalance } from '../../utils/';
@@ -46,9 +46,9 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
   const screenSize = useScreenSize();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setLoading, transactionReceiver, setTransactions, paymentMethods, setPaymentMethods } =
-    React.useContext(StoreContext);
+  const { loading, transactionReceiver, setTransactions } = React.useContext(StoreContext);
   const fetchCategories = useFetchCategories();
+  const fetchPaymentMethods = useFetchPaymentMethods();
   const [, startTransition] = React.useTransition();
   const [form, setForm] = React.useState<Partial<IBaseTransaction>>({ date: new Date() });
   const [errorMessage, setErrorMessage] = React.useState('');
@@ -104,10 +104,8 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
         } = createdTransactions[0];
         const addedTransaction = new Transaction({
           id: id,
-          // We can assure that payment-methods are provided
           categories: fetchCategories.categories.find((c) => c.id === category)!.categoryView,
-          paymentMethods: (paymentMethods.data as PaymentMethod[]).find((pm) => pm.id === paymentMethod)!
-            .paymentMethodView,
+          paymentMethods: fetchPaymentMethods.paymentMethods.find((pm) => pm.id === paymentMethod)!.paymentMethodView,
           receiver: receiver,
           description: description,
           amount: amount,
@@ -129,16 +127,6 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
       }
     },
   };
-
-  React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (paymentMethods.fetched && paymentMethods.data !== null) return;
-    setLoading(true);
-    PaymentMethodService.getPaymentMethods()
-      .then((rows) => setPaymentMethods({ type: 'FETCH_DATA', data: rows }))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [session, paymentMethods]);
 
   if (loading) return null;
   return (
@@ -197,10 +185,10 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
           <CreateCategoryInfo sx={{ mb: 2 }} />
         )}
 
-        {paymentMethods.fetched && paymentMethods.data && paymentMethods.data.length > 0 ? (
+        {!fetchPaymentMethods.loading && fetchPaymentMethods.paymentMethods.length > 0 ? (
           <Autocomplete
             id="payment-method"
-            options={paymentMethods.data.map((item) => ({
+            options={fetchPaymentMethods.paymentMethods.map((item) => ({
               label: `${item.name} • ${item.provider}`,
               value: item.id,
             }))}

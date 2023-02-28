@@ -11,10 +11,9 @@ import {
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
-import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
-import { useFetchCategories, useScreenSize } from '../../hooks/';
-import { PaymentMethod, Subscription } from '../../models/';
-import { PaymentMethodService } from '../../services';
+import { SnackbarContext, StoreContext } from '../../context/';
+import { useFetchCategories, useFetchPaymentMethods, useScreenSize } from '../../hooks/';
+import { Subscription } from '../../models/';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseSubscription } from '../../types/';
 import { getCategoryFromList, getPaymentMethodFromList, transformBalance } from '../../utils/';
@@ -45,11 +44,10 @@ interface EditSubscriptionHandler {
 
 export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOpen, afterSubmit, subscription }) => {
   const screenSize = useScreenSize();
-  const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setLoading, setSubscriptions, transactionReceiver, paymentMethods, setPaymentMethods } =
-    React.useContext(StoreContext);
+  const { loading, setSubscriptions, transactionReceiver } = React.useContext(StoreContext);
   const fetchCategories = useFetchCategories();
+  const fetchPaymentMethods = useFetchPaymentMethods();
   const [, startTransition] = React.useTransition();
   const [executionDate, setExecutionDate] = React.useState(new Date());
   const [form, setForm] = React.useState<Partial<IBaseSubscription> | null>(null);
@@ -105,10 +103,8 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
         } = updatedSubscriptions[0];
         const updatedItem = new Subscription({
           id: id,
-          // We can assure that  payment-methods are provided
           categories: fetchCategories.categories.find((c) => c.id === category)!.categoryView,
-          paymentMethods: (paymentMethods.data as PaymentMethod[]).find((pm) => pm.id === paymentMethod)!
-            .paymentMethodView,
+          paymentMethods: fetchPaymentMethods.paymentMethods.find((pm) => pm.id === paymentMethod)!.paymentMethodView,
           receiver: receiver,
           description: description,
           amount: amount,
@@ -145,16 +141,6 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
       });
     } else setForm(null);
   }, [subscription]);
-
-  React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (paymentMethods.fetched && paymentMethods.data !== null) return;
-    setLoading(true);
-    PaymentMethodService.getPaymentMethods()
-      .then((rows) => setPaymentMethods({ type: 'FETCH_DATA', data: rows }))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [session, paymentMethods]);
 
   if (loading) return null;
   return (
@@ -216,16 +202,16 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
               <CreateCategoryInfo sx={{ mb: 2 }} />
             )}
 
-            {paymentMethods.fetched && paymentMethods.data && paymentMethods.data.length > 0 ? (
+            {!fetchPaymentMethods.loading && fetchPaymentMethods.paymentMethods.length > 0 ? (
               <Autocomplete
                 id="payment-method"
-                options={paymentMethods.data.map((item) => ({
+                options={fetchPaymentMethods.paymentMethods.map((item) => ({
                   label: `${item.name} • ${item.provider}`,
                   value: item.id,
                 }))}
                 sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
                 onChange={(event, value) => handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))}
-                defaultValue={getPaymentMethodFromList(Number(form.paymentMethod), paymentMethods.data)}
+                defaultValue={getPaymentMethodFromList(Number(form.paymentMethod), fetchPaymentMethods.paymentMethods)}
                 renderInput={(props) => <TextField {...props} label="Payment Method" />}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
               />
