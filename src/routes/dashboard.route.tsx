@@ -273,7 +273,8 @@ export const Dashboard = () => {
           <Card.Body>
             {loading && !categorySpendings.fetched ? (
               <CircularProgress />
-            ) : (
+            ) : categorySpendings.data &&
+              categorySpendings.data[categorySpendings.data.chart === 'MONTH' ? 'month' : 'allTime'].length > 0 ? (
               <Box sx={{ display: 'flex', flex: 1, mt: '1rem' }}>
                 <ParentSize>
                   {({ width }) => (
@@ -293,6 +294,8 @@ export const Dashboard = () => {
                   )}
                 </ParentSize>
               </Box>
+            ) : (
+              <NoResults />
             )}
           </Card.Body>
         </Card>
