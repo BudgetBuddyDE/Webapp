@@ -11,16 +11,17 @@ import {
 } from '@mui/material';
 import { format } from 'date-fns';
 import { useContext, useRef, useState } from 'react';
-import { AuthContext } from '../context/auth.context';
-import { SnackbarContext } from '../context/snackbar.context';
-import { useStateCallback } from '../hooks/useStateCallback.hook';
-import { BudgetService } from '../services/budget.service';
-import { CategoryService } from '../services/category.service';
-import { PaymentMethodService } from '../services/payment-method.service';
-import { SubscriptionService } from '../services/subscription.service';
-import { TransactionService } from '../services/transaction.service';
-import { UserService } from '../services/user.service';
-import Card from './Base/card.component';
+import { AuthContext, SnackbarContext } from '../context';
+import { useStateCallback } from '../hooks/';
+import {
+  BudgetService,
+  CategoryService,
+  PaymentMethodService,
+  SubscriptionService,
+  TransactionService,
+  UserService,
+} from '../services/';
+import { Card } from './Base/';
 import { ProfileAvatarWithUpload } from './profile-avatar.component';
 
 export type TExportType = 'json' | 'csv';

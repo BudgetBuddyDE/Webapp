@@ -58,7 +58,10 @@ export const ProfileAvatarWithUpload: React.FC<ProfileAvatarWithUploadProps> = (
           borderRadius: '50%',
         }}
       >
-        <UploadIcon sx={{ fontSize: '1rem', color: (theme) => theme.palette.primary.contrastText }} />
+        <UploadIcon
+          sx={{ fontSize: '1rem', color: (theme) => theme.palette.primary.contrastText }}
+          onClick={handleOnClick}
+        />
       </Box>
       {metadata.avatar.length > 0 ? (
         <MuiAvatar
@@ -70,11 +73,9 @@ export const ProfileAvatarWithUpload: React.FC<ProfileAvatarWithUploadProps> = (
           {...props}
         />
       ) : (
-        <Badge color="secondary" overlap="circular" badgeContent="Upload">
-          <MuiAvatar variant="rounded" {...props} onClick={handleOnClick}>
-            {metadata.username.substring(0, 2).toUpperCase()}
-          </MuiAvatar>
-        </Badge>
+        <MuiAvatar variant="rounded" {...props} onClick={handleOnClick}>
+          {metadata.username.substring(0, 2).toUpperCase()}
+        </MuiAvatar>
       )}
       <input ref={uploadInputRef} type="file" hidden onChange={(event) => props.onUpload(event.target.files)} />
     </Box>
