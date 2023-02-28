@@ -2,6 +2,45 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.0](https://github.com/BudgetBuddyDE/Webapp/compare/v0.0.10...v0.1.0) (2023-02-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* Create custom-reducer for budget-route data
+* Store remaining dashboard-data in `StoreContext`
+* Add hook for fetching payment-methods
+* Add hook for fetching categories
+* Add hook for fetching subscriptions
+* Add hook for fetching transactions
+* Apply new reducer-concept on budget
+* Apply new reducer-concept on subscriptions
+* Apply new reducer-concept on payment-methods
+* Apply new reducer-concept on categories
+* Introduce new construct for data-storing/fetching
+
+### Features
+
+* Apply new reducer-concept on categories ([37b2442](https://github.com/BudgetBuddyDE/Webapp/commit/37b24426a5e65605ff92f1b7f4589e18f892f0af))
+* Introduce new construct for data-storing/fetching ([e485da1](https://github.com/BudgetBuddyDE/Webapp/commit/e485da17effa48679122769722e9603af2eec79f))
+* Show warning msg ([00123b0](https://github.com/BudgetBuddyDE/Webapp/commit/00123b0158b9526e6916334be3a83e00fdea9a3c))
+
+
+### Bug Fixes
+
+* Use correct loading-state ([3d1d655](https://github.com/BudgetBuddyDE/Webapp/commit/3d1d6550b1a2e7bdf24f82a679488f896f057963))
+
+
+* Add hook for fetching categories ([de70895](https://github.com/BudgetBuddyDE/Webapp/commit/de70895452f6f8a0c5d754904cb7a7075a9c3308))
+* Add hook for fetching payment-methods ([634dfa4](https://github.com/BudgetBuddyDE/Webapp/commit/634dfa41d2d94b048aabe57da64727e8560a05be))
+* Add hook for fetching subscriptions ([d28172c](https://github.com/BudgetBuddyDE/Webapp/commit/d28172ceb17b0b4375bb89e5199c7e7258b50d71))
+* Add hook for fetching transactions ([e563b15](https://github.com/BudgetBuddyDE/Webapp/commit/e563b15dbe12b3986c4ef1e52ce497af6bb71d58))
+* Apply new reducer-concept on budget ([7c2c9f8](https://github.com/BudgetBuddyDE/Webapp/commit/7c2c9f8592105e56b630c90b63f7aa84363e50f8))
+* Apply new reducer-concept on payment-methods ([766e03c](https://github.com/BudgetBuddyDE/Webapp/commit/766e03c7dbf6827aaa51c0d85c30c06471c3e3c3))
+* Apply new reducer-concept on subscriptions ([efae2a2](https://github.com/BudgetBuddyDE/Webapp/commit/efae2a2739bf48fe16648d48a2722c7175f3207a))
+* Create custom-reducer for budget-route data ([1ee6be8](https://github.com/BudgetBuddyDE/Webapp/commit/1ee6be879eb123a9d7605e70ff461337f0a5b3aa))
+* Store remaining dashboard-data in `StoreContext` ([fd25987](https://github.com/BudgetBuddyDE/Webapp/commit/fd259876c1659f214f66966cc609b4132ff9e9e3))
+
 ### [0.0.10](https://github.com/BudgetBuddyDE/Webapp/compare/v0.0.9...v0.0.10) (2023-02-25)
 
 
