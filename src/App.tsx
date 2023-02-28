@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import * as React from 'react';
+import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Copyright, Drawer, FilterDrawer, Main, ProtectedComponent, ProtectedRoute } from './components/';
 import { Budget } from './routes/budget.route';
@@ -32,14 +32,7 @@ export const App: React.FC = () => {
         >
           <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
             <Routes>
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Navigate to="/dashboard" />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/" element={<Navigate to="/dashboard" />} />
               <Route
                 path="/dashboard"
                 element={

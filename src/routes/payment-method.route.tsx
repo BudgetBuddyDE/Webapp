@@ -31,7 +31,7 @@ import {
   UsedByPaymentMethod,
 } from '../components';
 import { AuthContext, SnackbarContext, StoreContext } from '../context';
-import { useFetchTransactions } from '../hooks/reducer/';
+import { useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { PaymentMethod } from '../models';
 import { TablePaginationReducer } from '../reducer';
 import { PaymentMethodService } from '../services';
@@ -47,8 +47,9 @@ interface PaymentMethodHandler {
 export const PaymentMethods = () => {
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setLoading, subscriptions, paymentMethods, setPaymentMethods } = React.useContext(StoreContext);
+  const { loading, setLoading, paymentMethods, setPaymentMethods } = React.useContext(StoreContext);
   const fetchTransactions = useFetchTransactions();
+  const fetchSubscriptions = useFetchSubscriptions();
   const [, startTransition] = React.useTransition();
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [keyword, setKeyword] = React.useState('');
@@ -210,7 +211,7 @@ export const PaymentMethods = () => {
             <UsedByPaymentMethod
               paymentMethods={paymentMethods.data ?? []}
               transactions={fetchTransactions.transactions}
-              subscriptions={subscriptions.data ?? []}
+              subscriptions={fetchSubscriptions.subscriptions}
             />
           )}
         </Grid>

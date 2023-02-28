@@ -34,7 +34,7 @@ import {
 } from '../components';
 import Card from '../components/Base/card.component';
 import { AuthContext, SnackbarContext, StoreContext } from '../context';
-import { useFetchTransactions } from '../hooks';
+import { useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { Subscription } from '../models';
 import { TablePaginationReducer } from '../reducer';
 import { SubscriptionService } from '../services';
@@ -56,6 +56,7 @@ export const Subscriptions = () => {
   const { loading, setLoading, filter, subscriptions, setSubscriptions, categories, paymentMethods } =
     React.useContext(StoreContext);
   const fetchTransactions = useFetchTransactions();
+  const fetchSubscriptions = useFetchSubscriptions();
   const [keyword, setKeyword] = React.useState('');
   const [, startTransition] = React.useTransition();
   const [showAddForm, setShowAddForm] = React.useState(false);
@@ -101,24 +102,13 @@ export const Subscriptions = () => {
   };
 
   const shownSubscriptions: Subscription[] = React.useMemo(() => {
-    if (!subscriptions.data) return [];
-    return filterSubscriptions(keyword, filter, subscriptions.data ?? []);
-  }, [subscriptions, keyword, filter]);
+    return filterSubscriptions(keyword, filter, fetchSubscriptions.subscriptions);
+  }, [fetchSubscriptions.subscriptions, keyword, filter]);
 
   const currentPageSubscriptions: Subscription[] = React.useMemo(() => {
     const { page, rowsPerPage } = tablePagination;
     return shownSubscriptions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [shownSubscriptions, tablePagination]);
-
-  React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (subscriptions.fetched && subscriptions.data !== null) return;
-    setLoading(true);
-    SubscriptionService.getSubscriptions()
-      .then((rows) => setSubscriptions({ type: 'FETCH_DATA', data: rows }))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [session, subscriptions]);
 
   return (
     <Grid container spacing={3}>
@@ -143,9 +133,9 @@ export const Subscriptions = () => {
               </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
-          {loading && !subscriptions.fetched ? (
+          {loading && !fetchSubscriptions.loading ? (
             <CircularProgress />
-          ) : subscriptions.data && subscriptions.data.length > 0 ? (
+          ) : shownSubscriptions.length > 0 ? (
             <React.Fragment>
               <Card.Body>
                 <TableContainer>
@@ -235,11 +225,11 @@ export const Subscriptions = () => {
       </Grid>
 
       <Grid item xs={12} md={4} lg={4} xl={4}>
-        {!loading && !fetchTransactions.loading && (
+        {!loading && !fetchTransactions.loading && !fetchSubscriptions.loading && (
           <UsedByPaymentMethod
             paymentMethods={paymentMethods.data ?? []}
             transactions={fetchTransactions.transactions}
-            subscriptions={subscriptions.data ?? []}
+            subscriptions={fetchSubscriptions.subscriptions}
           />
         )}
       </Grid>
