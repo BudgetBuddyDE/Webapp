@@ -212,7 +212,7 @@ export const Dashboard = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            {loading && !fetchSubscriptions.loading ? (
+            {fetchSubscriptions.loading ? (
               <CircularProgress />
             ) : latestSubscriptions.length > 0 ? (
               latestSubscriptions.map(({ id, categories, receiver, amount, execute_at }) => (

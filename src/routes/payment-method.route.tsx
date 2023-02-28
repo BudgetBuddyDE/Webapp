@@ -45,7 +45,7 @@ interface PaymentMethodHandler {
 
 export const PaymentMethods = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setPaymentMethods } = React.useContext(StoreContext);
+  const { setPaymentMethods } = React.useContext(StoreContext);
   const fetchTransactions = useFetchTransactions();
   const fetchSubscriptions = useFetchSubscriptions();
   const fetchPaymentMethods = useFetchPaymentMethods();
@@ -121,7 +121,7 @@ export const PaymentMethods = () => {
               </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
-          {!fetchPaymentMethods.loading ? (
+          {fetchPaymentMethods.loading ? (
             <CircularProgress />
           ) : fetchPaymentMethods.paymentMethods.length > 0 ? (
             <React.Fragment>

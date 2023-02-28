@@ -11,7 +11,7 @@ import {
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
-import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
+import { SnackbarContext, StoreContext } from '../../context/';
 import { useFetchCategories, useFetchPaymentMethods, useScreenSize } from '../../hooks/';
 import { Transaction } from '../../models/';
 import { FormStyle } from '../../theme/form-style';
@@ -44,9 +44,8 @@ interface EditTransactionHandler {
 
 export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen, afterSubmit, transaction }) => {
   const screenSize = useScreenSize();
-  const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setLoading, setTransactions, transactionReceiver } = React.useContext(StoreContext);
+  const { loading, setTransactions, transactionReceiver } = React.useContext(StoreContext);
   const fetchCategories = useFetchCategories();
   const fetchPaymentMethods = useFetchPaymentMethods();
   const [, startTransition] = React.useTransition();

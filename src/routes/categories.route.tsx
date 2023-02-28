@@ -44,7 +44,7 @@ interface CategoryHandler {
 
 export const Categories = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setCategories } = React.useContext(StoreContext);
+  const { setCategories } = React.useContext(StoreContext);
   const fetchTransactions = useFetchTransactions();
   const fetchCategories = useFetchCategories();
   const [showAddForm, setShowAddForm] = React.useState(false);
@@ -117,7 +117,7 @@ export const Categories = () => {
               </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
-          {loading && !fetchCategories.loading ? (
+          {fetchCategories.loading ? (
             <CircularProgress />
           ) : fetchCategories.categories.length > 0 ? (
             <React.Fragment>

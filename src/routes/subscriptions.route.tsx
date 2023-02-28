@@ -51,7 +51,7 @@ interface SubscriptionsHandler {
 
 export const Subscriptions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, filter, setSubscriptions } = React.useContext(StoreContext);
+  const { filter, setSubscriptions } = React.useContext(StoreContext);
   const fetchTransactions = useFetchTransactions();
   const fetchSubscriptions = useFetchSubscriptions();
   const fetchCategories = useFetchCategories();
@@ -132,7 +132,7 @@ export const Subscriptions = () => {
               </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
-          {loading && !fetchSubscriptions.loading ? (
+          {fetchSubscriptions.loading ? (
             <CircularProgress />
           ) : shownSubscriptions.length > 0 ? (
             <React.Fragment>

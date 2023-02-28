@@ -2,9 +2,9 @@ import { Alert, Autocomplete, FormControl, InputAdornment, InputLabel, OutlinedI
 import { isSameMonth } from 'date-fns';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
-import { useFetchTransactions } from '../../hooks/reducer/fetch-transactions.hook';
-import { Budget, Category } from '../../models/';
-import { BudgetService, CategoryService } from '../../services/';
+import { useFetchCategories, useFetchTransactions } from '../../hooks';
+import { Budget } from '../../models/';
+import { BudgetService } from '../../services/';
 import { IBaseBudget } from '../../types/';
 import { transformBalance } from '../../utils/';
 import { FormDrawer } from '../Base/';
@@ -26,8 +26,9 @@ interface CreateBudgetHandler {
 export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afterSubmit }) => {
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setLoading, categories, setCategories, budget, setBudget } = React.useContext(StoreContext);
+  const { loading, budget, setBudget } = React.useContext(StoreContext);
   const fetchTransactions = useFetchTransactions();
+  const fetchCategories = useFetchCategories();
   const [, startTransition] = React.useTransition();
   const [form, setForm] = React.useState<Partial<IBaseBudget>>({});
   const [errorMessage, setErrorMessage] = React.useState('');
@@ -70,8 +71,7 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
         const createdBudget = createdBudgets[0];
         const addedBudget = new Budget({
           id: createdBudget.id,
-          // We can 100% assure that categories are provided
-          category: (categories.data as Category[]).find((c) => c.id === createdBudget.category)!.categoryView,
+          category: fetchCategories.categories.find((c) => c.id === createdBudget.category)!.categoryView,
           budget: createdBudget.budget,
           currentlySpent: Math.abs(
             fetchTransactions.transactions
@@ -103,16 +103,6 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
     },
   };
 
-  React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (categories.fetched && categories.data !== null) return;
-    setLoading(true);
-    CategoryService.getCategories()
-      .then((rows) => setCategories({ type: 'FETCH_DATA', data: rows }))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [session, categories]);
-
   if (loading) return null;
   return (
     <FormDrawer
@@ -129,10 +119,10 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
         </Alert>
       )}
 
-      {categories.fetched && categories.data && categories.data.length > 0 ? (
+      {!fetchCategories.loading && fetchCategories.categories.length > 0 ? (
         <Autocomplete
           id="add-category"
-          options={categories.data.map((item) => ({ label: item.name, value: item.id }))}
+          options={fetchCategories.categories.map((item) => ({ label: item.name, value: item.id }))}
           sx={{ mb: 2 }}
           onChange={(event, value) => handler.autocompleteChange(event, Number(value?.value))}
           renderInput={(props) => <TextField {...props} label="Category" />}
