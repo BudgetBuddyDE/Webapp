@@ -20,6 +20,7 @@ import {
   Transaction,
 } from '../components';
 import { AuthContext, StoreContext } from '../context';
+import { useFetchTransactions } from '../hooks';
 import { Subscription as SubscriptionModel, Transaction as TransactionModel } from '../models';
 import { categorySpendingsReducer } from '../reducer/CategorySpendings.reducer';
 import { BudgetService, DateService, ExpenseService, SubscriptionService, TransactionService } from '../services';
@@ -41,8 +42,8 @@ export const Dashboard = () => {
     { type: 'ALL', text: 'All' },
   ];
   const { session } = React.useContext(AuthContext);
-  const { loading, setLoading, subscriptions, setSubscriptions, transactions, setTransactions } =
-    React.useContext(StoreContext);
+  const { loading, setLoading, subscriptions, setSubscriptions } = React.useContext(StoreContext);
+  const fetchTransactions = useFetchTransactions();
   const [categorySpendings, setCategorySpendings] = React.useReducer(categorySpendingsReducer, {
     chart: 'MONTH',
     month: [],
@@ -53,21 +54,10 @@ export const Dashboard = () => {
   const [showSubscriptionForm, setShowSubscriptionForm] = React.useState(false);
 
   const latestTransactions: TransactionModel[] = React.useMemo(() => {
-    if (!transactions.fetched) {
-      // Fetch 'em & set em
-      // After we've done that, the useMemo-hook will run again and should return the previous fetched rows
-      // FIXME: Fetch me asynchronously
-      TransactionService.getTransactions()
-        .then((rows) => setTransactions({ type: 'FETCH_DATA', data: rows }))
-        .catch(console.error);
-      return [];
-    }
-
-    if (!transactions.data) return [];
-    return transactions.data
+    return fetchTransactions.transactions
       .filter(({ date }) => new Date(new Date(date).toDateString()) <= new Date())
       .slice(0, LATEST_ITEMS);
-  }, [transactions]);
+  }, [fetchTransactions]);
 
   const latestSubscriptions: SubscriptionModel[] = React.useMemo(() => {
     if (!subscriptions.fetched) {
@@ -82,14 +72,14 @@ export const Dashboard = () => {
 
     if (!subscriptions.data) return [];
     return subscriptions.data.slice(0, LATEST_ITEMS);
-  }, [transactions]);
+  }, [subscriptions]);
 
   const StatsCards: IStatsProps[] = [
     {
       // TODO: Create test to verify the result
       title: React.useMemo(() => {
         return formatBalance(SubscriptionService.getPlannedSpendings(subscriptions.data ?? []));
-      }, [subscriptions, transactions]),
+      }, [subscriptions, fetchTransactions.transactions]),
       subtitle: 'Planned expenses',
       info: 'Sum of transactions and subscriptions that will be executed this month',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
@@ -100,9 +90,9 @@ export const Dashboard = () => {
       title: React.useMemo(() => {
         return formatBalance(
           SubscriptionService.getUpcomingSpendings(subscriptions.data ?? []) +
-            TransactionService.getUpcomingSpendings(transactions.data ?? [])
+            TransactionService.getUpcomingSpendings(fetchTransactions.transactions)
         );
-      }, [subscriptions, transactions]),
+      }, [subscriptions, fetchTransactions.transactions]),
       subtitle: 'Upcoming expenses',
       info: 'Sum of transactions and subscriptions that have yet to be executed this month',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
@@ -111,8 +101,8 @@ export const Dashboard = () => {
     {
       // TODO: Create test to verify the result
       title: React.useMemo(() => {
-        return formatBalance(TransactionService.getReceivedEarnings(transactions.data ?? []));
-      }, [transactions]),
+        return formatBalance(TransactionService.getReceivedEarnings(fetchTransactions.transactions));
+      }, [fetchTransactions.transactions]),
       subtitle: 'Received earnings',
       info: 'Sum of transactions and subscriptions that have been executed in favor of you',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
@@ -123,9 +113,9 @@ export const Dashboard = () => {
       title: React.useMemo(() => {
         return formatBalance(
           SubscriptionService.getUpcomingEarnings(subscriptions.data ?? []) +
-            TransactionService.getUpcomingEarnings(transactions.data ?? [])
+            TransactionService.getUpcomingEarnings(fetchTransactions.transactions)
         );
-      }, [subscriptions, transactions]),
+      }, [subscriptions, fetchTransactions.transactions]),
       subtitle: 'Upcoming earnings',
       info: 'Sum of transactions and subscriptions that still have to be executed in favor of you',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
@@ -145,10 +135,10 @@ export const Dashboard = () => {
       // TODO: Create test to verify the result
       title: React.useMemo(() => {
         return formatBalance(
-          TransactionService.getReceivedEarnings(transactions.data ?? []) -
-            TransactionService.getPaidSpendings(transactions.data ?? [])
+          TransactionService.getReceivedEarnings(fetchTransactions.transactions) -
+            TransactionService.getPaidSpendings(fetchTransactions.transactions)
         );
-      }, [transactions]),
+      }, [fetchTransactions.transactions]),
       subtitle: 'Current balance',
       info: 'Calculated balance after deduction of all expenses from the income',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
@@ -320,7 +310,7 @@ export const Dashboard = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            {loading && !transactions.fetched ? (
+            {fetchTransactions.loading ? (
               <CircularProgress />
             ) : latestTransactions.length > 0 ? (
               latestTransactions.map(({ id, categories, receiver, amount, date }) => (

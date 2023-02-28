@@ -30,6 +30,7 @@ import {
   TablePaginationHandler,
 } from '../components';
 import { AuthContext, SnackbarContext, StoreContext } from '../context';
+import { useFetchTransactions } from '../hooks/reducer/';
 import { Category } from '../models';
 import { TablePaginationReducer } from '../reducer';
 import { CategoryService } from '../services';
@@ -45,7 +46,8 @@ interface CategoryHandler {
 export const Categories = () => {
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setLoading, categories, transactions, setCategories } = React.useContext(StoreContext);
+  const { loading, setLoading, categories, setCategories } = React.useContext(StoreContext);
+  const fetchTransactions = useFetchTransactions();
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [keyword, setKeyword] = React.useState('');
   const [editCategory, setEditCategory] = React.useState<Category | null>(null);
@@ -194,7 +196,9 @@ export const Categories = () => {
       </Grid>
 
       <Grid item xs={12} md={3} lg={4} xl={3}>
-        {!loading && <EarningsByCategory categories={categories.data ?? []} transactions={transactions.data ?? []} />}
+        {!loading && !fetchTransactions.loading && (
+          <EarningsByCategory categories={categories.data ?? []} transactions={fetchTransactions.transactions} />
+        )}
       </Grid>
 
       <CreateCategory open={showAddForm} setOpen={(show) => setShowAddForm(show)} />

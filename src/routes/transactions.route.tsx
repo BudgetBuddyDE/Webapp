@@ -34,10 +34,10 @@ import {
   TablePaginationHandler,
   UsedByPaymentMethod,
 } from '../components';
-import { AuthContext, SnackbarContext, StoreContext } from '../context';
+import { SnackbarContext, StoreContext } from '../context';
+import { useFetchTransactions } from '../hooks';
 import { Transaction } from '../models';
 import { TablePaginationReducer } from '../reducer';
-import { TransactionService } from '../services';
 import { filterTransactions } from '../utils';
 
 interface TransactionHandler {
@@ -49,9 +49,9 @@ interface TransactionHandler {
 
 export const Transactions = () => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { session } = React.useContext(AuthContext);
-  const { loading, setLoading, filter, transactions, setTransactions, categories, paymentMethods, subscriptions } =
+  const { loading, filter, setTransactions, categories, paymentMethods, subscriptions } =
     React.useContext(StoreContext);
+  const fetchTransactions = useFetchTransactions();
   const [keyword, setKeyword] = React.useState('');
   const [, startTransition] = React.useTransition();
   const [showAddForm, setShowAddForm] = React.useState(false);
@@ -95,24 +95,14 @@ export const Transactions = () => {
   };
 
   const shownTransactions: Transaction[] = React.useMemo(() => {
-    if (!transactions.data) return [];
-    return filterTransactions(keyword, filter, transactions.data);
-  }, [transactions, keyword, filter]);
+    if (!fetchTransactions.transactions) return [];
+    return filterTransactions(keyword, filter, fetchTransactions.transactions);
+  }, [fetchTransactions.transactions, keyword, filter]);
 
   const currentPageTransactions: Transaction[] = React.useMemo(() => {
     const { page, rowsPerPage } = tablePagination;
     return shownTransactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [shownTransactions, tablePagination]);
-
-  React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (transactions.fetched && transactions.data !== null) return;
-    setLoading(true);
-    TransactionService.getTransactions()
-      .then((rows) => setTransactions({ type: 'FETCH_DATA', data: rows }))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [session, transactions]);
 
   return (
     <Grid container spacing={3}>
@@ -137,9 +127,9 @@ export const Transactions = () => {
               </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
-          {loading && !transactions.fetched ? (
+          {fetchTransactions.loading ? (
             <CircularProgress />
-          ) : transactions.data && transactions.data.length > 0 ? (
+          ) : fetchTransactions.transactions.length > 0 ? (
             <React.Fragment>
               <Card.Body>
                 <TableContainer>
@@ -226,14 +216,16 @@ export const Transactions = () => {
       </Grid>
 
       <Grid item xs={12} md={4} lg={4} xl={4}>
-        {!loading && <EarningsByCategory categories={categories.data ?? []} transactions={transactions.data ?? []} />}
+        {!loading && !fetchTransactions.loading && (
+          <EarningsByCategory categories={categories.data ?? []} transactions={fetchTransactions.transactions} />
+        )}
       </Grid>
 
       <Grid item xs={12} md={4} lg={4} xl={4}>
-        {!loading && (
+        {!loading && !fetchTransactions.loading && (
           <UsedByPaymentMethod
             paymentMethods={paymentMethods.data ?? []}
-            transactions={transactions.data ?? []}
+            transactions={fetchTransactions.transactions}
             subscriptions={subscriptions.data ?? []}
           />
         )}

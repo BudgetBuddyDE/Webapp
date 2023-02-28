@@ -2,6 +2,7 @@ import { Alert, Autocomplete, FormControl, InputAdornment, InputLabel, OutlinedI
 import { isSameMonth } from 'date-fns';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
+import { useFetchTransactions } from '../../hooks/reducer/fetch-transactions.hook';
 import { Budget, Category } from '../../models/';
 import { BudgetService, CategoryService } from '../../services/';
 import { IBaseBudget } from '../../types/';
@@ -25,8 +26,8 @@ interface CreateBudgetHandler {
 export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afterSubmit }) => {
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setLoading, categories, setCategories, budget, setBudget, transactions } =
-    React.useContext(StoreContext);
+  const { loading, setLoading, categories, setCategories, budget, setBudget } = React.useContext(StoreContext);
+  const fetchTransactions = useFetchTransactions();
   const [, startTransition] = React.useTransition();
   const [form, setForm] = React.useState<Partial<IBaseBudget>>({});
   const [errorMessage, setErrorMessage] = React.useState('');
@@ -72,20 +73,17 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
           // We can 100% assure that categories are provided
           category: (categories.data as Category[]).find((c) => c.id === createdBudget.category)!.categoryView,
           budget: createdBudget.budget,
-          currentlySpent:
-            transactions.data !== null
-              ? Math.abs(
-                  transactions.data
-                    .filter(
-                      (transaction) =>
-                        transaction.amount < 0 &&
-                        isSameMonth(new Date(transaction.date), new Date()) &&
-                        new Date(transaction.date) <= new Date() &&
-                        transaction.categories.id === createdBudget.category
-                    )
-                    .reduce((prev, cur) => prev + cur.amount, 0)
-                )
-              : 0,
+          currentlySpent: Math.abs(
+            fetchTransactions.transactions
+              .filter(
+                (transaction) =>
+                  transaction.amount < 0 &&
+                  isSameMonth(new Date(transaction.date), new Date()) &&
+                  new Date(transaction.date) <= new Date() &&
+                  transaction.categories.id === createdBudget.category
+              )
+              .reduce((prev, cur) => prev + cur.amount, 0)
+          ),
           created_by: createdBudget.created_by,
           updated_at: createdBudget.updated_at.toString(),
           inserted_at: createdBudget.inserted_at.toString(),

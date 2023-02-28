@@ -1,7 +1,11 @@
 import React from 'react';
 import { Budget, Category, PaymentMethod, Subscription, Transaction } from '../models';
-import { DailyTransactionReducerAction, DailyTransactionReducerState } from '../reducer/';
-import { BaseListReducerAction, BaseListReducerState } from '../reducer/BaseListReducer.reducer';
+import {
+  BaseListReducerAction,
+  BaseListReducerState,
+  DailyTransactionReducerAction,
+  DailyTransactionReducerState,
+} from '../reducer/';
 import type { IFilter } from './index';
 
 export interface IStoreContext {
