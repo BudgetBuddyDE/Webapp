@@ -29,11 +29,10 @@ import {
   TablePagination,
   TablePaginationHandler,
 } from '../components';
-import { AuthContext, SnackbarContext, StoreContext } from '../context';
-import { useFetchTransactions } from '../hooks/reducer/';
+import { SnackbarContext, StoreContext } from '../context';
+import { useFetchCategories, useFetchTransactions } from '../hooks';
 import { Category } from '../models';
 import { TablePaginationReducer } from '../reducer';
-import { CategoryService } from '../services';
 
 interface CategoryHandler {
   onSearch: (keyword: string) => void;
@@ -44,10 +43,10 @@ interface CategoryHandler {
 }
 
 export const Categories = () => {
-  const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setLoading, categories, setCategories } = React.useContext(StoreContext);
+  const { loading, setCategories } = React.useContext(StoreContext);
   const fetchTransactions = useFetchTransactions();
+  const fetchCategories = useFetchCategories();
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [keyword, setKeyword] = React.useState('');
   const [editCategory, setEditCategory] = React.useState<Category | null>(null);
@@ -87,25 +86,14 @@ export const Categories = () => {
   };
 
   const shownCategories: Category[] = React.useMemo(() => {
-    if (categories.data === null) return [];
-    if (keyword === '') return categories.data;
-    return categories.data.filter((item) => item.name.toLowerCase().includes(keyword));
-  }, [keyword, categories]);
+    if (keyword === '') return fetchCategories.categories;
+    return fetchCategories.categories.filter((item) => item.name.toLowerCase().includes(keyword));
+  }, [keyword, fetchCategories.categories]);
 
   const currentPageCategories: Category[] = React.useMemo(() => {
     const { page, rowsPerPage } = tablePagination;
     return shownCategories.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [shownCategories, tablePagination]);
-
-  React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (categories.fetched && categories.data !== null) return;
-    setLoading(true);
-    CategoryService.getCategories()
-      .then((rows) => setCategories({ type: 'FETCH_DATA', data: rows }))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [session, categories]);
 
   return (
     <Grid container spacing={3}>
@@ -129,9 +117,9 @@ export const Categories = () => {
               </ActionPaper>
             </Card.HeaderActions>
           </Card.Header>
-          {loading && !categories.fetched ? (
+          {loading && !fetchCategories.loading ? (
             <CircularProgress />
-          ) : categories.data && categories.data.length > 0 ? (
+          ) : fetchCategories.categories.length > 0 ? (
             <React.Fragment>
               <Card.Body>
                 <TableContainer>
@@ -196,8 +184,8 @@ export const Categories = () => {
       </Grid>
 
       <Grid item xs={12} md={3} lg={4} xl={3}>
-        {!loading && !fetchTransactions.loading && (
-          <EarningsByCategory categories={categories.data ?? []} transactions={fetchTransactions.transactions} />
+        {!fetchTransactions.loading && !fetchCategories.loading && (
+          <EarningsByCategory categories={fetchCategories.categories} transactions={fetchTransactions.transactions} />
         )}
       </Grid>
 

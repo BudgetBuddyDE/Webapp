@@ -12,9 +12,9 @@ import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
-import { useScreenSize } from '../../hooks/';
-import { Category, PaymentMethod, Transaction } from '../../models/';
-import { CategoryService, PaymentMethodService } from '../../services';
+import { useFetchCategories, useScreenSize } from '../../hooks/';
+import { PaymentMethod, Transaction } from '../../models/';
+import { PaymentMethodService } from '../../services';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseTransaction } from '../../types/';
 import { getCategoryFromList, getPaymentMethodFromList, transformBalance } from '../../utils/';
@@ -47,16 +47,9 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen
   const screenSize = useScreenSize();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const {
-    loading,
-    setLoading,
-    setTransactions,
-    transactionReceiver,
-    categories,
-    setCategories,
-    paymentMethods,
-    setPaymentMethods,
-  } = React.useContext(StoreContext);
+  const { loading, setLoading, setTransactions, transactionReceiver, paymentMethods, setPaymentMethods } =
+    React.useContext(StoreContext);
+  const fetchCategories = useFetchCategories();
   const [, startTransition] = React.useTransition();
   const [form, setForm] = React.useState<Partial<IBaseTransaction> | null>(null);
   const [errorMessage, setErrorMessage] = React.useState('');
@@ -111,8 +104,8 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen
         } = updatedTransactions[0];
         const updatedItem = new Transaction({
           id: id,
-          // We can 100% assure that categories & payment-methods are provided by this point
-          categories: (categories.data as Category[]).find((c) => c.id === category)!.categoryView,
+          // We can 100% assure that  payment-methods are provided by this point
+          categories: fetchCategories.categories.find((c) => c.id === category)!.categoryView,
           paymentMethods: (paymentMethods.data as PaymentMethod[]).find((pm) => pm.id === paymentMethod)!
             .paymentMethodView,
           receiver: receiver,
@@ -155,16 +148,6 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen
         : null
     );
   }, [transaction]);
-
-  React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (categories.fetched && categories.data !== null) return;
-    setLoading(true);
-    CategoryService.getCategories()
-      .then((rows) => setCategories({ type: 'FETCH_DATA', data: rows }))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [session, categories]);
 
   React.useEffect(() => {
     if (!session || !session.user) return;
@@ -222,13 +205,13 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen
               flexWrap: 'wrap',
             }}
           >
-            {categories.fetched && categories.data && categories.data.length > 0 ? (
+            {!fetchCategories.loading && fetchCategories.categories.length > 0 ? (
               <Autocomplete
                 id="category"
-                options={categories.data.map((item) => ({ label: item.name, value: item.id }))}
+                options={fetchCategories.categories.map((item) => ({ label: item.name, value: item.id }))}
                 sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
                 onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
-                defaultValue={getCategoryFromList(Number(form.category), categories.data ?? [])}
+                defaultValue={getCategoryFromList(Number(form.category), fetchCategories.categories)}
                 renderInput={(props) => <TextField {...props} label="Category" />}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
               />

@@ -12,12 +12,12 @@ import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
-import { useScreenSize } from '../../hooks/';
-import { Category, PaymentMethod, Subscription } from '../../models/';
-import { CategoryService, PaymentMethodService, SubscriptionService } from '../../services';
+import { useFetchCategories, useScreenSize } from '../../hooks/';
+import { PaymentMethod, Subscription } from '../../models/';
+import { PaymentMethodService, SubscriptionService } from '../../services';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseSubscription } from '../../types/';
-import { sortSubscriptionsByExecution, transformBalance } from '../../utils/';
+import { transformBalance } from '../../utils/';
 import { FormDrawer } from '../Base/';
 import { CreateCategoryInfo } from '../Category';
 import { ReceiverAutocomplete } from '../Inputs/';
@@ -46,16 +46,9 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
   const screenSize = useScreenSize();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const {
-    loading,
-    setLoading,
-    transactionReceiver,
-    setSubscriptions,
-    categories,
-    setCategories,
-    paymentMethods,
-    setPaymentMethods,
-  } = React.useContext(StoreContext);
+  const { loading, setLoading, transactionReceiver, setSubscriptions, paymentMethods, setPaymentMethods } =
+    React.useContext(StoreContext);
+  const fetchCategories = useFetchCategories();
   const [, startTransition] = React.useTransition();
   const [executionDate, setExecutionDate] = React.useState(new Date());
   const [form, setForm] = React.useState<Partial<IBaseSubscription>>({});
@@ -112,8 +105,8 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
         } = addedSubscriptions[0];
         const addedSubscription = new Subscription({
           id: id,
-          // We can assure that categories & payment-methods are provided by this point
-          categories: (categories.data as Category[]).find((c) => c.id === category)!.categoryView,
+          // We can assure that payment-methods are provided by this point
+          categories: fetchCategories.categories.find((c) => c.id === category)!.categoryView,
           paymentMethods: (paymentMethods.data as PaymentMethod[]).find((pm) => pm.id === paymentMethod)!
             .paymentMethodView,
           receiver: receiver,
@@ -139,16 +132,6 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
       }
     },
   };
-
-  React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (categories.fetched && categories.data !== null) return;
-    setLoading(true);
-    CategoryService.getCategories()
-      .then((rows) => setCategories({ type: 'FETCH_DATA', data: rows }))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [session, categories]);
 
   React.useEffect(() => {
     if (!session || !session.user) return;
@@ -204,10 +187,10 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
           flexWrap: 'wrap',
         }}
       >
-        {categories.fetched && categories.data && categories.data.length > 0 ? (
+        {!fetchCategories.loading && fetchCategories.categories.length > 0 ? (
           <Autocomplete
             id="category"
-            options={categories.data.map((item) => ({ label: item.name, value: item.id }))}
+            options={fetchCategories.categories.map((item) => ({ label: item.name, value: item.id }))}
             sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
             onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
             renderInput={(props) => <TextField {...props} label="Category" />}

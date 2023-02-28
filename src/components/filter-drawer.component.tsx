@@ -13,7 +13,8 @@ import {
 import { subMonths } from 'date-fns';
 import React from 'react';
 import { AuthContext, StoreContext } from '../context/';
-import { CategoryService, PaymentMethodService } from '../services';
+import { useFetchCategories } from '../hooks';
+import { PaymentMethodService } from '../services';
 import type { IFilter } from '../types/';
 import { getFirstDayOfMonth, getLastDayOfMonth } from '../utils/';
 import { FormDrawer } from './Base/';
@@ -60,18 +61,9 @@ export interface IFilterDrawerProps {}
 
 export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
   const { session } = React.useContext(AuthContext);
-  const {
-    loading,
-    setLoading,
-    showFilter,
-    setShowFilter,
-    filter,
-    setFilter,
-    categories,
-    setCategories,
-    paymentMethods,
-    setPaymentMethods,
-  } = React.useContext(StoreContext);
+  const { loading, setLoading, showFilter, setShowFilter, filter, setFilter, paymentMethods, setPaymentMethods } =
+    React.useContext(StoreContext);
+  const fetchCategories = useFetchCategories();
   const [unappliedFilter, setUnappliedFilter] = React.useState(filter);
 
   const handler: FilterDrawerHandler = {
@@ -139,16 +131,6 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
 
   React.useEffect(() => {
     if (!session || !session.user) return;
-    if (categories.fetched && categories.data !== null) return;
-    setLoading(true);
-    CategoryService.getCategories()
-      .then((rows) => setCategories({ type: 'FETCH_DATA', data: rows }))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [session, categories]);
-
-  React.useEffect(() => {
-    if (!session || !session.user) return;
     if (paymentMethods.fetched && paymentMethods.data !== null) return;
     setLoading(true);
     PaymentMethodService.getPaymentMethods()
@@ -175,7 +157,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
         />
       </Box>
 
-      {categories.fetched && categories.data && categories.data.length > 0 ? (
+      {!fetchCategories.loading && fetchCategories.categories.length > 0 ? (
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel id="filter-category-label">Category</InputLabel>
           <Select
@@ -187,8 +169,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
             renderValue={(selected) => (
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                 {selected.map((categoryId) => {
-                  if (!categories.data) return null;
-                  const matchedCategory = categories.data.find((category) => category.id === categoryId);
+                  const matchedCategory = fetchCategories.categories.find((category) => category.id === categoryId);
                   if (!matchedCategory) return null;
                   return (
                     <Chip
@@ -204,7 +185,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
             )}
             MenuProps={MenuProps}
           >
-            {categories.data.map((category) => {
+            {fetchCategories.categories.map((category) => {
               const selected =
                 Array.isArray(unappliedFilter.categories) && unappliedFilter.categories.includes(category.id);
               return (

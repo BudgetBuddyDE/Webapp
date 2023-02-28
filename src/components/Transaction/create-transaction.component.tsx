@@ -12,9 +12,9 @@ import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
-import { useScreenSize } from '../../hooks/';
-import { Category, PaymentMethod, Transaction } from '../../models/';
-import { CategoryService, PaymentMethodService, TransactionService } from '../../services/';
+import { useFetchCategories, useScreenSize } from '../../hooks/';
+import { PaymentMethod, Transaction } from '../../models/';
+import { PaymentMethodService, TransactionService } from '../../services/';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseTransaction } from '../../types/';
 import { transformBalance } from '../../utils/';
@@ -46,16 +46,9 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
   const screenSize = useScreenSize();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const {
-    loading,
-    setLoading,
-    transactionReceiver,
-    setTransactions,
-    categories,
-    setCategories,
-    paymentMethods,
-    setPaymentMethods,
-  } = React.useContext(StoreContext);
+  const { loading, setLoading, transactionReceiver, setTransactions, paymentMethods, setPaymentMethods } =
+    React.useContext(StoreContext);
+  const fetchCategories = useFetchCategories();
   const [, startTransition] = React.useTransition();
   const [form, setForm] = React.useState<Partial<IBaseTransaction>>({ date: new Date() });
   const [errorMessage, setErrorMessage] = React.useState('');
@@ -111,8 +104,8 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
         } = createdTransactions[0];
         const addedTransaction = new Transaction({
           id: id,
-          // We can assure that categories & payment-methods are provided
-          categories: (categories.data as Category[]).find((c) => c.id === category)!.categoryView,
+          // We can assure that payment-methods are provided
+          categories: fetchCategories.categories.find((c) => c.id === category)!.categoryView,
           paymentMethods: (paymentMethods.data as PaymentMethod[]).find((pm) => pm.id === paymentMethod)!
             .paymentMethodView,
           receiver: receiver,
@@ -136,16 +129,6 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
       }
     },
   };
-
-  React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (categories.fetched && categories.data !== null) return;
-    setLoading(true);
-    CategoryService.getCategories()
-      .then((rows) => setCategories({ type: 'FETCH_DATA', data: rows }))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [session, categories]);
 
   React.useEffect(() => {
     if (!session || !session.user) return;
@@ -201,10 +184,10 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
           flexWrap: 'wrap',
         }}
       >
-        {categories.fetched && categories.data && categories.data.length > 0 ? (
+        {!fetchCategories.loading && fetchCategories.categories.length > 0 ? (
           <Autocomplete
             id="category"
-            options={categories.data.map((item) => ({ label: item.name, value: item.id }))}
+            options={fetchCategories.categories.map((item) => ({ label: item.name, value: item.id }))}
             sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
             onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
             renderInput={(props) => <TextField {...props} label="Category" />}

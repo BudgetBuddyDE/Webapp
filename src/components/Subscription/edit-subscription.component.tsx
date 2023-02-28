@@ -12,17 +12,12 @@ import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
-import { useScreenSize } from '../../hooks/';
-import { Category, PaymentMethod, Subscription } from '../../models/';
-import { CategoryService, PaymentMethodService } from '../../services';
+import { useFetchCategories, useScreenSize } from '../../hooks/';
+import { PaymentMethod, Subscription } from '../../models/';
+import { PaymentMethodService } from '../../services';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseSubscription } from '../../types/';
-import {
-  getCategoryFromList,
-  getPaymentMethodFromList,
-  sortSubscriptionsByExecution,
-  transformBalance,
-} from '../../utils/';
+import { getCategoryFromList, getPaymentMethodFromList, transformBalance } from '../../utils/';
 import { FormDrawer } from '../Base/';
 import { CreateCategoryInfo } from '../Category';
 import { ReceiverAutocomplete } from '../Inputs/';
@@ -52,16 +47,9 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
   const screenSize = useScreenSize();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const {
-    loading,
-    setLoading,
-    setSubscriptions,
-    transactionReceiver,
-    categories,
-    setCategories,
-    paymentMethods,
-    setPaymentMethods,
-  } = React.useContext(StoreContext);
+  const { loading, setLoading, setSubscriptions, transactionReceiver, paymentMethods, setPaymentMethods } =
+    React.useContext(StoreContext);
+  const fetchCategories = useFetchCategories();
   const [, startTransition] = React.useTransition();
   const [executionDate, setExecutionDate] = React.useState(new Date());
   const [form, setForm] = React.useState<Partial<IBaseSubscription> | null>(null);
@@ -117,8 +105,8 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
         } = updatedSubscriptions[0];
         const updatedItem = new Subscription({
           id: id,
-          // We can assure that categories & payment-methods are provided
-          categories: (categories.data as Category[]).find((c) => c.id === category)!.categoryView,
+          // We can assure that  payment-methods are provided
+          categories: fetchCategories.categories.find((c) => c.id === category)!.categoryView,
           paymentMethods: (paymentMethods.data as PaymentMethod[]).find((pm) => pm.id === paymentMethod)!
             .paymentMethodView,
           receiver: receiver,
@@ -157,16 +145,6 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
       });
     } else setForm(null);
   }, [subscription]);
-
-  React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (categories.fetched && categories.data !== null) return;
-    setLoading(true);
-    CategoryService.getCategories()
-      .then((rows) => setCategories({ type: 'FETCH_DATA', data: rows }))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [session, categories]);
 
   React.useEffect(() => {
     if (!session || !session.user) return;
@@ -224,13 +202,13 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
               flexWrap: 'wrap',
             }}
           >
-            {categories.fetched && categories.data && categories.data.length > 0 ? (
+            {!fetchCategories.loading && fetchCategories.categories.length > 0 ? (
               <Autocomplete
                 id="category"
-                options={categories.data.map((item) => ({ label: item.name, value: item.id }))}
+                options={fetchCategories.categories.map((item) => ({ label: item.name, value: item.id }))}
                 sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
                 onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
-                defaultValue={getCategoryFromList(Number(form.category), categories.data)}
+                defaultValue={getCategoryFromList(Number(form.category), fetchCategories.categories)}
                 renderInput={(props) => <TextField {...props} label="Category" />}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
               />
