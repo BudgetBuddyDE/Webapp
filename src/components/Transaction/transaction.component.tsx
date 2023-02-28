@@ -2,6 +2,10 @@ import { Receipt as ReceiptIcon } from '@mui/icons-material';
 import { Box, Chip, Typography } from '@mui/material';
 import format from 'date-fns/format';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { StoreContext } from '../../context';
+import { Category } from '../../models';
+import type { ICategoryView } from '../../types';
 import { formatBalance } from '../../utils';
 import { Icon } from '../Base/icon.component';
 
@@ -9,11 +13,23 @@ export interface TransactionProps {
   icon?: JSX.Element;
   title: string;
   subtitle: string | string[];
+  category?: ICategoryView | Category;
+  type?: 'transaction' | 'subscription';
   date?: Date;
   amount: number;
 }
 
-export const Transaction: React.FC<TransactionProps> = ({ icon = <ReceiptIcon />, title, subtitle, date, amount }) => {
+export const Transaction: React.FC<TransactionProps> = ({
+  icon = <ReceiptIcon />,
+  title,
+  subtitle,
+  category,
+  type = 'transaction',
+  date,
+  amount,
+}) => {
+  const navigate = useNavigate();
+  const { setFilter } = React.useContext(StoreContext);
   return (
     <Box
       sx={{
@@ -43,6 +59,18 @@ export const Transaction: React.FC<TransactionProps> = ({ icon = <ReceiptIcon />
               sx={{ mr: 1 }}
             />
           ))
+        )}
+        {category && type && (
+          <Chip
+            label={category.name}
+            size="small"
+            variant="outlined"
+            sx={{ mr: 1 }}
+            onClick={() => {
+              setFilter((prev) => ({ ...prev, categories: [...(prev.categories ?? []), category.id] }));
+              navigate('/' + type + 's');
+            }}
+          />
         )}
       </Box>
       <Box sx={{ ml: 'auto' }}>

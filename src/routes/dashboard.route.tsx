@@ -222,7 +222,8 @@ export const Dashboard = () => {
                 <Subscription
                   key={id}
                   title={receiver}
-                  subtitle={categories.name}
+                  subtitle={[]}
+                  category={categories}
                   executeAt={execute_at}
                   amount={amount}
                 />
@@ -323,7 +324,8 @@ export const Dashboard = () => {
                 <Transaction
                   key={id}
                   title={receiver}
-                  subtitle={categories.name}
+                  subtitle={[]}
+                  category={categories}
                   date={new Date(date)}
                   amount={amount}
                 />
