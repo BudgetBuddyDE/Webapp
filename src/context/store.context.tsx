@@ -1,8 +1,10 @@
 import React from 'react';
 import { DEFAULT_FILTER_VALUE, getSavedSidebarState, saveSidebarState } from '../components';
 import { Budget, Category, PaymentMethod, Subscription, Transaction } from '../models/';
-import { BaseListReducer, DailyTransactionReducer, generateBaseState } from '../reducer';
+import { BaseListReducer, BaseReducer, DailyTransactionReducer, generateBaseState } from '../reducer';
+import { CategorySpendingsState } from '../reducer/CategorySpendings.reducer';
 import type { IFilter, IStoreContext } from '../types/';
+import { IMonthlyBalanceAvg } from '../types/';
 import { sortSubscriptionsByExecution } from '../utils';
 
 export const StoreContext = React.createContext({} as IStoreContext);
@@ -31,6 +33,14 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     income: [],
     spendings: [],
   });
+  const [categorySpendings, setCategorySpendings] = React.useReducer(
+    BaseReducer<CategorySpendingsState>,
+    generateBaseState<CategorySpendingsState>()
+  );
+  const [monthlyAvg, setMonthlyAvg] = React.useReducer(
+    BaseReducer<IMonthlyBalanceAvg>,
+    generateBaseState<IMonthlyBalanceAvg>()
+  );
 
   React.useMemo(() => saveSidebarState(showDrawer), [showDrawer]);
 
@@ -71,6 +81,10 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
           setShowFilter,
           filter,
           setFilter,
+          categorySpendings,
+          setCategorySpendings,
+          monthlyAvg,
+          setMonthlyAvg,
         }),
         [
           loading,
@@ -84,6 +98,8 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
           paymentMethods,
           showFilter,
           filter,
+          categorySpendings,
+          monthlyAvg,
         ]
       )}
     >

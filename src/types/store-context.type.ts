@@ -3,10 +3,13 @@ import { Budget, Category, PaymentMethod, Subscription, Transaction } from '../m
 import {
   BaseListReducerAction,
   BaseListReducerState,
+  BaseReducerAction,
+  BaseReducerState,
   DailyTransactionReducerAction,
   DailyTransactionReducerState,
 } from '../reducer/';
-import type { IFilter } from './index';
+import { CategorySpendingsAction, CategorySpendingsState } from '../reducer/CategorySpendings.reducer';
+import type { IFilter, IMonthlyBalanceAvg } from './index';
 
 export interface IStoreContext {
   loading: boolean;
@@ -33,4 +36,8 @@ export interface IStoreContext {
   setShowFilter: React.Dispatch<React.SetStateAction<IStoreContext['showFilter']>>;
   filter: IFilter;
   setFilter: React.Dispatch<React.SetStateAction<IStoreContext['filter']>>;
+  categorySpendings: BaseReducerState<CategorySpendingsState>;
+  setCategorySpendings: React.Dispatch<BaseReducerAction<CategorySpendingsState>>;
+  monthlyAvg: BaseReducerState<IMonthlyBalanceAvg>;
+  setMonthlyAvg: React.Dispatch<BaseReducerAction<IMonthlyBalanceAvg>>;
 }

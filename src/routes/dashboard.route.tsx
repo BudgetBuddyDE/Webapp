@@ -22,7 +22,6 @@ import {
 import { AuthContext, StoreContext } from '../context';
 import { useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { Subscription as SubscriptionModel, Transaction as TransactionModel } from '../models';
-import { categorySpendingsReducer } from '../reducer/CategorySpendings.reducer';
 import { BudgetService, DateService, ExpenseService, SubscriptionService, TransactionService } from '../services';
 import type { IMonthlyBalanceAvg } from '../types';
 import { addTransactionToExpenses, formatBalance } from '../utils';
@@ -42,15 +41,10 @@ export const Dashboard = () => {
     { type: 'ALL', text: 'All' },
   ];
   const { session } = React.useContext(AuthContext);
-  const { loading, setLoading } = React.useContext(StoreContext);
+  const { loading, setLoading, categorySpendings, setCategorySpendings, monthlyAvg, setMonthlyAvg } =
+    React.useContext(StoreContext);
   const fetchTransactions = useFetchTransactions();
   const fetchSubscriptions = useFetchSubscriptions();
-  const [categorySpendings, setCategorySpendings] = React.useReducer(categorySpendingsReducer, {
-    chart: 'MONTH',
-    month: [],
-    allTime: [],
-  });
-  const [monthlyAvg, setMonthlyAvg] = React.useState<IMonthlyBalanceAvg | null>(null);
   const [showAddTransactionForm, setShowAddTransactionForm] = React.useState(false);
   const [showSubscriptionForm, setShowSubscriptionForm] = React.useState(false);
 
@@ -73,7 +67,7 @@ export const Dashboard = () => {
       subtitle: 'Planned expenses',
       info: 'Sum of transactions and subscriptions that will be executed this month',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
-      loading: loading,
+      loading: fetchSubscriptions.loading,
     },
     {
       // TODO: Create test to verify the result
@@ -86,7 +80,7 @@ export const Dashboard = () => {
       subtitle: 'Upcoming expenses',
       info: 'Sum of transactions and subscriptions that have yet to be executed this month',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
-      loading: loading,
+      loading: fetchSubscriptions.loading || fetchTransactions.loading,
     },
     {
       // TODO: Create test to verify the result
@@ -96,7 +90,7 @@ export const Dashboard = () => {
       subtitle: 'Received earnings',
       info: 'Sum of transactions and subscriptions that have been executed in favor of you',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
-      loading: loading,
+      loading: fetchTransactions.loading,
     },
     {
       // TODO: Create test to verify the result
@@ -109,17 +103,17 @@ export const Dashboard = () => {
       subtitle: 'Upcoming earnings',
       info: 'Sum of transactions and subscriptions that still have to be executed in favor of you',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
-      loading: loading,
+      loading: fetchSubscriptions.loading || fetchTransactions.loading,
     },
     {
       // TODO: Create test to verify the result
       title: React.useMemo(() => {
-        return formatBalance(monthlyAvg ? monthlyAvg.avg : 0);
+        return formatBalance(monthlyAvg.data ? monthlyAvg.data.avg : 0);
       }, [monthlyAvg]),
       subtitle: 'Estimated balance',
       info: `Estimated balance based on the past ${MONTH_BACKLOG} months`,
       icon: <ScheduleIcon sx={StatsIconStyle} />,
-      loading: loading,
+      loading: loading && !monthlyAvg.fetched,
     },
     {
       // TODO: Create test to verify the result
@@ -132,44 +126,53 @@ export const Dashboard = () => {
       subtitle: 'Current balance',
       info: 'Calculated balance after deduction of all expenses from the income',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
-      loading: loading,
+      loading: fetchTransactions.loading,
     },
   ];
 
   React.useEffect(() => {
     if (!session || !session.user) return;
+    if (categorySpendings.fetched && categorySpendings.data) return;
     setLoading(true);
     Promise.all([
       ExpenseService.getCurrentMonthExpenses(session.user.id),
       ExpenseService.getAllTimeExpenses(session.user.id),
-      BudgetService.getMonthlyBalanceAvg(MONTH_BACKLOG),
     ])
-      .then(([getCurrentMonthExpenses, getAllTimeExpenses, getMonthlyBalance]) => {
+      .then(([getCurrentMonthExpenses, getAllTimeExpenses]) => {
         setCategorySpendings({
-          type: 'UPDATE_ALL_DATA',
-          month:
-            getCurrentMonthExpenses !== null
-              ? getCurrentMonthExpenses.map(({ category, sum }) => ({
-                  label: category.name,
-                  value: Math.abs(sum),
-                }))
-              : [],
-          allTime:
-            getAllTimeExpenses !== null
-              ? getAllTimeExpenses.map(({ category, sum }) => ({
-                  label: category.name,
-                  value: Math.abs(sum),
-                }))
-              : [],
+          type: 'FETCH_DATA',
+          data: {
+            chart: 'MONTH',
+            month:
+              getCurrentMonthExpenses !== null
+                ? getCurrentMonthExpenses.map(({ category, sum }) => ({
+                    label: category.name,
+                    value: Math.abs(sum),
+                  }))
+                : [],
+            allTime:
+              getAllTimeExpenses !== null
+                ? getAllTimeExpenses.map(({ category, sum }) => ({
+                    label: category.name,
+                    value: Math.abs(sum),
+                  }))
+                : [],
+          },
         });
-
-        if (getMonthlyBalance) {
-          setMonthlyAvg(getMonthlyBalance);
-        }
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [session]);
+  }, [session, categorySpendings]);
+
+  React.useEffect(() => {
+    if (!session || !session.user) return;
+    if (monthlyAvg.fetched && monthlyAvg.data) return;
+    setLoading(true);
+    BudgetService.getMonthlyBalanceAvg(MONTH_BACKLOG)
+      .then((result) => setMonthlyAvg({ type: 'FETCH_DATA', data: result }))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [session, monthlyAvg]);
 
   return (
     <Grid container spacing={3}>
@@ -244,10 +247,17 @@ export const Dashboard = () => {
                 <ToggleButtonGroup
                   size="small"
                   color="primary"
-                  value={categorySpendings.chart}
-                  onChange={(event: React.BaseSyntheticEvent) =>
-                    setCategorySpendings({ type: 'CHANGE_CHART', chart: event.target.value })
-                  }
+                  value={categorySpendings.data?.chart}
+                  onChange={(event: React.BaseSyntheticEvent) => {
+                    setCategorySpendings({
+                      type: 'REFRESH_DATA',
+                      data: {
+                        chart: event.target.value,
+                        month: categorySpendings.data?.month || [],
+                        allTime: categorySpendings.data?.allTime || [],
+                      },
+                    });
+                  }}
                   exclusive
                 >
                   {SPENDING_CHART_TYPES.map((button) => (
@@ -260,7 +270,7 @@ export const Dashboard = () => {
             </Card.HeaderActions>
           </Card.Header>
           <Card.Body>
-            {loading ? (
+            {loading && !categorySpendings.fetched ? (
               <CircularProgress />
             ) : (
               <Box sx={{ display: 'flex', flex: 1, mt: '1rem' }}>
@@ -269,7 +279,13 @@ export const Dashboard = () => {
                     <PieChart
                       width={width}
                       height={width}
-                      data={categorySpendings.chart === 'MONTH' ? categorySpendings.month : categorySpendings.allTime}
+                      data={
+                        categorySpendings.data
+                          ? categorySpendings.data.chart === 'MONTH'
+                            ? categorySpendings.data.month
+                            : categorySpendings.data.allTime
+                          : []
+                      }
                       formatAsCurrency
                       showTotalSum
                     />
@@ -325,23 +341,22 @@ export const Dashboard = () => {
         afterSubmit={(transaction) => {
           const forCurrentMonth =
             isSameMonth(new Date(transaction.date), new Date()) && new Date(transaction.date) <= new Date();
+          const currentData = categorySpendings.data
+            ? forCurrentMonth
+              ? categorySpendings.data.month
+              : categorySpendings.data.allTime
+            : [];
 
-          addTransactionToExpenses(
-            transaction,
-            forCurrentMonth ? categorySpendings.month : categorySpendings.allTime,
-            (updatedExpenses) =>
-              setCategorySpendings(
-                forCurrentMonth
-                  ? {
-                      type: 'UPDATE_MONTH_DATA',
-                      month: updatedExpenses,
-                    }
-                  : {
-                      type: 'UPDATE_ALL_TIME_DATA',
-                      allTime: updatedExpenses,
-                    }
-              )
-          );
+          addTransactionToExpenses(transaction, currentData, (updatedExpenses) => {
+            setCategorySpendings({
+              type: 'REFRESH_DATA',
+              data: {
+                chart: categorySpendings.data!.chart,
+                month: forCurrentMonth ? updatedExpenses : categorySpendings.data!.month,
+                allTime: !forCurrentMonth ? updatedExpenses : categorySpendings.data!.allTime,
+              },
+            });
+          });
         }}
       />
 
