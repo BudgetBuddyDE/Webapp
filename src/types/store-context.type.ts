@@ -5,10 +5,10 @@ import {
   BaseListReducerState,
   BaseReducerAction,
   BaseReducerState,
-  DailyTransactionReducerAction,
-  DailyTransactionReducerState,
+  BudgetTransactionsReducerAction,
+  BudgetTransactionsReducerState,
 } from '../reducer/';
-import { CategorySpendingsAction, CategorySpendingsState } from '../reducer/CategorySpendings.reducer';
+import { CategorySpendingsState } from '../reducer/CategorySpendings.reducer';
 import type { IFilter, IMonthlyBalanceAvg } from './index';
 
 export interface IStoreContext {
@@ -16,8 +16,6 @@ export interface IStoreContext {
   setLoading: React.Dispatch<React.SetStateAction<IStoreContext['loading']>>;
   showDrawer: boolean;
   setShowDrawer: React.Dispatch<React.SetStateAction<IStoreContext['showDrawer']>>;
-  dailyTransactions: DailyTransactionReducerState;
-  setDailyTransactions: React.Dispatch<DailyTransactionReducerAction>;
   transactions: BaseListReducerState<Transaction>;
   setTransactions: React.Dispatch<BaseListReducerAction<Transaction>>;
   transactionReceiver: {
@@ -28,6 +26,8 @@ export interface IStoreContext {
   setSubscriptions: React.Dispatch<BaseListReducerAction<Subscription>>;
   budget: BaseListReducerState<Budget>;
   setBudget: React.Dispatch<BaseListReducerAction<Budget>>;
+  budgetTransactions: BudgetTransactionsReducerState;
+  setBudgetTransactions: React.Dispatch<BudgetTransactionsReducerAction>;
   categories: BaseListReducerState<Category>;
   setCategories: React.Dispatch<BaseListReducerAction<Category>>;
   paymentMethods: BaseListReducerState<PaymentMethod>;

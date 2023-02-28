@@ -1,7 +1,13 @@
 import React from 'react';
 import { DEFAULT_FILTER_VALUE, getSavedSidebarState, saveSidebarState } from '../components';
 import { Budget, Category, PaymentMethod, Subscription, Transaction } from '../models/';
-import { BaseListReducer, BaseReducer, DailyTransactionReducer, generateBaseState } from '../reducer';
+import {
+  BaseListReducer,
+  BaseReducer,
+  BudgetTransactionsReducer,
+  InitialBudgetTransactionsState,
+  generateBaseState,
+} from '../reducer';
 import { CategorySpendingsState } from '../reducer/CategorySpendings.reducer';
 import type { IFilter, IStoreContext } from '../types/';
 import { IMonthlyBalanceAvg } from '../types/';
@@ -28,11 +34,6 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   );
   const [showFilter, setShowFilter] = React.useState(false);
   const [filter, setFilter] = React.useState<IFilter>(DEFAULT_FILTER_VALUE);
-  const [dailyTransactions, setDailyTransactions] = React.useReducer(DailyTransactionReducer, {
-    selected: null,
-    income: [],
-    spendings: [],
-  });
   const [categorySpendings, setCategorySpendings] = React.useReducer(
     BaseReducer<CategorySpendingsState>,
     generateBaseState<CategorySpendingsState>()
@@ -40,6 +41,10 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   const [monthlyAvg, setMonthlyAvg] = React.useReducer(
     BaseReducer<IMonthlyBalanceAvg>,
     generateBaseState<IMonthlyBalanceAvg>()
+  );
+  const [budgetTransactions, setBudgetTransactions] = React.useReducer(
+    BudgetTransactionsReducer,
+    InitialBudgetTransactionsState
   );
 
   React.useMemo(() => saveSidebarState(showDrawer), [showDrawer]);
@@ -64,13 +69,13 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
           setLoading,
           showDrawer,
           setShowDrawer,
-          dailyTransactions,
-          setDailyTransactions,
           transactions,
           setTransactions,
           transactionReceiver,
           budget,
           setBudget,
+          budgetTransactions,
+          setBudgetTransactions,
           subscriptions: { ...subscriptions, data: sortedSubscriptions },
           setSubscriptions,
           categories,
@@ -89,11 +94,12 @@ export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) =
         [
           loading,
           showDrawer,
-          dailyTransactions,
           transactions,
           transactionReceiver,
           budget,
+          budgetTransactions,
           subscriptions,
+          sortedSubscriptions,
           categories,
           paymentMethods,
           showFilter,
