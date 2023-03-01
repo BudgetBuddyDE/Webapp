@@ -33,6 +33,7 @@ export const EditBudget: React.FC<IEditBudgetProps> = ({ open, setOpen, afterSub
   const handler: EditBudgetHandler = {
     onClose: () => {
       setOpen(false);
+      setForm(null);
     },
     autocompleteChange: (event, value) => {
       setForm((prev) => ({ ...prev, category: Number(value) }));

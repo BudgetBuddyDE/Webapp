@@ -56,6 +56,7 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
   const handler: CreateTransactionHandler = {
     onClose: () => {
       setOpen(false);
+      setForm({ date: new Date() });
     },
     onDateChange: (date) => {
       if (date) setForm((prev) => ({ ...prev, date: date ?? new Date() }));

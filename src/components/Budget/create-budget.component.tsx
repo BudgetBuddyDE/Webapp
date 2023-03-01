@@ -36,6 +36,7 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
   const handler: CreateBudgetHandler = {
     onClose: () => {
       setOpen(false);
+      setForm({});
     },
     autocompleteChange: (event, value) => {
       setForm((prev) => ({ ...prev, category: Number(value) }));

@@ -27,7 +27,10 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
   const [errorMessage, setErrorMessage] = React.useState('');
 
   const handler: CreateCategoryHandler = {
-    onClose: () => setOpen(false),
+    onClose: () => {
+      setOpen(false);
+      setForm({});
+    },
     onSubmit: async (event) => {
       try {
         event.preventDefault();
