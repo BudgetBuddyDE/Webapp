@@ -156,6 +156,45 @@ export const Budget = () => {
 
   React.useEffect(() => {
     if (!session || !session.user) return setBudgetTransactions({ type: 'CLEAR_DATA' });
+    if (!budgetTransactions.fetched) return;
+    setLoading(true);
+    const from = dateRange.from;
+    const to = dateRange.to;
+    Promise.all([
+      IncomeService.getIncome(session!.user!.id, from, to),
+      IncomeService.getDailyIncome(from, to),
+      ExpenseService.getExpenses(session!.user!.id, from, to),
+      ExpenseService.getDailyExpenses(from, to),
+    ])
+      .then(([getIncome, getDailyIncome, getExpenses, getDailyExpenses]) => {
+        const today = getDailyIncome ? getDailyIncome[getDailyIncome.length - 1] : null;
+        setBudgetTransactions({
+          type: 'FETCH_DATA',
+          fetchedBy: session!.user!.id,
+          data: {
+            selected: today
+              ? {
+                  date: new Date(today.date),
+                  amount: today.amount,
+                }
+              : null,
+            income: {
+              daily: getDailyIncome ?? [],
+              grouped: getIncome ?? [],
+            },
+            spendings: {
+              daily: getDailyExpenses ?? [],
+              grouped: getExpenses ?? [],
+            },
+          },
+        });
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [dateRange]);
+
+  React.useEffect(() => {
+    if (!session || !session.user) return setBudgetTransactions({ type: 'CLEAR_DATA' });
     if (
       budgetTransactions.fetched &&
       budgetTransactions.fetchedBy === session.user.id &&
@@ -196,7 +235,7 @@ export const Budget = () => {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [session, dateRange, budgetTransactions]);
+  }, [session, budgetTransactions]);
 
   React.useEffect(() => {
     if (!session || !session.user) return;
