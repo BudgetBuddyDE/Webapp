@@ -115,8 +115,26 @@ const DrawerItems: React.FC<{ open: boolean; closeOnClick?: boolean }> = ({ open
 
 const Profile: React.FC<{ open: boolean }> = ({ open }) => {
   const { session } = React.useContext(AuthContext);
+  const {
+    setTransactions,
+    setSubscriptions,
+    setBudget,
+    setBudgetTransactions,
+    setCategories,
+    setPaymentMethods,
+    setCategorySpendings,
+    setMonthlyAvg,
+  } = React.useContext(StoreContext);
 
   const handleSignOut = async () => {
+    setTransactions({ type: 'CLEAR_DATA' });
+    setSubscriptions({ type: 'CLEAR_DATA' });
+    setBudget({ type: 'CLEAR_DATA' });
+    setBudgetTransactions({ type: 'CLEAR_DATA' });
+    setCategories({ type: 'CLEAR_DATA' });
+    setPaymentMethods({ type: 'CLEAR_DATA' });
+    setCategorySpendings({ type: 'CLEAR_DATA' });
+    setMonthlyAvg({ type: 'CLEAR_DATA' });
     await supabase.auth.signOut();
   };
 
