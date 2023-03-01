@@ -57,11 +57,9 @@ export const ProfileAvatarWithUpload: React.FC<ProfileAvatarWithUploadProps> = (
           backgroundColor: (theme) => theme.palette.primary.main,
           borderRadius: '50%',
         }}
+        onClick={handleOnClick}
       >
-        <UploadIcon
-          sx={{ fontSize: '1rem', color: (theme) => theme.palette.primary.contrastText }}
-          onClick={handleOnClick}
-        />
+        <UploadIcon sx={{ fontSize: '1rem', color: (theme) => theme.palette.primary.contrastText }} />
       </Box>
       {metadata.avatar.length > 0 ? (
         <MuiAvatar
