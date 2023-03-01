@@ -19,20 +19,21 @@ export function useFetchSubscriptions(): useFetchSubscriptionsValue {
 
   const fetchSubscriptions = React.useCallback(async () => {
     try {
+      if (!session || !session.user) return;
       setLoading(true);
       const fetchedTransactions = await SubscriptionService.getSubscriptions();
-      setSubscriptions({ type: 'FETCH_DATA', data: fetchedTransactions });
+      setSubscriptions({ type: 'FETCH_DATA', data: fetchedTransactions, fetchedBy: session.user.id });
     } catch (error) {
       console.error(error);
       setError(error);
     } finally {
       setLoading(false);
     }
-  }, [setSubscriptions]);
+  }, [session, setSubscriptions]);
 
   React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (subscriptions.fetched && subscriptions.data !== null) return;
+    if (!session || !session.user) return setSubscriptions({ type: 'CLEAR_DATA' });
+    if (subscriptions.fetched && subscriptions.fetchedBy === session.user.id && subscriptions.data !== null) return;
     fetchSubscriptions();
 
     return () => {

@@ -23,7 +23,6 @@ import { AuthContext, StoreContext } from '../context';
 import { useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { Subscription as SubscriptionModel, Transaction as TransactionModel } from '../models';
 import { BudgetService, DateService, ExpenseService, SubscriptionService, TransactionService } from '../services';
-import type { IMonthlyBalanceAvg } from '../types';
 import { addTransactionToExpenses, formatBalance } from '../utils';
 
 /** How many months do we wanna look back? */
@@ -131,8 +130,8 @@ export const Dashboard = () => {
   ];
 
   React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (categorySpendings.fetched && categorySpendings.data) return;
+    if (!session || !session.user) return setCategorySpendings({ type: 'CLEAR_DATA' });
+    if (categorySpendings.fetched && categorySpendings.fetchedBy === session.user.id && categorySpendings.data) return;
     setLoading(true);
     Promise.all([
       ExpenseService.getCurrentMonthExpenses(session.user.id),
@@ -141,6 +140,7 @@ export const Dashboard = () => {
       .then(([getCurrentMonthExpenses, getAllTimeExpenses]) => {
         setCategorySpendings({
           type: 'FETCH_DATA',
+          fetchedBy: session!.user!.id,
           data: {
             chart: 'MONTH',
             month:
@@ -165,11 +165,11 @@ export const Dashboard = () => {
   }, [session, categorySpendings]);
 
   React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (monthlyAvg.fetched && monthlyAvg.data) return;
+    if (!session || !session.user) return setMonthlyAvg({ type: 'CLEAR_DATA' });
+    if (monthlyAvg.fetched && monthlyAvg.fetchedBy === session.user.id && monthlyAvg.data) return;
     setLoading(true);
     BudgetService.getMonthlyBalanceAvg(MONTH_BACKLOG)
-      .then((result) => setMonthlyAvg({ type: 'FETCH_DATA', data: result }))
+      .then((result) => setMonthlyAvg({ type: 'FETCH_DATA', data: result, fetchedBy: session!.user!.id }))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [session, monthlyAvg]);
@@ -251,7 +251,7 @@ export const Dashboard = () => {
                   value={categorySpendings.data?.chart}
                   onChange={(event: React.BaseSyntheticEvent) => {
                     setCategorySpendings({
-                      type: 'REFRESH_DATA',
+                      type: 'UPDATE_DATA',
                       data: {
                         chart: event.target.value,
                         month: categorySpendings.data?.month || [],
@@ -354,7 +354,7 @@ export const Dashboard = () => {
 
           addTransactionToExpenses(transaction, currentData, (updatedExpenses) => {
             setCategorySpendings({
-              type: 'REFRESH_DATA',
+              type: 'UPDATE_DATA',
               data: {
                 chart: categorySpendings.data!.chart,
                 month: forCurrentMonth ? updatedExpenses : categorySpendings.data!.month,

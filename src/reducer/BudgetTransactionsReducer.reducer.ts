@@ -1,4 +1,4 @@
-import { DailyIncome, DailySpending, IExpense, IIncome } from '../types';
+import type { DailyIncome, DailySpending, IExpense, IIncome, uuid } from '../types';
 
 export type BudgetTransactions = {
   selected: DailyIncome | DailySpending | null;
@@ -16,11 +16,12 @@ export type BudgetTransactionsReducerState = {
   data: BudgetTransactions;
   fetched: boolean;
   fetchedAt: Date | null;
+  fetchedBy: uuid;
 };
 
 export type BudgetTransactionsReducerAction =
-  | { type: 'FETCH_DATA'; data: BudgetTransactions }
-  | { type: 'REFRESH_DATA'; data: BudgetTransactions }
+  | { type: 'FETCH_DATA'; data: BudgetTransactions; fetchedBy: BudgetTransactionsReducerState['fetchedBy'] }
+  | { type: 'UPDATE_DATA'; data: BudgetTransactions }
   | { type: 'UPDATE_SELECTED'; selected: BudgetTransactions['selected'] }
   | { type: 'CLEAR_DATA' };
 
@@ -38,6 +39,7 @@ export const InitialBudgetTransactionsState: BudgetTransactionsReducerState = {
   },
   fetched: false,
   fetchedAt: null,
+  fetchedBy: '',
 };
 
 export function BudgetTransactionsReducer(
@@ -46,7 +48,15 @@ export function BudgetTransactionsReducer(
 ): BudgetTransactionsReducerState {
   switch (action.type) {
     case 'FETCH_DATA':
-    case 'REFRESH_DATA':
+      return {
+        ...state,
+        fetched: true,
+        fetchedAt: new Date(),
+        fetchedBy: action.fetchedBy,
+        data: action.data,
+      };
+
+    case 'UPDATE_DATA':
       return {
         ...state,
         fetched: true,
