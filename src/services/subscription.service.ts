@@ -103,15 +103,13 @@ export class SubscriptionService {
    * Get planned spendings for this month which aren't fullfilled meaning which will be executed during this month
    */
   static getUpcomingSpendings(subscriptions: Subscription[], transactions?: Transaction[]) {
-    const now = new Date();
     const processedSubscriptions = Math.abs(
       subscriptions
-        .filter((subscription) => subscription.execute_at > now.getDate() && subscription.amount < 0)
+        .filter((subscription) => subscription.execute_at > new Date().getDate() && subscription.amount < 0)
         .reduce((prev, cur) => prev + cur.amount, 0)
     );
     if (transactions) {
-      const processedTransactions = TransactionService.getUpcomingSpendings(transactions);
-      return processedSubscriptions + processedTransactions;
+      return processedSubscriptions + TransactionService.getUpcomingSpendings(transactions);
     } else return processedSubscriptions;
   }
 

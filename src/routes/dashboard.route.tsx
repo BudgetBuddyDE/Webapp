@@ -59,7 +59,6 @@ export const Dashboard = () => {
 
   const StatsCards: IStatsProps[] = [
     {
-      // TODO: Create test to verify the result
       title: React.useMemo(() => {
         return formatBalance(SubscriptionService.getPlannedSpendings(fetchSubscriptions.subscriptions));
       }, [fetchSubscriptions.subscriptions]),
@@ -69,7 +68,6 @@ export const Dashboard = () => {
       loading: fetchSubscriptions.loading,
     },
     {
-      // TODO: Create test to verify the result
       title: React.useMemo(() => {
         return formatBalance(
           SubscriptionService.getUpcomingSpendings(fetchSubscriptions.subscriptions) +
@@ -82,7 +80,6 @@ export const Dashboard = () => {
       loading: fetchSubscriptions.loading || fetchTransactions.loading,
     },
     {
-      // TODO: Create test to verify the result
       title: React.useMemo(() => {
         return formatBalance(TransactionService.getReceivedEarnings(fetchTransactions.transactions));
       }, [fetchTransactions.transactions]),
@@ -92,7 +89,6 @@ export const Dashboard = () => {
       loading: fetchTransactions.loading,
     },
     {
-      // TODO: Create test to verify the result
       title: React.useMemo(() => {
         return formatBalance(
           SubscriptionService.getUpcomingEarnings(fetchSubscriptions.subscriptions) +
@@ -105,7 +101,6 @@ export const Dashboard = () => {
       loading: fetchSubscriptions.loading || fetchTransactions.loading,
     },
     {
-      // TODO: Create test to verify the result
       title: React.useMemo(() => {
         return formatBalance(monthlyAvg.data ? monthlyAvg.data.avg : 0);
       }, [monthlyAvg]),

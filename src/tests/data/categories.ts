@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
-import { Category } from '../../models/category.model';
-import type { uuid } from '../../types/profile.type';
+import { Category } from '../../models';
+import type { uuid } from '../../types';
 import { generateRandomId } from '../generateRandomId';
 
 export function generateCategories(amount = 6, date = new Date()): Category[] {
@@ -17,3 +17,54 @@ export function generateCategories(amount = 6, date = new Date()): Category[] {
     });
   });
 }
+
+export const Categories: Category[] = [
+  new Category({
+    id: 1,
+    name: 'Rent',
+    description: null,
+    created_by: 'unit-test',
+    updated_at: '01-01-2022',
+    inserted_at: '01-01-2022',
+  }),
+  new Category({
+    id: 2,
+    name: 'Groceries',
+    description: null,
+    created_by: 'unit-test',
+    updated_at: '01-01-2022',
+    inserted_at: '01-01-2022',
+  }),
+  new Category({
+    id: 3,
+    name: 'Car',
+    description: null,
+    created_by: 'unit-test',
+    updated_at: '01-01-2022',
+    inserted_at: '01-01-2022',
+  }),
+  new Category({
+    id: 4,
+    name: 'Salary',
+    description: null,
+    created_by: 'unit-test',
+    updated_at: '01-01-2022',
+    inserted_at: '01-01-2022',
+  }),
+  new Category({
+    id: 5,
+    name: 'Subscriptions',
+    description: 'Netflix, Disney+ etc.',
+    created_by: 'unit-test',
+    updated_at: '01-01-2022',
+    inserted_at: '01-01-2022',
+  }),
+  new Category({
+    id: 6,
+    name: 'Unknown',
+    description: null,
+    created_by: 'unit-test',
+    updated_at: '01-01-2022',
+    inserted_at: '01-01-2022',
+  }),
+];

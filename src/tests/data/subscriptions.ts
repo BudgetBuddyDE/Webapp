@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker';
-import { Subscription } from '../../models/subscription.model';
-import { uuid } from '../../types/profile.type';
-import { getFirstDayOfMonth } from '../../utils/getFirstDayOfMonth';
-import { getRandomFromList } from '../../utils/getRandomFromList';
+import { Category, Subscription } from '../../models';
+import type { uuid } from '../../types';
+import { getFirstDayOfMonth, getRandomFromList } from '../../utils';
 import { generateRandomId } from '../generateRandomId';
 import { generateCategories } from './categories';
+import { Categories, PaymentMethods } from './index';
 import { generatePaymentMethods } from './payment-methods';
 
 export function generateSubscriptions(
@@ -41,3 +41,78 @@ export function generateSubscriptionList(
     (a, b) => a.execute_at - b.execute_at
   );
 }
+
+export const Subscriptions: Subscription[] = [
+  new Subscription({
+    id: 1,
+    categories: Categories[0].categoryView,
+    paymentMethods: PaymentMethods[0].paymentMethodView,
+    receiver: 'Landlord',
+    description: null,
+    amount: -1000,
+    execute_at: 2,
+    created_by: 'unit-test',
+    inserted_at: '01-01-2022',
+    updated_at: '01-01-2022',
+  }),
+  new Subscription({
+    id: 2,
+    categories: Categories[2].categoryView,
+    paymentMethods: PaymentMethods[0].paymentMethodView,
+    receiver: 'Car insurance',
+    description: null,
+    amount: -140,
+    execute_at: 2,
+    created_by: 'unit-test',
+    inserted_at: '01-01-2022',
+    updated_at: '01-01-2022',
+  }),
+  new Subscription({
+    id: 3,
+    categories: Categories[4].categoryView,
+    paymentMethods: PaymentMethods[0].paymentMethodView,
+    receiver: 'Netflix',
+    description: null,
+    amount: -5,
+    execute_at: 2,
+    created_by: 'unit-test',
+    inserted_at: '01-01-2022',
+    updated_at: '01-01-2022',
+  }),
+  new Subscription({
+    id: 4,
+    categories: Categories[4].categoryView,
+    paymentMethods: PaymentMethods[0].paymentMethodView,
+    receiver: 'Disney+',
+    description: null,
+    amount: -8,
+    execute_at: 2,
+    created_by: 'unit-test',
+    inserted_at: '01-01-2022',
+    updated_at: '01-01-2022',
+  }),
+  new Subscription({
+    id: 5,
+    categories: Categories[4].categoryView,
+    paymentMethods: PaymentMethods[0].paymentMethodView,
+    receiver: 'Amazon Prime',
+    description: null,
+    amount: -9,
+    execute_at: 3,
+    created_by: 'unit-test',
+    inserted_at: '01-01-2022',
+    updated_at: '01-01-2022',
+  }),
+  new Subscription({
+    id: 6,
+    categories: Categories[4].categoryView,
+    paymentMethods: PaymentMethods[0].paymentMethodView,
+    receiver: 'Me',
+    description: "It's my salary",
+    amount: 2900,
+    execute_at: 26,
+    created_by: 'unit-test',
+    inserted_at: '01-01-2022',
+    updated_at: '01-01-2022',
+  }),
+];

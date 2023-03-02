@@ -1,10 +1,12 @@
 import { faker } from '@faker-js/faker';
-import { Transaction } from '../../models/transaction.model';
-import type { uuid } from '../../types/profile.type';
-import { getRandomFromList } from '../../utils/getRandomFromList';
+import { isSameMonth } from 'date-fns';
+import { Transaction } from '../../models';
+import { TransactionService } from '../../services';
+import type { uuid } from '../../types';
+import { getRandomFromList } from '../../utils';
 import { generateRandomId } from '../generateRandomId';
-import { generateCategories } from './categories';
-import { generatePaymentMethods } from './payment-methods';
+import { Categories, generateCategories } from './categories';
+import { PaymentMethods, generatePaymentMethods } from './payment-methods';
 
 export function generateTransactions(
   amount = 10,
@@ -40,3 +42,42 @@ export function generateTransactionList(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 }
+
+export const Transactions: Transaction[] = [
+  new Transaction({
+    id: 1,
+    categories: Categories[5].categoryView,
+    paymentMethods: PaymentMethods[0].paymentMethodView,
+    receiver: 'Lego Set',
+    description: null,
+    amount: -9,
+    date: '01-02-2022',
+    created_by: 'unit-test',
+    inserted_at: '01-01-2022',
+    updated_at: '01-01-2022',
+  }),
+  new Transaction({
+    id: 2,
+    categories: Categories[5].categoryView,
+    paymentMethods: PaymentMethods[0].paymentMethodView,
+    receiver: 'Unknown lego fan',
+    description: 'Sold my old lego set',
+    amount: 29,
+    date: '01-03-2022',
+    created_by: 'unit-test',
+    inserted_at: '01-01-2022',
+    updated_at: '01-01-2022',
+  }),
+  new Transaction({
+    id: 3,
+    categories: Categories[5].categoryView,
+    paymentMethods: PaymentMethods[0].paymentMethodView,
+    receiver: 'Ford car dealership',
+    description: 'Sold my car',
+    amount: 2900,
+    date: '01-20-2022',
+    created_by: 'unit-test',
+    inserted_at: '01-01-2022',
+    updated_at: '01-01-2022',
+  }),
+];

@@ -123,10 +123,7 @@ export class TransactionService {
     const now = new Date();
     return Math.abs(
       transactions
-        .filter(
-          (transaction) =>
-            isSameMonth(new Date(transaction.date), now) && new Date(transaction.date) > now && transaction.amount < 0
-        )
+        .filter((transaction) => isSameMonth(transaction.date, now) && transaction.date > now && transaction.amount < 0)
         .reduce((prev, cur) => prev + cur.amount, 0)
     );
   }
