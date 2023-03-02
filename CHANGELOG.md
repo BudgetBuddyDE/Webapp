@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/BudgetBuddyDE/Webapp/compare/v0.1.0...v0.2.0) (2023-03-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* Refetch when new user
+
+### Features
+
+* Add clickable category-chip ([43ee721](https://github.com/BudgetBuddyDE/Webapp/commit/43ee72106dc83150c1a958a147ae5c09348a7742))
+
+
+### Bug Fixes
+
+* Clear state after closing the drawer ([e411ae1](https://github.com/BudgetBuddyDE/Webapp/commit/e411ae1b59472de61deab213bf84656b6a101115))
+* Clear user-specific-states when signed-out ([0c10755](https://github.com/BudgetBuddyDE/Webapp/commit/0c10755ec978080aa6c8616286e1d98ea195551b))
+* Make icon/badge clickable ([ecd9e38](https://github.com/BudgetBuddyDE/Webapp/commit/ecd9e38534250ac4f4edf9c25bbf225932a90326))
+* Move `onClick`-listener to correct component ([079f779](https://github.com/BudgetBuddyDE/Webapp/commit/079f7798cb55ea68e0592ed29b0f8955b87033df))
+* Re-fetch data when `dateRange` gets changed ([75d31ae](https://github.com/BudgetBuddyDE/Webapp/commit/75d31aea091ce1b170eb7b50e0a584ca303af851))
+* Refetch when new user ([48889ae](https://github.com/BudgetBuddyDE/Webapp/commit/48889ae12a8551669f3a22bee64ded5b9dda26be))
+
 ## [0.1.0](https://github.com/BudgetBuddyDE/Webapp/compare/v0.0.10...v0.1.0) (2023-02-28)
 
 
