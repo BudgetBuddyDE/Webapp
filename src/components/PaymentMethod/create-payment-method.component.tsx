@@ -22,6 +22,7 @@ export const CreatePaymentMethod: React.FC<ICreatePaymentMethodProps> = ({ open,
   const handler = {
     onClose: () => {
       setOpen(false);
+      setForm({});
     },
     inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));

@@ -16,7 +16,7 @@ export function BaseListReducer<T>(
   switch (action.type) {
     case 'CLEAR_DATA':
     case 'FETCH_DATA':
-    case 'REFRESH_DATA':
+    case 'UPDATE_DATA':
       return BaseReducer(state, action);
 
     case 'ADD_ITEM':
@@ -26,7 +26,6 @@ export function BaseListReducer<T>(
       };
 
     case 'UPDATE_BY_ID':
-      // FIXME: Doesn't work properly
       if (state.data === null) {
         console.warn("Can't update an item when the state is NULL");
         return state;

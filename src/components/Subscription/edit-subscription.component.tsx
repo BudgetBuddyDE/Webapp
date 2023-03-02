@@ -56,6 +56,8 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
   const handler: EditSubscriptionHandler = {
     onClose: () => {
       setOpen(false);
+      setForm({});
+      setExecutionDate(new Date());
     },
     onDateChange: (date) => {
       if (date) setExecutionDate(date);

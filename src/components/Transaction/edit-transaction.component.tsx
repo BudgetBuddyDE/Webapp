@@ -55,6 +55,7 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen
   const handler: EditTransactionHandler = {
     onClose: () => {
       setOpen(false);
+      setForm(null);
     },
     onDateChange: (date) => {
       if (date) setForm((prev) => ({ ...prev, date: date.toString() }));

@@ -23,7 +23,10 @@ export const EditCategory: React.FC<{
   const [errorMessage, setErrorMessage] = React.useState('');
 
   const handler: EditCategoryHandler = {
-    onClose: () => setOpen(false),
+    onClose: () => {
+      setOpen(false);
+      setForm(null);
+    },
     onSubmit: async (event) => {
       try {
         event.preventDefault();

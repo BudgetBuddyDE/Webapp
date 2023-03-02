@@ -23,6 +23,7 @@ export const EditPaymentMethod: React.FC<IEditPaymentMethodProps> = ({ open, set
   const handler = {
     onClose: () => {
       setOpen(false);
+      setForm(null);
     },
     onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
       try {

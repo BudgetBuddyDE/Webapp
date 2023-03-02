@@ -57,6 +57,8 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
   const handler: CreateSubscriptionHandler = {
     onClose: () => {
       setOpen(false);
+      setForm({});
+      setExecutionDate(new Date());
     },
     onDateChange: (date) => {
       if (date) setExecutionDate(date);

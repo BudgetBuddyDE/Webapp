@@ -20,20 +20,21 @@ export function useFetchTransactions(): useFetchTransactionsValue {
 
   const fetchTransactions = React.useCallback(async () => {
     try {
+      if (!session || !session.user) return;
       setLoading(true);
       const fetchedTransactions = await TransactionService.getTransactions();
-      setTransactions({ type: 'FETCH_DATA', data: fetchedTransactions });
+      setTransactions({ type: 'FETCH_DATA', data: fetchedTransactions, fetchedBy: session.user.id });
     } catch (error) {
       console.error(error);
       setError(error);
     } finally {
       setLoading(false);
     }
-  }, [setTransactions]);
+  }, [session, setTransactions]);
 
   React.useEffect(() => {
-    if (!session || !session.user) return;
-    if (transactions.fetched && transactions.data !== null) return;
+    if (!session || !session.user) return setTransactions({ type: 'CLEAR_DATA' });
+    if (transactions.fetched && transactions.fetchedBy === session.user.id && transactions.data !== null) return;
     fetchTransactions();
 
     return () => {
