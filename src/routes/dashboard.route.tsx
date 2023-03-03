@@ -70,8 +70,7 @@ export const Dashboard = () => {
     {
       title: React.useMemo(() => {
         return formatBalance(
-          SubscriptionService.getUpcomingSpendings(fetchSubscriptions.subscriptions) +
-            TransactionService.getUpcomingSpendings(fetchTransactions.transactions)
+          SubscriptionService.getUpcomingSpendings(fetchSubscriptions.subscriptions, fetchTransactions.transactions)
         );
       }, [fetchSubscriptions.subscriptions, fetchTransactions.transactions]),
       subtitle: 'Upcoming expenses',
@@ -91,8 +90,7 @@ export const Dashboard = () => {
     {
       title: React.useMemo(() => {
         return formatBalance(
-          SubscriptionService.getUpcomingEarnings(fetchSubscriptions.subscriptions) +
-            TransactionService.getUpcomingEarnings(fetchTransactions.transactions)
+          SubscriptionService.getUpcomingEarnings(fetchSubscriptions.subscriptions, fetchTransactions.transactions)
         );
       }, [fetchSubscriptions.subscriptions, fetchTransactions.transactions]),
       subtitle: 'Upcoming earnings',
@@ -290,7 +288,7 @@ export const Dashboard = () => {
                 </ParentSize>
               </Box>
             ) : (
-              <NoResults />
+              <NoResults sx={{ mt: 2 }} />
             )}
           </Card.Body>
         </Card>
