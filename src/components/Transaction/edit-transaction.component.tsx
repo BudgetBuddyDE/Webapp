@@ -1,13 +1,4 @@
-import {
-  Alert,
-  Autocomplete,
-  Box,
-  FormControl,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
-  TextField,
-} from '@mui/material';
+import { Alert, Box, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
@@ -18,9 +9,9 @@ import { FormStyle } from '../../theme/form-style';
 import type { IBaseTransaction } from '../../types/';
 import { getCategoryFromList, getPaymentMethodFromList, transformBalance } from '../../utils/';
 import { FormDrawer } from '../Base/';
-import { CreateCategoryInfo } from '../Category';
+import { CreateCategoryInput } from '../Category';
 import { ReceiverAutocomplete } from '../Inputs/';
-import { CreatePaymentMethodInfo } from '../PaymentMethod';
+import { CreatePaymentMethodInput } from '../PaymentMethod';
 
 export interface IEditTransactionProps {
   open: boolean;
@@ -192,36 +183,17 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen
               flexWrap: 'wrap',
             }}
           >
-            {!fetchCategories.loading && fetchCategories.categories.length > 0 ? (
-              <Autocomplete
-                id="category"
-                options={fetchCategories.categories.map((item) => ({ label: item.name, value: item.id }))}
-                sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-                onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
-                defaultValue={getCategoryFromList(Number(form.category), fetchCategories.categories)}
-                renderInput={(props) => <TextField {...props} label="Category" />}
-                isOptionEqualToValue={(option, value) => option.value === value.value}
-              />
-            ) : (
-              <CreateCategoryInfo sx={{ mb: 2 }} />
-            )}
+            <CreateCategoryInput
+              onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
+              defaultValue={getCategoryFromList(Number(form.category), fetchCategories.categories)}
+              sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+            />
 
-            {!fetchPaymentMethods.loading && fetchPaymentMethods.paymentMethods.length > 0 ? (
-              <Autocomplete
-                id="payment-method"
-                options={fetchPaymentMethods.paymentMethods.map((item) => ({
-                  label: `${item.name} • ${item.provider}`,
-                  value: item.id,
-                }))}
-                sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-                onChange={(event, value) => handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))}
-                defaultValue={getPaymentMethodFromList(Number(form.paymentMethod), fetchPaymentMethods.paymentMethods)}
-                renderInput={(props) => <TextField {...props} label="Payment Method" />}
-                isOptionEqualToValue={(option, value) => option.value === value.value}
-              />
-            ) : (
-              <CreatePaymentMethodInfo sx={{ mb: 2 }} />
-            )}
+            <CreatePaymentMethodInput
+              onChange={(event, value) => handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))}
+              defaultValue={getPaymentMethodFromList(Number(form.paymentMethod), fetchPaymentMethods.paymentMethods)}
+              sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+            />
           </Box>
 
           <ReceiverAutocomplete
