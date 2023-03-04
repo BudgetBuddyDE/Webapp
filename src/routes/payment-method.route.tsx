@@ -118,7 +118,7 @@ export const PaymentMethods = () => {
     <Grid container spacing={3}>
       <PageHeader title="Payment Methods" description="How are u paying today, sir?" />
 
-      <Grid item xs={12} md={9} lg={8} xl={9} order={{ xs: 1, md: 0 }}>
+      <Grid item xs={12} md={9} lg={8} xl={9}>
         <Card sx={{ p: 0 }}>
           <Card.Header sx={{ p: 2, pb: 0 }}>
             <Box>
@@ -208,7 +208,7 @@ export const PaymentMethods = () => {
         </Card>
       </Grid>
 
-      <Grid container item xs={12} md={3} lg={4} xl={3} spacing={3} order={{ xs: 0, md: 1 }}>
+      <Grid container item xs={12} md={3} lg={4} xl={3} spacing={3}>
         <Grid item xs={12}>
           {!fetchPaymentMethods.loading && !fetchSubscriptions.loading && !fetchTransactions.loading && (
             <UsedByPaymentMethod
