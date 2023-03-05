@@ -1,4 +1,13 @@
-import { Alert, Box, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
+import {
+  Alert,
+  Autocomplete,
+  Box,
+  FormControl,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+  TextField,
+} from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
@@ -10,9 +19,9 @@ import { FormStyle } from '../../theme/form-style';
 import type { IBaseTransaction } from '../../types/';
 import { transformBalance } from '../../utils/';
 import { FormDrawer } from '../Base/';
-import { CreateCategoryInput } from '../Category';
+import { CreateCategoryInfo } from '../Category';
 import { ReceiverAutocomplete } from '../Inputs/';
-import { CreatePaymentMethodInput } from '../PaymentMethod';
+import { CreatePaymentMethodInfo } from '../PaymentMethod';
 
 export interface ICreateTransactionProps {
   open: boolean;
@@ -164,15 +173,34 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
           flexWrap: 'wrap',
         }}
       >
-        <CreateCategoryInput
-          onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
-          sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-        />
+        {!fetchCategories.loading && fetchCategories.categories.length > 0 ? (
+          <Autocomplete
+            id="category"
+            options={fetchCategories.categories.map((item) => ({ label: item.name, value: item.id }))}
+            sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+            onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
+            renderInput={(props) => <TextField {...props} label="Category" />}
+            isOptionEqualToValue={(option, value) => option.value === value.value}
+          />
+        ) : (
+          <CreateCategoryInfo sx={{ mb: 2 }} />
+        )}
 
-        <CreatePaymentMethodInput
-          onChange={(event, value) => handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))}
-          sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-        />
+        {!fetchPaymentMethods.loading && fetchPaymentMethods.paymentMethods.length > 0 ? (
+          <Autocomplete
+            id="payment-method"
+            options={fetchPaymentMethods.paymentMethods.map((item) => ({
+              label: `${item.name} • ${item.provider}`,
+              value: item.id,
+            }))}
+            sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+            onChange={(event, value) => handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))}
+            renderInput={(props) => <TextField {...props} label="Payment Method" />}
+            isOptionEqualToValue={(option, value) => option.value === value.value}
+          />
+        ) : (
+          <CreatePaymentMethodInfo sx={{ mb: 2 }} />
+        )}
       </Box>
 
       <ReceiverAutocomplete
