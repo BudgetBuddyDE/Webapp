@@ -1,7 +1,6 @@
 import { Add as AddIcon, Schedule as ScheduleIcon } from '@mui/icons-material';
 import { Box, Grid, IconButton, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
 import { ParentSize } from '@visx/responsive';
-import { isSameMonth } from 'date-fns/esm';
 import React from 'react';
 import {
   ActionPaper,
@@ -23,7 +22,7 @@ import { AuthContext, StoreContext } from '../context';
 import { useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { Subscription as SubscriptionModel, Transaction as TransactionModel } from '../models';
 import { BudgetService, DateService, ExpenseService, SubscriptionService, TransactionService } from '../services';
-import { addTransactionToExpenses, formatBalance } from '../utils';
+import { formatBalance } from '../utils';
 
 /** How many months do we wanna look back? */
 export const MONTH_BACKLOG = 6;
@@ -40,7 +39,7 @@ export const Dashboard = () => {
     { type: 'ALL', text: 'All' },
   ];
   const { session } = React.useContext(AuthContext);
-  const { loading, setLoading, categorySpendings, setCategorySpendings, monthlyAvg, setMonthlyAvg } =
+  const { loading, setLoading, categorySpendings, setCategorySpendings, monthlyAvg, setMonthlyAvg, transactions } =
     React.useContext(StoreContext);
   const fetchTransactions = useFetchTransactions();
   const fetchSubscriptions = useFetchSubscriptions();
@@ -108,7 +107,6 @@ export const Dashboard = () => {
       loading: loading && !monthlyAvg.fetched,
     },
     {
-      // TODO: Create test to verify the result
       title: React.useMemo(() => {
         return formatBalance(
           TransactionService.getReceivedEarnings(fetchTransactions.transactions) -
@@ -122,9 +120,8 @@ export const Dashboard = () => {
     },
   ];
 
-  React.useEffect(() => {
-    if (!session || !session.user) return setCategorySpendings({ type: 'CLEAR_DATA' });
-    if (categorySpendings.fetched && categorySpendings.fetchedBy === session.user.id && categorySpendings.data) return;
+  const fetchCategorySpendings = () => {
+    if (!session || !session.user) return;
     setLoading(true);
     Promise.all([
       ExpenseService.getCurrentMonthExpenses(session.user.id),
@@ -155,6 +152,17 @@ export const Dashboard = () => {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
+  };
+
+  React.useEffect(() => {
+    if (!transactions.fetched || !transactions.data || transactions.data.length < 1) return;
+    fetchCategorySpendings();
+  }, [fetchTransactions.transactions]);
+
+  React.useEffect(() => {
+    if (!session || !session.user) return setCategorySpendings({ type: 'CLEAR_DATA' });
+    if (categorySpendings.fetched && categorySpendings.fetchedBy === session.user.id && categorySpendings.data) return;
+    fetchCategorySpendings();
   }, [session, categorySpendings]);
 
   React.useEffect(() => {
@@ -333,30 +341,7 @@ export const Dashboard = () => {
         </Card>
       </Grid>
 
-      <CreateTransaction
-        open={showAddTransactionForm}
-        setOpen={(show) => setShowAddTransactionForm(show)}
-        afterSubmit={(transaction) => {
-          const forCurrentMonth =
-            isSameMonth(new Date(transaction.date), new Date()) && new Date(transaction.date) <= new Date();
-          const currentData = categorySpendings.data
-            ? forCurrentMonth
-              ? categorySpendings.data.month
-              : categorySpendings.data.allTime
-            : [];
-
-          addTransactionToExpenses(transaction, currentData, (updatedExpenses) => {
-            setCategorySpendings({
-              type: 'UPDATE_DATA',
-              data: {
-                chart: categorySpendings.data!.chart,
-                month: forCurrentMonth ? updatedExpenses : categorySpendings.data!.month,
-                allTime: !forCurrentMonth ? updatedExpenses : categorySpendings.data!.allTime,
-              },
-            });
-          });
-        }}
-      />
+      <CreateTransaction open={showAddTransactionForm} setOpen={(show) => setShowAddTransactionForm(show)} />
 
       <CreateSubscription open={showSubscriptionForm} setOpen={(show) => setShowSubscriptionForm(show)} />
     </Grid>
