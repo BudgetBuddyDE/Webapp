@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.1](https://github.com/BudgetBuddyDE/Webapp/compare/v0.2.0...v0.2.1) (2023-04-16)
+
+
+### Features
+
+* Create category from option ([cbe4479](https://github.com/BudgetBuddyDE/Webapp/commit/cbe4479378543f641f590212049a7045bdb1ad18))
+* Create payment-method from option ([65665e5](https://github.com/BudgetBuddyDE/Webapp/commit/65665e5e1e0b5caed33d8614aeccb9dbe1eb3a82))
+
+
+### Bug Fixes
+
+* Don't display arcs with an value of 0 ([786559a](https://github.com/BudgetBuddyDE/Webapp/commit/786559a8749b8f493fe23103c82eec91c3df99ad))
+* Refetch data after relevant changes ([97d01f1](https://github.com/BudgetBuddyDE/Webapp/commit/97d01f153f18b32fe46dfa2fd2db8f14ebb5e73f))
+
 ## [0.2.0](https://github.com/BudgetBuddyDE/Webapp/compare/v0.1.0...v0.2.0) (2023-03-02)
 
 
