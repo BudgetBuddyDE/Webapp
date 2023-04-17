@@ -4,14 +4,13 @@ import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
 import { Category } from '../../models/';
 import { CategoryService } from '../../services/';
 import { FormStyle } from '../../theme/form-style';
-import type { IBaseCategory, IEditCategory } from '../../types/';
+import type { IBaseCategory } from '../../types/';
 import { FormDrawer } from '../Base/';
 
 export interface ICreateCategoryProps {
   open: boolean;
   setOpen: (show: boolean) => void;
   afterSubmit?: (category: Category) => void;
-  category?: Partial<IEditCategory> | null;
 }
 
 interface CreateCategoryHandler {
@@ -19,7 +18,7 @@ interface CreateCategoryHandler {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, afterSubmit, category }) => {
+export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, afterSubmit }) => {
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, setCategories } = React.useContext(StoreContext);
@@ -63,11 +62,6 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
     },
   };
 
-  React.useEffect(() => {
-    if (!category) return;
-    setForm({ name: category.name });
-  }, [category]);
-
   if (loading) return null;
   return (
     <FormDrawer
@@ -91,7 +85,6 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
         name="name"
         sx={FormStyle}
         onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
-        value={form.name}
       />
 
       <TextField

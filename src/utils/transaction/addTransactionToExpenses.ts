@@ -11,11 +11,11 @@ export function addTransactionToExpenses(
   if (transaction.amount > 0) return;
 
   const index = currentData.findIndex((entry) => entry.label === transaction.categories.name);
-  if (index > 0) {
+  if (index !== -1) {
     const outdated = currentData[index];
     currentData[index] = {
       ...outdated,
-      value: Math.abs(outdated.value + transaction.amount),
+      value: outdated.value + Math.abs(transaction.amount),
     };
     updateExpenses(currentData);
   } else {

@@ -63,13 +63,16 @@ export const PieChart: React.FC<PieChartProps> = ({
   }, [inner]);
   const donut_thickness = screenSize === 'small' ? 75 : 100;
   // Data driven variables
-  const category_names = Object.entries(data).map(([key, value]) => value.label);
-  const color_range = data.map((expense, index) => {
-    return data.length > 1
-      ? alpha(hexToRgb(theme.palette.primary.main), (1 / data.length) * (index + 1))
+  const displayedData = React.useMemo(() => {
+    return data.filter((entry) => entry.value !== 0);
+  }, [data]);
+  const category_names = Object.entries(displayedData).map(([key, value]) => value.label);
+  const color_range = displayedData.map((expense, index) => {
+    return displayedData.length > 1
+      ? alpha(hexToRgb(theme.palette.primary.main), (1 / displayedData.length) * (index + 1))
       : alpha(hexToRgb(theme.palette.primary.main), 1);
   });
-  const sum = data.map(getAbsoluteAmount).reduce((prev, cur) => prev + cur, 0);
+  const sum = displayedData.map(getAbsoluteAmount).reduce((prev, cur) => prev + cur, 0);
   const getCategoryColor = scaleOrdinal({
     domain: category_names,
     range: color_range,
@@ -79,7 +82,7 @@ export const PieChart: React.FC<PieChartProps> = ({
     <svg width={width} height={width}>
       <Group top={axis.y + margin.top} left={axis.x + margin.left}>
         <Pie
-          data={data}
+          data={displayedData}
           pieValue={getAbsoluteAmount}
           outerRadius={radius}
           innerRadius={radius - donut_thickness}
