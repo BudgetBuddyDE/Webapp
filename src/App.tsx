@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { Copyright, Drawer, FilterDrawer, Main, ProtectedComponent, ProtectedRoute } from './components/';
+import { AppBar, Copyright, Drawer, FilterDrawer, Main, ProtectedComponent, ProtectedRoute } from './components/';
 import { Budget } from './routes/budget.route';
 import { Categories } from './routes/categories.route';
 import { Dashboard } from './routes/dashboard.route';
@@ -30,7 +30,10 @@ export const App: React.FC = () => {
             backgroundColor: (theme) => theme.palette.background.default,
           }}
         >
-          <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+          <ProtectedComponent>
+            <AppBar />
+          </ProtectedComponent>
+          <Container maxWidth="xl" sx={{ mt: 2, mb: 4 }}>
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" />} />
               <Route

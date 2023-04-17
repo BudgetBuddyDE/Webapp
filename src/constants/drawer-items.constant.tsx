@@ -5,7 +5,6 @@ import {
   Label as LabelIcon,
   Payments as PaymentsIcon,
   ScheduleSend as ScheduleSendIcon,
-  Settings as SettingsIcon,
 } from '@mui/icons-material';
 
 export const DrawerLinks = [
@@ -38,10 +37,5 @@ export const DrawerLinks = [
     text: 'Categories',
     path: '/categories',
     icon: <LabelIcon />,
-  },
-  {
-    text: 'Settings',
-    path: '/settings',
-    icon: <SettingsIcon />,
   },
 ];

@@ -8,6 +8,7 @@ import { AuthContext, StoreContext } from '../../../context';
 import { useScreenSize } from '../../../hooks';
 import { supabase } from '../../../supabase';
 import { drawerWidth } from '../../../theme/default.theme';
+import { Brand } from '../../Base/Brand';
 import { ProfileAvatar } from '../../profile-avatar.component';
 import { DrawerItem } from '../index';
 
@@ -50,6 +51,10 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   padding: theme.spacing(0, 1),
   // necessary for content to be below app bar
   ...theme.mixins.toolbar,
+  height: '67.5px',
+  [theme.breakpoints.only('xs')]: {
+    height: 'unset',
+  },
 }));
 
 const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
@@ -67,7 +72,7 @@ const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== '
   }),
 }));
 
-const Hamburger: React.FC<{ open: boolean }> = ({ open }) => {
+export const Hamburger: React.FC<{ open: boolean }> = ({ open }) => {
   const screenSize = useScreenSize();
   if (screenSize === 'small') {
     return open ? <MenuIcon /> : <MenuOpenIcon />;
@@ -83,16 +88,12 @@ const Header = () => {
         justifyContent: { xs: 'space-between', md: showDrawer ? 'space-between' : 'center' },
       }}
     >
-      <Typography
-        sx={{
-          ml: '1.5rem',
-          display: { xs: 'unset', md: showDrawer ? 'unset' : 'none' },
-          fontWeight: 'bolder',
-          fontSize: '1.2rem',
+      <Brand
+        boxStyle={{
+          display: { xs: 'flex', md: showDrawer ? 'flex' : 'none' },
+          ml: 2,
         }}
-      >
-        Budget-Buddy
-      </Typography>
+      />
       <IconButton onClick={() => setShowDrawer((prev) => !prev)}>
         <Hamburger open={showDrawer} />
       </IconButton>
