@@ -37,6 +37,7 @@ import { SnackbarContext, StoreContext } from '../context';
 import { useFetchCategories, useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { Subscription } from '../models';
 import { TablePaginationReducer } from '../reducer';
+import { DescriptionTableCellStyle } from '../theme/description-table-cell.style';
 import { determineNextExecution, filterSubscriptions } from '../utils';
 
 interface SubscriptionsHandler {
@@ -179,7 +180,7 @@ export const Subscriptions = () => {
                           <TableCell>
                             <PaymentMethodChip paymentMethod={row.paymentMethods} />
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={DescriptionTableCellStyle}>
                             <Linkify>{row.description || 'No Information'}</Linkify>
                           </TableCell>
                           <TableCell align="right">

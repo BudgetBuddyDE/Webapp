@@ -34,6 +34,7 @@ import { SnackbarContext, StoreContext } from '../context';
 import { useFetchCategories, useFetchTransactions } from '../hooks';
 import { Category } from '../models';
 import { TablePaginationReducer } from '../reducer';
+import { DescriptionTableCellStyle } from '../theme/description-table-cell.style';
 
 interface CategoryHandler {
   clearLocationState: () => void;
@@ -158,7 +159,7 @@ export const Categories = () => {
                           <TableCell>
                             <Typography>{row.name}</Typography>
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={DescriptionTableCellStyle}>
                             <Linkify>{row.description ?? 'No Description'}</Linkify>
                           </TableCell>
                           <TableCell align="right">

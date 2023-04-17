@@ -35,6 +35,7 @@ import { SnackbarContext, StoreContext } from '../context';
 import { useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { PaymentMethod } from '../models';
 import { TablePaginationReducer } from '../reducer';
+import { DescriptionTableCellStyle } from '../theme/description-table-cell.style';
 
 interface PaymentMethodHandler {
   clearLocatioState: () => void;
@@ -170,7 +171,7 @@ export const PaymentMethods = () => {
                           <TableCell>
                             <Linkify>{row.address}</Linkify>
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={DescriptionTableCellStyle}>
                             <Linkify>{row.description ?? 'No description'}</Linkify>
                           </TableCell>
                           <TableCell align="right">
