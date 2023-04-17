@@ -19,14 +19,14 @@ export const DrawerLinks = [
     icon: <CompareArrowsIcon />,
   },
   {
-    text: 'Budget',
-    path: '/budget',
-    icon: <DonutSmallIcon />,
-  },
-  {
     text: 'Subscriptions',
     path: '/subscriptions',
     icon: <ScheduleSendIcon />,
+  },
+  {
+    text: 'Budget',
+    path: '/budget',
+    icon: <DonutSmallIcon />,
   },
   {
     text: 'Payment Methods',
