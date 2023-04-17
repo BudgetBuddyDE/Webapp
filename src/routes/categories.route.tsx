@@ -14,6 +14,7 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   ActionPaper,
   Card,
@@ -35,6 +36,7 @@ import { Category } from '../models';
 import { TablePaginationReducer } from '../reducer';
 
 interface CategoryHandler {
+  clearLocationState: () => void;
   onSearch: (keyword: string) => void;
   pagination: TablePaginationHandler;
   category: {
@@ -43,17 +45,24 @@ interface CategoryHandler {
 }
 
 export const Categories = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { setCategories } = React.useContext(StoreContext);
   const fetchTransactions = useFetchTransactions();
   const fetchCategories = useFetchCategories();
-  const [showAddForm, setShowAddForm] = React.useState(false);
+  const [showAddForm, setShowAddForm] = React.useState(
+    location.state !== null && (location.state as any).create !== undefined && (location.state as any).create === true
+  );
   const [keyword, setKeyword] = React.useState('');
   const [editCategory, setEditCategory] = React.useState<Category | null>(null);
   const [, startTransition] = React.useTransition();
   const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
 
   const handler: CategoryHandler = {
+    clearLocationState() {
+      window.history.replaceState(null, '');
+    },
     onSearch(text) {
       setKeyword(text.toLowerCase());
     },
@@ -95,6 +104,10 @@ export const Categories = () => {
     return shownCategories.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [shownCategories, tablePagination]);
 
+  React.useEffect(() => {
+    return () => handler.clearLocationState();
+  }, []);
+
   return (
     <Grid container spacing={3}>
       <PageHeader title="Categories" description="What kind of labels u wanna use?" />
@@ -106,7 +119,7 @@ export const Categories = () => {
               <Card.Title>Categories</Card.Title>
               <Card.Subtitle>Manage your categories</Card.Subtitle>
             </Box>
-            <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 }, width: { xs: '100%' } }}>
+            <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 }, width: { xs: '100%', md: 'unset' } }}>
               <ActionPaper sx={{ display: 'flex', flexDirection: 'row', width: { xs: '100%' } }}>
                 <SearchInput onSearch={handler.onSearch} />
                 <Tooltip title="Add Category">
@@ -189,7 +202,28 @@ export const Categories = () => {
         )}
       </Grid>
 
-      <CreateCategory open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
+      <CreateCategory
+        open={showAddForm}
+        setOpen={(show) => {
+          // If we have an location.state we're gonna clear it on close
+          if (
+            !show &&
+            location.state !== null &&
+            (location.state as any).create === true &&
+            (location.state as any).category !== undefined
+          ) {
+            navigate(location.pathname, { replace: true, state: null });
+          }
+          setShowAddForm(show);
+        }}
+        category={
+          location.state &&
+          (location.state as any).create !== undefined &&
+          (location.state as any).category !== undefined
+            ? (location.state as any).category
+            : undefined
+        }
+      />
 
       <EditCategory
         open={editCategory !== null}

@@ -14,6 +14,7 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   ActionPaper,
   Card,
@@ -36,6 +37,7 @@ import { PaymentMethod } from '../models';
 import { TablePaginationReducer } from '../reducer';
 
 interface PaymentMethodHandler {
+  clearLocatioState: () => void;
   onSearch: (keyword: string) => void;
   pagination: TablePaginationHandler;
   paymentMethod: {
@@ -44,18 +46,25 @@ interface PaymentMethodHandler {
 }
 
 export const PaymentMethods = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { setPaymentMethods } = React.useContext(StoreContext);
   const fetchTransactions = useFetchTransactions();
   const fetchSubscriptions = useFetchSubscriptions();
   const fetchPaymentMethods = useFetchPaymentMethods();
   const [, startTransition] = React.useTransition();
-  const [showAddForm, setShowAddForm] = React.useState(false);
+  const [showAddForm, setShowAddForm] = React.useState(
+    location.state !== null && (location.state as any).create !== undefined && (location.state as any).create === true
+  );
   const [keyword, setKeyword] = React.useState('');
   const [editPaymentMethod, setEditPaymentMethod] = React.useState<PaymentMethod | null>(null);
   const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
 
   const handler: PaymentMethodHandler = {
+    clearLocatioState() {
+      window.history.replaceState(null, '');
+    },
     onSearch(keyword) {
       setKeyword(keyword.toLowerCase());
     },
@@ -99,18 +108,24 @@ export const PaymentMethods = () => {
     return shownPaymentMethods.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [shownPaymentMethods, tablePagination]);
 
+  React.useEffect(() => {
+    return () => handler.clearLocatioState();
+  }, []);
+
+  React.useEffect(() => console.log(location), [location]);
+
   return (
     <Grid container spacing={3}>
       <PageHeader title="Payment Methods" description="How are u paying today, sir?" />
 
-      <Grid item xs={12} md={9} lg={8} xl={9} order={{ xs: 1, md: 0 }}>
+      <Grid item xs={12} md={9} lg={8} xl={9}>
         <Card sx={{ p: 0 }}>
           <Card.Header sx={{ p: 2, pb: 0 }}>
             <Box>
               <Card.Title>Payment Methods</Card.Title>
               <Card.Subtitle>Manage your payment-methods</Card.Subtitle>
             </Box>
-            <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 }, width: { xs: '100%' } }}>
+            <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 }, width: { xs: '100%', md: 'unset' } }}>
               <ActionPaper sx={{ display: 'flex', flexDirection: 'row', width: { xs: '100%' } }}>
                 <SearchInput onSearch={handler.onSearch} />
                 <Tooltip title="Add Payment Method">
@@ -193,7 +208,7 @@ export const PaymentMethods = () => {
         </Card>
       </Grid>
 
-      <Grid container item xs={12} md={3} lg={4} xl={3} spacing={3} order={{ xs: 0, md: 1 }}>
+      <Grid container item xs={12} md={3} lg={4} xl={3} spacing={3}>
         <Grid item xs={12}>
           {!fetchPaymentMethods.loading && !fetchSubscriptions.loading && !fetchTransactions.loading && (
             <UsedByPaymentMethod
@@ -214,7 +229,29 @@ export const PaymentMethods = () => {
         </Grid>
       </Grid>
 
-      <CreatePaymentMethod open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
+      <CreatePaymentMethod
+        open={showAddForm}
+        setOpen={(show) => {
+          // If an location.state is set and used to create an payment-method
+          // we're gonna clear that state after it got closed (in order to remove the default paymentMethod)
+          if (
+            !show &&
+            location.state !== null &&
+            (location.state as any).create === true &&
+            (location.state as any).category !== undefined
+          ) {
+            navigate(location.pathname, { replace: true, state: null });
+          }
+          setShowAddForm(show);
+        }}
+        paymentMethod={
+          location.state &&
+          (location.state as any).create !== undefined &&
+          (location.state as any).paymentMethod !== undefined
+            ? (location.state as any).paymentMethod
+            : undefined
+        }
+      />
 
       <EditPaymentMethod
         open={editPaymentMethod !== null}

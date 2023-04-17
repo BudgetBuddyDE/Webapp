@@ -1,6 +1,6 @@
 import { Alert, TextField } from '@mui/material';
 import React from 'react';
-import { AuthContext, SnackbarContext, StoreContext } from '../../context';
+import { SnackbarContext, StoreContext } from '../../context';
 import { PaymentMethodService } from '../../services';
 import { FormStyle } from '../../theme/form-style';
 import type { IBasePaymentMethod, IPaymentMethod } from '../../types';
@@ -10,9 +10,15 @@ export interface ICreatePaymentMethodProps {
   open: boolean;
   setOpen: (show: boolean) => void;
   afterSubmit?: (paymentMethod: IPaymentMethod) => void;
+  paymentMethod?: Partial<IBasePaymentMethod>;
 }
 
-export const CreatePaymentMethod: React.FC<ICreatePaymentMethodProps> = ({ open, setOpen, afterSubmit }) => {
+export const CreatePaymentMethod: React.FC<ICreatePaymentMethodProps> = ({
+  open,
+  setOpen,
+  afterSubmit,
+  paymentMethod,
+}) => {
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, setPaymentMethods } = React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();
@@ -55,6 +61,11 @@ export const CreatePaymentMethod: React.FC<ICreatePaymentMethodProps> = ({ open,
     },
   };
 
+  React.useEffect(() => {
+    if (!paymentMethod) return;
+    setForm({ name: paymentMethod.name });
+  }, [paymentMethod]);
+
   if (loading) return null;
   return (
     <FormDrawer
@@ -78,6 +89,7 @@ export const CreatePaymentMethod: React.FC<ICreatePaymentMethodProps> = ({ open,
         name="name"
         sx={FormStyle}
         onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+        value={form.name}
       />
 
       <TextField
