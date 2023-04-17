@@ -119,8 +119,8 @@ export const Categories = () => {
               <Card.Title>Categories</Card.Title>
               <Card.Subtitle>Manage your categories</Card.Subtitle>
             </Box>
-            <Card.HeaderActions>
-              <ActionPaper sx={{ display: 'flex', flexDirection: 'row' }}>
+            <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 }, width: { xs: '100%' } }}>
+              <ActionPaper sx={{ display: 'flex', flexDirection: 'row', width: { xs: '100%' } }}>
                 <SearchInput onSearch={handler.onSearch} />
                 <Tooltip title="Add Category">
                   <IconButton color="primary" onClick={() => setShowAddForm(true)}>
