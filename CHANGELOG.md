@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.3](https://github.com/BudgetBuddyDE/Webapp/compare/v0.2.2...v0.2.3) (2023-04-17)
+
+
+### Features
+
+* Add `AppBar`-component ([b003a62](https://github.com/BudgetBuddyDE/Webapp/commit/b003a621199ed4affa36afa9158bbe4dbca41f66))
+* Add `Brand`-component ([9b1fc10](https://github.com/BudgetBuddyDE/Webapp/commit/9b1fc100ed8b11ccda014aa92a9aa3836da77c4c))
+* Add `CreateFab` ([98935d7](https://github.com/BudgetBuddyDE/Webapp/commit/98935d7fc2f271a4d7023aec295826e46ba264b4))
+
 ### [0.2.2](https://github.com/BudgetBuddyDE/Webapp/compare/v0.2.1...v0.2.2) (2023-04-17)
 
 
