@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.2](https://github.com/BudgetBuddyDE/Webapp/compare/v0.2.1...v0.2.2) (2023-04-17)
+
+
+### Bug Fixes
+
+* Improve match-rate for filtering ([f145f27](https://github.com/BudgetBuddyDE/Webapp/commit/f145f27c4f9d3b0088b55edf40eba695337a91da))
+* Re-implement feature ([04b5556](https://github.com/BudgetBuddyDE/Webapp/commit/04b555622318f8edc0262fd756917c20a90bd2b7))
+
 ### [0.2.1](https://github.com/BudgetBuddyDE/Webapp/compare/v0.2.0...v0.2.1) (2023-04-16)
 
 
