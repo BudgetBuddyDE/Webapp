@@ -120,8 +120,8 @@ export const Subscriptions = () => {
               <Card.Title>Subscriptions</Card.Title>
               <Card.Subtitle>Manage your monthly subscriptions</Card.Subtitle>
             </Box>
-            <Card.HeaderActions>
-              <ActionPaper sx={{ display: 'flex', flexDirection: 'row' }}>
+            <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 }, width: { xs: '100%' } }}>
+              <ActionPaper sx={{ display: 'flex', flexDirection: 'row', width: { xs: '100%' } }}>
                 <ShowFilterButton />
                 <SearchInput onSearch={handler.onSearch} />
                 <Tooltip title="Add Subscription">

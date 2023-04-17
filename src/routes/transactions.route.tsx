@@ -117,8 +117,8 @@ export const Transactions = () => {
               <Card.Title>Transactions</Card.Title>
               <Card.Subtitle>Manage your transactions</Card.Subtitle>
             </Box>
-            <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 } }}>
-              <ActionPaper sx={{ display: 'flex', flexDirection: 'row' }}>
+            <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 }, width: { xs: '100%' } }}>
+              <ActionPaper sx={{ display: 'flex', flexDirection: 'row', width: { xs: '100%' } }}>
                 <ShowFilterButton />
                 <SearchInput onSearch={handler.onSearch} />
                 <Tooltip title="Add Transaction">

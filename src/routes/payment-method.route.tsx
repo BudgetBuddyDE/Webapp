@@ -110,8 +110,8 @@ export const PaymentMethods = () => {
               <Card.Title>Payment Methods</Card.Title>
               <Card.Subtitle>Manage your payment-methods</Card.Subtitle>
             </Box>
-            <Card.HeaderActions>
-              <ActionPaper sx={{ display: 'flex', flexDirection: 'row' }}>
+            <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 }, width: { xs: '100%' } }}>
+              <ActionPaper sx={{ display: 'flex', flexDirection: 'row', width: { xs: '100%' } }}>
                 <SearchInput onSearch={handler.onSearch} />
                 <Tooltip title="Add Payment Method">
                   <IconButton color="primary" onClick={() => setShowAddForm(true)}>
