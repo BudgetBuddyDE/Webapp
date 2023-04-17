@@ -34,6 +34,7 @@ import {
   TablePaginationHandler,
   UsedByPaymentMethod,
 } from '../components';
+import { CreateFab } from '../components/Base/CreateFab/CreateFab.component';
 import { SnackbarContext, StoreContext } from '../context';
 import { useFetchCategories, useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { Transaction } from '../models';
@@ -233,6 +234,8 @@ export const Transactions = () => {
           />
         )}
       </Grid>
+
+      <CreateFab onClick={() => handler.onAddTransaction(true)} />
 
       <CreateTransaction open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
 

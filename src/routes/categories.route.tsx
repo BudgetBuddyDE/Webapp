@@ -30,6 +30,7 @@ import {
   TablePagination,
   TablePaginationHandler,
 } from '../components';
+import { CreateFab } from '../components/Base/CreateFab/CreateFab.component';
 import { SnackbarContext, StoreContext } from '../context';
 import { useFetchCategories, useFetchTransactions } from '../hooks';
 import { Category } from '../models';
@@ -202,6 +203,8 @@ export const Categories = () => {
           <EarningsByCategory categories={fetchCategories.categories} transactions={fetchTransactions.transactions} />
         )}
       </Grid>
+
+      <CreateFab onClick={() => setShowAddForm(true)} />
 
       <CreateCategory
         open={showAddForm}

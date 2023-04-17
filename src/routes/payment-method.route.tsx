@@ -31,6 +31,7 @@ import {
   TablePaginationHandler,
   UsedByPaymentMethod,
 } from '../components';
+import { CreateFab } from '../components/Base/CreateFab/CreateFab.component';
 import { SnackbarContext, StoreContext } from '../context';
 import { useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { PaymentMethod } from '../models';
@@ -229,6 +230,8 @@ export const PaymentMethods = () => {
           )}
         </Grid>
       </Grid>
+
+      <CreateFab onClick={() => setShowAddForm(true)} />
 
       <CreatePaymentMethod
         open={showAddForm}

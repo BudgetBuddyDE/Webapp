@@ -1,5 +1,5 @@
 import { UploadFile as UploadIcon } from '@mui/icons-material';
-import { Badge, Box, Avatar as MuiAvatar, AvatarProps as MuiAvatarProps } from '@mui/material';
+import { Box, Avatar as MuiAvatar, AvatarProps as MuiAvatarProps } from '@mui/material';
 import type { User } from '@supabase/supabase-js';
 import React from 'react';
 

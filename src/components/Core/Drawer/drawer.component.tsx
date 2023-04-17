@@ -201,7 +201,7 @@ export const Drawer = () => {
     return null;
   }
   return (
-    <>
+    <React.Fragment>
       {/* Mobile */}
       <MuiDrawer
         variant="temporary"
@@ -232,22 +232,6 @@ export const Drawer = () => {
         <DrawerItems open={showDrawer} />
         <Profile open={showDrawer} />
       </StyledDrawer>
-
-      <Fab
-        size="large"
-        onClick={toggleDrawer}
-        aria-label="toggle-drawer"
-        sx={{
-          display: { xs: !showDrawer ? 'none' : 'flex', md: 'none' },
-          position: 'fixed',
-          bottom: '1rem',
-          right: '1rem',
-          color: (theme) => theme.palette.text.primary,
-          backgroundColor: (theme) => theme.palette.background.paper,
-        }}
-      >
-        <Hamburger open={showDrawer} />
-      </Fab>
-    </>
+    </React.Fragment>
   );
 };
