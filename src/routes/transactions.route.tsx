@@ -117,7 +117,7 @@ export const Transactions = () => {
               <Card.Title>Transactions</Card.Title>
               <Card.Subtitle>Manage your transactions</Card.Subtitle>
             </Box>
-            <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 }, width: { xs: '100%' } }}>
+            <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 }, width: { xs: '100%', md: 'unset' } }}>
               <ActionPaper sx={{ display: 'flex', flexDirection: 'row', width: { xs: '100%' } }}>
                 <ShowFilterButton />
                 <SearchInput onSearch={handler.onSearch} />
