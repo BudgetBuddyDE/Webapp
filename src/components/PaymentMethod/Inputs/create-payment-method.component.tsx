@@ -28,6 +28,7 @@ export interface CreatePaymentMenthodInputProps {
 }
 
 const filter = createFilterOptions<PaymentMethodInputOption>();
+const labelSeperator = '•';
 
 export const CreatePaymentMethodInput: React.FC<CreatePaymentMenthodInputProps> = ({
   defaultValue = undefined,
@@ -66,12 +67,14 @@ export const CreatePaymentMethodInput: React.FC<CreatePaymentMenthodInputProps> 
     <Autocomplete
       id={id + '-create-payment-method'}
       options={paymentMethods.map((item) => ({
-        label: `${item.name} • ${item.provider}`,
+        label: `${item.name} ${labelSeperator} ${item.provider}`,
         value: item.id,
       }))}
       onChange={(event, value) => {
         if (!value) return;
-        const paymentMethodExists = paymentMethods.some((pm) => pm.name === value.label);
+        const paymentMethodExists = paymentMethods.some(
+          (pm) => pm.name === value.label.split(labelSeperator)[0].trimEnd()
+        );
         if (paymentMethodExists) return onChange(event, value);
         navigate('/payment-methods', {
           state: { create: true, paymentMethod: { name: value.label.split('"')[1] } },
@@ -80,9 +83,8 @@ export const CreatePaymentMethodInput: React.FC<CreatePaymentMenthodInputProps> 
       filterOptions={(options, state) => {
         if (state.inputValue.length < 1) return options;
         const filtered = filter(options, state);
-        return filtered.some((option) => option.label === state.inputValue)
-          ? filtered
-          : [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }];
+        const match = filtered.some((option) => option.label.toLowerCase().includes(state.inputValue.toLowerCase()));
+        return match ? filtered : [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }];
       }}
       defaultValue={defaultValue}
       renderInput={(props) => <TextField {...props} label="Payment Method" />}

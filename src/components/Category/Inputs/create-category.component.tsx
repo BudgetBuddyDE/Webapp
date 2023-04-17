@@ -62,7 +62,7 @@ export const CreateCategoryInput: React.FC<CreateCategoryInputProps> = ({ defaul
     <Autocomplete
       id={id + '-create-category'}
       options={categories.map((item) => ({ label: item.name, value: item.id }))}
-      onChange={(event, value) => {
+      onChange={(event, value, details) => {
         if (!value) return;
         const categoryNameExists = categories.some((category) => category.name === value.label);
         if (categoryNameExists) return onChange(event, value);
@@ -73,9 +73,8 @@ export const CreateCategoryInput: React.FC<CreateCategoryInputProps> = ({ defaul
       filterOptions={(options, state) => {
         if (state.inputValue.length < 1) return options;
         const filtered = filter(options, state);
-        return filtered.some((option) => option.label === state.inputValue)
-          ? filtered
-          : [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }];
+        const match = filtered.some((option) => option.label.toLowerCase().includes(state.inputValue.toLowerCase()));
+        return match ? filtered : [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }];
       }}
       defaultValue={defaultValue}
       renderInput={(props) => <TextField {...props} label="Category" />}
