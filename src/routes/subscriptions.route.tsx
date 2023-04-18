@@ -10,6 +10,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  ToggleButton,
+  ToggleButtonGroup,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -34,6 +36,7 @@ import {
   UsedByPaymentMethod,
 } from '../components';
 import { CreateFab } from '../components/Base/CreateFab/CreateFab.component';
+import { SubscriptionOverviewChart } from '../components/Subscription/Charts';
 import { SnackbarContext, StoreContext } from '../context';
 import { useFetchCategories, useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { Subscription } from '../models';
@@ -217,6 +220,10 @@ export const Subscriptions = () => {
             <NoResults sx={{ m: 2 }} text="No subscriptions found" />
           )}
         </Card>
+      </Grid>
+
+      <Grid item xs={12} md={4} lg={4} xl={4}>
+        <SubscriptionOverviewChart />
       </Grid>
 
       <Grid item xs={12} md={4} lg={4} xl={4}>
