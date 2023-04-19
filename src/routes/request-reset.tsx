@@ -1,12 +1,12 @@
 import { Box, Button, Divider, Grid, TextField, Typography } from '@mui/material';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Card from '../components/Base/card.component';
-import { SnackbarContext } from '../context';
+import { AuthContext, SnackbarContext } from '../context';
 import { supabase } from '../supabase';
 
 export const RequestReset = () => {
-  const navigate = useNavigate();
+  const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
   const [form, setForm] = React.useState<Record<string, string>>({});
 
@@ -70,11 +70,17 @@ export const RequestReset = () => {
 
           <Divider sx={{ my: 3 }} />
 
-          <Button sx={{ width: '100%', mb: 2 }} onClick={() => navigate('/sign-in', { replace: true })}>
-            Wanna sign in?
+          {session && session.user && (
+            <Button component={Link} to="/dashboard" sx={{ width: '100%', mb: 2 }}>
+              Dashboard
+            </Button>
+          )}
+
+          <Button component={Link} to="/sign-in" sx={{ width: '100%', mb: 2 }}>
+            Wanna sign in
           </Button>
 
-          <Button sx={{ width: '100%' }} onClick={() => navigate('/sign-up', { replace: true })}>
+          <Button component={Link} to="/sign-up" sx={{ width: '100%' }}>
             Don't have an account? Sign up...
           </Button>
         </Card>

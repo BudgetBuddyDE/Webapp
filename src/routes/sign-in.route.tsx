@@ -13,7 +13,7 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Card from '../components/Base/card.component';
 import { AuthContext, SnackbarContext } from '../context';
 import { AuthService } from '../services';
@@ -21,7 +21,7 @@ import { supabase } from '../supabase';
 
 export const SignIn = () => {
   const navigate = useNavigate();
-  const { setSession } = React.useContext(AuthContext);
+  const { session, setSession } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
   const [form, setForm] = React.useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = React.useState(false);
@@ -120,11 +120,17 @@ export const SignIn = () => {
 
           <Divider sx={{ my: 3 }} />
 
-          <Button sx={{ width: '100%', mb: 2 }} onClick={() => navigate('/request-reset', { replace: true })}>
+          {session && session.user && (
+            <Button component={Link} to="/dashboard" sx={{ width: '100%', mb: 2 }}>
+              Dashboard
+            </Button>
+          )}
+
+          <Button component={Link} to="/request-reset" sx={{ width: '100%', mb: 2 }}>
             Reset password?
           </Button>
 
-          <Button sx={{ width: '100%' }} onClick={() => navigate('/sign-up', { replace: true })}>
+          <Button component={Link} to="/sign-up" sx={{ width: '100%' }}>
             Don't have an account? Sign up...
           </Button>
         </Card>

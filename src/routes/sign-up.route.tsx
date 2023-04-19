@@ -13,7 +13,7 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Card from '../components/Base/card.component';
 import { AuthContext, SnackbarContext } from '../context';
 import { AuthService } from '../services';
@@ -21,7 +21,7 @@ import { supabase } from '../supabase';
 
 export const SignUp = () => {
   const navigate = useNavigate();
-  const { setSession } = React.useContext(AuthContext);
+  const { session, setSession } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
   const [form, setForm] = React.useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = React.useState(false);
@@ -131,7 +131,13 @@ export const SignUp = () => {
 
           <Divider sx={{ my: 3 }} />
 
-          <Button sx={{ width: '100%' }} onClick={() => navigate('/sign-in', { replace: true })}>
+          {session && session.user && (
+            <Button component={Link} to="/dashboard" sx={{ width: '100%', mb: 2 }}>
+              Dashboard
+            </Button>
+          )}
+
+          <Button component={Link} to="/sign-in" sx={{ width: '100%' }}>
             Already registered? Sign in...
           </Button>
         </Card>
