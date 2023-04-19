@@ -2,6 +2,10 @@ import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/ico
 import {
   Box,
   Button,
+  Checkbox,
+  Divider,
+  FormControl,
+  FormControlLabel,
   Grid,
   IconButton,
   Table,
@@ -59,8 +63,21 @@ export const Transactions = () => {
   const [keyword, setKeyword] = React.useState('');
   const [, startTransition] = React.useTransition();
   const [showAddForm, setShowAddForm] = React.useState(false);
+  const [selected, setSelected] = React.useState<Transaction['id'][]>([]);
   const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
   const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
+
+  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    if (checked) {
+      startTransition(() => {
+        setSelected(
+          selected.length > 0 && selected.length < shownTransactions.length ? [] : shownTransactions.map(({ id }) => id)
+        );
+      });
+    } else {
+      setSelected([]);
+    }
+  };
 
   const handler: TransactionHandler = {
     onSearch(text) {
@@ -136,10 +153,42 @@ export const Transactions = () => {
           ) : shownTransactions.length > 0 ? (
             <React.Fragment>
               <Card.Body>
+                {selected.length > 0 && (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      border: (theme) => `1px solid ${theme.palette.divider}`,
+                      borderLeftWidth: 0,
+                      borderRightWidth: 0,
+                      mt: 1,
+                      py: 1,
+                      px: 2,
+                    }}
+                  >
+                    <Typography>{selected.length} selected</Typography>
+
+                    <Button startIcon={<EditIcon />} size="small" sx={{ ml: 2 }}>
+                      Edit
+                    </Button>
+                    <Button startIcon={<DeleteIcon />} size="small" sx={{ ml: 1 }}>
+                      Delete
+                    </Button>
+                  </Box>
+                )}
+
                 <TableContainer>
                   <Table sx={{ minWidth: 650 }} aria-label="Transaction Table">
                     <TableHead>
                       <TableRow>
+                        <TableCell>
+                          <Checkbox
+                            onChange={handleSelectAll}
+                            indeterminate={selected.length > 0 && selected.length < shownTransactions.length}
+                            checked={selected.length === shownTransactions.length && selected.length > 0}
+                          />
+                        </TableCell>
                         {['Date', 'Category', 'Receiver', 'Amount', 'Payment Method', 'Information', ''].map(
                           (cell, index) => (
                             <TableCell key={index}>
@@ -158,6 +207,20 @@ export const Transactions = () => {
                             whiteSpace: 'nowrap',
                           }}
                         >
+                          <TableCell>
+                            <Checkbox
+                              onChange={() => {
+                                startTransition(() => {
+                                  setSelected((prev: number[]) => {
+                                    if (prev.includes(transaction.id)) {
+                                      return prev.filter((id) => id !== transaction.id);
+                                    } else return [...prev, transaction.id];
+                                  });
+                                });
+                              }}
+                              checked={selected.includes(transaction.id)}
+                            />
+                          </TableCell>
                           <TableCell>
                             <Typography fontWeight="bolder">{`${format(
                               new Date(transaction.date),
