@@ -1,8 +1,9 @@
 import { Search as SearchIcon } from '@mui/icons-material';
-import InputBase from '@mui/material/InputBase';
-import { SxProps, Theme, alpha, styled } from '@mui/material/styles';
+import { InputBase, SxProps, Theme, alpha, styled } from '@mui/material';
 import debounce from 'lodash.debounce';
 import React from 'react';
+import { determineIfMobileDevice, determineOperatingSystem } from '../../utils';
+import { KeyboardBtn } from '../Base';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -51,14 +52,42 @@ export interface SearchInputProps {
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({ placeholder = 'Search…', onSearch, sx }) => {
+  const isMobileDevice = determineIfMobileDevice();
+  const os = determineOperatingSystem();
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleKeyPress = (event: KeyboardEvent) => {
+    if (event.key === 'k') {
+      event.preventDefault();
+      inputRef.current?.focus();
+    }
+  };
+
+  React.useEffect(() => {
+    if (!isMobileDevice) {
+      document.addEventListener('keydown', handleKeyPress);
+    }
+    return () => {
+      if (!isMobileDevice) {
+        document.removeEventListener('keydown', handleKeyPress);
+      }
+    };
+  }, []);
+
   return (
     <Search sx={sx}>
       <SearchIconWrapper>
         <SearchIcon />
       </SearchIconWrapper>
       <StyledInputBase
+        inputRef={inputRef}
         placeholder={placeholder}
         inputProps={{ 'aria-label': 'search' }}
+        endAdornment={
+          isMobileDevice ? undefined : (
+            <KeyboardBtn style={{ marginRight: '8px' }}>{os === 'macOS' ? 'Cmd' : 'Ctrl'} + K</KeyboardBtn>
+          )
+        }
         onChange={debounce((e) => onSearch(e.target.value), 150)}
       />
     </Search>
