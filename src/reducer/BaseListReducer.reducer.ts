@@ -7,7 +7,8 @@ export type BaseListReducerAction<T> =
   | BaseReducerAction<T[]>
   | { type: 'ADD_ITEM'; entry: T }
   | { type: 'UPDATE_BY_ID'; entry: T }
-  | { type: 'REMOVE_BY_ID'; id: number };
+  | { type: 'REMOVE_BY_ID'; id: number }
+  | { type: 'REMOVE_MULTIPLE_BY_ID'; ids: number[] };
 
 export function BaseListReducer<T>(
   state: BaseListReducerState<T>,
@@ -30,7 +31,6 @@ export function BaseListReducer<T>(
         console.warn("Can't update an item when the state is NULL");
         return state;
       }
-
       if (state.data.length === 0) {
         console.warn("Can't update an item from an empty list");
         return state;
@@ -62,6 +62,22 @@ export function BaseListReducer<T>(
         data: state.data.filter((entry) => {
           return genericObjectHasNumericId(entry) && (entry as any).id !== action.id;
         }),
+      };
+
+    case 'REMOVE_MULTIPLE_BY_ID':
+      if (state.data === null) {
+        console.warn("Can't remove an item from NULL");
+        return state;
+      }
+
+      if (state.data.length === 0) {
+        console.warn("Can't remove an item from an empty list");
+        return state;
+      }
+
+      return {
+        ...state,
+        data: state.data.filter((entry) => genericObjectHasNumericId(entry) && !action.ids.includes((entry as any).id)),
       };
 
     default:
