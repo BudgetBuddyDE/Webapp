@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.4](https://github.com/BudgetBuddyDE/Webapp/compare/v0.2.3...v0.2.4) (2023-04-22)
+
+
+### Features
+
+* Add `SelectMultiple` components ([b2278b2](https://github.com/BudgetBuddyDE/Webapp/commit/b2278b29a6b4e5acf0c773a9597a330c9a242050))
+* Add ability to remove multiple entries by `id` ([60d6903](https://github.com/BudgetBuddyDE/Webapp/commit/60d6903cdf1f61c9db73d59d8a16661cb06ebcf6))
+* Add functions for for environment detection ([cc4303f](https://github.com/BudgetBuddyDE/Webapp/commit/cc4303fd65c7cd97a4aab3078a1813c8e4f9ee05))
+* Add hotkey for input-focus ([ab046ba](https://github.com/BudgetBuddyDE/Webapp/commit/ab046baad29221d6642a9990a574f5ede8b9a085))
+* Add methods for `SelectMultiple`-feature ([496ef7c](https://github.com/BudgetBuddyDE/Webapp/commit/496ef7c6cb61a60df0389fcdc6804f6fcbbb119e))
+* Implement `SelectMultiple` ([c918ac1](https://github.com/BudgetBuddyDE/Webapp/commit/c918ac1b4501c69fd3093b1dc40fa35f212bac2c))
+* Make `Brand` clickable ([90c9304](https://github.com/BudgetBuddyDE/Webapp/commit/90c9304413720585664502a756661fe38c819828)), closes [#38](https://github.com/BudgetBuddyDE/Webapp/issues/38)
+* Visualize monthly subscriptions ([2f89fb4](https://github.com/BudgetBuddyDE/Webapp/commit/2f89fb435b7a8b2094d8854217ddd672c52f104b))
+
+
+### Bug Fixes
+
+* Update states on device-width-change ([340011a](https://github.com/BudgetBuddyDE/Webapp/commit/340011ac664e87732a6483cf6c5589420107d289))
+* Use correct return-type ([6cbe020](https://github.com/BudgetBuddyDE/Webapp/commit/6cbe020c18fde005a745d9381e06a332af9c638b))
+
 ### [0.2.3](https://github.com/BudgetBuddyDE/Webapp/compare/v0.2.2...v0.2.3) (2023-04-17)
 
 
