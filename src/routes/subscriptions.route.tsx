@@ -2,6 +2,7 @@ import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/ico
 import {
   Box,
   Button,
+  Checkbox,
   Grid,
   IconButton,
   Table,
@@ -10,8 +11,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  ToggleButton,
-  ToggleButtonGroup,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -21,6 +20,7 @@ import {
   Card,
   CategoryChip,
   CircularProgress,
+  CreateFab,
   CreateSubscription,
   EarningsByCategory,
   EditSubscription,
@@ -30,17 +30,19 @@ import {
   PageHeader,
   PaymentMethodChip,
   SearchInput,
+  SelectMultiple,
   ShowFilterButton,
+  SubscriptionOverviewChart,
   TablePagination,
   TablePaginationHandler,
   UsedByPaymentMethod,
 } from '../components';
-import { CreateFab } from '../components/Base/CreateFab/CreateFab.component';
-import { SubscriptionOverviewChart } from '../components/Subscription/Charts';
+import type { SelectMultipleHandler } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
 import { useFetchCategories, useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { Subscription } from '../models';
-import { TablePaginationReducer } from '../reducer';
+import { SelectMultipleReducer, TablePaginationReducer, generateInitialState } from '../reducer';
+import { SubscriptionService } from '../services';
 import { DescriptionTableCellStyle } from '../theme/description-table-cell.style';
 import { determineNextExecution, filterSubscriptions } from '../utils';
 
@@ -52,6 +54,7 @@ interface SubscriptionsHandler {
     onEdit: (subscription: Subscription) => void;
     onShowAddForm: () => void;
   };
+  selectMultiple: SelectMultipleHandler;
 }
 
 export const Subscriptions = () => {
@@ -66,6 +69,10 @@ export const Subscriptions = () => {
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [editSubscription, setEditSubscription] = React.useState<Subscription | null>(null);
   const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
+  const [selectedSubscriptions, setSelectedSubscriptions] = React.useReducer(
+    SelectMultipleReducer,
+    generateInitialState()
+  );
 
   const handler: SubscriptionsHandler = {
     onSearch(keyword) {
@@ -101,6 +108,77 @@ export const Subscriptions = () => {
       },
       onEdit(subscription) {
         setEditSubscription(subscription);
+      },
+    },
+    selectMultiple: {
+      onSelectAll: (event, checked) => {
+        startTransition(() => {
+          setSelectedSubscriptions({
+            type: 'SET_SELECTED',
+            selected:
+              selectedSubscriptions.selected.length > 0 &&
+              (selectedSubscriptions.selected.length < shownSubscriptions.length ||
+                shownSubscriptions.length === selectedSubscriptions.selected.length)
+                ? []
+                : fetchSubscriptions.subscriptions.map(({ id }) => id),
+          });
+        });
+      },
+      onSelectSingle: (event, checked) => {
+        const item = Number(event.target.value);
+        setSelectedSubscriptions(checked ? { type: 'ADD_ITEM', item: item } : { type: 'REMOVE_ITEM', item: item });
+      },
+      actionBar: {
+        onEdit: () => {
+          setSelectedSubscriptions({ type: 'OPEN_DIALOG', dialog: 'EDIT' });
+        },
+        onDelete: () => {
+          setSelectedSubscriptions({ type: 'OPEN_DIALOG', dialog: 'DELETE' });
+        },
+      },
+      dialog: {
+        onEditConfirm: async (action, id) => {
+          try {
+            const result = await SubscriptionService.update(
+              selectedSubscriptions.selected,
+              action === 'CATEGORY' ? 'category' : 'paymentMethod',
+              id
+            );
+            if (result.length === 0) return showSnackbar({ message: 'No subscriptions were updated' });
+            await fetchSubscriptions.refresh();
+            setSelectedSubscriptions({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
+            showSnackbar({ message: 'Subscriptions updated' });
+          } catch (error) {
+            console.error(error);
+            showSnackbar({
+              message: "Couln't update the subscriptions",
+              // @ts-expect-error
+              action: <Button onClick={() => handler.selectMultiple.dialog.onEditConfirm(action, id)}>Retry</Button>,
+            });
+            setSelectedSubscriptions({ type: 'CLOSE_DIALOG' });
+          }
+        },
+        onEditCancel: () => {
+          setSelectedSubscriptions({ type: 'CLOSE_DIALOG' });
+        },
+        onDeleteCancel: () => {
+          setSelectedSubscriptions({ type: 'CLOSE_DIALOG' });
+        },
+        onDeleteConfirm: async () => {
+          try {
+            const result = await SubscriptionService.delete(selectedSubscriptions.selected);
+            setSubscriptions({ type: 'REMOVE_MULTIPLE_BY_ID', ids: result.map((transaction) => transaction.id) });
+            setSelectedSubscriptions({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
+            showSnackbar({ message: 'Transactions deleted' });
+          } catch (error) {
+            console.error(error);
+            showSnackbar({
+              message: "Couln't delete the transaction",
+              action: <Button onClick={handler.selectMultiple.dialog.onDeleteConfirm}>Retry</Button>,
+            });
+            setSelectedSubscriptions({ type: 'CLOSE_DIALOG' });
+          }
+        },
       },
     },
   };
@@ -142,10 +220,27 @@ export const Subscriptions = () => {
           ) : shownSubscriptions.length > 0 ? (
             <React.Fragment>
               <Card.Body>
+                <SelectMultiple.Actions
+                  amount={selectedSubscriptions.selected.length}
+                  onEdit={handler.selectMultiple.actionBar.onEdit}
+                  onDelete={handler.selectMultiple.actionBar.onDelete}
+                />
                 <TableContainer>
                   <Table sx={{ minWidth: 650 }} aria-label="Subscriptions Table">
                     <TableHead>
                       <TableRow>
+                        <SelectMultiple.SelectAllCheckbox
+                          onChange={handler.selectMultiple.onSelectAll}
+                          indeterminate={
+                            selectedSubscriptions.selected.length > 0 &&
+                            selectedSubscriptions.selected.length < shownSubscriptions.length
+                          }
+                          checked={
+                            selectedSubscriptions.selected.length === shownSubscriptions.length &&
+                            selectedSubscriptions.selected.length > 0
+                          }
+                          withTableCell
+                        />
                         {['Next execution', 'Category', 'Receiver', 'Amount', 'Payment Method', 'Information', ''].map(
                           (cell, index) => (
                             <TableCell key={index}>
@@ -164,6 +259,13 @@ export const Subscriptions = () => {
                             whiteSpace: 'nowrap',
                           }}
                         >
+                          <TableCell>
+                            <SelectMultiple.SelectSingleCheckbox
+                              value={row.id}
+                              onChange={handler.selectMultiple.onSelectSingle}
+                              checked={selectedSubscriptions.selected.includes(row.id)}
+                            />
+                          </TableCell>
                           <TableCell>
                             <Typography fontWeight="bolder">{determineNextExecution(row.execute_at)}</Typography>
                           </TableCell>
@@ -243,6 +345,16 @@ export const Subscriptions = () => {
       </Grid>
 
       <CreateFab onClick={() => handler.subscription.onShowAddForm()} />
+      <SelectMultiple.EditDialog
+        open={selectedSubscriptions.dialog.show && selectedSubscriptions.dialog.type === 'EDIT'}
+        onCancel={handler.selectMultiple.dialog.onEditCancel!}
+        onUpdate={handler.selectMultiple.dialog.onEditConfirm!}
+      />
+      <SelectMultiple.ConfirmDeleteDialog
+        open={selectedSubscriptions.dialog.show && selectedSubscriptions.dialog.type === 'DELETE'}
+        onCancel={handler.selectMultiple.dialog.onDeleteCancel!}
+        onConfirm={handler.selectMultiple.dialog.onDeleteConfirm!}
+      />
 
       <CreateSubscription open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
 

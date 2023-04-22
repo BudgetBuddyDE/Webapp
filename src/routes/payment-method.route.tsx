@@ -19,6 +19,7 @@ import {
   ActionPaper,
   Card,
   CircularProgress,
+  CreateFab,
   CreatePaymentMethod,
   EarningsByPaymentMethod,
   EditPaymentMethod,
@@ -27,15 +28,17 @@ import {
   NoResults,
   PageHeader,
   SearchInput,
+  SelectMultiple,
   TablePagination,
   TablePaginationHandler,
   UsedByPaymentMethod,
 } from '../components';
-import { CreateFab } from '../components/Base/CreateFab/CreateFab.component';
+import type { SelectMultipleHandler } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
 import { useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { PaymentMethod } from '../models';
-import { TablePaginationReducer } from '../reducer';
+import { SelectMultipleReducer, TablePaginationReducer, generateInitialState } from '../reducer';
+import { PaymentMethodService } from '../services';
 import { DescriptionTableCellStyle } from '../theme/description-table-cell.style';
 
 interface PaymentMethodHandler {
@@ -45,6 +48,7 @@ interface PaymentMethodHandler {
   paymentMethod: {
     onDelete: (paymentMethod: PaymentMethod) => void;
   };
+  selectMultiple: SelectMultipleHandler;
 }
 
 export const PaymentMethods = () => {
@@ -62,6 +66,10 @@ export const PaymentMethods = () => {
   const [keyword, setKeyword] = React.useState('');
   const [editPaymentMethod, setEditPaymentMethod] = React.useState<PaymentMethod | null>(null);
   const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
+  const [selectedPaymentMethods, setSelectedPaymentMethods] = React.useReducer(
+    SelectMultipleReducer,
+    generateInitialState()
+  );
 
   const handler: PaymentMethodHandler = {
     clearLocatioState() {
@@ -94,6 +102,53 @@ export const PaymentMethods = () => {
             action: <Button onClick={() => handler.paymentMethod.onDelete(paymentMethod)}>Retry</Button>,
           });
         }
+      },
+    },
+    selectMultiple: {
+      onSelectAll: (event, checked) => {
+        startTransition(() => {
+          setSelectedPaymentMethods({
+            type: 'SET_SELECTED',
+            selected:
+              selectedPaymentMethods.selected.length > 0 &&
+              (selectedPaymentMethods.selected.length < shownPaymentMethods.length ||
+                shownPaymentMethods.length === selectedPaymentMethods.selected.length)
+                ? []
+                : shownPaymentMethods.map(({ id }) => id),
+          });
+        });
+      },
+      onSelectSingle: (event, checked) => {
+        const item = Number(event.target.value);
+        setSelectedPaymentMethods(checked ? { type: 'ADD_ITEM', item: item } : { type: 'REMOVE_ITEM', item: item });
+      },
+      actionBar: {
+        onEdit: () => {
+          setSelectedPaymentMethods({ type: 'OPEN_DIALOG', dialog: 'EDIT' });
+        },
+        onDelete: () => {
+          setSelectedPaymentMethods({ type: 'OPEN_DIALOG', dialog: 'DELETE' });
+        },
+      },
+      dialog: {
+        onDeleteCancel: () => {
+          setSelectedPaymentMethods({ type: 'CLOSE_DIALOG' });
+        },
+        onDeleteConfirm: async () => {
+          try {
+            const result = await PaymentMethodService.delete(selectedPaymentMethods.selected);
+            setPaymentMethods({ type: 'REMOVE_MULTIPLE_BY_ID', ids: result.map((paymentMethod) => paymentMethod.id) });
+            setSelectedPaymentMethods({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
+            showSnackbar({ message: 'Payment-methods deleted' });
+          } catch (error) {
+            console.error(error);
+            showSnackbar({
+              message: "Couln't delete the payment-methods",
+              action: <Button onClick={handler.selectMultiple.dialog.onDeleteConfirm}>Retry</Button>,
+            });
+            setSelectedPaymentMethods({ type: 'CLOSE_DIALOG' });
+          }
+        },
       },
     },
   };
@@ -143,10 +198,27 @@ export const PaymentMethods = () => {
           ) : fetchPaymentMethods.paymentMethods.length > 0 ? (
             <React.Fragment>
               <Card.Body>
+                <SelectMultiple.Actions
+                  amount={selectedPaymentMethods.selected.length}
+                  onDelete={handler.selectMultiple.actionBar.onDelete}
+                />
                 <TableContainer>
                   <Table sx={{ minWidth: 650 }} aria-label="Payment Methods Table">
                     <TableHead>
                       <TableRow>
+                        <SelectMultiple.SelectAllCheckbox
+                          onChange={handler.selectMultiple.onSelectAll}
+                          indeterminate={
+                            selectedPaymentMethods.selected.length > 0 &&
+                            selectedPaymentMethods.selected.length < shownPaymentMethods.length
+                          }
+                          checked={
+                            selectedPaymentMethods.selected.length === shownPaymentMethods.length &&
+                            selectedPaymentMethods.selected.length > 0
+                          }
+                          withTableCell
+                        />
+
                         {['Name', 'Provider', 'Address', 'Description', ''].map((cell, index) => (
                           <TableCell key={index}>
                             <Typography fontWeight="bolder">{cell}</Typography>
@@ -163,6 +235,13 @@ export const PaymentMethods = () => {
                             whiteSpace: 'nowrap',
                           }}
                         >
+                          <TableCell>
+                            <SelectMultiple.SelectSingleCheckbox
+                              value={row.id}
+                              onChange={handler.selectMultiple.onSelectSingle}
+                              checked={selectedPaymentMethods.selected.includes(row.id)}
+                            />
+                          </TableCell>
                           <TableCell>
                             <Typography>{row.name}</Typography>
                           </TableCell>
@@ -232,6 +311,11 @@ export const PaymentMethods = () => {
       </Grid>
 
       <CreateFab onClick={() => setShowAddForm(true)} />
+      <SelectMultiple.ConfirmDeleteDialog
+        open={selectedPaymentMethods.dialog.show && selectedPaymentMethods.dialog.type === 'DELETE'}
+        onCancel={handler.selectMultiple.dialog.onDeleteCancel!}
+        onConfirm={handler.selectMultiple.dialog.onDeleteConfirm!}
+      />
 
       <CreatePaymentMethod
         open={showAddForm}

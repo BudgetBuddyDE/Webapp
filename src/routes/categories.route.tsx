@@ -2,6 +2,7 @@ import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/ico
 import {
   Box,
   Button,
+  Checkbox,
   Grid,
   IconButton,
   Table,
@@ -20,6 +21,7 @@ import {
   Card,
   CircularProgress,
   CreateCategory,
+  CreateFab,
   EarningsByCategory,
   EditCategory,
   InitialTablePaginationState,
@@ -27,14 +29,17 @@ import {
   NoResults,
   PageHeader,
   SearchInput,
+  SelectMultiple,
   TablePagination,
   TablePaginationHandler,
 } from '../components';
-import { CreateFab } from '../components/Base/CreateFab/CreateFab.component';
+import type { SelectMultipleHandler } from '../components/SelectMultiple';
 import { SnackbarContext, StoreContext } from '../context';
 import { useFetchCategories, useFetchTransactions } from '../hooks';
 import { Category } from '../models';
 import { TablePaginationReducer } from '../reducer';
+import { SelectMultipleReducer, generateInitialState } from '../reducer/SelectMultiple.reducer';
+import { CategoryService } from '../services';
 import { DescriptionTableCellStyle } from '../theme/description-table-cell.style';
 
 interface CategoryHandler {
@@ -44,6 +49,7 @@ interface CategoryHandler {
   category: {
     onDelete: (category: Category) => void;
   };
+  selectMultiple: SelectMultipleHandler;
 }
 
 export const Categories = () => {
@@ -60,6 +66,7 @@ export const Categories = () => {
   const [editCategory, setEditCategory] = React.useState<Category | null>(null);
   const [, startTransition] = React.useTransition();
   const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
+  const [selectedCategories, setSelectedCategories] = React.useReducer(SelectMultipleReducer, generateInitialState());
 
   const handler: CategoryHandler = {
     clearLocationState() {
@@ -92,6 +99,53 @@ export const Categories = () => {
             action: <Button onClick={() => handler.category.onDelete(category)}>Retry</Button>,
           });
         }
+      },
+    },
+    selectMultiple: {
+      onSelectAll: (event, checked) => {
+        startTransition(() => {
+          setSelectedCategories({
+            type: 'SET_SELECTED',
+            selected:
+              selectedCategories.selected.length > 0 &&
+              (selectedCategories.selected.length < shownCategories.length ||
+                shownCategories.length === selectedCategories.selected.length)
+                ? []
+                : shownCategories.map(({ id }) => id),
+          });
+        });
+      },
+      onSelectSingle: (event, checked) => {
+        const item = Number(event.target.value);
+        setSelectedCategories(checked ? { type: 'ADD_ITEM', item: item } : { type: 'REMOVE_ITEM', item: item });
+      },
+      actionBar: {
+        onEdit: () => {
+          setSelectedCategories({ type: 'OPEN_DIALOG', dialog: 'EDIT' });
+        },
+        onDelete: () => {
+          setSelectedCategories({ type: 'OPEN_DIALOG', dialog: 'DELETE' });
+        },
+      },
+      dialog: {
+        onDeleteCancel: () => {
+          setSelectedCategories({ type: 'CLOSE_DIALOG' });
+        },
+        onDeleteConfirm: async () => {
+          try {
+            const result = await CategoryService.delete(selectedCategories.selected);
+            setCategories({ type: 'REMOVE_MULTIPLE_BY_ID', ids: result.map((category) => category.id) });
+            setSelectedCategories({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
+            showSnackbar({ message: 'Categories deleted' });
+          } catch (error) {
+            console.error(error);
+            showSnackbar({
+              message: "Couln't delete the categories",
+              action: <Button onClick={handler.selectMultiple.dialog.onDeleteConfirm}>Retry</Button>,
+            });
+            setSelectedCategories({ type: 'CLOSE_DIALOG' });
+          }
+        },
       },
     },
   };
@@ -137,10 +191,26 @@ export const Categories = () => {
           ) : fetchCategories.categories.length > 0 ? (
             <React.Fragment>
               <Card.Body>
+                <SelectMultiple.Actions
+                  amount={selectedCategories.selected.length}
+                  onDelete={handler.selectMultiple.actionBar.onDelete}
+                />
                 <TableContainer>
                   <Table sx={{ minWidth: 650 }} aria-label="Category Table">
                     <TableHead>
                       <TableRow>
+                        <SelectMultiple.SelectAllCheckbox
+                          onChange={handler.selectMultiple.onSelectAll}
+                          indeterminate={
+                            selectedCategories.selected.length > 0 &&
+                            selectedCategories.selected.length < shownCategories.length
+                          }
+                          checked={
+                            selectedCategories.selected.length === shownCategories.length &&
+                            selectedCategories.selected.length > 0
+                          }
+                          withTableCell
+                        />
                         {['Name', 'Description', ''].map((cell, index) => (
                           <TableCell key={index}>
                             <Typography fontWeight="bolder">{cell}</Typography>
@@ -157,6 +227,13 @@ export const Categories = () => {
                             whiteSpace: 'nowrap',
                           }}
                         >
+                          <TableCell>
+                            <SelectMultiple.SelectSingleCheckbox
+                              value={row.id}
+                              onChange={handler.selectMultiple.onSelectSingle}
+                              checked={selectedCategories.selected.includes(row.id)}
+                            />
+                          </TableCell>
                           <TableCell>
                             <Typography>{row.name}</Typography>
                           </TableCell>
@@ -205,6 +282,11 @@ export const Categories = () => {
       </Grid>
 
       <CreateFab onClick={() => setShowAddForm(true)} />
+      <SelectMultiple.ConfirmDeleteDialog
+        open={selectedCategories.dialog.show && selectedCategories.dialog.type === 'DELETE'}
+        onCancel={handler.selectMultiple.dialog.onDeleteCancel!}
+        onConfirm={handler.selectMultiple.dialog.onDeleteConfirm!}
+      />
 
       <CreateCategory
         open={showAddForm}

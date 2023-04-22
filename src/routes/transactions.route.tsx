@@ -2,10 +2,6 @@ import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/ico
 import {
   Box,
   Button,
-  Checkbox,
-  Divider,
-  FormControl,
-  FormControlLabel,
   Grid,
   IconButton,
   Table,
@@ -24,6 +20,7 @@ import {
   Card,
   CategoryChip,
   CircularProgress,
+  CreateFab,
   CreateTransaction,
   EarningsByCategory,
   EditTransaction,
@@ -33,16 +30,18 @@ import {
   PageHeader,
   PaymentMethodChip,
   SearchInput,
+  SelectMultiple,
   ShowFilterButton,
   TablePagination,
   TablePaginationHandler,
   UsedByPaymentMethod,
 } from '../components';
-import { CreateFab } from '../components/Base/CreateFab/CreateFab.component';
+import type { SelectMultipleHandler } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
 import { useFetchCategories, useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '../hooks';
 import { Transaction } from '../models';
-import { TablePaginationReducer } from '../reducer';
+import { SelectMultipleReducer, TablePaginationReducer, generateInitialState } from '../reducer';
+import { TransactionService } from '../services';
 import { DescriptionTableCellStyle } from '../theme/description-table-cell.style';
 import { filterTransactions } from '../utils';
 
@@ -51,6 +50,7 @@ interface TransactionHandler {
   onAddTransaction: (show: boolean) => void;
   onTransactionDelete: (transaction: Transaction) => void;
   pagination: TablePaginationHandler;
+  selectMultiple: SelectMultipleHandler;
 }
 
 export const Transactions = () => {
@@ -63,21 +63,12 @@ export const Transactions = () => {
   const [keyword, setKeyword] = React.useState('');
   const [, startTransition] = React.useTransition();
   const [showAddForm, setShowAddForm] = React.useState(false);
-  const [selected, setSelected] = React.useState<Transaction['id'][]>([]);
   const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
   const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
-
-  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-    if (checked) {
-      startTransition(() => {
-        setSelected(
-          selected.length > 0 && selected.length < shownTransactions.length ? [] : shownTransactions.map(({ id }) => id)
-        );
-      });
-    } else {
-      setSelected([]);
-    }
-  };
+  const [selectedTransactions, setSelectedTransactions] = React.useReducer(
+    SelectMultipleReducer,
+    generateInitialState()
+  );
 
   const handler: TransactionHandler = {
     onSearch(text) {
@@ -111,6 +102,77 @@ export const Transactions = () => {
       },
       onRowsPerPageChange(rowsPerPage) {
         setTablePagination({ type: 'CHANGE_ROWS_PER_PAGE', rowsPerPage: rowsPerPage });
+      },
+    },
+    selectMultiple: {
+      onSelectAll: (event, checked) => {
+        startTransition(() => {
+          setSelectedTransactions({
+            type: 'SET_SELECTED',
+            selected:
+              selectedTransactions.selected.length > 0 &&
+              (selectedTransactions.selected.length < shownTransactions.length ||
+                shownTransactions.length === selectedTransactions.selected.length)
+                ? []
+                : shownTransactions.map(({ id }) => id),
+          });
+        });
+      },
+      onSelectSingle: (event, checked) => {
+        const item = Number(event.target.value);
+        setSelectedTransactions(checked ? { type: 'ADD_ITEM', item: item } : { type: 'REMOVE_ITEM', item: item });
+      },
+      actionBar: {
+        onEdit: () => {
+          setSelectedTransactions({ type: 'OPEN_DIALOG', dialog: 'EDIT' });
+        },
+        onDelete: () => {
+          setSelectedTransactions({ type: 'OPEN_DIALOG', dialog: 'DELETE' });
+        },
+      },
+      dialog: {
+        onEditConfirm: async (action, id) => {
+          try {
+            const result = await TransactionService.update(
+              selectedTransactions.selected,
+              action === 'CATEGORY' ? 'category' : 'paymentMethod',
+              id
+            );
+            if (result.length === 0) return showSnackbar({ message: 'No transactions were updated' });
+            await fetchTransactions.refresh();
+            setSelectedTransactions({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
+            showSnackbar({ message: 'Transactions updated' });
+          } catch (error) {
+            console.error(error);
+            showSnackbar({
+              message: "Couln't update the transactions",
+              // @ts-expect-error
+              action: <Button onClick={() => handler.selectMultiple.dialog.onEditConfirm(action, id)}>Retry</Button>,
+            });
+            setSelectedTransactions({ type: 'CLOSE_DIALOG' });
+          }
+        },
+        onEditCancel: () => {
+          setSelectedTransactions({ type: 'CLOSE_DIALOG' });
+        },
+        onDeleteCancel: () => {
+          setSelectedTransactions({ type: 'CLOSE_DIALOG' });
+        },
+        onDeleteConfirm: async () => {
+          try {
+            const result = await TransactionService.delete(selectedTransactions.selected);
+            setTransactions({ type: 'REMOVE_MULTIPLE_BY_ID', ids: result.map((transaction) => transaction.id) });
+            setSelectedTransactions({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
+            showSnackbar({ message: 'Transactions deleted' });
+          } catch (error) {
+            console.error(error);
+            showSnackbar({
+              message: "Couln't delete the transactions",
+              action: <Button onClick={handler.selectMultiple.dialog.onDeleteConfirm}>Retry</Button>,
+            });
+            setSelectedTransactions({ type: 'CLOSE_DIALOG' });
+          }
+        },
       },
     },
   };
@@ -153,42 +215,28 @@ export const Transactions = () => {
           ) : shownTransactions.length > 0 ? (
             <React.Fragment>
               <Card.Body>
-                {selected.length > 0 && (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      border: (theme) => `1px solid ${theme.palette.divider}`,
-                      borderLeftWidth: 0,
-                      borderRightWidth: 0,
-                      mt: 1,
-                      py: 1,
-                      px: 2,
-                    }}
-                  >
-                    <Typography>{selected.length} selected</Typography>
-
-                    <Button startIcon={<EditIcon />} size="small" sx={{ ml: 2 }}>
-                      Edit
-                    </Button>
-                    <Button startIcon={<DeleteIcon />} size="small" sx={{ ml: 1 }}>
-                      Delete
-                    </Button>
-                  </Box>
-                )}
+                <SelectMultiple.Actions
+                  amount={selectedTransactions.selected.length}
+                  onEdit={handler.selectMultiple.actionBar.onEdit}
+                  onDelete={handler.selectMultiple.actionBar.onDelete}
+                />
 
                 <TableContainer>
                   <Table sx={{ minWidth: 650 }} aria-label="Transaction Table">
                     <TableHead>
                       <TableRow>
-                        <TableCell>
-                          <Checkbox
-                            onChange={handleSelectAll}
-                            indeterminate={selected.length > 0 && selected.length < shownTransactions.length}
-                            checked={selected.length === shownTransactions.length && selected.length > 0}
-                          />
-                        </TableCell>
+                        <SelectMultiple.SelectAllCheckbox
+                          onChange={handler.selectMultiple.onSelectAll}
+                          indeterminate={
+                            selectedTransactions.selected.length > 0 &&
+                            selectedTransactions.selected.length < shownTransactions.length
+                          }
+                          checked={
+                            selectedTransactions.selected.length === shownTransactions.length &&
+                            selectedTransactions.selected.length > 0
+                          }
+                          withTableCell
+                        />
                         {['Date', 'Category', 'Receiver', 'Amount', 'Payment Method', 'Information', ''].map(
                           (cell, index) => (
                             <TableCell key={index}>
@@ -208,17 +256,10 @@ export const Transactions = () => {
                           }}
                         >
                           <TableCell>
-                            <Checkbox
-                              onChange={() => {
-                                startTransition(() => {
-                                  setSelected((prev: number[]) => {
-                                    if (prev.includes(transaction.id)) {
-                                      return prev.filter((id) => id !== transaction.id);
-                                    } else return [...prev, transaction.id];
-                                  });
-                                });
-                              }}
-                              checked={selected.includes(transaction.id)}
+                            <SelectMultiple.SelectSingleCheckbox
+                              value={transaction.id}
+                              onChange={handler.selectMultiple.onSelectSingle}
+                              checked={selectedTransactions.selected.includes(transaction.id)}
                             />
                           </TableCell>
                           <TableCell>
@@ -299,6 +340,16 @@ export const Transactions = () => {
       </Grid>
 
       <CreateFab onClick={() => handler.onAddTransaction(true)} />
+      <SelectMultiple.EditDialog
+        open={selectedTransactions.dialog.show && selectedTransactions.dialog.type === 'EDIT'}
+        onCancel={handler.selectMultiple.dialog.onEditCancel!}
+        onUpdate={handler.selectMultiple.dialog.onEditConfirm!}
+      />
+      <SelectMultiple.ConfirmDeleteDialog
+        open={selectedTransactions.dialog.show && selectedTransactions.dialog.type === 'DELETE'}
+        onCancel={handler.selectMultiple.dialog.onDeleteCancel!}
+        onConfirm={handler.selectMultiple.dialog.onDeleteConfirm!}
+      />
 
       <CreateTransaction open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
 
