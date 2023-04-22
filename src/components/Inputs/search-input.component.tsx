@@ -2,6 +2,7 @@ import { Search as SearchIcon } from '@mui/icons-material';
 import { InputBase, SxProps, Theme, alpha, styled } from '@mui/material';
 import debounce from 'lodash.debounce';
 import React from 'react';
+import { useWindowDimensions } from '../../hooks';
 import { determineIfMobileDevice, determineOperatingSystem } from '../../utils';
 import { KeyboardBtn } from '../Base';
 
@@ -52,9 +53,10 @@ export interface SearchInputProps {
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({ placeholder = 'Searchâ€¦', onSearch, sx }) => {
-  const isMobileDevice = determineIfMobileDevice();
+  const windowSize = useWindowDimensions();
   const os = determineOperatingSystem();
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const isMobileDevice = React.useMemo(() => determineIfMobileDevice(), [windowSize]);
 
   const handleKeyPress = (event: KeyboardEvent) => {
     if (event.key === 'k') {
@@ -72,7 +74,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({ placeholder = 'Searchâ
         document.removeEventListener('keydown', handleKeyPress);
       }
     };
-  }, []);
+  }, [isMobileDevice]);
 
   return (
     <Search sx={sx}>
