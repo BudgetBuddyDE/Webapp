@@ -7,7 +7,7 @@ import { PossibleErrorTypes } from './fetch-transactions.hook';
 export type useFetchPaymentMethodsValue = {
   loading: boolean;
   paymentMethods: PaymentMethod[];
-  refresh: () => void;
+  refresh: () => Promise<void>;
   error: PossibleErrorTypes;
 };
 

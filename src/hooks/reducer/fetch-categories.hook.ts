@@ -7,7 +7,7 @@ import { PossibleErrorTypes } from './fetch-transactions.hook';
 export type useFetchCategoriesValue = {
   loading: boolean;
   categories: Category[];
-  refresh: () => void;
+  refresh: () => Promise<void>;
   error: PossibleErrorTypes;
 };
 

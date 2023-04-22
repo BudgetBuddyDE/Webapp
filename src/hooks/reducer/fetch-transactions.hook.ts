@@ -8,7 +8,7 @@ export type PossibleErrorTypes = Error | object | string | unknown | null;
 export type useFetchTransactionsValue = {
   loading: boolean;
   transactions: Transaction[];
-  refresh: () => void;
+  refresh: () => Promise<void>;
   error: PossibleErrorTypes;
 };
 

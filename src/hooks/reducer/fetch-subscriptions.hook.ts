@@ -7,7 +7,7 @@ import { PossibleErrorTypes } from './fetch-transactions.hook';
 export type useFetchSubscriptionsValue = {
   loading: boolean;
   subscriptions: Subscription[];
-  refresh: () => void;
+  refresh: () => Promise<void>;
   error: PossibleErrorTypes;
 };
 
