@@ -24,7 +24,6 @@ export const SubscriptionOverviewChart = () => {
   }, [subscriptions, chartContent]);
 
   const chartData = React.useMemo(() => {
-    console.log(chartContentSubscriptions);
     const categoryAmounts: {
       [categoryId: Subscription['id']]: { amount: number; name: Subscription['categories']['name'] };
     } = {};
@@ -38,8 +37,6 @@ export const SubscriptionOverviewChart = () => {
       } else categoryAmounts[categoryId].amount += subscription.amount;
     }
 
-    console.log(categoryAmounts);
-
     const result: PieChartData[] = [];
     for (const categoryId in categoryAmounts) {
       if (categoryAmounts.hasOwnProperty(categoryId)) {
@@ -48,7 +45,6 @@ export const SubscriptionOverviewChart = () => {
       }
     }
 
-    console.log(result);
     return result;
   }, [chartContentSubscriptions, chartContent]);
 

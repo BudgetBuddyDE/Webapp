@@ -7,6 +7,7 @@ export * from './Budget';
 export * from './Category';
 export * from './PaymentMethod';
 export * from './Inputs';
+export * from './SelectMultiple';
 
 export * from './chip.component';
 export * from './copyright.component';

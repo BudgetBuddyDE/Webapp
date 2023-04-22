@@ -10,3 +10,4 @@ export * from './protected.component';
 export * from './table-pagination.component';
 export * from './AppBar';
 export * from './KeyboardBtn.component';
+export * from './CreateFab';
