@@ -37,6 +37,29 @@ export class SubscriptionService {
     });
   }
 
+  static async update(
+    subscriptions: IBaseSubscription['id'][],
+    column: keyof Pick<IBaseSubscription, 'category' | 'paymentMethod'>,
+    value: IBaseSubscription['category'] | IBaseSubscription['paymentMethod']
+  ): Promise<BaseSubscription[]> {
+    return new Promise(async (res, rej) => {
+      const { data, error } = await supabase
+        .from<IBaseSubscription>(this.table)
+        .update({ [column]: value })
+        .in('id', subscriptions);
+      if (error) rej(error);
+      res(data ? data.map((subscription) => new BaseSubscription(subscription)) : []);
+    });
+  }
+
+  static async delete(subscriptions: Subscription['id'][]): Promise<BaseSubscription[]> {
+    return new Promise(async (res, rej) => {
+      const { data, error } = await supabase.from<IBaseSubscription>(this.table).delete().in('id', subscriptions);
+      if (error) rej(error);
+      res(data ? data.map((category) => new BaseSubscription(category)) : []);
+    });
+  }
+
   /**
    * @deprecated Use `Subscription.update()` instead of the the `SubscriptionService.updateSubscription(...)`
    */

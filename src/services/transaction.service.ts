@@ -43,6 +43,29 @@ export class TransactionService {
     });
   }
 
+  static async update(
+    transactions: IBaseTransaction['id'][],
+    column: keyof Pick<IBaseTransaction, 'category' | 'paymentMethod'>,
+    value: IBaseTransaction['category'] | IBaseTransaction['paymentMethod']
+  ): Promise<BaseTransaction[]> {
+    return new Promise(async (res, rej) => {
+      const { data, error } = await supabase
+        .from<IBaseTransaction>(this.table)
+        .update({ [column]: value })
+        .in('id', transactions);
+      if (error) rej(error);
+      res(data ? data.map((transaction) => new BaseTransaction(transaction)) : []);
+    });
+  }
+
+  static async delete(transactions: IBaseTransaction['id'][]): Promise<BaseTransaction[]> {
+    return new Promise(async (res, rej) => {
+      const { data, error } = await supabase.from<IBaseTransaction>(this.table).delete().in('id', transactions);
+      if (error) rej(error);
+      res(data ? data.map((transaction) => new BaseTransaction(transaction)) : []);
+    });
+  }
+
   /**
    * @deprecated Use `Transaction.update()` instead of the the `TransactionService.updateTransaction(...)`
    */

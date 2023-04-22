@@ -30,6 +30,14 @@ export class PaymentMethodService {
     });
   }
 
+  static async delete(paymentMethods: IBasePaymentMethod['id'][]): Promise<PaymentMethod[]> {
+    return new Promise(async (res, rej) => {
+      const { data, error } = await supabase.from<IBasePaymentMethod>(this.table).delete().in('id', paymentMethods);
+      if (error) rej(error);
+      res(data ? data.map((paymentMethod) => new PaymentMethod(paymentMethod)) : []);
+    });
+  }
+
   /**
    * @deprecated Use `PaymentMethod.update()` instead of the the `PaymentMethodService.updatePaymentMethod(...)`
    */
@@ -49,7 +57,8 @@ export class PaymentMethodService {
 
   /**
    * @deprecated Use `PaymentMethod.delete()` instead of the the `PaymentMethodService.deletePaymentMethodById(...)`
-   */
+
+  */
   static async deletePaymentMethodById(id: number): Promise<PaymentMethod[]> {
     return new Promise(async (res, rej) => {
       const { data, error } = await supabase.from<IBasePaymentMethod>(this.table).delete().match({ id: id });

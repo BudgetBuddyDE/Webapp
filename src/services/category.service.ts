@@ -25,6 +25,14 @@ export class CategoryService {
     });
   }
 
+  static async delete(categories: Category['id'][]): Promise<Category[]> {
+    return new Promise(async (res, rej) => {
+      const { data, error } = await supabase.from<IBaseCategory>(this.table).delete().in('id', categories);
+      if (error) rej(error);
+      res(data ? data.map((category) => new Category(category)) : []);
+    });
+  }
+
   /**
    * @deprecated Use `Category.delete()` instead of the the `CategoryService.updateCategory(...)`
    */
