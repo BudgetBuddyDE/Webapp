@@ -60,90 +60,88 @@ export const SignUp = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', height: '100%', alignItems: 'center' }}>
-      <Grid container spacing={3} justifyContent="center">
-        <Grid item xs={12} sm={6} lg={4}>
-          <Card
-            sx={{
-              py: 3,
-              px: 4,
-            }}
-          >
-            <Typography textAlign="center" variant="h4" fontWeight={600}>
-              Sign Up
-            </Typography>
+    <Grid container spacing={3} justifyContent="center">
+      <Grid item xs={12} sm={6} lg={4}>
+        <Card
+          sx={{
+            py: 3,
+            px: 4,
+          }}
+        >
+          <Typography textAlign="center" variant="h4" fontWeight={600}>
+            Sign Up
+          </Typography>
 
-            <form onSubmit={formHandler.formSubmit}>
-              <Box style={{ display: 'flex', flexDirection: 'column' }}>
-                <TextField
-                  sx={{
-                    mt: 3,
-                  }}
-                  variant="outlined"
-                  label="Username"
-                  name="username"
+          <form onSubmit={formHandler.formSubmit}>
+            <Box style={{ display: 'flex', flexDirection: 'column' }}>
+              <TextField
+                sx={{
+                  mt: 3,
+                }}
+                variant="outlined"
+                label="Username"
+                name="username"
+                onChange={formHandler.inputChange}
+              />
+
+              <TextField
+                sx={{
+                  mt: 3,
+                }}
+                variant="outlined"
+                type="email"
+                label="E-Mail"
+                name="email"
+                onChange={formHandler.inputChange}
+              />
+
+              <FormControl
+                variant="outlined"
+                sx={{
+                  mt: 3,
+                }}
+              >
+                <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+                <OutlinedInput
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
                   onChange={formHandler.inputChange}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        onMouseDown={() => setShowPassword((prev) => !prev)}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  label="Password"
                 />
-
-                <TextField
-                  sx={{
-                    mt: 3,
-                  }}
-                  variant="outlined"
-                  type="email"
-                  label="E-Mail"
-                  name="email"
-                  onChange={formHandler.inputChange}
-                />
-
-                <FormControl
-                  variant="outlined"
-                  sx={{
-                    mt: 3,
-                  }}
-                >
-                  <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-                  <OutlinedInput
-                    type={showPassword ? 'text' : 'password'}
-                    name="password"
-                    onChange={formHandler.inputChange}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={() => setShowPassword((prev) => !prev)}
-                          onMouseDown={() => setShowPassword((prev) => !prev)}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                    label="Password"
-                  />
-                </FormControl>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Button type="submit" variant="contained" sx={{ mt: 3 }}>
-                  Sign up
-                </Button>
-              </Box>
-            </form>
-
-            <Divider sx={{ my: 3 }} />
-
-            {session && session.user && (
-              <Button component={Link} to="/dashboard" sx={{ width: '100%', mb: 2 }}>
-                Dashboard
+              </FormControl>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Button type="submit" variant="contained" sx={{ mt: 3 }}>
+                Sign up
               </Button>
-            )}
+            </Box>
+          </form>
 
-            <Button component={Link} to="/sign-in" sx={{ width: '100%' }}>
-              Already registered? Sign in...
+          <Divider sx={{ my: 3 }} />
+
+          {session && session.user && (
+            <Button component={Link} to="/dashboard" sx={{ width: '100%', mb: 2 }}>
+              Dashboard
             </Button>
-          </Card>
-        </Grid>
+          )}
+
+          <Button component={Link} to="/sign-in" sx={{ width: '100%' }}>
+            Already registered? Sign in...
+          </Button>
+        </Card>
       </Grid>
-    </Box>
+    </Grid>
   );
 };
