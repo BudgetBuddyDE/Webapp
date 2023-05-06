@@ -9,10 +9,5 @@ export type ProtectedRoutesProps = {
 
 export const ProtectedRoutes: React.FC<ProtectedRoutesProps> = ({ redirectTo = '/sign-in' }) => {
   const { session } = React.useContext(AuthContext);
-
-  React.useEffect(() => {
-    console.log(session);
-  }, [session]);
-  return <Outlet />;
-  // return session && session.user ? <Outlet /> : <Navigate to={redirectTo} replace />;
+  return session && session.user ? <Outlet /> : <Navigate to={redirectTo} replace />;
 };
