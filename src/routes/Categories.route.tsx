@@ -29,6 +29,7 @@ import {
   NoResults,
   OpenFilterFab,
   PageHeader,
+  RedirectChip,
   SearchInput,
   SelectMultiple,
   TablePagination,
@@ -235,7 +236,7 @@ export const Categories = () => {
                             />
                           </TableCell>
                           <TableCell>
-                            <Typography>{row.name}</Typography>
+                            <RedirectChip item={row} />
                           </TableCell>
                           <TableCell sx={DescriptionTableCellStyle}>
                             <Linkify>{row.description ?? 'No Description'}</Linkify>

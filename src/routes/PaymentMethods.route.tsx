@@ -29,6 +29,7 @@ import {
   NoResults,
   OpenFilterFab,
   PageHeader,
+  RedirectChip,
   SearchInput,
   SelectMultiple,
   TablePagination,
@@ -245,7 +246,9 @@ export const PaymentMethods = () => {
                             />
                           </TableCell>
                           <TableCell>
-                            <Typography>{row.name}</Typography>
+                            <Typography>
+                              <RedirectChip item={row} />
+                            </Typography>
                           </TableCell>
                           <TableCell>
                             <Linkify>{row.provider}</Linkify>
