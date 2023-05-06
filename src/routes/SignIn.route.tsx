@@ -59,7 +59,7 @@ export const SignIn = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', height: '100%', alignItems: 'center', backgroundColor: 'red' }}>
+    <Box sx={{ display: 'flex', height: '100%', alignItems: 'center' }}>
       <Grid container spacing={3} justifyContent="center">
         <Grid item xs={12} sm={6} lg={4}>
           <Card
