@@ -1,5 +1,5 @@
 export * from './Budget.route';
-export * from './Category.route';
+export * from './Categories.route';
 export * from './Dashboard.route';
 export * from './PaymentMethods.route';
 export * from './RequestReset.route';
@@ -7,5 +7,5 @@ export * from './ResetPassword.route';
 export * from './Settings.route';
 export * from './SignIn.route';
 export * from './SignUp.route';
-export * from './Subscription.route';
+export * from './Subscriptions.route';
 export * from './Transactions.route';

@@ -24,9 +24,11 @@ import {
   CreateSubscription,
   EarningsByCategory,
   EditSubscription,
+  FabContainer,
   InitialTablePaginationState,
   Linkify,
   NoResults,
+  OpenFilterFab,
   PageHeader,
   PaymentMethodChip,
   SearchInput,
@@ -344,7 +346,10 @@ export const Subscriptions = () => {
         )}
       </Grid>
 
-      <CreateFab onClick={() => handler.subscription.onShowAddForm()} />
+      <FabContainer>
+        <OpenFilterFab />
+        <CreateFab onClick={() => handler.subscription.onShowAddForm()} />
+      </FabContainer>
       <SelectMultiple.EditDialog
         open={selectedSubscriptions.dialog.show && selectedSubscriptions.dialog.type === 'EDIT'}
         onCancel={handler.selectMultiple.dialog.onEditCancel!}

@@ -23,9 +23,11 @@ import {
   CreatePaymentMethod,
   EarningsByPaymentMethod,
   EditPaymentMethod,
+  FabContainer,
   InitialTablePaginationState,
   Linkify,
   NoResults,
+  OpenFilterFab,
   PageHeader,
   SearchInput,
   SelectMultiple,
@@ -310,7 +312,10 @@ export const PaymentMethods = () => {
         </Grid>
       </Grid>
 
-      <CreateFab onClick={() => setShowAddForm(true)} />
+      <FabContainer>
+        <OpenFilterFab />
+        <CreateFab onClick={() => setShowAddForm(true)} />
+      </FabContainer>
       <SelectMultiple.ConfirmDeleteDialog
         open={selectedPaymentMethods.dialog.show && selectedPaymentMethods.dialog.type === 'DELETE'}
         onCancel={handler.selectMultiple.dialog.onDeleteCancel!}

@@ -24,9 +24,11 @@ import {
   CreateTransaction,
   EarningsByCategory,
   EditTransaction,
+  FabContainer,
   InitialTablePaginationState,
   Linkify,
   NoResults,
+  OpenFilterFab,
   PageHeader,
   PaymentMethodChip,
   SearchInput,
@@ -339,7 +341,10 @@ export const Transactions = () => {
         )}
       </Grid>
 
-      <CreateFab onClick={() => handler.onAddTransaction(true)} />
+      <FabContainer>
+        <OpenFilterFab />
+        <CreateFab onClick={() => handler.onAddTransaction(true)} />
+      </FabContainer>
       <SelectMultiple.EditDialog
         open={selectedTransactions.dialog.show && selectedTransactions.dialog.type === 'EDIT'}
         onCancel={handler.selectMultiple.dialog.onEditCancel!}

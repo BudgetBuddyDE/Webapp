@@ -9,18 +9,9 @@ export type CreateFab = {
 
 export const CreateFab: React.FC<CreateFab> = ({ onClick }) => {
   return (
-    <Fab
-      color="primary"
-      aria-label="add"
-      onClick={onClick}
-      sx={{
-        display: { xs: 'flex', md: 'none' },
-        position: 'fixed',
-        bottom: '1rem',
-        right: '1rem',
-      }}
-    >
-      <AddIcon />
+    <Fab color="primary" variant="extended" aria-label="add" onClick={onClick}>
+      <AddIcon sx={{ mr: 1 }} />
+      Add
     </Fab>
   );
 };

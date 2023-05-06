@@ -26,14 +26,15 @@ import {
   CategoryBudgetProps,
   CircularProgress,
   CreateBudget,
+  CreateFab,
   EditBudget,
+  FabContainer,
   ICreateBudgetProps,
   IEditBudgetProps,
   NoResults,
   PageHeader,
   Transaction,
 } from '../components';
-import { CreateFab } from '../components/Base/CreateFab/CreateFab.component';
 import { AuthContext, SnackbarContext, StoreContext } from '../context';
 import { useScreenSize } from '../hooks';
 import { Budget as BudgetModel } from '../models';
@@ -425,8 +426,9 @@ export const Budget = () => {
         </Card>
       </Grid>
 
-      <CreateFab onClick={() => handler.createBudget.onSetOpen(true)} />
-
+      <FabContainer>
+        <CreateFab onClick={() => handler.createBudget.onSetOpen(true)} />
+      </FabContainer>
       <CreateBudget open={showForm.createBudget} setOpen={handler.createBudget.onSetOpen} />
 
       <EditBudget

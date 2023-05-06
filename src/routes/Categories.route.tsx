@@ -23,9 +23,11 @@ import {
   CreateFab,
   EarningsByCategory,
   EditCategory,
+  FabContainer,
   InitialTablePaginationState,
   Linkify,
   NoResults,
+  OpenFilterFab,
   PageHeader,
   SearchInput,
   SelectMultiple,
@@ -279,7 +281,10 @@ export const Categories = () => {
         )}
       </Grid>
 
-      <CreateFab onClick={() => setShowAddForm(true)} />
+      <FabContainer>
+        <OpenFilterFab />
+        <CreateFab onClick={() => setShowAddForm(true)} />
+      </FabContainer>
       <SelectMultiple.ConfirmDeleteDialog
         open={selectedCategories.dialog.show && selectedCategories.dialog.type === 'DELETE'}
         onCancel={handler.selectMultiple.dialog.onDeleteCancel!}

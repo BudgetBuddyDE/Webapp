@@ -9,4 +9,4 @@ export * from './progress.component';
 export * from './table-pagination.component';
 export * from './AppBar';
 export * from './KeyboardBtn.component';
-export * from './CreateFab';
+export * from './FloatingActionButton';
