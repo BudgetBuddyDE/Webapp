@@ -1,20 +1,31 @@
 import { Session } from '@supabase/supabase-js';
-import * as React from 'react';
+import React from 'react';
 import { supabase } from '../supabase';
 
-interface IAuthProvider {
+export type IAuthProvider = {
   session: Session | null;
-  setSession: React.Dispatch<React.SetStateAction<Session | null>>;
-}
+  setSession: React.Dispatch<React.SetStateAction<IAuthProvider['session']>>;
+};
 
 export const AuthContext = React.createContext({} as IAuthProvider);
 
 export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [session, setSession] = React.useState<Session | null>(supabase.auth.session());
+  const [loading, setLoading] = React.useState(true);
+  const [session, setSession] = React.useState<IAuthProvider['session']>(null);
 
-  React.useEffect(() => {
-    supabase.auth.onAuthStateChange((event, session) => setSession(session));
+  React.useLayoutEffect(() => {
+    setSession(supabase.auth.session());
+    setLoading(false);
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    return () => {
+      listener?.unsubscribe();
+    };
   }, []);
 
-  return <AuthContext.Provider value={{ session, setSession }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ session, setSession }}>{loading ? null : children}</AuthContext.Provider>;
 };

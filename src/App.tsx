@@ -1,7 +1,7 @@
 import { Box, Container } from '@mui/material';
 import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { AppBar, Copyright, Drawer, FilterDrawer, Main, ProtectedComponent, ProtectedRoute } from './components';
+import { AppBar, Copyright, Drawer, FilterDrawer, Main, ProtectedComponents, ProtectedRoutes } from './components';
 import {
   Budget,
   Categories,
@@ -20,7 +20,7 @@ export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Box sx={{ display: 'flex' }}>
-        <Drawer />
+        <ProtectedComponents children={<Drawer />} />
         <Main
           sx={{
             display: 'flex',
@@ -31,84 +31,28 @@ export const App: React.FC = () => {
             backgroundColor: (theme) => theme.palette.background.default,
           }}
         >
-          <ProtectedComponent>
-            <AppBar />
-          </ProtectedComponent>
-          <Container maxWidth="xl" sx={{ mt: 2, mb: 4 }}>
+          <ProtectedComponents children={<AppBar />} />
+          <Container maxWidth="xl" sx={{ height: 'inherit', mt: 2, mb: 4 }}>
             <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/transactions"
-                element={
-                  <ProtectedRoute>
-                    <Transactions />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/budget"
-                element={
-                  <ProtectedRoute>
-                    <Budget />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/subscriptions"
-                element={
-                  <ProtectedRoute>
-                    <Subscriptions />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/payment-methods"
-                element={
-                  <ProtectedRoute>
-                    <PaymentMethods />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/categories"
-                element={
-                  <ProtectedRoute>
-                    <Categories />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <ProtectedRoute>
-                    <Settings />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/" element={<ProtectedRoutes />}>
+                <Route index element={<Navigate to="/dashboard" />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="transactions" element={<Transactions />} />
+                <Route path="budget" element={<Budget />} />
+                <Route path="subscriptions" element={<Subscriptions />} />
+                <Route path="payment-methods" element={<PaymentMethods />} />
+                <Route path="categories" element={<Categories />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/request-reset" element={<RequestReset />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/sign-up" element={<SignUp />} />
+              <Route path="*" element={<h1>404 Page Not Found</h1>} />
             </Routes>
-
-            <ProtectedComponent>
-              <FilterDrawer />
-            </ProtectedComponent>
+            <ProtectedComponents children={<FilterDrawer />} />
           </Container>
-          <Box
-            component="div"
-            sx={{
-              mt: 'auto',
-            }}
-          >
+          <Box sx={{ mt: 'auto' }}>
             <Copyright />
           </Box>
         </Main>
