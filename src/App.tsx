@@ -32,7 +32,7 @@ export const App: React.FC = () => {
           }}
         >
           <ProtectedComponents children={<AppBar />} />
-          <Container maxWidth="xl" sx={{ height: 'inherit', mt: 2, mb: 4 }}>
+          <Container maxWidth="xl" sx={{ minHeight: 'inherit', mt: 2, mb: 4 }}>
             <Routes>
               <Route path="/" element={<ProtectedRoutes />}>
                 <Route index element={<Navigate to="/dashboard" />} />
