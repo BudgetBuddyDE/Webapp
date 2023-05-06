@@ -144,6 +144,24 @@ export const theme = createTheme({
   },
   unstable_strictMode: true,
   components: {
+    MuiMenu: {
+      styleOverrides: {
+        root: {
+          '& .MuiList-root': {
+            paddingTop: 0,
+            paddingBottom: 0,
+            margin: '.25rem',
+          },
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          borderRadius: 10,
+        },
+      },
+    },
     MuiToggleButtonGroup: {
       styleOverrides: {
         root: {

@@ -112,6 +112,7 @@ export const AppBar = () => {
               </IconButton>
             </Tooltip>
             <Menu
+              elevation={0}
               sx={{ mt: '45px' }}
               id="menu-appbar"
               anchorEl={anchorElUser}
