@@ -59,7 +59,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({ placeholder = 'Searchâ
   const isMobileDevice = React.useMemo(() => determineIfMobileDevice(), [windowSize]);
 
   const handleKeyPress = (event: KeyboardEvent) => {
-    if (event.key === 'k') {
+    if (event.ctrlKey && event.key === 'k') {
       event.preventDefault();
       inputRef.current?.focus();
     }
