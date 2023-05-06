@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.5](https://github.com/BudgetBuddyDE/Webapp/compare/v0.2.4...v0.2.5) (2023-05-06)
+
+
+### Features
+
+* Add option to filter by date ([7517ee3](https://github.com/BudgetBuddyDE/Webapp/commit/7517ee3a5904a8c97b12dcac44e5b0a4affb81c0))
+
+
+### Bug Fixes
+
+* Validate session before rendering elements ([e27f9be](https://github.com/BudgetBuddyDE/Webapp/commit/e27f9be4693862dce14a4a8b2d2d6f36d80804c7))
+
 ### [0.2.4](https://github.com/BudgetBuddyDE/Webapp/compare/v0.2.3...v0.2.4) (2023-04-22)
 
 
