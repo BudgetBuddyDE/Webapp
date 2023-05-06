@@ -321,7 +321,7 @@ export const Transactions = () => {
               </Card.Footer>
             </React.Fragment>
           ) : (
-            <NoResults sx={{ m: 2 }} text="No transactions found" />
+            <NoResults sx={{ m: 2 }} text="No transactions found" withFilters />
           )}
         </Card>
       </Grid>

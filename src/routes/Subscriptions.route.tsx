@@ -321,7 +321,7 @@ export const Subscriptions = () => {
               </Card.Footer>
             </React.Fragment>
           ) : (
-            <NoResults sx={{ m: 2 }} text="No subscriptions found" />
+            <NoResults sx={{ m: 2 }} text="No subscriptions found" withFilters />
           )}
         </Card>
       </Grid>
