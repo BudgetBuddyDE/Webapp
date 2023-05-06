@@ -14,12 +14,12 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Card from '../components/Base/card.component';
+import { Card } from '../components';
 import { AuthContext, SnackbarContext } from '../context';
 import { AuthService } from '../services';
 import { supabase } from '../supabase';
 
-export const SignIn = () => {
+export const SignUp = () => {
   const navigate = useNavigate();
   const { session, setSession } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
@@ -35,25 +35,26 @@ export const SignIn = () => {
 
       try {
         const values = Object.keys(form);
-        ['email', 'password'].forEach((field) => {
+        ['username', 'email', 'password'].forEach((field) => {
           if (!values.includes(field)) throw new Error('Provide an ' + field);
         });
 
-        const { session, error } = await AuthService.signIn({
+        const { user, session, error } = await AuthService.signUp({
           email: form.email,
           password: form.password,
+          metadata: { username: form.username, avatar: '' },
         });
-        if (error) throw error;
+        if (error || !user) throw error;
         setSession(session);
         navigate('/dashboard', { replace: true });
         showSnackbar({
-          message: 'Authentification successfull',
+          message: 'Registration successfull',
           action: <Button onClick={async () => await supabase.auth.signOut()}>Sign out</Button>,
         });
       } catch (error) {
         console.error(error);
         // @ts-ignore
-        showSnackbar({ message: error.message || 'Authentification failed' });
+        showSnackbar({ message: error.message || 'Registration failed' });
       }
     },
   };
@@ -68,11 +69,21 @@ export const SignIn = () => {
           }}
         >
           <Typography textAlign="center" variant="h4" fontWeight={600}>
-            Sign In
+            Sign Up
           </Typography>
 
           <form onSubmit={formHandler.formSubmit}>
             <Box style={{ display: 'flex', flexDirection: 'column' }}>
+              <TextField
+                sx={{
+                  mt: 3,
+                }}
+                variant="outlined"
+                label="Username"
+                name="username"
+                onChange={formHandler.inputChange}
+              />
+
               <TextField
                 sx={{
                   mt: 3,
@@ -95,7 +106,6 @@ export const SignIn = () => {
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   onChange={formHandler.inputChange}
-                  label="Password"
                   endAdornment={
                     <InputAdornment position="end">
                       <IconButton
@@ -108,12 +118,13 @@ export const SignIn = () => {
                       </IconButton>
                     </InputAdornment>
                   }
+                  label="Password"
                 />
               </FormControl>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               <Button type="submit" variant="contained" sx={{ mt: 3 }}>
-                Sign in
+                Sign up
               </Button>
             </Box>
           </form>
@@ -126,12 +137,8 @@ export const SignIn = () => {
             </Button>
           )}
 
-          <Button component={Link} to="/request-reset" sx={{ width: '100%', mb: 2 }}>
-            Reset password?
-          </Button>
-
-          <Button component={Link} to="/sign-up" sx={{ width: '100%' }}>
-            Don't have an account? Sign up...
+          <Button component={Link} to="/sign-in" sx={{ width: '100%' }}>
+            Already registered? Sign in...
           </Button>
         </Card>
       </Grid>

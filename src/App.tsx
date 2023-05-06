@@ -1,19 +1,20 @@
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
+import { Box, Container } from '@mui/material';
 import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { AppBar, Copyright, Drawer, FilterDrawer, Main, ProtectedComponent, ProtectedRoute } from './components/';
-import { Budget } from './routes/budget.route';
-import { Categories } from './routes/categories.route';
-import { Dashboard } from './routes/dashboard.route';
-import { PaymentMethods } from './routes/payment-method.route';
-import { RequestReset } from './routes/request-reset';
-import { ResetPassword } from './routes/reset-password.route';
-import { Settings } from './routes/settings.route';
-import { SignIn } from './routes/sign-in.route';
-import { SignUp } from './routes/sign-up.route';
-import { Subscriptions } from './routes/subscriptions.route';
-import { Transactions } from './routes/transactions.route';
+import { AppBar, Copyright, Drawer, FilterDrawer, Main, ProtectedComponent, ProtectedRoute } from './components';
+import {
+  Budget,
+  Categories,
+  Dashboard,
+  PaymentMethods,
+  RequestReset,
+  ResetPassword,
+  Settings,
+  SignIn,
+  SignUp,
+  Subscriptions,
+  Transactions,
+} from './routes';
 
 export const App: React.FC = () => {
   return (

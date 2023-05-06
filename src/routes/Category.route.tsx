@@ -2,7 +2,6 @@ import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/ico
 import {
   Box,
   Button,
-  Checkbox,
   Grid,
   IconButton,
   Table,
@@ -33,12 +32,11 @@ import {
   TablePagination,
   TablePaginationHandler,
 } from '../components';
-import type { SelectMultipleHandler } from '../components/SelectMultiple';
+import type { SelectMultipleHandler } from '../components';
 import { SnackbarContext, StoreContext } from '../context';
 import { useFetchCategories, useFetchTransactions } from '../hooks';
 import { Category } from '../models';
-import { TablePaginationReducer } from '../reducer';
-import { SelectMultipleReducer, generateInitialState } from '../reducer/SelectMultiple.reducer';
+import { SelectMultipleReducer, TablePaginationReducer, generateInitialState } from '../reducer';
 import { CategoryService } from '../services';
 import { DescriptionTableCellStyle } from '../theme/description-table-cell.style';
 
