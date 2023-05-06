@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.6](https://github.com/BudgetBuddyDE/Webapp/compare/v0.2.5...v0.2.6) (2023-05-06)
+
+
+### Features
+
+* Add redirect chip ([796a883](https://github.com/BudgetBuddyDE/Webapp/commit/796a883a834ef45c97cff33dbc3a4c142ccef200))
+* Make filters adjustable for no-results message ([64dc62f](https://github.com/BudgetBuddyDE/Webapp/commit/64dc62f6e01526db3323d945308f2f7566db2183))
+
 ### [0.2.5](https://github.com/BudgetBuddyDE/Webapp/compare/v0.2.4...v0.2.5) (2023-05-06)
 
 
