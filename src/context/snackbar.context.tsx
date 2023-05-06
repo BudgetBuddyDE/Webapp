@@ -53,7 +53,6 @@ export const SnackbarProvider: React.FC<React.PropsWithChildren> = ({ children }
       {children}
       <Snackbar
         sx={{
-          bottom: (theme) => ({ xs: theme.spacing(10), md: theme.spacing(2) }),
           '& .MuiSnackbarContent-root': {
             backgroundColor: (theme) => darken(theme.palette.background.default, 0.4),
             color: 'white',
