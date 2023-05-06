@@ -3,6 +3,7 @@ import { Box, Typography } from '@mui/material';
 import type { BoxProps, IconProps, TypographyProps } from '@mui/material';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { AppConfig } from '../../../app.config';
 
 export type BrandProps = {
   boxStyle?: BoxProps['sx'];
@@ -26,7 +27,7 @@ export const Brand: React.FC<BrandProps> = ({ boxStyle, iconStyle, typographySty
           ...typographyStyle,
         }}
       >
-        BudgetBuddy
+        {AppConfig.appName}
       </Typography>
     </Box>
   );

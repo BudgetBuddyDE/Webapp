@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { format } from 'date-fns';
 import React from 'react';
+import { AppConfig } from '../app.config';
 import {
   ActionPaper,
   Card,
@@ -241,7 +242,7 @@ export const Transactions = () => {
                         />
                         {['Date', 'Category', 'Receiver', 'Amount', 'Payment Method', 'Information', ''].map(
                           (cell, index) => (
-                            <TableCell key={index}>
+                            <TableCell key={index} size={AppConfig.table.cellSize}>
                               <Typography fontWeight="bolder">{cell}</Typography>
                             </TableCell>
                           )
@@ -257,26 +258,26 @@ export const Transactions = () => {
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <SelectMultiple.SelectSingleCheckbox
                               value={transaction.id}
                               onChange={handler.selectMultiple.onSelectSingle}
                               checked={selectedTransactions.selected.includes(transaction.id)}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <Typography fontWeight="bolder">{`${format(
                               new Date(transaction.date),
                               'dd.MM.yy'
                             )}`}</Typography>
                           </TableCell>
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <CategoryChip category={transaction.categories} />
                           </TableCell>
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <Linkify>{transaction.receiver}</Linkify>
                           </TableCell>
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <Typography>
                               {transaction.amount.toLocaleString('de', {
                                 style: 'currency',
@@ -284,13 +285,13 @@ export const Transactions = () => {
                               })}
                             </Typography>
                           </TableCell>
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <PaymentMethodChip paymentMethod={transaction.paymentMethods} />
                           </TableCell>
-                          <TableCell sx={DescriptionTableCellStyle}>
+                          <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                             <Linkify>{transaction.description ?? 'No information'}</Linkify>
                           </TableCell>
-                          <TableCell align="right">
+                          <TableCell align="right" size={AppConfig.table.cellSize}>
                             <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                               <Tooltip title="Edit" placement="top">
                                 <IconButton color="primary" onClick={() => setEditTransaction(transaction)}>

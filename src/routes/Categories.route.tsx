@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { AppConfig } from '../app.config';
 import {
   ActionPaper,
   Card,
@@ -213,7 +214,7 @@ export const Categories = () => {
                           withTableCell
                         />
                         {['Name', 'Description', ''].map((cell, index) => (
-                          <TableCell key={index}>
+                          <TableCell key={index} size={'small'}>
                             <Typography fontWeight="bolder">{cell}</Typography>
                           </TableCell>
                         ))}
@@ -228,20 +229,20 @@ export const Categories = () => {
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <SelectMultiple.SelectSingleCheckbox
                               value={row.id}
                               onChange={handler.selectMultiple.onSelectSingle}
                               checked={selectedCategories.selected.includes(row.id)}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <RedirectChip item={row} />
                           </TableCell>
-                          <TableCell sx={DescriptionTableCellStyle}>
+                          <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                             <Linkify>{row.description ?? 'No Description'}</Linkify>
                           </TableCell>
-                          <TableCell align="right">
+                          <TableCell align="right" size={AppConfig.table.cellSize}>
                             <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                               <Tooltip title="Edit" placement="top">
                                 <IconButton color="primary" onClick={() => setEditCategory(row)}>

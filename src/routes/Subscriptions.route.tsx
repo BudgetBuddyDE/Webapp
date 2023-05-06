@@ -14,6 +14,7 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
+import { AppConfig } from '../app.config';
 import {
   ActionPaper,
   Card,
@@ -244,7 +245,7 @@ export const Subscriptions = () => {
                         />
                         {['Next execution', 'Category', 'Receiver', 'Amount', 'Payment Method', 'Information', ''].map(
                           (cell, index) => (
-                            <TableCell key={index}>
+                            <TableCell key={index} size={AppConfig.table.cellSize}>
                               <Typography fontWeight="bolder">{cell}</Typography>
                             </TableCell>
                           )
@@ -260,23 +261,23 @@ export const Subscriptions = () => {
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <SelectMultiple.SelectSingleCheckbox
                               value={row.id}
                               onChange={handler.selectMultiple.onSelectSingle}
                               checked={selectedSubscriptions.selected.includes(row.id)}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <Typography fontWeight="bolder">{determineNextExecution(row.execute_at)}</Typography>
                           </TableCell>
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <CategoryChip category={row.categories} />
                           </TableCell>
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <Linkify>{row.receiver}</Linkify>
                           </TableCell>
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <Typography>
                               {row.amount.toLocaleString('de', {
                                 style: 'currency',
@@ -284,13 +285,13 @@ export const Subscriptions = () => {
                               })}
                             </Typography>
                           </TableCell>
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <PaymentMethodChip paymentMethod={row.paymentMethods} />
                           </TableCell>
-                          <TableCell sx={DescriptionTableCellStyle}>
+                          <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                             <Linkify>{row.description || 'No Information'}</Linkify>
                           </TableCell>
-                          <TableCell align="right">
+                          <TableCell align="right" size={AppConfig.table.cellSize}>
                             <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                               <Tooltip title="Edit" placement="top">
                                 <IconButton color="primary" onClick={() => handler.subscription.onEdit(row)}>

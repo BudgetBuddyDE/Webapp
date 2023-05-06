@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { AppConfig } from '../app.config';
 import {
   ActionPaper,
   Card,
@@ -223,7 +224,7 @@ export const PaymentMethods = () => {
                         />
 
                         {['Name', 'Provider', 'Address', 'Description', ''].map((cell, index) => (
-                          <TableCell key={index}>
+                          <TableCell key={index} size={AppConfig.table.cellSize}>
                             <Typography fontWeight="bolder">{cell}</Typography>
                           </TableCell>
                         ))}
@@ -238,28 +239,28 @@ export const PaymentMethods = () => {
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <SelectMultiple.SelectSingleCheckbox
                               value={row.id}
                               onChange={handler.selectMultiple.onSelectSingle}
                               checked={selectedPaymentMethods.selected.includes(row.id)}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <Typography>
                               <RedirectChip item={row} />
                             </Typography>
                           </TableCell>
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <Linkify>{row.provider}</Linkify>
                           </TableCell>
-                          <TableCell>
+                          <TableCell size={AppConfig.table.cellSize}>
                             <Linkify>{row.address}</Linkify>
                           </TableCell>
-                          <TableCell sx={DescriptionTableCellStyle}>
+                          <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                             <Linkify>{row.description ?? 'No description'}</Linkify>
                           </TableCell>
-                          <TableCell align="right">
+                          <TableCell align="right" size={AppConfig.table.cellSize}>
                             <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                               <Tooltip title="Edit" placement="top">
                                 <IconButton color="primary" onClick={() => setEditPaymentMethod(row)}>
