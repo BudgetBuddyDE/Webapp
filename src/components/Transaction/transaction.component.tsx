@@ -46,7 +46,18 @@ export const Transaction: React.FC<TransactionProps> = ({
         }}
       >
         <Typography fontWeight="bold">{title}</Typography>
-        {date && <Chip label={format(date, 'dd.MM')} size="small" variant="outlined" sx={{ mr: 1 }} />}
+        {date && (
+          <Chip
+            label={format(date, 'dd.MM')}
+            size="small"
+            variant="outlined"
+            sx={{ mr: 1 }}
+            onClick={() => {
+              setFilter((prev) => ({ ...prev, dateFrom: date, dateTo: date }));
+              navigate('/' + type + 's');
+            }}
+          />
+        )}
         {typeof subtitle === 'string' ? (
           <Chip label={subtitle} size="small" variant="outlined" sx={{ mr: 1 }} />
         ) : (
