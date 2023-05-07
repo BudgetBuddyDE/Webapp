@@ -34,7 +34,7 @@ export const EditDialog: React.FC<EditDialogProps> = ({ open, onClose, maxWidth 
   }, []);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth={maxWidth}>
+    <Dialog open={open} onClose={onClose} maxWidth={maxWidth} PaperProps={{ elevation: 0 }}>
       <DialogTitle id="alert-dialog-title">Attention</DialogTitle>
       <DialogContent>
         {error && (
@@ -53,6 +53,9 @@ export const EditDialog: React.FC<EditDialogProps> = ({ open, onClose, maxWidth 
             label="Action"
             value={action ?? ''}
             onChange={(event) => setAction(event.target.value as EditDialogActions)}
+            MenuProps={{
+              elevation: 0,
+            }}
           >
             <MenuItem value="PAYMENT_METHOD">Payment Method</MenuItem>
             <MenuItem value="CATEGORY">Category</MenuItem>

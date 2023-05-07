@@ -10,7 +10,7 @@ export const ConfirmDeleteDialog: React.FC<DeleteDialogProps> = ({
   onConfirm,
 }) => {
   return (
-    <Dialog open={open} onClose={onClose} maxWidth={maxWidth}>
+    <Dialog open={open} onClose={onClose} maxWidth={maxWidth} PaperProps={{ elevation: 0 }}>
       <DialogTitle id="alert-dialog-title">Attention</DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">

@@ -1,10 +1,13 @@
-import { Alert, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
+import { useFetchCategories } from '../../hooks';
 import { Category } from '../../models/';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '../../reducer';
 import { CategoryService } from '../../services/';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseCategory, IEditCategory } from '../../types/';
+import { sleep } from '../../utils';
 import { FormDrawer } from '../Base/';
 
 export interface ICreateCategoryProps {
@@ -22,19 +25,21 @@ interface CreateCategoryHandler {
 export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, afterSubmit, category }) => {
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setCategories } = React.useContext(StoreContext);
-  const [, startTransition] = React.useTransition();
+  const { loading } = React.useContext(StoreContext);
+  const { refresh } = useFetchCategories();
   const [form, setForm] = React.useState<Partial<IBaseCategory>>({});
-  const [errorMessage, setErrorMessage] = React.useState('');
+  const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
 
   const handler: CreateCategoryHandler = {
     onClose: () => {
       setOpen(false);
       setForm({});
+      setDrawerAction({ type: 'RESET' });
     },
     onSubmit: async (event) => {
+      event.preventDefault();
+      setDrawerAction({ type: 'SUBMIT' });
       try {
-        event.preventDefault();
         if (!form.name) throw new Error('No name provided');
 
         const createdCategories = await CategoryService.createCategories([
@@ -48,17 +53,14 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
 
         const createdCategory = createdCategories[0];
         if (afterSubmit) afterSubmit(createdCategory);
-        startTransition(() => {
-          setCategories({ type: 'ADD_ITEM', entry: createdCategory });
-        });
+        setDrawerAction({ type: 'SUCCESS' });
+        await sleep(300);
+        refresh();
         handler.onClose();
-        showSnackbar({
-          message: 'Category updated',
-        });
+        showSnackbar({ message: 'Category updated' });
       } catch (error) {
         console.error(error);
-        // @ts-ignore
-        setErrorMessage(error.message || 'Unkown error');
+        setDrawerAction({ type: 'ERROR', error: error as Error });
       }
     },
   };
@@ -75,15 +77,10 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
       heading="Add Category"
       onClose={handler.onClose}
       onSubmit={handler.onSubmit}
+      drawerActionState={drawerAction}
       saveLabel="Create"
       closeOnBackdropClick
     >
-      {errorMessage.length > 1 && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
-
       <TextField
         id="category-name"
         variant="outlined"

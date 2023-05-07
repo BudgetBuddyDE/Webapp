@@ -150,7 +150,7 @@ export const theme = createTheme({
           '& .MuiList-root': {
             paddingTop: 0,
             paddingBottom: 0,
-            margin: '.25rem',
+            margin: '.3rem',
           },
         },
       },

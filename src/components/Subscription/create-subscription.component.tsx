@@ -1,14 +1,15 @@
-import { Alert, Box, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
+import { Box, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
-import { useFetchCategories, useFetchPaymentMethods, useScreenSize } from '../../hooks/';
-import { Subscription } from '../../models/';
+import { useFetchSubscriptions, useScreenSize } from '../../hooks/';
+import { BaseSubscription } from '../../models/';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '../../reducer';
 import { SubscriptionService } from '../../services';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseSubscription } from '../../types/';
-import { transformBalance } from '../../utils/';
+import { sleep, transformBalance } from '../../utils/';
 import { FormDrawer } from '../Base/';
 import { CreateCategoryInput } from '../Category';
 import { ReceiverAutocomplete } from '../Inputs/';
@@ -17,7 +18,7 @@ import { CreatePaymentMethodInput } from '../PaymentMethod';
 export interface ICreateSubscriptionProps {
   open: boolean;
   setOpen: (show: boolean) => void;
-  afterSubmit?: (subscription: Subscription) => void;
+  afterSubmit?: (subscription: BaseSubscription) => void;
 }
 
 interface CreateSubscriptionHandler {
@@ -37,19 +38,18 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
   const screenSize = useScreenSize();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, transactionReceiver, setSubscriptions } = React.useContext(StoreContext);
-  const fetchCategories = useFetchCategories();
-  const fetchPaymentMethods = useFetchPaymentMethods();
-  const [, startTransition] = React.useTransition();
+  const { loading, transactionReceiver } = React.useContext(StoreContext);
+  const { refresh } = useFetchSubscriptions();
   const [executionDate, setExecutionDate] = React.useState(new Date());
   const [form, setForm] = React.useState<Partial<IBaseSubscription>>({});
-  const [errorMessage, setErrorMessage] = React.useState('');
+  const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
 
   const handler: CreateSubscriptionHandler = {
     onClose: () => {
       setOpen(false);
       setForm({});
       setExecutionDate(new Date());
+      setDrawerAction({ type: 'RESET' });
     },
     onDateChange: (date) => {
       if (date) setExecutionDate(date);
@@ -64,14 +64,17 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
       setForm((prev) => ({ ...prev, receiver: String(value) }));
     },
     onSubmit: async (event) => {
+      event.preventDefault();
+      setDrawerAction({ type: 'SUBMIT' });
+      const values = Object.keys(form);
+      const missingValues = ['category', 'paymentMethod', 'receiver', 'amount'].filter(
+        (value) => !values.includes(value)
+      );
       try {
-        event.preventDefault();
-        const values = Object.keys(form);
-        ['category', 'paymentMethod', 'receiver', 'amount'].forEach((field) => {
-          if (!values.includes(field)) throw new Error('Provide an ' + field);
-        });
-
-        const addedSubscriptions = await SubscriptionService.createSubscriptions([
+        if (missingValues.length > 0) {
+          throw new Error('Provide an ' + missingValues.join(', ') + '!');
+        }
+        const createdSubscriptions = await SubscriptionService.createSubscriptions([
           {
             execute_at: executionDate.getDate(),
             category: Number(form.category),
@@ -82,44 +85,16 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
             created_by: session!.user!.id,
           },
         ]);
-        if (addedSubscriptions.length < 1) throw new Error('No subscription created');
-
-        const {
-          id,
-          category,
-          paymentMethod,
-          receiver,
-          description,
-          amount,
-          execute_at,
-          created_by,
-          updated_at,
-          inserted_at,
-        } = addedSubscriptions[0];
-        const addedSubscription = new Subscription({
-          id: id,
-          categories: fetchCategories.categories.find((c) => c.id === category)!.categoryView,
-          paymentMethods: fetchPaymentMethods.paymentMethods.find((pm) => pm.id === paymentMethod)!.paymentMethodView,
-          receiver: receiver,
-          description: description,
-          amount: amount,
-          execute_at: execute_at,
-          created_by: created_by,
-          updated_at: new Date(updated_at),
-          inserted_at: new Date(inserted_at),
-        });
-        if (afterSubmit) afterSubmit(addedSubscription);
-        startTransition(() => {
-          setSubscriptions({ type: 'ADD_ITEM', entry: addedSubscription });
-        });
+        if (createdSubscriptions.length < 1) throw new Error('No subscription created');
+        if (afterSubmit) afterSubmit(createdSubscriptions[0]);
+        setDrawerAction({ type: 'SUCCESS' });
+        await sleep(300);
+        refresh();
         handler.onClose();
-        showSnackbar({
-          message: 'Subscription added',
-        });
+        showSnackbar({ message: 'Subscription added' });
       } catch (error) {
         console.error(error);
-        // @ts-ignore
-        setErrorMessage(error.message || 'Unkown error');
+        setDrawerAction({ type: 'ERROR', error: error as Error });
       }
     },
   };
@@ -131,15 +106,10 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
       heading="Add Subscription"
       onClose={handler.onClose}
       onSubmit={handler.onSubmit}
+      drawerActionState={drawerAction}
       saveLabel="Create"
       closeOnBackdropClick
     >
-      {errorMessage.length > 1 && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
-
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         {screenSize === 'small' ? (
           <MobileDatePicker

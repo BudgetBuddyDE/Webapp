@@ -12,3 +12,4 @@ export * from './transformBalance';
 export * from './genericObjectHasNumericId.util';
 export * from './determineIfMobileDevice.util';
 export * from './determineOperatingSystem.util';
+export * from './sleep.util';

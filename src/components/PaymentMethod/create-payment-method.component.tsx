@@ -1,9 +1,12 @@
-import { Alert, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import React from 'react';
 import { SnackbarContext, StoreContext } from '../../context';
+import { useFetchPaymentMethods } from '../../hooks';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '../../reducer';
 import { PaymentMethodService } from '../../services';
 import { FormStyle } from '../../theme/form-style';
 import type { IBasePaymentMethod, IPaymentMethod } from '../../types';
+import { sleep } from '../../utils';
 import { FormDrawer } from '../Base';
 
 export interface ICreatePaymentMethodProps {
@@ -20,43 +23,41 @@ export const CreatePaymentMethod: React.FC<ICreatePaymentMethodProps> = ({
   paymentMethod,
 }) => {
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, setPaymentMethods } = React.useContext(StoreContext);
-  const [, startTransition] = React.useTransition();
+  const { loading } = React.useContext(StoreContext);
+  const { refresh } = useFetchPaymentMethods();
   const [form, setForm] = React.useState<Partial<IBasePaymentMethod>>({});
-  const [errorMessage, setErrorMessage] = React.useState('');
+  const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
 
   const handler = {
     onClose: () => {
       setOpen(false);
       setForm({});
+      setDrawerAction({ type: 'RESET' });
     },
     inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
     onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      setDrawerAction({ type: 'SUBMIT' });
+      const values = Object.keys(form);
+      const missingValues = ['name', 'address', 'provider'].filter((value) => !values.includes(value));
       try {
-        event.preventDefault();
-        const values = Object.keys(form);
-        ['name', 'address', 'provider'].forEach((field) => {
-          if (!values.includes(field)) throw new Error('Provide an ' + field);
-        });
-
+        if (missingValues.length > 0) {
+          throw new Error('Provide an ' + missingValues.join(', ') + '!');
+        }
         const createdPaymentMethods = await PaymentMethodService.createPaymentMethods([form]);
         if (createdPaymentMethods.length < 1) throw new Error('No payment-methods created');
-
         const createdPaymentMethod = createdPaymentMethods[0];
         if (afterSubmit) afterSubmit(createdPaymentMethod);
-        startTransition(() => {
-          setPaymentMethods({ type: 'ADD_ITEM', entry: createdPaymentMethod });
-        });
+        setDrawerAction({ type: 'SUCCESS' });
+        await sleep(300);
+        refresh();
         handler.onClose();
-        showSnackbar({
-          message: 'Payment Method added',
-        });
+        showSnackbar({ message: 'Payment method added' });
       } catch (error) {
         console.error(error);
-        // @ts-ignore
-        setErrorMessage(error.message || 'Unkown error');
+        setDrawerAction({ type: 'ERROR', error: error as Error });
       }
     },
   };
@@ -73,15 +74,10 @@ export const CreatePaymentMethod: React.FC<ICreatePaymentMethodProps> = ({
       heading="Add Payment Method"
       onClose={handler.onClose}
       onSubmit={handler.onSubmit}
+      drawerActionState={drawerAction}
       saveLabel="Create"
       closeOnBackdropClick
     >
-      {errorMessage.length > 1 && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
-
       <TextField
         id="payment-method-name"
         variant="outlined"
