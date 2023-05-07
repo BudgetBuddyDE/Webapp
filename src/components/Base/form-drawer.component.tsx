@@ -1,7 +1,8 @@
-import { Close as CloseIcon } from '@mui/icons-material';
-import { Box, Button, Drawer, IconButton, Typography } from '@mui/material';
+import { Close as CloseIcon, Error as ErrorIcon, Done as SuccessIcon } from '@mui/icons-material';
+import { Alert, Box, Button, CircularProgress, Drawer, IconButton, Typography } from '@mui/material';
 import React from 'react';
 import { useScreenSize } from '../../hooks';
+import type { DrawerActionState } from '../../reducer';
 import { drawerWidth } from '../../theme/default.theme';
 import { ActionPaper } from './action-paper.component';
 
@@ -10,6 +11,7 @@ export interface IFormDrawerProps extends React.PropsWithChildren {
   heading: string;
   onClose: () => void;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  drawerActionState?: DrawerActionState;
   closeLabel?: string;
   saveLabel?: string;
   closeOnBackdropClick?: boolean;
@@ -20,6 +22,7 @@ export const FormDrawer: React.FC<IFormDrawerProps> = ({
   heading,
   onClose,
   onSubmit,
+  drawerActionState,
   closeLabel = 'Close',
   saveLabel = 'Save',
   closeOnBackdropClick,
@@ -71,7 +74,14 @@ export const FormDrawer: React.FC<IFormDrawerProps> = ({
           height: 'inherit',
         }}
       >
-        <Box sx={{ p: 2 }}>{children}</Box>
+        <Box sx={{ p: 2 }}>
+          {drawerActionState && drawerActionState.error ? (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {drawerActionState.error instanceof Error ? drawerActionState.error.message : drawerActionState.error}
+            </Alert>
+          ) : null}
+          {children}
+        </Box>
         <Box
           sx={{
             mt: 'auto',
@@ -88,9 +98,28 @@ export const FormDrawer: React.FC<IFormDrawerProps> = ({
             <Button onClick={onClose} sx={{ mr: 1 }}>
               {closeLabel}
             </Button>
-            <Button type="submit" variant="contained">
-              {saveLabel}
-            </Button>
+            {drawerActionState !== undefined ? (
+              <Button
+                type="submit"
+                variant="contained"
+                startIcon={
+                  drawerActionState.loading ? (
+                    <CircularProgress color="inherit" size={16} />
+                  ) : drawerActionState.success ? (
+                    <SuccessIcon color="inherit" fontSize="inherit" />
+                  ) : !drawerActionState.success && drawerActionState.error !== null ? (
+                    <ErrorIcon color="inherit" fontSize="inherit" />
+                  ) : null
+                }
+                disabled={drawerActionState.loading}
+              >
+                {saveLabel}
+              </Button>
+            ) : (
+              <Button type="submit" variant="contained">
+                {saveLabel}
+              </Button>
+            )}
           </Box>
         </Box>
       </form>

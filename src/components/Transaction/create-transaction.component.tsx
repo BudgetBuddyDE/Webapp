@@ -1,14 +1,15 @@
-import { Alert, Box, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
+import { Box, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
-import { useFetchCategories, useFetchPaymentMethods, useScreenSize } from '../../hooks/';
-import { Transaction } from '../../models/';
+import { useFetchTransactions, useScreenSize } from '../../hooks/';
+import { BaseTransaction } from '../../models/';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '../../reducer';
 import { TransactionService } from '../../services/';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseTransaction } from '../../types/';
-import { transformBalance } from '../../utils/';
+import { sleep, transformBalance } from '../../utils/';
 import { FormDrawer } from '../Base/';
 import { CreateCategoryInput } from '../Category';
 import { ReceiverAutocomplete } from '../Inputs/';
@@ -17,7 +18,7 @@ import { CreatePaymentMethodInput } from '../PaymentMethod';
 export interface ICreateTransactionProps {
   open: boolean;
   setOpen: (show: boolean) => void;
-  afterSubmit?: (transaction: Transaction) => void;
+  afterSubmit?: (transaction: BaseTransaction) => void;
 }
 
 interface CreateTransactionHandler {
@@ -37,17 +38,16 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
   const screenSize = useScreenSize();
   const { session } = React.useContext(AuthContext);
   const { showSnackbar } = React.useContext(SnackbarContext);
-  const { loading, transactionReceiver, setTransactions } = React.useContext(StoreContext);
-  const fetchCategories = useFetchCategories();
-  const fetchPaymentMethods = useFetchPaymentMethods();
-  const [, startTransition] = React.useTransition();
+  const { loading, transactionReceiver } = React.useContext(StoreContext);
+  const { refresh } = useFetchTransactions();
   const [form, setForm] = React.useState<Partial<IBaseTransaction>>({ date: new Date() });
-  const [errorMessage, setErrorMessage] = React.useState('');
+  const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
 
   const handler: CreateTransactionHandler = {
     onClose: () => {
       setOpen(false);
       setForm({ date: new Date() });
+      setDrawerAction({ type: 'RESET' });
     },
     onDateChange: (date) => {
       if (date) setForm((prev) => ({ ...prev, date: date ?? new Date() }));
@@ -62,12 +62,16 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
       setForm((prev) => ({ ...prev, receiver: String(value) }));
     },
     onSubmit: async (event) => {
+      event.preventDefault();
+      setDrawerAction({ type: 'SUBMIT' });
+      const values = Object.keys(form);
+      const missingValues = ['date', 'category', 'paymentMethod', 'receiver', 'amount'].filter(
+        (value) => !values.includes(value)
+      );
       try {
-        event.preventDefault();
-        const values = Object.keys(form);
-        ['date', 'category', 'paymentMethod', 'receiver', 'amount'].forEach((field) => {
-          if (!values.includes(field)) throw new Error('Provide an ' + field);
-        });
+        if (missingValues.length > 0) {
+          throw new Error('Provide an ' + missingValues.join(', ') + '!');
+        }
 
         const createdTransactions = await TransactionService.createTransactions([
           {
@@ -81,41 +85,15 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
           },
         ]);
         if (createdTransactions.length < 1) throw new Error('No transaction created');
-
-        const {
-          id,
-          category,
-          paymentMethod,
-          receiver,
-          description,
-          amount,
-          date,
-          created_by,
-          updated_at,
-          inserted_at,
-        } = createdTransactions[0];
-        const addedTransaction = new Transaction({
-          id: id,
-          categories: fetchCategories.categories.find((c) => c.id === category)!.categoryView,
-          paymentMethods: fetchPaymentMethods.paymentMethods.find((pm) => pm.id === paymentMethod)!.paymentMethodView,
-          receiver: receiver,
-          description: description,
-          amount: amount,
-          date: date.toString(),
-          created_by: created_by,
-          updated_at: updated_at.toString(),
-          inserted_at: inserted_at.toString(),
-        });
-        if (afterSubmit) afterSubmit(addedTransaction);
-        startTransition(() => {
-          setTransactions({ type: 'ADD_ITEM', entry: addedTransaction });
-        });
+        if (afterSubmit) afterSubmit(createdTransactions[0]);
+        setDrawerAction({ type: 'SUCCESS' });
+        await sleep(300);
+        refresh();
         handler.onClose();
         showSnackbar({ message: 'Transaction added' });
       } catch (error) {
         console.error(error);
-        // @ts-ignore
-        setErrorMessage(error.message || 'Unkown error');
+        setDrawerAction({ type: 'ERROR', error: error as Error });
       }
     },
   };
@@ -127,15 +105,10 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
       heading="Add Transaction"
       onClose={handler.onClose}
       onSubmit={handler.onSubmit}
+      drawerActionState={drawerAction}
       saveLabel="Create"
       closeOnBackdropClick
     >
-      {errorMessage.length > 1 && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
-
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         {screenSize === 'small' ? (
           <MobileDatePicker

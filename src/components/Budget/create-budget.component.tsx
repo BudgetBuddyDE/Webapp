@@ -1,12 +1,13 @@
-import { Alert, Autocomplete, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
+import { Autocomplete, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
 import { isSameMonth } from 'date-fns';
 import React from 'react';
 import { AuthContext, SnackbarContext, StoreContext } from '../../context/';
 import { useFetchCategories, useFetchTransactions } from '../../hooks';
 import { Budget } from '../../models/';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '../../reducer';
 import { BudgetService } from '../../services/';
 import { IBaseBudget } from '../../types/';
-import { transformBalance } from '../../utils/';
+import { sleep, transformBalance } from '../../utils/';
 import { FormDrawer } from '../Base/';
 import { CreateCategoryInfo } from '../Category';
 
@@ -29,14 +30,14 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
   const { loading, budget, setBudget } = React.useContext(StoreContext);
   const fetchTransactions = useFetchTransactions();
   const fetchCategories = useFetchCategories();
-  const [, startTransition] = React.useTransition();
   const [form, setForm] = React.useState<Partial<IBaseBudget>>({});
-  const [errorMessage, setErrorMessage] = React.useState('');
+  const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
 
   const handler: CreateBudgetHandler = {
     onClose: () => {
       setOpen(false);
       setForm({});
+      setDrawerAction({ type: 'RESET' });
     },
     autocompleteChange: (event, value) => {
       setForm((prev) => ({ ...prev, category: Number(value) }));
@@ -45,20 +46,23 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
     onSubmit: async (event) => {
+      event.preventDefault();
+      setDrawerAction({ type: 'SUBMIT' });
+      const values = Object.keys(form);
+      const missingValues = ['category', 'budget'].filter((value) => !values.includes(value));
       try {
-        event.preventDefault();
+        if (missingValues.length > 0) {
+          throw new Error('Provide an ' + missingValues.join(', ') + '!');
+        }
 
-        if (!budget.fetched || (budget.fetched && !budget.data))
+        if (!budget.fetched || (budget.fetched && !budget.data)) {
           throw new Error('Something went wrong when retrieving our budget from the database');
+        }
 
         // Check if the user has already set an budget for this category
-        if ((budget.data as Budget[]).some((budget) => budget.category.id === form.category))
+        if ((budget.data as Budget[]).some((budget) => budget.category.id === form.category)) {
           throw new Error("You've already set an Budget for this category");
-
-        const values = Object.keys(form);
-        ['category', 'budget'].forEach((field) => {
-          if (!values.includes(field)) throw new Error('Provide an ' + field);
-        });
+        }
 
         const createdBudgets = await BudgetService.create([
           {
@@ -68,7 +72,6 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
           },
         ]);
         if (createdBudgets.length < 1) throw new Error('No budget saved');
-
         const createdBudget = createdBudgets[0];
         const addedBudget = new Budget({
           id: createdBudget.id,
@@ -91,15 +94,14 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
         });
 
         if (afterSubmit) afterSubmit(addedBudget);
-        startTransition(() => {
-          setBudget({ type: 'ADD_ITEM', entry: addedBudget });
-        });
+        setDrawerAction({ type: 'SUCCESS' });
+        await sleep(300);
+        setBudget({ type: 'ADD_ITEM', entry: addedBudget });
         handler.onClose();
         showSnackbar({ message: `Budget for category '${addedBudget.category.name}' saved` });
       } catch (error) {
         console.error(error);
-        // @ts-ignore
-        setErrorMessage(error.message || 'Unkown error');
+        setDrawerAction({ type: 'ERROR', error: error as Error });
       }
     },
   };
@@ -111,15 +113,10 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
       heading="Set Budget"
       onClose={handler.onClose}
       onSubmit={handler.onSubmit}
+      drawerActionState={drawerAction}
       saveLabel="Create"
       closeOnBackdropClick
     >
-      {errorMessage.length > 1 && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
-
       {!fetchCategories.loading && fetchCategories.categories.length > 0 ? (
         <Autocomplete
           id="add-category"
