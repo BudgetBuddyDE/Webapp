@@ -14,9 +14,10 @@ import React from 'react';
 import { SnackbarContext, StoreContext } from '../../context/';
 import { useFetchCategories, useFetchPaymentMethods, useScreenSize } from '../../hooks/';
 import { Subscription } from '../../models/';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '../../reducer';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseSubscription } from '../../types/';
-import { getCategoryFromList, getPaymentMethodFromList, transformBalance } from '../../utils/';
+import { getCategoryFromList, getPaymentMethodFromList, sleep, transformBalance } from '../../utils/';
 import { FormDrawer } from '../Base/';
 import { CreateCategoryInfo } from '../Category';
 import { ReceiverAutocomplete } from '../Inputs/';
@@ -51,7 +52,7 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
   const [, startTransition] = React.useTransition();
   const [executionDate, setExecutionDate] = React.useState(new Date());
   const [form, setForm] = React.useState<Partial<IBaseSubscription> | null>(null);
-  const [errorMessage, setErrorMessage] = React.useState('');
+  const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
 
   const handler: EditSubscriptionHandler = {
     onClose: () => {
@@ -76,6 +77,7 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
         event.preventDefault();
         if (!subscription) throw new Error('No subscription provided');
         if (!form) throw new Error('No updates provided');
+        setDrawerAction({ type: 'SUBMIT' });
         const values = Object.keys(form);
         ['id', 'category', 'paymentMethod', 'receiver', 'amount'].forEach((field) => {
           if (!values.includes(field)) throw new Error('Provide an ' + field);
@@ -118,12 +120,13 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
 
         if (afterSubmit) afterSubmit(updatedItem);
         startTransition(() => setSubscriptions({ type: 'UPDATE_BY_ID', entry: updatedItem }));
+        setDrawerAction({ type: 'SUCCESS' });
+        await sleep(300);
         handler.onClose();
         showSnackbar({ message: 'Subscription updated' });
       } catch (error) {
         console.error(error);
-        // @ts-ignore
-        setErrorMessage(error.message || 'Unkown error');
+        setDrawerAction({ type: 'ERROR', error: error as Error });
       }
     },
   };
@@ -151,15 +154,10 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
       heading="Edit Transaction"
       onClose={handler.onClose}
       onSubmit={handler.onSubmit}
+      drawerActionState={drawerAction}
       saveLabel="Save"
       closeOnBackdropClick
     >
-      {errorMessage.length > 1 && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
-
       {form && (
         <React.Fragment>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
