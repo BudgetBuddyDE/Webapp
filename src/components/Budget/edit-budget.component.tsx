@@ -1,9 +1,10 @@
-import { Alert, FormControl, InputAdornment, InputLabel, OutlinedInput } from '@mui/material';
+import { FormControl, InputAdornment, InputLabel, OutlinedInput } from '@mui/material';
 import React from 'react';
 import { SnackbarContext, StoreContext } from '../../context/';
 import { Budget } from '../../models/';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '../../reducer';
 import { IBaseBudget } from '../../types/';
-import { transformBalance } from '../../utils/';
+import { sleep, transformBalance } from '../../utils/';
 import { FormDrawer } from '../Base/';
 
 export interface IEditBudgetProps {
@@ -28,7 +29,7 @@ export const EditBudget: React.FC<IEditBudgetProps> = ({ open, setOpen, afterSub
   const { showSnackbar } = React.useContext(SnackbarContext);
   const { loading, setBudget } = React.useContext(StoreContext);
   const [form, setForm] = React.useState<Partial<IBaseBudget> | null>(null);
-  const [errorMessage, setErrorMessage] = React.useState('');
+  const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
 
   const handler: EditBudgetHandler = {
     onClose: () => {
@@ -46,6 +47,7 @@ export const EditBudget: React.FC<IEditBudgetProps> = ({ open, setOpen, afterSub
         event.preventDefault();
         if (!budget) throw new Error('No budget provided');
         if (!form) throw new Error('No changes provided');
+        setDrawerAction({ type: 'SUBMIT' });
         const values = Object.keys(form);
         ['budget'].forEach((field) => {
           if (!values.includes(field)) throw new Error('Provide an ' + field);
@@ -60,13 +62,14 @@ export const EditBudget: React.FC<IEditBudgetProps> = ({ open, setOpen, afterSub
         const updatedBudget = budget;
         updatedBudget.budget = updatedBaseBudget.budget;
         if (afterSubmit) afterSubmit(updatedBudget);
+        setDrawerAction({ type: 'SUCCESS' });
+        await sleep(300);
         setBudget({ type: 'UPDATE_BY_ID', entry: updatedBudget });
         handler.onClose();
         showSnackbar({ message: `Budget for category '${updatedBudget.category.name}' saved` });
       } catch (error) {
         console.error(error);
-        // @ts-ignore
-        setErrorMessage(error.message || 'Unkown error');
+        setDrawerAction({ type: 'ERROR', error: error as Error });
       }
     },
   };
@@ -82,15 +85,10 @@ export const EditBudget: React.FC<IEditBudgetProps> = ({ open, setOpen, afterSub
       heading="Edit Budget"
       onClose={handler.onClose}
       onSubmit={handler.onSubmit}
+      drawerActionState={drawerAction}
       saveLabel="Create"
       closeOnBackdropClick
     >
-      {errorMessage.length > 1 && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
-
       {form && (
         <React.Fragment>
           <FormControl fullWidth sx={{ mb: 2 }}>

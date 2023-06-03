@@ -1,8 +1,10 @@
-import { Alert, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import React from 'react';
 import { SnackbarContext, StoreContext } from '../../context/';
 import { Category } from '../../models/';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '../../reducer';
 import { FormStyle } from '../../theme/form-style';
+import { sleep } from '../../utils';
 import { FormDrawer } from '../Base/';
 
 interface EditCategoryHandler {
@@ -20,7 +22,7 @@ export const EditCategory: React.FC<{
   const { loading, setCategories } = React.useContext(StoreContext);
   const [, startTransition] = React.useTransition();
   const [form, setForm] = React.useState<{ name: string; description: string | null } | null>(null);
-  const [errorMessage, setErrorMessage] = React.useState('');
+  const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
 
   const handler: EditCategoryHandler = {
     onClose: () => {
@@ -33,6 +35,7 @@ export const EditCategory: React.FC<{
         if (!category) throw new Error('No category provided');
         if (!form) throw new Error('No updated information provided');
 
+        setDrawerAction({ type: 'SUBMIT' });
         const update = await category.update(form);
         if (!update || update.length < 1) throw new Error('No category updated');
 
@@ -41,14 +44,15 @@ export const EditCategory: React.FC<{
         startTransition(() => {
           setCategories({ type: 'UPDATE_BY_ID', entry: updatedItem });
         });
+        setDrawerAction({ type: 'SUCCESS' });
+        await sleep(300);
         handler.onClose();
         showSnackbar({
           message: 'Category updated',
         });
       } catch (error) {
         console.error(error);
-        // @ts-ignore
-        setErrorMessage(error.message || 'Unkown error');
+        setDrawerAction({ type: 'ERROR', error: error as Error });
       }
     },
   };
@@ -64,15 +68,10 @@ export const EditCategory: React.FC<{
       heading="Edit Category"
       onClose={handler.onClose}
       onSubmit={handler.onSubmit}
+      drawerActionState={drawerAction}
       saveLabel="Save"
       closeOnBackdropClick
     >
-      {errorMessage.length > 1 && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
-
       <TextField
         id="edit-category-name"
         variant="outlined"

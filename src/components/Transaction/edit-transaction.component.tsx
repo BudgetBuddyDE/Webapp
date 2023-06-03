@@ -1,22 +1,14 @@
-import {
-  Alert,
-  Autocomplete,
-  Box,
-  FormControl,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
-  TextField,
-} from '@mui/material';
+import { Autocomplete, Box, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import { SnackbarContext, StoreContext } from '../../context/';
 import { useFetchCategories, useFetchPaymentMethods, useScreenSize } from '../../hooks/';
 import { Transaction } from '../../models/';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '../../reducer';
 import { FormStyle } from '../../theme/form-style';
 import type { IBaseTransaction } from '../../types/';
-import { getCategoryFromList, getPaymentMethodFromList, transformBalance } from '../../utils/';
+import { getCategoryFromList, getPaymentMethodFromList, sleep, transformBalance } from '../../utils/';
 import { FormDrawer } from '../Base/';
 import { CreateCategoryInfo } from '../Category';
 import { ReceiverAutocomplete } from '../Inputs/';
@@ -50,7 +42,7 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen
   const fetchPaymentMethods = useFetchPaymentMethods();
   const [, startTransition] = React.useTransition();
   const [form, setForm] = React.useState<Partial<IBaseTransaction> | null>(null);
-  const [errorMessage, setErrorMessage] = React.useState('');
+  const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
 
   const handler: EditTransactionHandler = {
     onClose: () => {
@@ -74,6 +66,7 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen
         event.preventDefault();
         if (!transaction) throw new Error('No transaction provided');
         if (!form) throw new Error('No updates provided');
+        setDrawerAction({ type: 'SUBMIT' });
         const values = Object.keys(form);
         ['date', 'category', 'paymentMethod', 'receiver', 'amount'].forEach((field) => {
           if (!values.includes(field)) throw new Error('Provide an ' + field);
@@ -118,14 +111,16 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen
         startTransition(() => {
           setTransactions({ type: 'UPDATE_BY_ID', entry: updatedItem });
         });
+        setDrawerAction({ type: 'SUCCESS' });
+        await sleep(300);
         handler.onClose();
         showSnackbar({
           message: 'Transaction updated',
         });
       } catch (error) {
         console.error(error);
-        // @ts-ignore
-        setErrorMessage(error.message || 'Unkown error');
+        console.error(error);
+        setDrawerAction({ type: 'ERROR', error: error as Error });
       }
     },
   };
@@ -153,15 +148,10 @@ export const EditTransaction: React.FC<IEditTransactionProps> = ({ open, setOpen
       heading="Edit Transaction"
       onClose={handler.onClose}
       onSubmit={handler.onSubmit}
+      drawerActionState={drawerAction}
       saveLabel="Save"
       closeOnBackdropClick
     >
-      {errorMessage.length > 1 && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
-
       {form && (
         <React.Fragment>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
