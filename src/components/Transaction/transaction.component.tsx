@@ -12,7 +12,7 @@ import { Icon } from '../Base/icon.component';
 export interface TransactionProps {
   icon?: JSX.Element;
   title: string;
-  subtitle: string | string[];
+  subtitle?: string | string[];
   category?: ICategoryView | Category;
   type?: 'transaction' | 'subscription';
   date?: Date;
@@ -58,19 +58,21 @@ export const Transaction: React.FC<TransactionProps> = ({
             }}
           />
         )}
-        {typeof subtitle === 'string' ? (
-          <Chip label={subtitle} size="small" variant="outlined" sx={{ mr: 1 }} />
-        ) : (
-          subtitle.map((subtitleItem, index) => (
-            <Chip
-              key={'transaction-subtitle-' + index}
-              label={subtitleItem}
-              size="small"
-              variant="outlined"
-              sx={{ mr: 1 }}
-            />
-          ))
-        )}
+        {subtitle && subtitle.length > 0 ? (
+          typeof subtitle === 'string' ? (
+            <Chip label={subtitle} size="small" variant="outlined" sx={{ mr: 1 }} />
+          ) : (
+            subtitle.map((subtitleItem, index) => (
+              <Chip
+                key={'transaction-subtitle-' + index}
+                label={subtitleItem}
+                size="small"
+                variant="outlined"
+                sx={{ mr: 1 }}
+              />
+            ))
+          )
+        ) : null}
         {category && type && (
           <Chip
             label={category.name}

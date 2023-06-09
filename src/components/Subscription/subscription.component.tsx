@@ -15,7 +15,11 @@ export const Subscription: React.FC<SubscriptionProps> = ({ icon, title, subtitl
       icon={icon}
       title={title}
       subtitle={
-        typeof subtitle === 'string' ? [formattedExecutionDate, subtitle] : [formattedExecutionDate, ...subtitle]
+        subtitle
+          ? typeof subtitle === 'string'
+            ? [formattedExecutionDate, subtitle]
+            : [formattedExecutionDate, ...subtitle]
+          : formattedExecutionDate
       }
       category={category}
       type="subscription"

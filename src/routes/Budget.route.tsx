@@ -1,4 +1,11 @@
-import { Add as AddIcon } from '@mui/icons-material';
+import {
+  Add as AddIcon,
+  Balance as BalanceIcon,
+  DonutSmall as DonutSmallIcon,
+  List as ListIcon,
+  Payments as PaymentsIcon,
+  Remove as RemoveIcon,
+} from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -31,20 +38,22 @@ import {
   FabContainer,
   ICreateBudgetProps,
   IEditBudgetProps,
+  IStatsProps,
   NoResults,
   PageHeader,
+  PieChart,
+  Stats,
+  StatsIconStyle,
   Transaction,
 } from '../components';
 import { AuthContext, SnackbarContext, StoreContext } from '../context';
-import { useScreenSize } from '../hooks';
-import { Budget as BudgetModel } from '../models';
+import { useFetchSubscriptions, useScreenSize } from '../hooks';
+import { Budget as BudgetModel, Subscription } from '../models';
 import { BudgetService, ExpenseService, IncomeService } from '../services';
 import { formatBalance, getFirstDayOfMonth } from '../utils';
 
 export const DATE_RANGE_INPUT_FORMAT = 'dd.MM';
-
 export type ChartContentType = 'INCOME' | 'SPENDINGS';
-
 export const ChartContentTypes = [
   { type: 'INCOME' as ChartContentType, label: 'Income' },
   { type: 'SPENDINGS' as ChartContentType, label: 'Spendings' },
@@ -59,13 +68,62 @@ export const Budget = () => {
     React.useContext(StoreContext);
   const [chart, setChart] = React.useState<ChartContentType>('INCOME');
   const [dateRange, setDateRange] = React.useState({ from: getFirstDayOfMonth(), to: new Date() });
-  const [showForm, setShowForm] = React.useState<{
-    createBudget: boolean;
-    editBudget: BudgetModel | null;
-  }>({
+  const [showForm, setShowForm] = React.useState<{ createBudget: boolean; editBudget: BudgetModel | null }>({
     createBudget: false,
     editBudget: null,
   });
+  const fetchSubscriptions = useFetchSubscriptions();
+  const [categoryStatsVisualizationType, setCategoryStatsVisualizationType] = React.useState<'CHART' | 'LIST'>('CHART');
+
+  const subscriptionCategorySum = React.useMemo(() => {
+    const subscriptions = fetchSubscriptions.subscriptions;
+    const result = { income: new Map<string, number>(), spendings: new Map<string, number>() };
+    if (subscriptions.length === 0) {
+      return result;
+    }
+
+    // Income
+    subscriptions
+      .filter((sub) => sub.amount >= 0)
+      .forEach((sub) => {
+        const categoryName = sub.categories.name,
+          amount = Math.abs(sub.amount);
+        if (result.income.has(categoryName)) {
+          const prev = result.income.get(categoryName);
+          result.income.set(categoryName, prev! + amount);
+        } else result.income.set(categoryName, amount);
+      });
+
+    // Spendings
+    subscriptions
+      .filter((sub) => sub.amount < 0)
+      .forEach((sub) => {
+        const categoryName = sub.categories.name,
+          amount = Math.abs(sub.amount);
+        if (result.spendings.has(categoryName)) {
+          const prev = result.spendings.get(categoryName);
+          result.spendings.set(categoryName, prev! + amount);
+        } else result.spendings.set(categoryName, amount);
+      });
+
+    return result;
+  }, [fetchSubscriptions.subscriptions]);
+
+  const pageStats = React.useMemo(() => {
+    const income = Array.from(subscriptionCategorySum.income).reduce((prev, [category, amount]) => prev + amount, 0);
+    const outcome = Array.from(subscriptionCategorySum.spendings).reduce(
+      (prev, [category, amount]) => prev + amount,
+      0
+    );
+    const plannedBudget = budget.data?.reduce((prev, cur) => prev + cur.budget, 0) || 0;
+
+    return {
+      income: income,
+      outcome: outcome,
+      plannedBudget: plannedBudget,
+      unplannedBudget: income - (outcome + plannedBudget),
+    };
+  }, [subscriptionCategorySum, budget]);
 
   const handler: {
     onDateFromChange: (value: Date | null, keyboardInputValue?: string | undefined) => void;
@@ -201,8 +259,9 @@ export const Budget = () => {
       budgetTransactions.fetched &&
       budgetTransactions.fetchedBy === session.user.id &&
       budgetTransactions.data !== null
-    )
+    ) {
       return;
+    }
     setLoading(true);
     const from = dateRange.from;
     const to = dateRange.to;
@@ -391,7 +450,41 @@ export const Budget = () => {
       </Grid>
 
       <Grid item xs={12} md={12} lg={7} xl={7}>
-        <Card>
+        {/* Stats */}
+        <Grid container spacing={2}>
+          {(
+            [
+              {
+                icon: <AddIcon sx={StatsIconStyle} />,
+                title: formatBalance(pageStats.income),
+                subtitle: 'Fixed income',
+              },
+              {
+                icon: <RemoveIcon sx={StatsIconStyle} />,
+                title: formatBalance(pageStats.outcome),
+                subtitle: 'Fixed outcome',
+              },
+              {
+                icon: <PaymentsIcon sx={StatsIconStyle} />,
+                title: formatBalance(pageStats.plannedBudget),
+                subtitle: 'Planned budgets',
+              },
+              {
+                icon: <BalanceIcon sx={StatsIconStyle} />,
+                title: formatBalance(pageStats.unplannedBudget),
+                subtitle: 'Unplanned balance',
+                info: 'Income - (Spendings + Budget Spendings)',
+              },
+            ] as IStatsProps[]
+          ).map((item, index) => (
+            <Grid key={index} item xs={6} md={3}>
+              <Stats {...item} />
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* Set category budgets */}
+        <Card sx={{ mt: 2 }}>
           <Card.Header>
             <Box>
               <Card.Title>Category Budgets</Card.Title>
@@ -412,18 +505,81 @@ export const Budget = () => {
               <CircularProgress />
             ) : budget.data && budget.data.length > 0 ? (
               budget.data.map((item) => (
-                <CategoryBudget
-                  key={item.id}
-                  budget={item}
-                  onEdit={handler.editBudget.onEdit}
-                  onDelete={handler.onBudgetDelete}
-                />
+                <Box key={item.id} sx={{ mt: 1 }}>
+                  <CategoryBudget budget={item} onEdit={handler.editBudget.onEdit} onDelete={handler.onBudgetDelete} />
+                </Box>
               ))
             ) : (
               <NoResults sx={{ mt: 2 }} text="No budget found" />
             )}
           </Card.Body>
         </Card>
+
+        {/* Charts */}
+        <Grid container columnSpacing={2}>
+          {[
+            { label: 'Income', type: 'income' },
+            { label: 'Spendings', type: 'spendings' },
+          ].map((item) => (
+            <Grid item xs={12} md={6}>
+              <Card sx={{ mt: 2 }}>
+                <Card.Header>
+                  <Box>
+                    <Card.Title>{item.label}</Card.Title>
+                    <Card.Subtitle>Defined as Subscriptions</Card.Subtitle>
+                  </Box>
+
+                  <Card.HeaderActions>
+                    <ActionPaper>
+                      <ToggleButtonGroup
+                        size="small"
+                        color="primary"
+                        value={categoryStatsVisualizationType}
+                        onChange={() =>
+                          setCategoryStatsVisualizationType((prev) => (prev === 'CHART' ? 'LIST' : 'CHART'))
+                        }
+                        exclusive
+                      >
+                        {[
+                          { type: 'CHART', label: <DonutSmallIcon /> },
+                          { type: 'LIST', label: <ListIcon /> },
+                        ].map((button) => (
+                          <ToggleButton key={button.type} value={button.type}>
+                            {button.label}
+                          </ToggleButton>
+                        ))}
+                      </ToggleButtonGroup>
+                    </ActionPaper>
+                  </Card.HeaderActions>
+                </Card.Header>
+                <Card.Body sx={{ mt: 1 }}>
+                  {categoryStatsVisualizationType === 'CHART' ? (
+                    <ParentSize>
+                      {({ width }) => (
+                        <PieChart
+                          width={width}
+                          height={width}
+                          // @ts-ignore
+                          data={Array.from(subscriptionCategorySum[item.type]).map(([category, amount]) => ({
+                            label: category,
+                            value: amount,
+                          }))}
+                          formatAsCurrency
+                          showTotalSum
+                        />
+                      )}
+                    </ParentSize>
+                  ) : (
+                    // @ts-ignore
+                    Array.from(subscriptionCategorySum[item.type]).map(([category, amount]) => (
+                      <Transaction title={category} subtitle="" amount={amount} />
+                    ))
+                  )}
+                </Card.Body>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       </Grid>
 
       <FabContainer>
