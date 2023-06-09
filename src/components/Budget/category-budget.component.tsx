@@ -1,6 +1,6 @@
 import { Delete as DeleteIcon, Edit as EditIcon, Label as LabelIcon } from '@mui/icons-material';
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
-import { FC } from 'react';
+import React from 'react';
 import { Budget as BudgetModel } from '../../models';
 import { formatBalance } from '../../utils';
 import { ActionPaper } from '../Base/action-paper.component';
@@ -13,7 +13,7 @@ export interface CategoryBudgetProps {
   onDelete?: (budget: ReturnType<BudgetModel['delete']>) => void;
 }
 
-export const CategoryBudget: FC<CategoryBudgetProps> = ({ budget, icon = <LabelIcon />, onEdit, onDelete }) => {
+export const CategoryBudget: React.FC<CategoryBudgetProps> = ({ budget, icon = <LabelIcon />, onEdit, onDelete }) => {
   return (
     <Box>
       <Box
@@ -41,15 +41,21 @@ export const CategoryBudget: FC<CategoryBudgetProps> = ({ budget, icon = <LabelI
             </Typography>
             <Typography variant="subtitle2">{budget.category.description || 'No description'}</Typography>
           </Box>
-          <Box sx={{ ml: 'auto', display: 'flex', flexDirection: 'row' }}>
+          <Box
+            sx={{
+              ml: 'auto',
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              alignItems: 'baseline',
+              columnGap: 0.5,
+            }}
+          >
             <Tooltip
               title={budget.budget > budget.currentlySpent ? "You'r still in budget" : "You've spent a little too much"}
             >
               <Typography
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  mr: 1,
+                  ml: 'auto',
                   fontWeight: 'bold',
                   fontSize: '90%',
                   color: (theme) =>
