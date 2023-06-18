@@ -183,18 +183,15 @@ export const Dashboard = () => {
       />
 
       {/* Stats */}
-      <Grid container item columns={12} spacing={3}>
-        {StatsCards.map((props, index, list) =>
-          index + 1 === list.length && list.length % 2 > 0 ? (
-            <Grid key={index} item xs={12} md={2} lg={2}>
+      <Grid container item columns={12} spacing={2}>
+        {StatsCards.map((props, index, list) => {
+          const xs = index + 1 === list.length && list.length % 2 > 0 ? 12 : 6;
+          return (
+            <Grid key={index} item xs={xs} md={2} lg={2}>
               <Stats {...props} />
             </Grid>
-          ) : (
-            <Grid key={index} item xs={6} md={2} lg={2}>
-              <Stats {...props} />
-            </Grid>
-          )
-        )}
+          );
+        })}
       </Grid>
 
       {/* Subscriptions */}

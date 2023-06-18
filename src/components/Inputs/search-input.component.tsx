@@ -1,6 +1,6 @@
 import { Search as SearchIcon } from '@mui/icons-material';
 import { InputBase, SxProps, Theme, alpha, styled } from '@mui/material';
-import debounce from 'lodash.debounce';
+import { debounce } from 'lodash';
 import React from 'react';
 import { useWindowDimensions } from '../../hooks';
 import { determineIfMobileDevice, determineOperatingSystem } from '../../utils';
