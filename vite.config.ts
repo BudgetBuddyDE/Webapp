@@ -14,11 +14,6 @@ export default defineConfig(() => {
         REACT_APP_SUPABASE_ANON: process.env.REACT_APP_SUPABASE_ANON,
       },
     },
-    resolve: {
-      alias: {
-        '~': path.resolve(__dirname, './src'),
-      },
-    },
     server: {
       open: true,
     },

@@ -43,6 +43,7 @@ export const App: React.FC = () => {
                 <Route path="payment-methods" element={<PaymentMethods />} />
                 <Route path="categories" element={<Categories />} />
                 <Route path="settings" element={<Settings />} />
+                <Route path="settins/edit" element={<h1>Edit Profile</h1>} />
               </Route>
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/request-reset" element={<RequestReset />} />

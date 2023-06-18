@@ -1,2 +1,2 @@
-export * from './drawer-item.component';
-export * from './drawer.component';
+export * from './DrawerItem.component';
+export * from './Drawer.component';

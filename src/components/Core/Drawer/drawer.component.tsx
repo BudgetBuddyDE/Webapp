@@ -1,16 +1,15 @@
-import { Logout as LogoutIcon, Menu as MenuIcon, MenuOpen as MenuOpenIcon } from '@mui/icons-material';
-import { Box, Button, Chip, Divider, Fab, IconButton, List, Drawer as MuiDrawer, Typography } from '@mui/material';
+import { Menu as MenuIcon, MenuOpen as MenuOpenIcon } from '@mui/icons-material';
+import { Divider, List, Drawer as MuiDrawer } from '@mui/material';
 import { CSSObject, Theme, styled } from '@mui/material/styles';
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { DrawerLinks } from '../../../constants/drawer-items.constant';
-import { AuthContext, StoreContext } from '../../../context';
+import { StoreContext } from '../../../context';
 import { useScreenSize } from '../../../hooks';
-import { supabase } from '../../../supabase';
 import { drawerWidth } from '../../../theme/default.theme';
-import { Brand } from '../../Base/Brand';
-import { ProfileAvatar } from '../../profile-avatar.component';
 import { DrawerItem } from '../index';
+import { DrawerHeader } from './DrawerHeader.component';
+import { DrawerProfile } from './DrawerProfile.component';
 
 export function getSavedSidebarState() {
   const saved = localStorage.getItem('bb.sidebar.show');
@@ -44,19 +43,6 @@ const closedMixin = (theme: Theme): CSSObject => ({
   },
 });
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-  height: '67.5px',
-  [theme.breakpoints.only('xs')]: {
-    height: 'unset',
-  },
-}));
-
 const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
   width: drawerWidth,
   flexShrink: 0,
@@ -79,106 +65,16 @@ export const Hamburger: React.FC<{ open: boolean }> = ({ open }) => {
   } else return open ? <MenuOpenIcon /> : <MenuIcon />;
 };
 
-const Header = () => {
-  const { showDrawer, setShowDrawer } = React.useContext(StoreContext);
-
-  return (
-    <DrawerHeader
-      sx={{
-        justifyContent: { xs: 'space-between', md: showDrawer ? 'space-between' : 'center' },
-      }}
-    >
-      <Brand
-        boxStyle={{
-          display: { xs: 'flex', md: showDrawer ? 'flex' : 'none' },
-          ml: 2,
-        }}
-      />
-      <IconButton onClick={() => setShowDrawer((prev) => !prev)}>
-        <Hamburger open={showDrawer} />
-      </IconButton>
-    </DrawerHeader>
-  );
-};
-
 const DrawerItems: React.FC<{ open: boolean; closeOnClick?: boolean }> = ({ open, closeOnClick = false }) => {
   return (
-    <>
+    <React.Fragment>
       <Divider />
       <List>
         {DrawerLinks.map((link) => (
           <DrawerItem key={link.path} open={open} {...link} closeOnClick={closeOnClick} />
         ))}
       </List>
-    </>
-  );
-};
-
-const Profile: React.FC<{ open: boolean }> = ({ open }) => {
-  const { session } = React.useContext(AuthContext);
-  const {
-    setTransactions,
-    setSubscriptions,
-    setBudget,
-    setBudgetTransactions,
-    setCategories,
-    setPaymentMethods,
-    setCategorySpendings,
-    setMonthlyAvg,
-  } = React.useContext(StoreContext);
-
-  const handleSignOut = async () => {
-    setTransactions({ type: 'CLEAR_DATA' });
-    setSubscriptions({ type: 'CLEAR_DATA' });
-    setBudget({ type: 'CLEAR_DATA' });
-    setBudgetTransactions({ type: 'CLEAR_DATA' });
-    setCategories({ type: 'CLEAR_DATA' });
-    setPaymentMethods({ type: 'CLEAR_DATA' });
-    setCategorySpendings({ type: 'CLEAR_DATA' });
-    setMonthlyAvg({ type: 'CLEAR_DATA' });
-    await supabase.auth.signOut();
-  };
-
-  return (
-    <Box sx={{ mt: 'auto', backgroundColor: (theme) => theme.palette.action.focus }}>
-      <Divider />
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          px: 2,
-          py: 1,
-        }}
-      >
-        <Box
-          sx={{
-            display: open ? 'flex' : 'none',
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
-        >
-          {session && session.user && <ProfileAvatar user={session.user} />}
-          <Box sx={{ ml: '.5rem' }}>
-            <Typography fontWeight="bold">{session && session.user && session.user.user_metadata.username}</Typography>
-            <Chip label="Basic" variant="outlined" size="small" />
-          </Box>
-        </Box>
-        <Button
-          sx={{
-            minWidth: 48,
-            width: 48,
-            height: 48,
-            minHeight: 48,
-            ml: open ? 'auto' : '-.5rem',
-            p: 0,
-          }}
-          onClick={handleSignOut}
-        >
-          <LogoutIcon sx={{ color: (theme) => theme.palette.text.primary }} />
-        </Button>
-      </Box>
-    </Box>
+    </React.Fragment>
   );
 };
 
@@ -188,8 +84,6 @@ const Profile: React.FC<{ open: boolean }> = ({ open }) => {
 export const Drawer = () => {
   const location = useLocation();
   const { showDrawer, setShowDrawer } = React.useContext(StoreContext);
-
-  const toggleDrawer = () => setShowDrawer((prev) => !prev);
 
   // We don't want the drawer to show up on the sign-in, request-reset, reset-password or sign-up route
   if (
@@ -221,16 +115,16 @@ export const Drawer = () => {
           },
         }}
       >
-        <Header />
+        <DrawerHeader />
         <DrawerItems open={!showDrawer} /*For information about the inverted value see comment above*/ closeOnClick />
-        <Profile open={!showDrawer} />
+        <DrawerProfile open={!showDrawer} />
       </MuiDrawer>
 
       {/* Desktop */}
       <StyledDrawer variant="permanent" open={showDrawer} sx={{ display: { xs: 'none', md: 'unset' } }}>
-        <Header />
+        <DrawerHeader />
         <DrawerItems open={showDrawer} />
-        <Profile open={showDrawer} />
+        <DrawerProfile open={showDrawer} />
       </StyledDrawer>
     </React.Fragment>
   );

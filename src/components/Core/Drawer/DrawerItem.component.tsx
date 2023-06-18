@@ -1,15 +1,17 @@
-import { ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip, Typography, alpha } from '@mui/material';
+import { ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip, alpha } from '@mui/material';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { StoreContext } from '../../../context';
 
-export const DrawerItem: React.FC<{
+export type DrawerItemProps = {
   open: boolean;
   text: string;
   path: string;
   icon: JSX.Element;
   closeOnClick?: boolean;
-}> = ({ open, text, path, icon, closeOnClick = false }) => {
+};
+
+export const DrawerItem: React.FC<DrawerItemProps> = ({ open, text, path, icon, closeOnClick = false }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { setShowDrawer } = React.useContext(StoreContext);
