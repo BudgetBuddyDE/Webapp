@@ -61,7 +61,7 @@ export const Dashboard = () => {
       title: React.useMemo(() => {
         return formatBalance(SubscriptionService.getPlannedSpendings(fetchSubscriptions.subscriptions));
       }, [fetchSubscriptions.subscriptions]),
-      subtitle: 'Planned expenses',
+      subtitle: 'Expenses (planned)',
       info: 'Sum of transactions and subscriptions that will be executed this month',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
       loading: fetchSubscriptions.loading,
@@ -72,7 +72,7 @@ export const Dashboard = () => {
           SubscriptionService.getUpcomingSpendings(fetchSubscriptions.subscriptions, fetchTransactions.transactions)
         );
       }, [fetchSubscriptions.subscriptions, fetchTransactions.transactions]),
-      subtitle: 'Upcoming expenses',
+      subtitle: 'Expenses (upcoming)',
       info: 'Sum of transactions and subscriptions that have yet to be executed this month',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
       loading: fetchSubscriptions.loading || fetchTransactions.loading,
@@ -81,7 +81,7 @@ export const Dashboard = () => {
       title: React.useMemo(() => {
         return formatBalance(TransactionService.getReceivedEarnings(fetchTransactions.transactions));
       }, [fetchTransactions.transactions]),
-      subtitle: 'Received earnings',
+      subtitle: 'Earnings (received)',
       info: 'Sum of transactions and subscriptions that have been executed in favor of you',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
       loading: fetchTransactions.loading,
@@ -92,7 +92,7 @@ export const Dashboard = () => {
           SubscriptionService.getUpcomingEarnings(fetchSubscriptions.subscriptions, fetchTransactions.transactions)
         );
       }, [fetchSubscriptions.subscriptions, fetchTransactions.transactions]),
-      subtitle: 'Upcoming earnings',
+      subtitle: 'Earnings (upcoming)',
       info: 'Sum of transactions and subscriptions that still have to be executed in favor of you',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
       loading: fetchSubscriptions.loading || fetchTransactions.loading,
@@ -101,7 +101,7 @@ export const Dashboard = () => {
       title: React.useMemo(() => {
         return formatBalance(monthlyAvg.data ? monthlyAvg.data.avg : 0);
       }, [monthlyAvg]),
-      subtitle: 'Estimated balance',
+      subtitle: 'Balance (estimated)',
       info: `Estimated balance based on the past ${MONTH_BACKLOG} months`,
       icon: <ScheduleIcon sx={StatsIconStyle} />,
       loading: loading && !monthlyAvg.fetched,
@@ -113,7 +113,7 @@ export const Dashboard = () => {
             TransactionService.getPaidSpendings(fetchTransactions.transactions)
         );
       }, [fetchTransactions.transactions]),
-      subtitle: 'Current balance',
+      subtitle: 'Balance',
       info: 'Calculated balance after deduction of all expenses from the income',
       icon: <ScheduleIcon sx={StatsIconStyle} />,
       loading: fetchTransactions.loading,

@@ -31,10 +31,12 @@ export const Stats: React.FC<IStatsProps> = ({
   return (
     <Card sx={{ position: 'relative', textAlign: 'right', overflow: 'hidden' }}>
       {icon}
-      <Typography variant="h4">{loading ? <Skeleton width={70} sx={{ ml: 'auto' }} /> : title}</Typography>
+      <Typography variant="h4" noWrap>
+        {loading ? <Skeleton width={70} sx={{ ml: 'auto' }} /> : title}
+      </Typography>
       <Tooltip title={info}>
         <Box display="flex" flexDirection="row" justifyContent="flex-end" alignItems="center" flexShrink={1}>
-          <Typography variant="h6" sx={{ whiteSpace: { xs: 'wrap', md: 'nowrap' } }}>
+          <Typography variant="h6" noWrap>
             {subtitle}
           </Typography>
           {info && <InfoIcon sx={{ ml: '.25rem', fontSize: '.9rem' }} />}
