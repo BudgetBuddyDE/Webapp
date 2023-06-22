@@ -5,6 +5,7 @@ import { supabase } from '../supabase';
 export type IAuthProvider = {
   session: Session | null;
   setSession: React.Dispatch<React.SetStateAction<IAuthProvider['session']>>;
+  loading: boolean;
 };
 
 export const AuthContext = React.createContext({} as IAuthProvider);
@@ -27,5 +28,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     };
   }, []);
 
-  return <AuthContext.Provider value={{ session, setSession }}>{loading ? null : children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ loading, session, setSession }}>{loading ? null : children}</AuthContext.Provider>
+  );
 };

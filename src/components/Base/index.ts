@@ -10,3 +10,6 @@ export * from './table-pagination.component';
 export * from './AppBar';
 export * from './KeyboardBtn.component';
 export * from './FloatingActionButton';
+
+export * from './Tab';
+export * from './Link.component';

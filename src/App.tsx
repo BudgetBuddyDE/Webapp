@@ -1,7 +1,7 @@
-import { Box, Container } from '@mui/material';
 import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { AppBar, Copyright, Drawer, FilterDrawer, Main, ProtectedComponents, ProtectedRoutes } from './components';
+import { AuthentificatedLayout } from './layouts/AuthentificatedLayout.layout';
+import { NotAuthentificatedLayout } from './layouts/NotAuthentificatedLayout.layout';
 import {
   Budget,
   Categories,
@@ -16,48 +16,34 @@ import {
   Transactions,
 } from './routes';
 
-export const App: React.FC = () => {
+const NonAuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+  return <NotAuthentificatedLayout>{children}</NotAuthentificatedLayout>;
+};
+
+export const App = () => {
   return (
     <BrowserRouter>
-      <Box sx={{ display: 'flex' }}>
-        <ProtectedComponents children={<Drawer />} />
-        <Main
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            flexGrow: 1,
-            overflow: 'auto',
-            height: '100vh',
-            backgroundColor: (theme) => theme.palette.background.default,
-          }}
-        >
-          <ProtectedComponents children={<AppBar />} />
-          <Container maxWidth="xl" sx={{ mt: 2, mb: 4 }}>
-            <Routes>
-              <Route path="/" element={<ProtectedRoutes />}>
-                <Route index element={<Navigate to="/dashboard" />} />
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="transactions" element={<Transactions />} />
-                <Route path="budget" element={<Budget />} />
-                <Route path="subscriptions" element={<Subscriptions />} />
-                <Route path="payment-methods" element={<PaymentMethods />} />
-                <Route path="categories" element={<Categories />} />
-                <Route path="settings" element={<Settings />} />
-                <Route path="settins/edit" element={<h1>Edit Profile</h1>} />
-              </Route>
-              <Route path="/sign-in" element={<SignIn />} />
-              <Route path="/request-reset" element={<RequestReset />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/sign-up" element={<SignUp />} />
-              <Route path="*" element={<h1>404 Page Not Found</h1>} />
-            </Routes>
-            <ProtectedComponents children={<FilterDrawer />} />
-          </Container>
-          <Box sx={{ mt: 'auto' }}>
-            <Copyright />
-          </Box>
-        </Main>
-      </Box>
+      <Routes>
+        <Route path="/" element={<AuthentificatedLayout />}>
+          <Route index element={<Navigate to="/dashboard" />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="transactions" element={<Transactions />} />
+          <Route path="budget" element={<Budget />} />
+          <Route path="subscriptions" element={<Subscriptions />} />
+          <Route path="payment-methods" element={<PaymentMethods />} />
+          <Route path="categories" element={<Categories />} />
+          <Route path="settings" element={<Settings />}>
+            <Route path="profile" element={<h1>profile</h1>} />
+            <Route path="profile/edit" element={<h1>edit profile</h1>} />
+            <Route path="feedback" element={<h1>feedback</h1>} />
+          </Route>
+        </Route>
+        <Route path="/sign-in" element={<NonAuthWrapper children={<SignIn />} />} />
+        <Route path="/sign-up" element={<NonAuthWrapper children={<SignUp />} />} />
+        <Route path="/request-reset" element={<NonAuthWrapper children={<RequestReset />} />} />
+        <Route path="/reset-password" element={<NonAuthWrapper children={<ResetPassword />} />} />
+        <Route path="*" element={<NonAuthWrapper children={<h1>Page Not Found</h1>} />} />
+      </Routes>
     </BrowserRouter>
   );
 };

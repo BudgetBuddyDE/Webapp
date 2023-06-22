@@ -4,7 +4,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext, StoreContext } from '../../../context';
 import { supabase } from '../../../supabase';
-import { ProfileAvatar } from '../../profile-avatar.component';
+import { ProfileAvatar } from '../ProfileAvatar.component';
 
 export type DrawerProfileProps = {
   open: boolean;
@@ -61,9 +61,9 @@ export const DrawerProfile: React.FC<DrawerProfileProps> = ({ open }) => {
               cursor: 'Pointer',
             },
           }}
-          onClick={() => navigate('/settings')}
+          onClick={() => navigate('/settings/profile')}
         >
-          {session && session.user && <ProfileAvatar user={session.user} />}
+          {session && session.user && <ProfileAvatar />}
           <Box sx={{ ml: '.5rem' }}>
             <Typography fontWeight="bold">{session && session.user && session.user.user_metadata.username}</Typography>
             <Chip label="Basic" variant="outlined" size="small" />
@@ -78,14 +78,15 @@ export const DrawerProfile: React.FC<DrawerProfileProps> = ({ open }) => {
 export const LogoutButton: React.FC<ButtonProps> = (props) => {
   return (
     <Button
+      {...props}
       sx={{
         minWidth: 48,
         width: 48,
         height: 48,
         minHeight: 48,
         p: 0,
+        ...props.sx,
       }}
-      {...props}
     >
       <LogoutIcon sx={{ color: (theme) => theme.palette.text.primary }} />
     </Button>

@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext, StoreContext } from '../../../context';
 import { supabase } from '../../../supabase';
 import { Hamburger } from '../../Core/Drawer';
-import { ProfileAvatar } from '../../profile-avatar.component';
+import { ProfileAvatar } from '../../Core/ProfileAvatar.component';
 import { Brand } from '../Brand';
 
 export const AppBar = () => {
@@ -108,7 +108,7 @@ export const AppBar = () => {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Profile">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                {session && session.user && <ProfileAvatar user={session.user} />}
+                {session && session.user && <ProfileAvatar />}
               </IconButton>
             </Tooltip>
             <Menu

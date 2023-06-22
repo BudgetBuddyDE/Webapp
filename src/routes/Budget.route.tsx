@@ -521,7 +521,7 @@ export const Budget = () => {
             { label: 'Income', type: 'income' },
             { label: 'Spendings', type: 'spendings' },
           ].map((item) => (
-            <Grid item xs={12} md={6}>
+            <Grid key={item.type} item xs={12} md={6}>
               <Card sx={{ mt: 2 }}>
                 <Card.Header>
                   <Box>

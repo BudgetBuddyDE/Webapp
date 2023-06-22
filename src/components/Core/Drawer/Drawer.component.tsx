@@ -2,7 +2,6 @@ import { Menu as MenuIcon, MenuOpen as MenuOpenIcon } from '@mui/icons-material'
 import { Divider, List, Drawer as MuiDrawer } from '@mui/material';
 import { CSSObject, Theme, styled } from '@mui/material/styles';
 import React from 'react';
-import { useLocation } from 'react-router-dom';
 import { DrawerLinks } from '../../../constants/drawer-items.constant';
 import { StoreContext } from '../../../context';
 import { useScreenSize } from '../../../hooks';
@@ -10,17 +9,6 @@ import { drawerWidth } from '../../../theme/default.theme';
 import { DrawerItem } from '../index';
 import { DrawerHeader } from './DrawerHeader.component';
 import { DrawerProfile } from './DrawerProfile.component';
-
-export function getSavedSidebarState() {
-  const saved = localStorage.getItem('bb.sidebar.show');
-  if (saved === null) {
-    return true;
-  } else return saved === 'true';
-}
-
-export function saveSidebarState(state: boolean) {
-  return localStorage.setItem('bb.sidebar.show', state.toString());
-}
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
@@ -65,35 +53,24 @@ export const Hamburger: React.FC<{ open: boolean }> = ({ open }) => {
   } else return open ? <MenuOpenIcon /> : <MenuIcon />;
 };
 
-const DrawerItems: React.FC<{ open: boolean; closeOnClick?: boolean }> = ({ open, closeOnClick = false }) => {
-  return (
-    <React.Fragment>
-      <Divider />
-      <List>
-        {DrawerLinks.map((link) => (
-          <DrawerItem key={link.path} open={open} {...link} closeOnClick={closeOnClick} />
-        ))}
-      </List>
-    </React.Fragment>
-  );
-};
-
 /**
  * We're inverting the showDrawer-value on mobile devices because it should be hidden by default on mobile devices for better UX
  */
 export const Drawer = () => {
-  const location = useLocation();
   const { showDrawer, setShowDrawer } = React.useContext(StoreContext);
+  const DrawerItems: React.FC<{ open: boolean; closeOnClick?: boolean }> = ({ open, closeOnClick = false }) => {
+    return (
+      <React.Fragment>
+        <Divider />
+        <List>
+          {DrawerLinks.map((link) => (
+            <DrawerItem key={link.path} open={open} {...link} closeOnClick={closeOnClick} />
+          ))}
+        </List>
+      </React.Fragment>
+    );
+  };
 
-  // We don't want the drawer to show up on the sign-in, request-reset, reset-password or sign-up route
-  if (
-    location.pathname === '/sign-in' ||
-    location.pathname === '/request-reset' ||
-    location.pathname === '/reset-password' ||
-    location.pathname === '/sign-up'
-  ) {
-    return null;
-  }
   return (
     <React.Fragment>
       {/* Mobile */}
