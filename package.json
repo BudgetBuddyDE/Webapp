@@ -6,7 +6,7 @@
         "start": "vite",
         "build": "vite build",
         "serve": "vite preview",
-        "test": "jest",
+        "test": "jest --passWithNoTests",
         "release": "standard-version",
         "prepare": "husky install",
         "prettier:check": "prettier --check src/",

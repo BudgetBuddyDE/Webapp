@@ -1,7 +1,7 @@
 import format from 'date-fns/format';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Icon } from '@/components/Base/icon.component';
+import { Icon } from '@/components/Base';
 import { StoreContext } from '@/context';
 import { Category } from '@/models';
 import type { ICategoryView } from '@/types';
