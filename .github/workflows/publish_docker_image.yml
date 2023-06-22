@@ -1,61 +1,61 @@
 name: Publish Docker image
 
 on:
-  push:
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
-  workflow_dispatch:
+    push:
+        tags:
+            - 'v[0-9]+.[0-9]+.[0-9]+'
+    workflow_dispatch:
 
 jobs:
-  build_image:
-    name: Build Docker image
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build Docker image
-        run: |
-          docker build . -t ghcr.io/budgetbuddyde/wapp:${{ github.ref_name }}
-          mkdir -p artifacts
-          docker save ghcr.io/budgetbuddyde/wapp:${{ github.ref_name }} > artifacts/docker-image.tar
-        env:
-          DOCKER_BUILDKIT: 1
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    build_image:
+        name: Build Docker image
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: Build Docker image
+              run: |
+                  docker build . -t ghcr.io/budgetbuddyde/wapp:${{ github.ref_name }}
+                  mkdir -p artifacts
+                  docker save ghcr.io/budgetbuddyde/wapp:${{ github.ref_name }} > artifacts/docker-image.tar
+              env:
+                  DOCKER_BUILDKIT: 1
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Save Docker image
-        uses: actions/upload-artifact@v2
-        with:
-          name: docker-artifact
-          path: artifacts
-          retention-days: 1
+            - name: Save Docker image
+              uses: actions/upload-artifact@v2
+              with:
+                  name: docker-artifact
+                  path: artifacts
+                  retention-days: 1
 
-  push_image:
-    needs: build_image
-    name: Push Docker image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Retrieve saved Docker image
-        uses: actions/download-artifact@v2
-        with:
-          name: docker-artifact
-          path: artifacts
+    push_image:
+        needs: build_image
+        name: Push Docker image
+        runs-on: ubuntu-latest
+        steps:
+            - name: Retrieve saved Docker image
+              uses: actions/download-artifact@v2
+              with:
+                  name: docker-artifact
+                  path: artifacts
 
-      - name: Load Docker image
-        run: |
-          cd artifacts
-          docker load < docker-image.tar
-      - name: Login
-        run: |
-          echo ${{ secrets.NPM_TOKEN }} | docker login ghcr.io -u ${{ secrets.DOCKER_USER }} --password-stdin
-      - name: Push Docker image
-        run: |
-          docker push ghcr.io/budgetbuddyde/wapp:${{ github.ref_name }}
+            - name: Load Docker image
+              run: |
+                  cd artifacts
+                  docker load < docker-image.tar
+            - name: Login
+              run: |
+                  echo ${{ secrets.NPM_TOKEN }} | docker login ghcr.io -u ${{ secrets.DOCKER_USER }} --password-stdin
+            - name: Push Docker image
+              run: |
+                  docker push ghcr.io/budgetbuddyde/wapp:${{ github.ref_name }}
 
-  cleanup:
-    needs: push_image
-    name: Cleanup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Delete artifact
-        uses: geekyeggo/delete-artifact@v1
-        with:
-          name: docker-artifact
+    cleanup:
+        needs: push_image
+        name: Cleanup
+        runs-on: ubuntu-latest
+        steps:
+            - name: Delete artifact
+              uses: geekyeggo/delete-artifact@v1
+              with:
+                  name: docker-artifact

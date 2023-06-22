@@ -4,10 +4,10 @@ import React from 'react';
 import { StoreContext } from '../../../context';
 
 export const OpenFilterFab = () => {
-  const { setShowFilter } = React.useContext(StoreContext);
-  return (
-    <Fab color="primary" size="medium" aria-label="open-filter" onClick={() => setShowFilter(true)}>
-      <TuneIcon />
-    </Fab>
-  );
+    const { setShowFilter } = React.useContext(StoreContext);
+    return (
+        <Fab color="primary" size="medium" aria-label="open-filter" onClick={() => setShowFilter(true)}>
+            <TuneIcon />
+        </Fab>
+    );
 };

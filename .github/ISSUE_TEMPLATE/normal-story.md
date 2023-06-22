@@ -4,7 +4,6 @@ about: Tell what bothers you & how it should be
 title: ''
 labels: ''
 assignees: ''
-
 ---
 
 ## Description
@@ -12,4 +11,5 @@ assignees: ''
 Description
 
 ## Acceptance criteria
-- [ ]
+
+-   [ ]

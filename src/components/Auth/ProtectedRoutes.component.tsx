@@ -4,10 +4,10 @@ import type { To } from 'react-router-dom';
 import { AuthContext } from '../../context';
 
 export type ProtectedRoutesProps = {
-  redirectTo?: To;
+    redirectTo?: To;
 };
 
 export const ProtectedRoutes: React.FC<ProtectedRoutesProps> = ({ redirectTo = '/sign-in' }) => {
-  const { session } = React.useContext(AuthContext);
-  return session && session.user ? <Outlet /> : <Navigate to={redirectTo} replace />;
+    const { session } = React.useContext(AuthContext);
+    return session && session.user ? <Outlet /> : <Navigate to={redirectTo} replace />;
 };

@@ -4,12 +4,12 @@ import { useContext } from 'react';
 import { StoreContext } from '../context/store.context';
 
 export const ShowFilterButton = () => {
-  const { setShowFilter } = useContext(StoreContext);
-  return (
-    <Tooltip title="Apply filters">
-      <IconButton aria-label="apply-filters" color="primary" onClick={() => setShowFilter(true)}>
-        <TuneIcon fontSize="inherit" />
-      </IconButton>
-    </Tooltip>
-  );
+    const { setShowFilter } = useContext(StoreContext);
+    return (
+        <Tooltip title="Apply filters">
+            <IconButton aria-label="apply-filters" color="primary" onClick={() => setShowFilter(true)}>
+                <TuneIcon fontSize="inherit" />
+            </IconButton>
+        </Tooltip>
+    );
 };
