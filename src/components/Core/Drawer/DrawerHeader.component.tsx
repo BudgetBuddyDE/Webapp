@@ -1,8 +1,8 @@
+import React from 'react';
+import { Brand } from '@/components';
+import { StoreContext } from '@/context';
 import { IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import React from 'react';
-import { StoreContext } from '../../../context';
-import { Brand } from '../../Base/Brand';
 import { Hamburger } from './Drawer.component';
 
 const StyledDrawerHeader = styled('div')(({ theme }) => ({

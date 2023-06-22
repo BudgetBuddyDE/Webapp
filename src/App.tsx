@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { AuthentificatedLayout } from './layouts/AuthentificatedLayout.layout';
-import { NotAuthentificatedLayout } from './layouts/NotAuthentificatedLayout.layout';
+import { AuthentificatedLayout, NotAuthentificatedLayout } from '@/components';
 import {
     Budget,
     Categories,
@@ -14,7 +13,7 @@ import {
     SignUp,
     Subscriptions,
     Transactions,
-} from './routes';
+} from '@/routes';
 
 const NonAuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
     return <NotAuthentificatedLayout>{children}</NotAuthentificatedLayout>;

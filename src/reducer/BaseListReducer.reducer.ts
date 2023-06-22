@@ -1,4 +1,4 @@
-import { genericObjectHasNumericId } from '../utils/';
+import { genericObjectHasNumericId } from '@/utils/';
 import { BaseReducer, BaseReducerAction, BaseReducerState } from './BaseReducer.reducer';
 
 export type BaseListReducerState<T> = BaseReducerState<T[]>;

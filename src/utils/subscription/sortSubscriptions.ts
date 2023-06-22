@@ -1,5 +1,5 @@
-import { Subscription } from '../../models/subscription.model';
-import { determineNextExecutionDate } from '../determineNextExecution';
+import { Subscription } from '@/models/subscription.model';
+import { determineNextExecutionDate } from '../';
 
 export function sortSubscriptionsByExecution(subscriptions: Subscription[]) {
     return subscriptions.sort(function (a, b) {

@@ -1,9 +1,9 @@
-import { Box, Button, Divider, Grid, TextField, Typography } from '@mui/material';
 import React from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { Card } from '../components';
-import { SnackbarContext } from '../context';
-import { supabase } from '../supabase';
+import { Card } from '@/components';
+import { SnackbarContext } from '@/context';
+import { supabase } from '@/supabase';
+import { Box, Button, Divider, Grid, TextField, Typography } from '@mui/material';
 
 export const ResetPassword = () => {
     const navigate = useNavigate();

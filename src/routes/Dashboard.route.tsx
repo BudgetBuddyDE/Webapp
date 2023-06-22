@@ -1,6 +1,3 @@
-import { Add as AddIcon, Schedule as ScheduleIcon } from '@mui/icons-material';
-import { Box, Grid, IconButton, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
-import { ParentSize } from '@visx/responsive';
 import React from 'react';
 import {
     ActionPaper,
@@ -17,12 +14,15 @@ import {
     StatsIconStyle,
     Subscription,
     Transaction,
-} from '../components';
-import { AuthContext, StoreContext } from '../context';
-import { useFetchSubscriptions, useFetchTransactions } from '../hooks';
-import { Subscription as SubscriptionModel, Transaction as TransactionModel } from '../models';
-import { BudgetService, DateService, ExpenseService, SubscriptionService, TransactionService } from '../services';
-import { formatBalance } from '../utils';
+} from '@/components';
+import { AuthContext, StoreContext } from '@/context';
+import { useFetchSubscriptions, useFetchTransactions } from '@/hooks';
+import { Subscription as SubscriptionModel, Transaction as TransactionModel } from '@/models';
+import { BudgetService, DateService, ExpenseService, SubscriptionService, TransactionService } from '@/services';
+import { formatBalance } from '@/utils';
+import { Add as AddIcon, Schedule as ScheduleIcon } from '@mui/icons-material';
+import { Box, Grid, IconButton, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
+import { ParentSize } from '@visx/responsive';
 
 /** How many months do we wanna look back? */
 export const MONTH_BACKLOG = 6;

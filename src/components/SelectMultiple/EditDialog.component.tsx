@@ -1,3 +1,6 @@
+import React from 'react';
+import { CreateCategoryInput } from '@/components/Category';
+import { CreatePaymentMethodInput } from '@/components/PaymentMethod';
 import {
     Alert,
     AlertTitle,
@@ -13,10 +16,7 @@ import {
     Select,
     Typography,
 } from '@mui/material';
-import React from 'react';
 import type { EditDialogProps } from '.';
-import { CreateCategoryInput } from '../Category/';
-import { CreatePaymentMethodInput } from '../PaymentMethod';
 
 export type EditDialogActions = 'PAYMENT_METHOD' | 'CATEGORY';
 

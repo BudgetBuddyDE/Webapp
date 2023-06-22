@@ -1,7 +1,7 @@
-import { Box, Chip, SxProps, Theme, Typography } from '@mui/material';
 import React from 'react';
-import { StoreContext } from '../../context';
-import { useFetchCategories, useFetchPaymentMethods } from '../../hooks';
+import { StoreContext } from '@/context';
+import { useFetchCategories, useFetchPaymentMethods } from '@/hooks';
+import { Box, Chip, SxProps, Theme, Typography } from '@mui/material';
 
 export interface INoResultsProps {
     sx?: SxProps<Theme>;

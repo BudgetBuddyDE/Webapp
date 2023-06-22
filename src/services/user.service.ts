@@ -1,5 +1,5 @@
+import { supabase } from '@/supabase';
 import type { User, UserAttributes } from '@supabase/supabase-js';
-import { supabase } from '../supabase';
 
 export class UserService {
     static update(props: UserAttributes) {

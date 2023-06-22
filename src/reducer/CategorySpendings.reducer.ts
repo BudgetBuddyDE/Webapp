@@ -1,4 +1,4 @@
-import type { PieChartData } from '../components';
+import type { PieChartData } from '@/components';
 
 export type CategorySpendingsState = {
     chart: 'MONTH' | 'ALL_TIME';

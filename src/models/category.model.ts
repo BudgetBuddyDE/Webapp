@@ -1,5 +1,5 @@
-import { CategoryService } from '../services';
-import type { IBaseCategory, ICategoryView, uuid } from '../types';
+import { CategoryService } from '@/services';
+import type { IBaseCategory, ICategoryView, uuid } from '@/types';
 
 export class Category {
     id: number;

@@ -1,3 +1,30 @@
+import { format, isSameDay } from 'date-fns';
+import React from 'react';
+import {
+    ActionPaper,
+    BarChart,
+    BarChartData,
+    Card,
+    CategoryBudget,
+    CircularProgress,
+    CreateBudget,
+    CreateFab,
+    EditBudget,
+    FabContainer,
+    IStatsProps,
+    NoResults,
+    PageHeader,
+    PieChart,
+    Stats,
+    StatsIconStyle,
+    Transaction,
+} from '@/components';
+import type { CategoryBudgetProps, ICreateBudgetProps, IEditBudgetProps } from '@/components';
+import { AuthContext, SnackbarContext, StoreContext } from '@/context';
+import { useFetchSubscriptions, useScreenSize } from '@/hooks';
+import { Budget as BudgetModel } from '@/models';
+import { BudgetService, ExpenseService, IncomeService } from '@/services';
+import { formatBalance, getFirstDayOfMonth } from '@/utils';
 import {
     Add as AddIcon,
     Balance as BalanceIcon,
@@ -22,35 +49,6 @@ import {
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import ParentSize from '@visx/responsive/lib/components/ParentSizeModern';
-import { format, isSameDay } from 'date-fns';
-import React from 'react';
-import {
-    ActionPaper,
-    BarChart,
-    BarChartData,
-    Card,
-    CategoryBudget,
-    CategoryBudgetProps,
-    CircularProgress,
-    CreateBudget,
-    CreateFab,
-    EditBudget,
-    FabContainer,
-    ICreateBudgetProps,
-    IEditBudgetProps,
-    IStatsProps,
-    NoResults,
-    PageHeader,
-    PieChart,
-    Stats,
-    StatsIconStyle,
-    Transaction,
-} from '../components';
-import { AuthContext, SnackbarContext, StoreContext } from '../context';
-import { useFetchSubscriptions, useScreenSize } from '../hooks';
-import { Budget as BudgetModel, Subscription } from '../models';
-import { BudgetService, ExpenseService, IncomeService } from '../services';
-import { formatBalance, getFirstDayOfMonth } from '../utils';
 
 export const DATE_RANGE_INPUT_FORMAT = 'dd.MM';
 export type ChartContentType = 'INCOME' | 'SPENDINGS';
@@ -169,7 +167,7 @@ export const Budget = () => {
                     action: deleteBudget ? (
                         // @ts-ignore
                         <Button onClick={() => handler.onBudgetDelete(deleteBudget)}>Retry</Button>
-                    ) : undefined, // TODO: Fixme
+                    ) : undefined,
                 });
             }
         },
@@ -584,6 +582,7 @@ export const Budget = () => {
                                                     height={width}
                                                     // @ts-ignore
                                                     data={Array.from(subscriptionCategorySum[item.type]).map(
+                                                        // @ts-ignore
                                                         ([category, amount]) => ({
                                                             label: category,
                                                             value: amount,

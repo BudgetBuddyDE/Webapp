@@ -1,5 +1,5 @@
-import { PaymentMethodService } from '../services/payment-method.service';
-import type { IBasePaymentMethod, IPaymentMethodView, uuid } from '../types';
+import { PaymentMethodService } from '@/services/payment-method.service';
+import type { IBasePaymentMethod, IPaymentMethodView, uuid } from '@/types';
 
 export class PaymentMethod {
     id: number;

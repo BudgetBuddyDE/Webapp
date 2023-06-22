@@ -1,5 +1,5 @@
-import { supabase } from '../supabase';
-import type { DailySpending, IExpense } from '../types';
+import { supabase } from '@/supabase';
+import type { DailySpending, IExpense } from '@/types';
 
 export class ExpenseService {
     static async getAllTimeExpenses(userId: string): Promise<IExpense[] | null> {

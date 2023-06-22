@@ -1,5 +1,6 @@
-import { Box, BoxProps, alpha, styled } from '@mui/material';
 import React from 'react';
+import { Box, alpha, styled } from '@mui/material';
+import type { BoxProps } from '@mui/material';
 
 export const IconBackground = styled(Box)<{
     backgroundColor?: React.CSSProperties['backgroundColor'];
@@ -16,10 +17,10 @@ export const IconBackground = styled(Box)<{
     borderRadius: `${Number(theme.shape.borderRadius) * 0.75}px`,
 }));
 
-export interface IconProps extends BoxProps {
+export type IconProps = BoxProps & {
     icon: React.ReactNode | JSX.Element;
     backgroundColor?: string;
-}
+};
 
 export const Icon: React.FC<IconProps> = (props) => {
     return <IconBackground {...props}>{props.icon}</IconBackground>;

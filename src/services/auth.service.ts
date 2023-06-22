@@ -1,5 +1,5 @@
-import { supabase } from '../supabase';
-import { SignInProps, SignUpProps } from '../types/auth.type';
+import { supabase } from '@/supabase';
+import { SignInProps, SignUpProps } from '@/types/auth.type';
 
 export class AuthService {
     static signIn(props: SignInProps) {

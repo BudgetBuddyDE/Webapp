@@ -1,8 +1,8 @@
-import { Box, Button, Checkbox, FormControlLabel, FormGroup, Grid, Rating, TextField } from '@mui/material';
 import React from 'react';
-import { AuthContext, SnackbarContext } from '../../context';
-import { FeedbackService } from '../../services';
-import { Card, TabPanel, TabPanelProps } from '../Base';
+import { Card, TabPanel, TabPanelProps } from '@/components';
+import { AuthContext, SnackbarContext } from '@/context';
+import { FeedbackService } from '@/services';
+import { Box, Button, Checkbox, FormControlLabel, FormGroup, Grid, Rating, TextField } from '@mui/material';
 
 export type FeedbackTabProps = {
     tabPanelProps: Omit<TabPanelProps, 'children'>;

@@ -1,6 +1,6 @@
+import React from 'react';
 import { Checkbox as MuiCheckbox } from '@mui/material';
 import type { CheckboxProps as MuiCheckboxProps } from '@mui/material';
-import React from 'react';
 
 export type SelectAllCheckboxProps = Pick<MuiCheckboxProps, 'onChange' | 'value' | 'checked'>;
 

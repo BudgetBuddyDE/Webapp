@@ -1,4 +1,4 @@
-import { uuid } from '../types';
+import { uuid } from '@/types';
 
 export interface IBaseProfile {
     id: uuid;

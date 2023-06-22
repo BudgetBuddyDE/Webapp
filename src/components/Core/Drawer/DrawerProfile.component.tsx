@@ -1,10 +1,10 @@
-import { Logout as LogoutIcon } from '@mui/icons-material';
-import { Box, Button, ButtonProps, Chip, Divider, Typography } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext, StoreContext } from '../../../context';
-import { supabase } from '../../../supabase';
-import { ProfileAvatar } from '../ProfileAvatar.component';
+import { ProfileAvatar } from '@/components';
+import { AuthContext, StoreContext } from '@/context';
+import { supabase } from '@/supabase';
+import { Logout as LogoutIcon } from '@mui/icons-material';
+import { Box, Button, ButtonProps, Chip, Divider, Typography } from '@mui/material';
 
 export type DrawerProfileProps = {
     open: boolean;

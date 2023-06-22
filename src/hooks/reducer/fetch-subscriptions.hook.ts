@@ -1,7 +1,7 @@
 import React from 'react';
-import { AuthContext, StoreContext } from '../../context';
-import { Subscription } from '../../models';
-import { SubscriptionService } from '../../services';
+import { AuthContext, StoreContext } from '@/context';
+import { Subscription } from '@/models';
+import { SubscriptionService } from '@/services';
 import { PossibleErrorTypes } from './fetch-transactions.hook';
 
 export type useFetchSubscriptionsValue = {

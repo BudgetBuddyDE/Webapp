@@ -1,6 +1,6 @@
-import { Session } from '@supabase/supabase-js';
 import React from 'react';
-import { supabase } from '../supabase';
+import { supabase } from '@/supabase';
+import { Session } from '@supabase/supabase-js';
 
 export type IAuthProvider = {
     session: Session | null;

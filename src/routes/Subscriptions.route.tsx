@@ -1,20 +1,5 @@
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
-import {
-    Box,
-    Button,
-    Grid,
-    IconButton,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Tooltip,
-    Typography,
-} from '@mui/material';
 import React from 'react';
-import { AppConfig } from '../app.config';
+import { AppConfig } from '@/app.config';
 import {
     ActionPaper,
     Card,
@@ -38,15 +23,30 @@ import {
     TablePagination,
     TablePaginationHandler,
     UsedByPaymentMethod,
-} from '../components';
-import type { SelectMultipleHandler } from '../components';
-import { SnackbarContext, StoreContext } from '../context';
-import { useFetchCategories, useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '../hooks';
-import { Subscription } from '../models';
-import { SelectMultipleReducer, TablePaginationReducer, generateInitialState } from '../reducer';
-import { SubscriptionService } from '../services';
-import { DescriptionTableCellStyle } from '../theme/description-table-cell.style';
-import { determineNextExecution, filterSubscriptions } from '../utils';
+} from '@/components';
+import type { SelectMultipleHandler } from '@/components';
+import { SnackbarContext, StoreContext } from '@/context';
+import { useFetchCategories, useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '@/hooks';
+import { Subscription } from '@/models';
+import { SelectMultipleReducer, TablePaginationReducer, generateInitialState } from '@/reducer';
+import { SubscriptionService } from '@/services';
+import { DescriptionTableCellStyle } from '@/theme/description-table-cell.style';
+import { determineNextExecution, filterSubscriptions } from '@/utils';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import {
+    Box,
+    Button,
+    Grid,
+    IconButton,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 
 interface SubscriptionsHandler {
     onSearch: (keyword: string) => void;
@@ -157,8 +157,8 @@ export const Subscriptions = () => {
                         console.error(error);
                         showSnackbar({
                             message: "Couln't update the subscriptions",
-                            // @ts-expect-error
                             action: (
+                                // @ts-expect-error
                                 <Button onClick={() => handler.selectMultiple.dialog.onEditConfirm(action, id)}>
                                     Retry
                                 </Button>

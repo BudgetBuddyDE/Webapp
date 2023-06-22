@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import React from 'react';
-import { determineNextExecutionDate } from '../../utils';
-import { Transaction, TransactionProps } from '../Transaction';
+import { Transaction, TransactionProps } from '@/components/Transaction';
+import { determineNextExecutionDate } from '@/utils';
 
 export type SubscriptionProps = Omit<TransactionProps, 'date'> & {
     executeAt: number;

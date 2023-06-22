@@ -1,7 +1,7 @@
+import React from 'react';
+import { AppConfig } from '@/app.config';
 import { Checkbox as MuiCheckbox, TableCell } from '@mui/material';
 import type { CheckboxProps as MuiCheckboxProps } from '@mui/material';
-import React from 'react';
-import { AppConfig } from '../../app.config';
 
 export type SelectAllCheckboxProps = Pick<MuiCheckboxProps, 'onChange' | 'indeterminate' | 'checked'> & {
     withTableCell?: boolean;

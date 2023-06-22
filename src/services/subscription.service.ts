@@ -1,8 +1,8 @@
-import type { TExportType } from '../components/user-profile.component';
-import { BaseSubscription, Subscription } from '../models/subscription.model';
-import { Transaction } from '../models/transaction.model';
-import { supabase } from '../supabase';
-import type { IBaseSubscription, IExportSubscription, ISubscription } from '../types/subscription.type';
+import type { TExportType } from '@/components/user-profile.component';
+import { BaseSubscription, Subscription } from '@/models/subscription.model';
+import { Transaction } from '@/models/transaction.model';
+import { supabase } from '@/supabase';
+import type { IBaseSubscription, IExportSubscription, ISubscription } from '@/types/subscription.type';
 import { TransactionService } from './transaction.service';
 
 export class SubscriptionService {

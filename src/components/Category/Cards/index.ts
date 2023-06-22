@@ -1,2 +1,2 @@
-export * from './earnings-by.component';
-export * from './create-category-info.component';
+export * from './EarningsBy.component';
+export * from './CreateCategoryInfo.component';

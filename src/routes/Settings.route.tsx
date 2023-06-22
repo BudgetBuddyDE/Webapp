@@ -1,11 +1,11 @@
-import { AccountCircleRounded, FeedbackRounded } from '@mui/icons-material';
-import { Avatar, Grid, Tabs } from '@mui/material';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AboutInformation, Card, PageHeader, ProfileAvatar, StyledTab } from '../components';
-import { FeedbackTab } from '../components/Settings/FeedbackTab.component';
-import { ProfileTab } from '../components/Settings/ProfileTab.component';
-import { AuthContext } from '../context';
+import { AboutInformation, Card, PageHeader, ProfileAvatar, StyledTab } from '@/components';
+import { FeedbackTab } from '@/components/Settings/FeedbackTab.component';
+import { ProfileTab } from '@/components/Settings/ProfileTab.component';
+import { AuthContext } from '@/context';
+import { AccountCircleRounded, FeedbackRounded } from '@mui/icons-material';
+import { Avatar, Grid, Tabs } from '@mui/material';
 
 function determineDefaultTabValue(currentPathname: string) {
     if (currentPathname === '/settings') return 'profile';

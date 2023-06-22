@@ -1,8 +1,8 @@
+import { Card, ExportProfileData, StyledLink } from '@/components';
 import { AlternateEmailRounded, AppSettingsAltRounded, CodeRounded, LanguageRounded } from '@mui/icons-material';
 import { Box, Divider, Stack, Typography } from '@mui/material';
+// FIXME: Select version in config
 import { version } from '../../../package.json';
-import { Card, StyledLink } from '../Base';
-import { ExportProfileData } from '../Profile';
 
 export const AboutInformation = () => {
     return (

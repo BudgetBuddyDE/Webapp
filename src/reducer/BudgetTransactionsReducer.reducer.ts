@@ -1,4 +1,4 @@
-import type { DailyIncome, DailySpending, IExpense, IIncome, uuid } from '../types';
+import type { DailyIncome, DailySpending, IExpense, IIncome, uuid } from '@/types';
 
 export type BudgetTransactions = {
     selected: DailyIncome | DailySpending | null;

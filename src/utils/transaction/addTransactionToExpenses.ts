@@ -1,5 +1,5 @@
-import { Transaction } from '../../models';
-import type { CategorySpendingsState } from '../../reducer/CategorySpendings.reducer';
+import { Transaction } from '@/models';
+import type { CategorySpendingsState } from '@/reducer/CategorySpendings.reducer';
 
 type RequestedData = CategorySpendingsState['month'] | CategorySpendingsState['allTime'];
 

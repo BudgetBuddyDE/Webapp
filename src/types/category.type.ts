@@ -1,4 +1,4 @@
-import type { uuid } from '../types';
+import type { uuid } from '@/types';
 
 /**
  * Object like it's stored in our database

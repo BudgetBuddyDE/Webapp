@@ -1,4 +1,4 @@
-import { Category } from '../models/category.model';
+import { Category } from '@/models/category.model';
 
 export function getCategoryFromList(categoryId: number, categories: Category[]): { label: string; value: number } {
     const match = categories.find((category) => category.id === categoryId);

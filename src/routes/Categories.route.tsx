@@ -1,21 +1,6 @@
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
-import {
-    Box,
-    Button,
-    Grid,
-    IconButton,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Tooltip,
-    Typography,
-} from '@mui/material';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AppConfig } from '../app.config';
+import { AppConfig } from '@/app.config';
 import {
     ActionPaper,
     Card,
@@ -35,14 +20,29 @@ import {
     SelectMultiple,
     TablePagination,
     TablePaginationHandler,
-} from '../components';
-import type { SelectMultipleHandler } from '../components';
-import { SnackbarContext, StoreContext } from '../context';
-import { useFetchCategories, useFetchTransactions } from '../hooks';
-import { Category } from '../models';
-import { SelectMultipleReducer, TablePaginationReducer, generateInitialState } from '../reducer';
-import { CategoryService } from '../services';
-import { DescriptionTableCellStyle } from '../theme/description-table-cell.style';
+} from '@/components';
+import type { SelectMultipleHandler } from '@/components';
+import { SnackbarContext, StoreContext } from '@/context';
+import { useFetchCategories, useFetchTransactions } from '@/hooks';
+import { Category } from '@/models';
+import { SelectMultipleReducer, TablePaginationReducer, generateInitialState } from '@/reducer';
+import { CategoryService } from '@/services';
+import { DescriptionTableCellStyle } from '@/theme/description-table-cell.style';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import {
+    Box,
+    Button,
+    Grid,
+    IconButton,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 
 interface CategoryHandler {
     clearLocationState: () => void;

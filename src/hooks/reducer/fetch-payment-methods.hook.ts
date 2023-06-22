@@ -1,7 +1,7 @@
 import React from 'react';
-import { AuthContext, StoreContext } from '../../context';
-import { PaymentMethod } from '../../models';
-import { PaymentMethodService } from '../../services';
+import { AuthContext, StoreContext } from '@/context';
+import { PaymentMethod } from '@/models';
+import { PaymentMethodService } from '@/services';
 import { PossibleErrorTypes } from './fetch-transactions.hook';
 
 export type useFetchPaymentMethodsValue = {

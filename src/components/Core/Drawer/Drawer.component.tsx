@@ -1,13 +1,13 @@
+import React from 'react';
+import { DrawerLinks } from '@/constants/drawer-items.constant';
+import { StoreContext } from '@/context';
+import { useScreenSize } from '@/hooks';
+import { drawerWidth } from '@/theme/default.theme';
 import { Menu as MenuIcon, MenuOpen as MenuOpenIcon } from '@mui/icons-material';
 import { Divider, List, Drawer as MuiDrawer } from '@mui/material';
 import { CSSObject, Theme, styled } from '@mui/material/styles';
-import React from 'react';
-import { DrawerLinks } from '../../../constants/drawer-items.constant';
-import { StoreContext } from '../../../context';
-import { useScreenSize } from '../../../hooks';
-import { drawerWidth } from '../../../theme/default.theme';
-import { DrawerItem } from '../index';
 import { DrawerHeader } from './DrawerHeader.component';
+import { DrawerItem } from './DrawerItem.component';
 import { DrawerProfile } from './DrawerProfile.component';
 
 const openedMixin = (theme: Theme): CSSObject => ({

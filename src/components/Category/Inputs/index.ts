@@ -1,1 +1,1 @@
-export * from './create-category.component';
+export * from './CreateCategoryInput.component';

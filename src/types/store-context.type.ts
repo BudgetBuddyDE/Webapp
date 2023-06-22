@@ -1,5 +1,5 @@
 import React from 'react';
-import { Budget, Category, PaymentMethod, Subscription, Transaction } from '../models';
+import { Budget, Category, PaymentMethod, Subscription, Transaction } from '@/models';
 import {
     BaseListReducerAction,
     BaseListReducerState,
@@ -7,8 +7,8 @@ import {
     BaseReducerState,
     BudgetTransactionsReducerAction,
     BudgetTransactionsReducerState,
-} from '../reducer/';
-import { CategorySpendingsState } from '../reducer/CategorySpendings.reducer';
+} from '@/reducer/';
+import { CategorySpendingsState } from '@/reducer/CategorySpendings.reducer';
 import type { IFilter, IMonthlyBalanceAvg } from './index';
 
 export interface IStoreContext {

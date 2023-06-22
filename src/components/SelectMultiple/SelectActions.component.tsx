@@ -1,6 +1,6 @@
+import React from 'react';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { Box, Button, Typography } from '@mui/material';
-import React from 'react';
 
 export type SelectActionsProps = {
     amount: number;

@@ -1,11 +1,11 @@
+import React from 'react';
+import { ActionPaper, Card } from '@/components/Base';
+import { PieChart, PieChartData } from '@/components/Charts';
+import { NoResults } from '@/components/Core';
+import { useFetchSubscriptions } from '@/hooks';
+import { Subscription } from '@/models';
 import { Box, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { ParentSize } from '@visx/responsive';
-import React from 'react';
-import { useFetchSubscriptions } from '../../../hooks';
-import { Subscription } from '../../../models';
-import { ActionPaper, Card } from '../../Base';
-import { PieChart, PieChartData } from '../../Charts';
-import { NoResults } from '../../Core';
 
 /**
  * Displays Subscriptions in an easy simple Donut-Chart

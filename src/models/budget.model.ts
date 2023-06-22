@@ -1,5 +1,5 @@
-import { BudgetService } from '../services/budget.service';
-import type { IBaseBudget, IBudgetProgressView, ICategoryView, uuid } from '../types';
+import { BudgetService } from '@/services/budget.service';
+import type { IBaseBudget, IBudgetProgressView, ICategoryView, uuid } from '@/types';
 
 export class Budget {
     id: number;

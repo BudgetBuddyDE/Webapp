@@ -1,19 +1,20 @@
-import { Box, Paper, SxProps, Theme, Typography } from '@mui/material';
-import { FC, PropsWithChildren } from 'react';
+import React from 'react';
+import { Box, Paper, Typography } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material';
 
-export interface ICardProps extends PropsWithChildren {
+export interface ICardProps extends React.PropsWithChildren {
     sx?: SxProps<Theme>;
 }
 
-export interface ICardSectionProps extends PropsWithChildren {
+export interface ICardSectionProps extends React.PropsWithChildren {
     sx?: SxProps<Theme>;
 }
 
-const Card: FC<ICardProps> = ({ children, sx }) => {
+const Card: React.FC<ICardProps> = ({ children, sx }) => {
     return <Paper sx={{ p: 2, ...sx }}>{children}</Paper>;
 };
 
-const Header: FC<ICardSectionProps> = ({ children, sx }) => {
+const Header: React.FC<ICardSectionProps> = ({ children, sx }) => {
     return (
         <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap" sx={sx}>
             {children}
@@ -21,7 +22,7 @@ const Header: FC<ICardSectionProps> = ({ children, sx }) => {
     );
 };
 
-const HeaderActions: FC<ICardSectionProps> = ({ children, sx }) => {
+const HeaderActions: React.FC<ICardSectionProps> = ({ children, sx }) => {
     return (
         <Box display="flex" flexDirection="row" sx={sx}>
             {children}
@@ -29,7 +30,7 @@ const HeaderActions: FC<ICardSectionProps> = ({ children, sx }) => {
     );
 };
 
-const Title: FC<ICardSectionProps> = ({ children, sx }) => {
+const Title: React.FC<ICardSectionProps> = ({ children, sx }) => {
     return (
         <Typography variant="subtitle1" fontWeight="bold" sx={sx}>
             {children}
@@ -37,7 +38,7 @@ const Title: FC<ICardSectionProps> = ({ children, sx }) => {
     );
 };
 
-const Subtitle: FC<ICardSectionProps> = ({ children, sx }) => {
+const Subtitle: React.FC<ICardSectionProps> = ({ children, sx }) => {
     return (
         <Typography variant="subtitle2" sx={sx}>
             {children}
@@ -45,11 +46,11 @@ const Subtitle: FC<ICardSectionProps> = ({ children, sx }) => {
     );
 };
 
-const Body: FC<ICardSectionProps> = ({ children, sx }) => {
+const Body: React.FC<ICardSectionProps> = ({ children, sx }) => {
     return <Box sx={sx}>{children}</Box>;
 };
 
-const Footer: FC<ICardSectionProps> = ({ children, sx }) => {
+const Footer: React.FC<ICardSectionProps> = ({ children, sx }) => {
     return <Box sx={sx}>{children}</Box>;
 };
 

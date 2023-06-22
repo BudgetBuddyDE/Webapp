@@ -1,5 +1,5 @@
 {
-    "importOrder": ["<THIRD_PARTY_MODULES>", "^components/(.*)$", "^[./]"],
+    "importOrder": ["<THIRD_PARTY_MODULES>", "@/*", "^components/(.*)$", "^[./]"],
     "importOrderSeparation": false,
     "importOrderSortSpecifiers": true,
     "printWidth": 120,

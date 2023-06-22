@@ -1,5 +1,5 @@
 import { addMonths } from 'date-fns';
-import { DateService } from '../services/date.service';
+import { DateService } from '@/services/date.service';
 
 export function determineNextExecution(executeAt: Number) {
     const now = new Date();

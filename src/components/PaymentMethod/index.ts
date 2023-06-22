@@ -1,4 +1,5 @@
-export * from './create-payment-method.component';
-export * from './edit-payment-method.component';
+export * from './CreatePaymentMethodDrawer.component';
+export * from './EditPaymentMethodDrawer.component';
 export * from './Cards';
 export * from './Inputs';
+export * from './PaymentMethodChip.component';

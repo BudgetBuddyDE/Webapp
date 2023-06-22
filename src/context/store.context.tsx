@@ -1,17 +1,17 @@
 import React from 'react';
-import { DEFAULT_FILTER_VALUE, getSavedSidebarState, saveSidebarState } from '../components';
-import { Budget, Category, PaymentMethod, Subscription, Transaction } from '../models/';
+import { DEFAULT_FILTER_VALUE, getSavedSidebarState, saveSidebarState } from '@/components';
+import { Budget, Category, PaymentMethod, Subscription, Transaction } from '@/models/';
 import {
     BaseListReducer,
     BaseReducer,
     BudgetTransactionsReducer,
     InitialBudgetTransactionsState,
     generateBaseState,
-} from '../reducer';
-import { CategorySpendingsState } from '../reducer/CategorySpendings.reducer';
-import type { IFilter, IStoreContext } from '../types/';
-import { IMonthlyBalanceAvg } from '../types/';
-import { sortSubscriptionsByExecution } from '../utils';
+} from '@/reducer';
+import { CategorySpendingsState } from '@/reducer/CategorySpendings.reducer';
+import type { IFilter, IStoreContext } from '@/types/';
+import { IMonthlyBalanceAvg } from '@/types/';
+import { sortSubscriptionsByExecution } from '@/utils';
 
 export const StoreContext = React.createContext({} as IStoreContext);
 

@@ -1,3 +1,9 @@
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Card } from '@/components';
+import { AuthContext, SnackbarContext } from '@/context';
+import { AuthService } from '@/services';
+import { supabase } from '@/supabase';
 import { Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon } from '@mui/icons-material';
 import {
     Box,
@@ -12,12 +18,6 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Card } from '../components';
-import { AuthContext, SnackbarContext } from '../context';
-import { AuthService } from '../services';
-import { supabase } from '../supabase';
 
 export const SignUp = () => {
     const navigate = useNavigate();

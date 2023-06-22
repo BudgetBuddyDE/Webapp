@@ -1,7 +1,7 @@
 import React from 'react';
-import { AuthContext, StoreContext } from '../../context';
-import { Category } from '../../models';
-import { CategoryService } from '../../services';
+import { AuthContext, StoreContext } from '@/context';
+import { Category } from '@/models';
+import { CategoryService } from '@/services';
 import { PossibleErrorTypes } from './fetch-transactions.hook';
 
 export type useFetchCategoriesValue = {

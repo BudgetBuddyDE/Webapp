@@ -1,4 +1,4 @@
-import type { DialogType } from '../components';
+import type { DialogType } from '@/components';
 
 export type SelectMultipleState = {
     selected: number[];

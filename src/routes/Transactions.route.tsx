@@ -1,21 +1,6 @@
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
-import {
-    Box,
-    Button,
-    Grid,
-    IconButton,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Tooltip,
-    Typography,
-} from '@mui/material';
 import { format } from 'date-fns';
 import React from 'react';
-import { AppConfig } from '../app.config';
+import { AppConfig } from '@/app.config';
 import {
     ActionPaper,
     Card,
@@ -38,15 +23,30 @@ import {
     TablePagination,
     TablePaginationHandler,
     UsedByPaymentMethod,
-} from '../components';
-import type { SelectMultipleHandler } from '../components';
-import { SnackbarContext, StoreContext } from '../context';
-import { useFetchCategories, useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '../hooks';
-import { Transaction } from '../models';
-import { SelectMultipleReducer, TablePaginationReducer, generateInitialState } from '../reducer';
-import { TransactionService } from '../services';
-import { DescriptionTableCellStyle } from '../theme/description-table-cell.style';
-import { filterTransactions } from '../utils';
+} from '@/components';
+import type { SelectMultipleHandler } from '@/components';
+import { SnackbarContext, StoreContext } from '@/context';
+import { useFetchCategories, useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '@/hooks';
+import { Transaction } from '@/models';
+import { SelectMultipleReducer, TablePaginationReducer, generateInitialState } from '@/reducer';
+import { TransactionService } from '@/services';
+import { DescriptionTableCellStyle } from '@/theme/description-table-cell.style';
+import { filterTransactions } from '@/utils';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import {
+    Box,
+    Button,
+    Grid,
+    IconButton,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 
 interface TransactionHandler {
     onSearch: (text: string) => void;

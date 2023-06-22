@@ -1,4 +1,4 @@
-import type { uuid } from '../types';
+import type { uuid } from '@/types';
 
 export type BaseReducerState<T> = {
     data: T | null;

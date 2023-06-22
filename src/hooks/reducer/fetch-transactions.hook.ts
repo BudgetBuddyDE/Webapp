@@ -1,7 +1,7 @@
 import React from 'react';
-import { AuthContext, StoreContext } from '../../context';
-import { Transaction } from '../../models';
-import { TransactionService } from '../../services';
+import { AuthContext, StoreContext } from '@/context';
+import { Transaction } from '@/models';
+import { TransactionService } from '@/services';
 
 export type PossibleErrorTypes = Error | object | string | unknown | null;
 

@@ -1,13 +1,13 @@
-import type { TExportType } from '../components/user-profile.component';
-import { BaseBudget, Budget } from '../models/budget.model';
-import { supabase } from '../supabase';
+import type { TExportType } from '@/components/user-profile.component';
+import { BaseBudget, Budget } from '@/models/budget.model';
+import { supabase } from '@/supabase';
 import type {
     IBaseBudget,
     IBudgetProgressView,
     IExportBudget,
     IMonthlyBalance,
     IMonthlyBalanceAvg,
-} from '../types/budget.type';
+} from '@/types/budget.type';
 
 export class BudgetService {
     private static table = 'budget';

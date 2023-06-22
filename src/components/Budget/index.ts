@@ -1,3 +1,3 @@
-export * from './create-budget.component';
-export * from './edit-budget.component';
-export * from './category-budget.component';
+export * from './CreateBudget.component';
+export * from './EditBudget.component';
+export * from './CategoryBudget.component';

@@ -1,7 +1,7 @@
-import type { TExportType } from '../components/user-profile.component';
-import { Category } from '../models/category.model';
-import { supabase } from '../supabase';
-import type { IBaseCategory, ICategory, ICategoryView, IEditCategory, IExportCategory } from '../types/category.type';
+import type { TExportType } from '@/components/user-profile.component';
+import { Category } from '@/models/category.model';
+import { supabase } from '@/supabase';
+import type { IBaseCategory, ICategory, ICategoryView, IEditCategory, IExportCategory } from '@/types/category.type';
 
 export class CategoryService {
     private static table = 'categories';

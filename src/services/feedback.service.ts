@@ -1,5 +1,5 @@
-import { supabase } from '../supabase';
-import { uuid } from '../types/profile.type';
+import { supabase } from '@/supabase';
+import { uuid } from '@/types/profile.type';
 
 export type IBaseFeedback = {
     id: number;

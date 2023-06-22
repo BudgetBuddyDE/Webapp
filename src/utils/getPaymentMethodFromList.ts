@@ -1,4 +1,4 @@
-import { PaymentMethod } from '../models/paymentMethod.model';
+import { PaymentMethod } from '@/models/paymentMethod.model';
 
 export function getPaymentMethodFromList(
     paymentMethodId: number,

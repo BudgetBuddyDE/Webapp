@@ -1,13 +1,13 @@
-import { Receipt as ReceiptIcon } from '@mui/icons-material';
-import { Box, Chip, Typography } from '@mui/material';
 import format from 'date-fns/format';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { StoreContext } from '../../context';
-import { Category } from '../../models';
-import type { ICategoryView } from '../../types';
-import { formatBalance } from '../../utils';
-import { Icon } from '../Base/icon.component';
+import { Icon } from '@/components/Base/icon.component';
+import { StoreContext } from '@/context';
+import { Category } from '@/models';
+import type { ICategoryView } from '@/types';
+import { formatBalance } from '@/utils';
+import { Receipt as ReceiptIcon } from '@mui/icons-material';
+import { Box, Chip, Typography } from '@mui/material';
 
 export interface TransactionProps {
     icon?: JSX.Element;

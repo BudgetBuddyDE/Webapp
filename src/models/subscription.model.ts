@@ -1,5 +1,5 @@
-import { SubscriptionService } from '../services/subscription.service';
-import type { IBaseSubscription, ICategoryView, IPaymentMethodView, ISubscription, uuid } from '../types';
+import { SubscriptionService } from '@/services/subscription.service';
+import type { IBaseSubscription, ICategoryView, IPaymentMethodView, ISubscription, uuid } from '@/types';
 
 export class Subscription {
     id: number;

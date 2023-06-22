@@ -1,9 +1,9 @@
-import { Box, Button, Grid, TextField } from '@mui/material';
 import React from 'react';
-import { AuthContext, SnackbarContext } from '../../context';
-import { UserService } from '../../services';
-import { Card, TabPanel, TabPanelProps } from '../Base';
-import { UploadProfileAvatar } from '../Core';
+import { Card, TabPanel, UploadProfileAvatar } from '@/components';
+import type { TabPanelProps } from '@/components';
+import { AuthContext, SnackbarContext } from '@/context';
+import { UserService } from '@/services';
+import { Box, Button, Grid, TextField } from '@mui/material';
 
 export type ProfileTabProps = {
     tabPanelProps: Omit<TabPanelProps, 'children'>;

@@ -11,3 +11,4 @@ export * from './Drawer.component';
 export * from './DrawerHeader.component';
 export * from './DrawerItem.component';
 export * from './DrawerProfile.component';
+export * from './FilterDrawer.component';

@@ -1,5 +1,5 @@
-import { supabase } from '../supabase';
-import type { DailyIncome, IIncome } from '../types/';
+import { supabase } from '@/supabase';
+import type { DailyIncome, IIncome } from '@/types/';
 
 export class IncomeService {
     static async getAllTimeIncome(userId: string): Promise<IIncome[] | null> {
