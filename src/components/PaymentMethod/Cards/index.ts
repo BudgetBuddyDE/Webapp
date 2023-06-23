@@ -1,3 +1,3 @@
-export * from './used-by.component';
-export * from './earnings-by.component';
-export * from './create-payment-method-info.component';
+export * from './UsedBy.component';
+export * from './EarningsBy.component';
+export * from './CreatePaymentMethodInfo.component';

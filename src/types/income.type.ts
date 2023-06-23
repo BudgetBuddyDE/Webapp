@@ -1,4 +1,4 @@
 export type DailyIncome = {
-  date: Date;
-  amount: number;
+    date: Date;
+    amount: number;
 };

@@ -18,45 +18,45 @@ More detailed informations about this project can be found in the [wiki](https:/
 
 0. Create an Supabase project. For more steps follow [this](https://supabase.com/docs/guides/examples) guide.
 
-   0. Make sure to setup the database and the RLS policies which are defined in the [Database](https://github.com/BudgetBuddyDE/Webapp/wiki/Database.md)-Guide
+    0. Make sure to setup the database and the RLS policies which are defined in the [Database](https://github.com/BudgetBuddyDE/Webapp/wiki/Database.md)-Guide
 
 1. Create an `.env`-file which stored our Supabase credentials like this
-   ```
-   REACT_APP_SUPABASE_URL=
-   REACT_APP_SUPABASE_ANON=
-   ```
+    ```
+    REACT_APP_SUPABASE_URL=
+    REACT_APP_SUPABASE_ANON=
+    ```
 2. Install dependencies
 
-   ```shell
-   npm i
-   ```
+    ```shell
+    npm i
+    ```
 
-   2.1. Setup husky
+    2.1. Setup husky
 
-   > Install husky once in order to run our GIT-hooks If you already have installed the dependencies Husky should already got set-up
+    > Install husky once in order to run our GIT-hooks If you already have installed the dependencies Husky should already got set-up
 
-   ```shell
-   npm run prepare
-   ```
+    ```shell
+    npm run prepare
+    ```
 
-   **How to add a hook?**
+    **How to add a hook?**
 
-   ```shell
-   npx husky add .husky/pre-commit "npm test"
-   git add .husky/pre-commit
-   ```
+    ```shell
+    npx husky add .husky/pre-commit "npm test"
+    git add .husky/pre-commit
+    ```
 
 3. Start the app
 
-   ```shell
-   npm start
-   ```
+    ```shell
+    npm start
+    ```
 
 4. Create an build
 
-   ```shell
-   npm run build
-   ```
+    ```shell
+    npm run build
+    ```
 
 ## Docker
 

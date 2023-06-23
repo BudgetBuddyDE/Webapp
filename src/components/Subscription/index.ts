@@ -1,4 +1,4 @@
-export * from './create-subscription.component';
-export * from './edit-subscription.component';
-export * from './subscription.component';
+export * from './CreateSubscriptionDrawer.component';
+export * from './EditSubscriptionDrawer.component';
+export * from './Subscription.component';
 export * from './Charts';

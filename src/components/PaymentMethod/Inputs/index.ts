@@ -1,1 +1,1 @@
-export * from './create-payment-method.component';
+export * from './CreatePaymentMethodInput.component';

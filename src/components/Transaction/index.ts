@@ -1,3 +1,3 @@
-export * from './transaction.component';
-export * from './create-transaction.component';
-export * from './edit-transaction.component';
+export * from './Transaction.component';
+export * from './CreateTransactionDrawer.component';
+export * from './EditTransactionDrawer.component';
