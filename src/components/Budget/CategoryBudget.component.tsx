@@ -51,7 +51,7 @@ export const CategoryBudget: React.FC<CategoryBudgetProps> = ({ budget, icon = <
                     >
                         <Tooltip
                             title={
-                                budget.budget > budget.currentlySpent
+                                budget.budget > Math.abs(budget.currentlySpent)
                                     ? "You'r still in budget"
                                     : "You've spent a little too much"
                             }
@@ -62,7 +62,7 @@ export const CategoryBudget: React.FC<CategoryBudgetProps> = ({ budget, icon = <
                                     fontWeight: 'bold',
                                     fontSize: '90%',
                                     color: (theme) =>
-                                        budget.budget >= budget.currentlySpent
+                                        budget.budget >= Math.abs(budget.currentlySpent)
                                             ? theme.palette.success.main
                                             : theme.palette.error.main,
                                 }}
@@ -86,7 +86,7 @@ export const CategoryBudget: React.FC<CategoryBudgetProps> = ({ budget, icon = <
                     </Tooltip>
                     <Tooltip
                         title="Delete"
-                        onClick={async () => {
+                        onClick={() => {
                             if (onDelete) onDelete(budget.delete());
                         }}
                     >
