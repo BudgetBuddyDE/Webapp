@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { StyledAutocompleteOption } from '@/components';
 import { CreatePaymentMethodInfo } from '@/components/PaymentMethod/Cards';
 import { useFetchPaymentMethods } from '@/hooks';
 import {
@@ -88,6 +89,11 @@ export const CreatePaymentMethodInput: React.FC<CreatePaymentMenthodInputProps> 
                 );
                 return match ? filtered : [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }];
             }}
+            renderOption={(props, option, { selected }) => (
+                <StyledAutocompleteOption {...props} selected={selected}>
+                    {option.label}
+                </StyledAutocompleteOption>
+            )}
             defaultValue={defaultValue}
             renderInput={(props) => <TextField {...props} label="Payment Method" />}
             isOptionEqualToValue={(option, value) => option.value === value.value}

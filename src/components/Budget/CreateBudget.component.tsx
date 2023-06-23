@@ -1,7 +1,6 @@
 import { isSameMonth } from 'date-fns';
 import React from 'react';
-import { FormDrawer } from '@/components/Base';
-import { CreateCategoryInfo } from '@/components/Category';
+import { CreateCategoryInfo, FormDrawer, StyledAutocompleteOption } from '@/components';
 import { AuthContext, SnackbarContext, StoreContext } from '@/context';
 import { useFetchCategories, useFetchTransactions } from '@/hooks';
 import { Budget } from '@/models';
@@ -125,6 +124,11 @@ export const CreateBudget: React.FC<ICreateBudgetProps> = ({ open, setOpen, afte
                     onChange={(event, value) => handler.autocompleteChange(event, Number(value?.value))}
                     renderInput={(props) => <TextField {...props} label="Category" />}
                     isOptionEqualToValue={(option, value) => option.value === value.value}
+                    renderOption={(props, option, { selected }) => (
+                        <StyledAutocompleteOption {...props} selected={selected}>
+                            {option.label}
+                        </StyledAutocompleteOption>
+                    )}
                 />
             ) : (
                 <CreateCategoryInfo sx={{ mb: 2 }} />

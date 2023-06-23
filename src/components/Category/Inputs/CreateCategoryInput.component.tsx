@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CreateCategoryInfo } from '@/components/Category/Cards';
+import { StyledAutocompleteOption } from '@/components/Inputs';
 import { useFetchCategories } from '@/hooks';
 import {
     Alert,
@@ -78,6 +79,11 @@ export const CreateCategoryInput: React.FC<CreateCategoryInputProps> = ({ defaul
                 );
                 return match ? filtered : [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }];
             }}
+            renderOption={(props, option, { selected }) => (
+                <StyledAutocompleteOption {...props} selected={selected}>
+                    {option.label}
+                </StyledAutocompleteOption>
+            )}
             defaultValue={defaultValue}
             renderInput={(props) => <TextField {...props} label="Category" />}
             isOptionEqualToValue={(option, value) => option.value === value.value}

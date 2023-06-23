@@ -1,5 +1,6 @@
 import React from 'react';
 import { Autocomplete, SxProps, TextField, Theme, createFilterOptions } from '@mui/material';
+import { StyledAutocompleteOption } from './StyledAutocompleteOption.component';
 
 export type TOption = {
     text: string;
@@ -80,7 +81,11 @@ export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
                 // Regular option
                 return option.text;
             }}
-            renderOption={(props, option) => <li {...props}>{option.text}</li>}
+            renderOption={(props, option, { selected }) => (
+                <StyledAutocompleteOption {...props} selected={selected}>
+                    {option.text}
+                </StyledAutocompleteOption>
+            )}
             renderInput={(params) => <TextField {...params} label={label} />}
             isOptionEqualToValue={(option, value) => true}
             selectOnFocus
