@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { StoreContext } from '@/context';
-import { Category, PaymentMethod } from '@/models';
+import { StoreContext } from '@/context/Store.context';
+import { Category } from '@/models/Category.model';
+import { PaymentMethod } from '@/models/PaymentMethod.model';
 import { KeyboardArrowDown as KeyboardArrowDownIcon } from '@mui/icons-material';
 import { Chip, Menu, MenuItem } from '@mui/material';
 

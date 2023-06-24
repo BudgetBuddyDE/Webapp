@@ -1,8 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Brand, Hamburger, ProfileAvatar } from '@/components';
-import { AuthContext, StoreContext } from '@/context';
-import { supabase } from '@/supabase';
+import { AppConfig } from '@/app.config';
+import { AuthContext } from '@/context/Auth.context';
+import { StoreContext } from '@/context/Store.context';
+import { SupabaseClient } from '@/supabase';
 import { Logout as LogoutIcon, Settings as SettingsIcon } from '@mui/icons-material';
 import {
     Box,
@@ -17,27 +18,19 @@ import {
     Toolbar,
     Tooltip,
 } from '@mui/material';
+import { ProfileAvatar } from '../Profile/ProfileAvatar.component';
+import { Brand } from './Brand.component';
+import { DrawerHamburger } from './Drawer/DrawerHamburger.component';
 
-export const AppBar = () => {
+export const Appbar = () => {
     const navigate = useNavigate();
     const { session } = React.useContext(AuthContext);
-    const {
-        showDrawer,
-        setShowDrawer,
-        setTransactions,
-        setSubscriptions,
-        setBudget,
-        setBudgetTransactions,
-        setCategories,
-        setPaymentMethods,
-        setCategorySpendings,
-        setMonthlyAvg,
-    } = React.useContext(StoreContext);
+    const { setShowDrawer } = React.useContext(StoreContext);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
     const MenuLinks = [
-        { label: 'Website', href: 'https://budget-buddy.de' },
-        { label: 'GitHub', href: 'https://github.com/BudgetBuddyDE/' },
+        { label: 'Website', href: AppConfig.website },
+        { label: 'GitHub', href: AppConfig.repository },
     ];
 
     const ProfileMenu = [
@@ -50,15 +43,7 @@ export const AppBar = () => {
             icon: <LogoutIcon />,
             label: 'Logout',
             onClick: async () => {
-                setTransactions({ type: 'CLEAR_DATA' });
-                setSubscriptions({ type: 'CLEAR_DATA' });
-                setBudget({ type: 'CLEAR_DATA' });
-                setBudgetTransactions({ type: 'CLEAR_DATA' });
-                setCategories({ type: 'CLEAR_DATA' });
-                setPaymentMethods({ type: 'CLEAR_DATA' });
-                setCategorySpendings({ type: 'CLEAR_DATA' });
-                setMonthlyAvg({ type: 'CLEAR_DATA' });
-                await supabase.auth.signOut();
+                await SupabaseClient().auth.signOut();
             },
         },
     ];
@@ -86,7 +71,7 @@ export const AppBar = () => {
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                         <IconButton size="large" onClick={() => setShowDrawer((prev) => !prev)} color="inherit">
                             {/* <MenuIcon /> */}
-                            <Hamburger open={showDrawer} />
+                            <DrawerHamburger />
                         </IconButton>
                     </Box>
 

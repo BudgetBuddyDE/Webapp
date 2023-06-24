@@ -1,35 +1,32 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AppConfig } from '@/app.config';
+import { Card } from '@/components/Base';
+import { ActionPaper } from '@/components/Base/ActionPaper.component';
+import { CircularProgress } from '@/components/Core/CircularProgress.component';
+import { AddFab } from '@/components/Core/FAB/AddFab.component';
+import { FabContainer } from '@/components/Core/FAB/FabContainer.component';
+import { Linkify } from '@/components/Core/Linkify.component';
+import { NoResults } from '@/components/Core/NoResults.component';
 import {
-    ActionPaper,
-    Card,
-    CircularProgress,
-    CreateFab,
-    CreatePaymentMethod,
-    EarningsByPaymentMethod,
-    EditPaymentMethod,
-    FabContainer,
     InitialTablePaginationState,
-    Linkify,
-    NoResults,
-    OpenFilterFab,
-    PageHeader,
-    RedirectChip,
-    SearchInput,
-    SelectMultiple,
     TablePagination,
-    TablePaginationHandler,
-    UsedByPaymentMethod,
-} from '@/components';
-import type { SelectMultipleHandler } from '@/components';
-import { SnackbarContext, StoreContext } from '@/context';
-import { useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '@/hooks';
-import { PaymentMethod } from '@/models';
-import { SelectMultipleReducer, TablePaginationReducer, generateInitialState } from '@/reducer';
-import { PaymentMethodService } from '@/services';
-import { DescriptionTableCellStyle } from '@/theme/description-table-cell.style';
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+    type TablePaginationHandler,
+} from '@/components/Core/TablePagination.component';
+import { SearchInput } from '@/components/Inputs/SearchInput.component';
+import { PageHeader } from '@/components/Layout/PageHeader.component';
+import { CreatePaymentMethod } from '@/components/PaymentMethod/CreatePaymentMethodDrawer.component';
+import { EditPaymentMethodDrawer } from '@/components/PaymentMethod/EditPaymentmethodDrawer.component';
+import { RedirectChip } from '@/components/RedirectChip.component';
+import { SelectMultiple, type SelectMultipleHandler } from '@/components/SelectMultiple';
+import { SnackbarContext } from '@/context/Snackbar.context';
+import { useFetchPaymentMethods } from '@/hook/useFetchPaymentMethods.hook';
+import { PaymentMethod } from '@/models/PaymentMethod.model';
+import { SelectMultipleReducer, generateInitialState } from '@/reducer/SelectMultuple.reducer';
+import { TablePaginationReducer } from '@/reducer/TablePagination.reducer';
+import { PaymentMethodService } from '@/services/PaymentMethod.service';
+import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
+import { AddRounded as AddIcon, DeleteRounded as DeleteIcon, EditRounded as EditIcon } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -45,7 +42,7 @@ import {
     Typography,
 } from '@mui/material';
 
-interface PaymentMethodHandler {
+export interface PaymentMethodHandler {
     clearLocatioState: () => void;
     onSearch: (keyword: string) => void;
     pagination: TablePaginationHandler;
@@ -55,27 +52,23 @@ interface PaymentMethodHandler {
     selectMultiple: SelectMultipleHandler;
 }
 
-export const PaymentMethods = () => {
+const PaymentMethodsRoute = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { showSnackbar } = React.useContext(SnackbarContext);
-    const { setPaymentMethods } = React.useContext(StoreContext);
-    const fetchTransactions = useFetchTransactions();
-    const fetchSubscriptions = useFetchSubscriptions();
-    const fetchPaymentMethods = useFetchPaymentMethods();
-    const [, startTransition] = React.useTransition();
-    const [showAddForm, setShowAddForm] = React.useState(
-        location.state !== null &&
-            (location.state as any).create !== undefined &&
-            (location.state as any).create === true
-    );
-    const [keyword, setKeyword] = React.useState('');
-    const [editPaymentMethod, setEditPaymentMethod] = React.useState<PaymentMethod | null>(null);
     const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
     const [selectedPaymentMethods, setSelectedPaymentMethods] = React.useReducer(
         SelectMultipleReducer,
         generateInitialState()
     );
+    const { loading: loadingPaymentMethods, refresh: refreshPaymentMethods, paymentMethods } = useFetchPaymentMethods();
+    const [keyword, setKeyword] = React.useState('');
+    const [showAddForm, setShowAddForm] = React.useState(
+        location.state !== null &&
+            (location.state as any).create !== undefined &&
+            (location.state as any).create === true
+    );
+    const [editPaymentMethod, setEditPaymentMethod] = React.useState<PaymentMethod | null>(null);
 
     const handler: PaymentMethodHandler = {
         clearLocatioState() {
@@ -98,9 +91,7 @@ export const PaymentMethods = () => {
                     const deletedPaymentMethods = await paymentMethod.delete();
                     if (!deletedPaymentMethods || deletedPaymentMethods.length < 1)
                         throw new Error('No payment-method deleted');
-                    startTransition(() => {
-                        setPaymentMethods({ type: 'REMOVE_BY_ID', id: paymentMethod.id });
-                    });
+                    await refreshPaymentMethods();
                     showSnackbar({ message: `Payment Method ${paymentMethod.name} deleted` });
                 } catch (error) {
                     console.error(error);
@@ -112,17 +103,15 @@ export const PaymentMethods = () => {
             },
         },
         selectMultiple: {
-            onSelectAll: (event, checked) => {
-                startTransition(() => {
-                    setSelectedPaymentMethods({
-                        type: 'SET_SELECTED',
-                        selected:
-                            selectedPaymentMethods.selected.length > 0 &&
-                            (selectedPaymentMethods.selected.length < shownPaymentMethods.length ||
-                                shownPaymentMethods.length === selectedPaymentMethods.selected.length)
-                                ? []
-                                : shownPaymentMethods.map(({ id }) => id),
-                    });
+            onSelectAll: (_event, _checked) => {
+                setSelectedPaymentMethods({
+                    type: 'SET_SELECTED',
+                    selected:
+                        selectedPaymentMethods.selected.length > 0 &&
+                        (selectedPaymentMethods.selected.length < shownPaymentMethods.length ||
+                            shownPaymentMethods.length === selectedPaymentMethods.selected.length)
+                            ? []
+                            : shownPaymentMethods.map(({ id }) => id),
                 });
             },
             onSelectSingle: (event, checked) => {
@@ -145,13 +134,15 @@ export const PaymentMethods = () => {
                 },
                 onDeleteConfirm: async () => {
                     try {
-                        const result = await PaymentMethodService.delete(selectedPaymentMethods.selected);
-                        setPaymentMethods({
-                            type: 'REMOVE_MULTIPLE_BY_ID',
-                            ids: result.map((paymentMethod) => paymentMethod.id),
-                        });
+                        const selectedItems = selectedPaymentMethods.selected,
+                            selectedItemsCount = selectedItems.length;
+                        if (selectedItemsCount == 0) throw new Error('No payment-methods were selected');
+                        const result = await PaymentMethodService.delete(selectedItems);
+                        if (selectedItemsCount != result.length)
+                            throw new Error("Couldn't delete all selected payment-methods");
+                        await refreshPaymentMethods();
                         setSelectedPaymentMethods({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
-                        showSnackbar({ message: 'Payment-methods deleted' });
+                        showSnackbar({ message: `${selectedItemsCount} payment-methods deleted` });
                     } catch (error) {
                         console.error(error);
                         showSnackbar({
@@ -166,11 +157,11 @@ export const PaymentMethods = () => {
     };
 
     const shownPaymentMethods: PaymentMethod[] = React.useMemo(() => {
-        if (keyword === '') return fetchPaymentMethods.paymentMethods;
-        return fetchPaymentMethods.paymentMethods.filter(
+        if (keyword === '') return paymentMethods;
+        return paymentMethods.filter(
             (item) => item.name.toLowerCase().includes(keyword) || item.provider.toLowerCase().includes(keyword)
         );
-    }, [keyword, fetchPaymentMethods.paymentMethods]);
+    }, [keyword, paymentMethods]);
 
     const currentPagePaymentMethods: PaymentMethod[] = React.useMemo(() => {
         const { page, rowsPerPage } = tablePagination;
@@ -181,13 +172,11 @@ export const PaymentMethods = () => {
         return () => handler.clearLocatioState();
     }, []);
 
-    React.useEffect(() => console.log(location), [location]);
-
     return (
         <Grid container spacing={3}>
             <PageHeader title="Payment Methods" description="How are u paying today, sir?" />
 
-            <Grid item xs={12} md={9} lg={8} xl={9}>
+            <Grid item xs={12} md={10} lg={10} xl={10}>
                 <Card sx={{ p: 0 }}>
                     <Card.Header sx={{ p: 2, pb: 0 }}>
                         <Box>
@@ -205,9 +194,9 @@ export const PaymentMethods = () => {
                             </ActionPaper>
                         </Card.HeaderActions>
                     </Card.Header>
-                    {fetchPaymentMethods.loading ? (
+                    {loadingPaymentMethods ? (
                         <CircularProgress />
-                    ) : fetchPaymentMethods.paymentMethods.length > 0 ? (
+                    ) : shownPaymentMethods.length > 0 ? (
                         <React.Fragment>
                             <Card.Body>
                                 <SelectMultiple.Actions
@@ -316,7 +305,7 @@ export const PaymentMethods = () => {
                 </Card>
             </Grid>
 
-            <Grid container item xs={12} md={3} lg={4} xl={3} spacing={3}>
+            {/* FIXME: <Grid container item xs={12} md={3} lg={4} xl={3} spacing={3}>
                 <Grid item xs={12}>
                     {!fetchPaymentMethods.loading && !fetchSubscriptions.loading && !fetchTransactions.loading && (
                         <UsedByPaymentMethod
@@ -335,12 +324,12 @@ export const PaymentMethods = () => {
                         />
                     )}
                 </Grid>
-            </Grid>
+            </Grid> */}
 
             <FabContainer>
-                <OpenFilterFab />
-                <CreateFab onClick={() => setShowAddForm(true)} />
+                <AddFab onClick={() => setShowAddForm(true)} />
             </FabContainer>
+
             <SelectMultiple.ConfirmDeleteDialog
                 open={selectedPaymentMethods.dialog.show && selectedPaymentMethods.dialog.type === 'DELETE'}
                 onCancel={handler.selectMultiple.dialog.onDeleteCancel!}
@@ -371,7 +360,7 @@ export const PaymentMethods = () => {
                 }
             />
 
-            <EditPaymentMethod
+            <EditPaymentMethodDrawer
                 open={editPaymentMethod !== null}
                 setOpen={(show) => {
                     if (!show) setEditPaymentMethod(null);
@@ -381,3 +370,5 @@ export const PaymentMethods = () => {
         </Grid>
     );
 };
+
+export default PaymentMethodsRoute;

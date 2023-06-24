@@ -1,47 +1,48 @@
-import type { TExportType } from '@/components/user-profile.component';
-import { BaseBudget, Budget } from '@/models/budget.model';
-import { supabase } from '@/supabase';
+import { BaseBudget } from '@/models/BaseBudget.model';
+import { Budget } from '@/models/Budget.model';
+import { SupabaseClient } from '@/supabase';
+import type { ExportFormat, SupabaseData } from '@/type';
 import type {
-    IBaseBudget,
-    IBudgetProgressView,
-    IExportBudget,
-    IMonthlyBalance,
-    IMonthlyBalanceAvg,
-} from '@/types/budget.type';
+    BudgetProgressView,
+    ExportBudget,
+    MonthlyBalance,
+    MonthlyBalanceAverage,
+    BaseBudget as TBaseBudget,
+} from '@/type/budget.type';
 
 export class BudgetService {
     private static table = 'budget';
 
-    static async create(budget: Partial<IBaseBudget>[]): Promise<BaseBudget[]> {
+    static async create(budget: Partial<TBaseBudget>[]): Promise<BaseBudget[]> {
         return new Promise(async (res, rej) => {
-            const { data, error } = await supabase.from<IBaseBudget>(this.table).insert(budget);
-            if (error) rej(error);
+            const response = await SupabaseClient().from(this.table).insert(budget);
+            if (response.error) rej(response.error);
+            const data = response.data as SupabaseData<TBaseBudget[]>;
             res(data ? data.map((budget) => new BaseBudget(budget)) : []);
         });
     }
 
     static async getBudget(uuid: string): Promise<Budget[]> {
         return new Promise(async (res, rej) => {
-            const { data, error } = await supabase
-                .from<IBudgetProgressView>('BudgetProgress')
-                .select('*')
-                .eq('created_by', uuid);
-            if (error) rej(error);
+            const response = await SupabaseClient().from('BudgetProgress').select('*').eq('created_by', uuid);
+            if (response.error) rej(response.error);
+            const data = response.data as SupabaseData<BudgetProgressView[]>;
             res(data ? data.map((budget) => new Budget(budget)) : []);
         });
     }
 
-    static getMonthlyBalance(monthBacklog: number): Promise<IMonthlyBalance[]> {
+    static getMonthlyBalance(monthBacklog: number): Promise<MonthlyBalance[]> {
         return new Promise(async (res, rej) => {
-            const { data, error } = await supabase.rpc('get_monthly_balance', {
+            const response = await SupabaseClient().rpc('get_monthly_balance', {
                 months: monthBacklog,
             });
-            if (error) rej(error);
+            if (response.error) rej(response.error);
+            const data = response.data as SupabaseData<MonthlyBalance[]>;
             res(data ?? []);
         });
     }
 
-    static getMonthlyBalanceAvg(monthBacklog: number): Promise<IMonthlyBalanceAvg> {
+    static getMonthlyBalanceAvg(monthBacklog: number): Promise<MonthlyBalanceAverage> {
         return new Promise(async (res) => {
             const months = await this.getMonthlyBalance(monthBacklog);
             const avgBalance = months.reduce((prev, cur) => prev + cur.sum, 0) / months.length;
@@ -52,13 +53,11 @@ export class BudgetService {
     /**
      * @deprecated Use `Budget.delete()` instead of the the `BudgetService.update(...)`
      */
-    static async update(id: number, updatedBudget: Partial<IBaseBudget>): Promise<BaseBudget[]> {
+    static async update(id: number, updatedBudget: Partial<TBaseBudget>): Promise<BaseBudget[]> {
         return new Promise(async (res, rej) => {
-            const { data, error } = await supabase
-                .from<IBaseBudget>(this.table)
-                .update(updatedBudget)
-                .match({ id: id });
-            if (error) rej(error);
+            const response = await SupabaseClient().from(this.table).update(updatedBudget).match({ id: id }).select();
+            if (response.error) rej(response.error);
+            const data = response.data as SupabaseData<TBaseBudget[]>;
             res(data ? data.map((budget) => new BaseBudget(budget)) : []);
         });
     }
@@ -66,10 +65,11 @@ export class BudgetService {
     /**
      * @deprecated Use `Budget.delete()` instead of the the `BudgetService.deleteById(...)`
      */
-    static async deleteById(id: number): Promise<IBaseBudget[]> {
+    static async deleteById(id: number): Promise<BaseBudget[]> {
         return new Promise(async (res, rej) => {
-            const { data, error } = await supabase.from<IBaseBudget>(this.table).delete().match({ id: id });
-            if (error) rej(error);
+            const response = await SupabaseClient().from(this.table).delete().match({ id: id }).select();
+            if (response.error) rej(response.error);
+            const data = response.data as SupabaseData<TBaseBudget[]>;
             res(data ? data.map((budget) => new BaseBudget(budget)) : []);
         });
     }
@@ -77,12 +77,12 @@ export class BudgetService {
     /**
      * Get all set category-budgets, ready for the export
      */
-    static export(type: TExportType = 'json'): Promise<IExportBudget[] | string> {
+    static export(type: ExportFormat = 'JSON'): Promise<ExportBudget[] | string> {
         return new Promise((res, rej) => {
             switch (type) {
-                case 'json':
-                    supabase
-                        .from<IExportBudget>(this.table)
+                case 'JSON':
+                    SupabaseClient()
+                        .from(this.table)
                         .select(`*, categories:category(*)`)
                         .then((result) => {
                             if (result.error) rej(result.error);
@@ -91,9 +91,9 @@ export class BudgetService {
                         });
                     break;
 
-                case 'csv':
-                    supabase
-                        .from<IBaseBudget>(`budget`)
+                case 'CSV':
+                    SupabaseClient()
+                        .from(`budget`)
                         .select(`*, categories:category(*)`)
                         .csv()
                         .then((result) => {

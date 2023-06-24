@@ -1,36 +1,41 @@
 import React from 'react';
-import { FormDrawer } from '@/components/Base';
-import { AuthContext, SnackbarContext, StoreContext } from '@/context';
-import { useFetchCategories } from '@/hooks';
-import { Category } from '@/models';
-import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer';
-import { CategoryService } from '@/services';
-import { FormStyle } from '@/theme/form-style';
-import type { IBaseCategory, IEditCategory } from '@/types';
-import { sleep } from '@/utils';
+import { AuthContext } from '@/context/Auth.context';
+import { SnackbarContext } from '@/context/Snackbar.context';
+import { useFetchCategories } from '@/hook/useFetchCategories.hook';
+import { Category } from '@/models/Category.model';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer/DrawerAction.reducer';
+import { CategoryService } from '@/services/Category.service';
+import { FormStyle } from '@/style/Form.style';
+import type { CategoryTable } from '@/type/category.type';
+import { sleep } from '@/util/sleep.util';
 import { TextField } from '@mui/material';
+import { FormDrawer } from '../Core/Drawer/FormDrawer.component';
 
-export interface ICreateCategoryProps {
+export interface ICreateCategoryDrawerProps {
     open: boolean;
     setOpen: (show: boolean) => void;
     afterSubmit?: (category: Category) => void;
-    category?: Partial<IEditCategory> | null;
+    category?: Partial<Pick<CategoryTable, 'name' | 'description'>> | null;
 }
 
-interface CreateCategoryHandler {
+export interface CreateCategoryDrawerHandler {
     onClose: () => void;
     onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, afterSubmit, category }) => {
+export const CreateCategoryDrawer: React.FC<ICreateCategoryDrawerProps> = ({
+    open,
+    setOpen,
+    afterSubmit,
+    category,
+}) => {
     const { session } = React.useContext(AuthContext);
     const { showSnackbar } = React.useContext(SnackbarContext);
-    const { loading } = React.useContext(StoreContext);
     const { refresh } = useFetchCategories();
-    const [form, setForm] = React.useState<Partial<IBaseCategory>>({});
+    const [form, setForm] = React.useState<Partial<CategoryTable>>({});
     const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
 
-    const handler: CreateCategoryHandler = {
+    const handler: CreateCategoryDrawerHandler = {
         onClose: () => {
             setOpen(false);
             setForm({});
@@ -49,8 +54,7 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
                         created_by: session!.user!.id,
                     },
                 ]);
-                if (createdCategories.length < 0) throw new Error('No category created');
-
+                if (createdCategories.length < 1) throw new Error('No category created');
                 const createdCategory = createdCategories[0];
                 if (afterSubmit) afterSubmit(createdCategory);
                 setDrawerAction({ type: 'SUCCESS' });
@@ -61,6 +65,8 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
             } catch (error) {
                 console.error(error);
                 setDrawerAction({ type: 'ERROR', error: error as Error });
+            } finally {
+                setDrawerAction({ type: 'RESET' });
             }
         },
     };
@@ -70,7 +76,6 @@ export const CreateCategory: React.FC<ICreateCategoryProps> = ({ open, setOpen, 
         setForm({ name: category.name });
     }, [category]);
 
-    if (loading) return null;
     return (
         <FormDrawer
             open={open}

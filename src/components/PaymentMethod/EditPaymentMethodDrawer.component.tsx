@@ -1,12 +1,13 @@
 import React from 'react';
-import { FormDrawer } from '@/components/Base';
-import { SnackbarContext, StoreContext } from '@/context';
-import { PaymentMethod } from '@/models';
-import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer';
-import { FormStyle } from '@/theme/form-style';
-import type { IBasePaymentMethod } from '@/types';
-import { sleep } from '@/utils';
+import { SnackbarContext } from '@/context/Snackbar.context';
+import { useFetchPaymentMethods } from '@/hook/useFetchPaymentMethods.hook';
+import { PaymentMethod } from '@/models/PaymentMethod.model';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer/DrawerAction.reducer';
+import { FormStyle } from '@/style/Form.style';
+import type { PaymentMethodTable } from '@/type/payment-method.type';
+import { sleep } from '@/util/sleep.util';
 import { TextField } from '@mui/material';
+import { FormDrawer } from '../Core/Drawer/FormDrawer.component';
 
 export interface IEditPaymentMethodProps {
     open: boolean;
@@ -15,11 +16,15 @@ export interface IEditPaymentMethodProps {
     paymentMethod: PaymentMethod | null;
 }
 
-export const EditPaymentMethod: React.FC<IEditPaymentMethodProps> = ({ open, setOpen, afterSubmit, paymentMethod }) => {
+export const EditPaymentMethodDrawer: React.FC<IEditPaymentMethodProps> = ({
+    open,
+    setOpen,
+    afterSubmit,
+    paymentMethod,
+}) => {
     const { showSnackbar } = React.useContext(SnackbarContext);
-    const { loading, setPaymentMethods } = React.useContext(StoreContext);
-    const [, startTransition] = React.useTransition();
-    const [form, setForm] = React.useState<Partial<IBasePaymentMethod> | null>(null);
+    const { refresh: refreshPaymentMethods } = useFetchPaymentMethods();
+    const [form, setForm] = React.useState<Partial<PaymentMethodTable> | null>(null);
     const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
 
     const handler = {
@@ -45,7 +50,7 @@ export const EditPaymentMethod: React.FC<IEditPaymentMethodProps> = ({ open, set
 
                 const updatedItem = updatedPaymentMethods[0];
                 if (afterSubmit) afterSubmit(updatedItem);
-                startTransition(() => setPaymentMethods({ type: 'UPDATE_BY_ID', entry: updatedItem }));
+                refreshPaymentMethods();
                 setDrawerAction({ type: 'SUCCESS' });
                 await sleep(300);
                 handler.onClose();
@@ -53,6 +58,8 @@ export const EditPaymentMethod: React.FC<IEditPaymentMethodProps> = ({ open, set
             } catch (error) {
                 console.error(error);
                 setDrawerAction({ type: 'ERROR', error: error as Error });
+            } finally {
+                setDrawerAction({ type: 'RESET' });
             }
         },
     };
@@ -71,7 +78,6 @@ export const EditPaymentMethod: React.FC<IEditPaymentMethodProps> = ({ open, set
         );
     }, [paymentMethod]);
 
-    if (loading) return null;
     return (
         <FormDrawer
             open={open}

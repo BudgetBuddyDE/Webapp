@@ -1,15 +1,16 @@
-import { CategoryService } from '@/services';
-import type { IBaseCategory, ICategoryView, uuid } from '@/types';
+import { CategoryService } from '@/services/Category.service';
+import type { Description, uuid } from '@/type';
+import type { CategoryTable, CategoryView } from '@/type/category.type';
 
 export class Category {
     id: number;
     name: string;
-    description: string | null;
+    description: Description;
     created_by: uuid;
     updated_at: Date;
     inserted_at: Date;
 
-    constructor({ id, name, description, created_by, updated_at, inserted_at }: IBaseCategory) {
+    constructor({ id, name, description, created_by, updated_at, inserted_at }: CategoryTable) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -19,7 +20,7 @@ export class Category {
     }
 
     get categoryView() {
-        const view: ICategoryView = {
+        const view: CategoryView = {
             id: this.id,
             name: this.name,
             description: this.description,
@@ -27,7 +28,7 @@ export class Category {
         return view;
     }
 
-    async update(updatedInformation: { name: string; description: string | null }) {
+    async update(updatedInformation: Pick<CategoryTable, 'name' | 'description'>) {
         try {
             return await CategoryService.updateCategory(this.id, {
                 ...updatedInformation,

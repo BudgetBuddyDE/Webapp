@@ -1,61 +1,69 @@
-import type { TExportType } from '@/components/user-profile.component';
-import { BaseSubscription, Subscription } from '@/models/subscription.model';
-import { Transaction } from '@/models/transaction.model';
-import { supabase } from '@/supabase';
-import type { IBaseSubscription, IExportSubscription, ISubscription } from '@/types/subscription.type';
-import { TransactionService } from './transaction.service';
+import { BaseSubscription } from '@/models/BaseSubscription.model';
+import { Subscription } from '@/models/Subscription.model';
+import { Transaction } from '@/models/Transaction.model';
+import { SupabaseClient } from '@/supabase';
+import type { ExportFormat, SupabaseData } from '@/type';
+import type { CategoryOverview } from '@/type/category.type';
+import type { TBaseSubscription, TExportSubscription, TSubscription } from '@/type/subscription.type';
+import { determineNextExecutionDate } from '@/util/determineNextExecution.util';
+import { TransactionService } from './Transaction.service';
 
 export class SubscriptionService {
     private static table = 'subscriptions';
 
-    static async createSubscriptions(subscriptions: Partial<IBaseSubscription>[]): Promise<BaseSubscription[]> {
+    static async createSubscriptions(subscriptions: Partial<TBaseSubscription>[]): Promise<BaseSubscription[]> {
         return new Promise(async (res, rej) => {
-            const { data, error } = await supabase.from<IBaseSubscription>(this.table).insert(subscriptions);
-            if (error) rej(error);
+            const response = await SupabaseClient().from(this.table).insert(subscriptions).select();
+            if (response.error) rej(response.error);
+            const data = response.data as SupabaseData<TBaseSubscription[]>;
             res(data ? data.map((subscription) => new BaseSubscription(subscription)) : []);
         });
     }
 
     static async getSubscriptions(): Promise<Subscription[]> {
         return new Promise(async (res, rej) => {
-            const { data, error } = await supabase.from<ISubscription>(this.table).select(`
-          id,
-          amount,
-          receiver,
-          description, 
-          execute_at,
-          updated_at,
-          inserted_at,
-          paymentMethods (
-            id, name, address, provider, description
-          ),
-          categories (
-            id, name, description
-          )`);
-            if (error) rej(error);
+            const response = await SupabaseClient().from(this.table).select(`
+                id,
+                amount,
+                receiver,
+                description, 
+                execute_at,
+                updated_at,
+                inserted_at,
+                paymentMethods (
+                    id, name, address, provider, description
+                ),
+                categories (
+                    id, name, description
+                )`);
+            if (response.error) rej(response.error);
+            const data = response.data as SupabaseData<TSubscription[]>;
             res(data ? data.map((subscription) => new Subscription(subscription)) : []);
         });
     }
 
     static async update(
-        subscriptions: IBaseSubscription['id'][],
-        column: keyof Pick<IBaseSubscription, 'category' | 'paymentMethod'>,
-        value: IBaseSubscription['category'] | IBaseSubscription['paymentMethod']
+        subscriptions: TBaseSubscription['id'][],
+        column: keyof Pick<TBaseSubscription, 'category' | 'paymentMethod'>,
+        value: TBaseSubscription['category'] | TBaseSubscription['paymentMethod']
     ): Promise<BaseSubscription[]> {
         return new Promise(async (res, rej) => {
-            const { data, error } = await supabase
-                .from<IBaseSubscription>(this.table)
+            const response = await SupabaseClient()
+                .from(this.table)
                 .update({ [column]: value })
-                .in('id', subscriptions);
-            if (error) rej(error);
+                .in('id', subscriptions)
+                .select();
+            if (response.error) rej(response.error);
+            const data = response.data as SupabaseData<TBaseSubscription[]>;
             res(data ? data.map((subscription) => new BaseSubscription(subscription)) : []);
         });
     }
 
     static async delete(subscriptions: Subscription['id'][]): Promise<BaseSubscription[]> {
         return new Promise(async (res, rej) => {
-            const { data, error } = await supabase.from<IBaseSubscription>(this.table).delete().in('id', subscriptions);
-            if (error) rej(error);
+            const response = await SupabaseClient().from(this.table).delete().in('id', subscriptions).select();
+            if (response.error) rej(response.error);
+            const data = response.data as SupabaseData<TBaseSubscription[]>;
             res(data ? data.map((category) => new BaseSubscription(category)) : []);
         });
     }
@@ -65,14 +73,16 @@ export class SubscriptionService {
      */
     static async updateSubscription(
         id: number,
-        updatedSubscription: Partial<IBaseSubscription>
+        updatedSubscription: Partial<TBaseSubscription>
     ): Promise<BaseSubscription[]> {
         return new Promise(async (res, rej) => {
-            const { data, error } = await supabase
-                .from<IBaseSubscription>(this.table)
+            const response = await SupabaseClient()
+                .from(this.table)
                 .update(updatedSubscription)
-                .match({ id: id });
-            if (error) rej(error);
+                .match({ id: id })
+                .select();
+            if (response.error) rej(response.error);
+            const data = response.data as SupabaseData<TBaseSubscription[]>;
             res(data ? data.map((subscription) => new BaseSubscription(subscription)) : []);
         });
     }
@@ -82,80 +92,146 @@ export class SubscriptionService {
      */
     static async deleteSubscriptionById(id: number): Promise<BaseSubscription[]> {
         return new Promise(async (res, rej) => {
-            const { data, error } = await supabase.from<IBaseSubscription>(this.table).delete().match({ id: id });
-            if (error) rej(error);
+            const response = await SupabaseClient().from(this.table).delete().match({ id: id }).select();
+            if (response.error) rej(response.error);
+            const data = response.data as SupabaseData<TBaseSubscription[]>;
             res(data ? data.map((subscription) => new BaseSubscription(subscription)) : []);
         });
     }
 
     /**
-     * Get planned income for the current month
+     * Get planned earnings for the current month
      */
-    static getPlannedIncome(subscriptions: Subscription[]) {
-        return Math.abs(
-            subscriptions.filter((subscription) => subscription.amount > 0).reduce((prev, cur) => prev + cur.amount, 0)
-        );
+    static calculatePlannedEarnings(subscriptions: Subscription[]): number {
+        return subscriptions.filter(({ amount }) => amount > 0).reduce((prev, cur) => prev + cur.amount, 0);
     }
 
     /**
-     * Get planned income for this month which aren't fullfilled meaning which will be executed during this month
+     * Get all planned payments for the current month
      */
-    static getUpcomingEarnings(subscriptions: Subscription[], transactions?: Transaction[]) {
+    static calculatePlannedExpenses(subscriptions: Subscription[]): number {
+        return subscriptions
+            .filter((subscription) => subscription.amount <= 0)
+            .reduce((prev, cur) => prev + Math.abs(cur.amount), 0);
+    }
+
+    /**
+     * // TODO: Add test
+     */
+    static calculateUpcomingEarnings(subscriptions: Subscription[], transactions?: Transaction[]) {
         const now = new Date();
         const processedSubscriptions = Math.abs(
             subscriptions
                 .filter((subscription) => subscription.execute_at > now.getDate() && subscription.amount > 0)
                 .reduce((prev, cur) => prev + cur.amount, 0)
         );
-        if (transactions) {
-            const processedTransactions = TransactionService.getUpcomingEarnings(transactions);
-            return processedSubscriptions + processedTransactions;
-        } else return processedSubscriptions;
+
+        return transactions
+            ? processedSubscriptions + TransactionService.calculateUpcomingEarnings(transactions)
+            : processedSubscriptions;
     }
 
     /**
-     * Get all planned payments for the current month
+     * // TODO: Add test
+     * Get planned expenses for this month which aren't fullfilled meaning which will be executed during this month
      */
-    static getPlannedSpendings(subscriptions: Subscription[]) {
-        return Math.abs(
-            subscriptions.filter((subscription) => subscription.amount < 0).reduce((prev, cur) => prev + cur.amount, 0)
-        );
-    }
-
-    /**
-     * Get planned spendings for this month which aren't fullfilled meaning which will be executed during this month
-     */
-    static getUpcomingSpendings(subscriptions: Subscription[], transactions?: Transaction[]) {
+    static calculateUpcomingExpenses(subscriptions: Subscription[], transactions?: Transaction[]): number {
+        const now = new Date();
         const processedSubscriptions = Math.abs(
             subscriptions
-                .filter((subscription) => subscription.execute_at > new Date().getDate() && subscription.amount < 0)
+                .filter((subscription) => subscription.execute_at > now.getDate() && subscription.amount <= 0)
                 .reduce((prev, cur) => prev + cur.amount, 0)
         );
-        if (transactions) {
-            return processedSubscriptions + TransactionService.getUpcomingSpendings(transactions);
-        } else return processedSubscriptions;
+
+        return transactions
+            ? processedSubscriptions + TransactionService.calculateUpcomingExpenses(transactions)
+            : processedSubscriptions;
+    }
+
+    /**
+     * // TODO: Add test that verifies no duplicate categories
+     */
+    static calculateMonthlyEarningsPerCategory(subscriptions: Subscription[]) {
+        const result: CategoryOverview = {};
+        const earnings = subscriptions
+            .filter(({ amount }) => amount >= 0)
+            .map((subscription) => ({ ...subscription, amount: subscription.amount }));
+
+        for (const {
+            categories: { id, name },
+            amount,
+        } of earnings) {
+            if (result[id] === undefined) {
+                result[id] = {
+                    amount: amount,
+                    name: name,
+                };
+            } else result[id].amount += amount;
+        }
+
+        return result;
+    }
+
+    /**
+     * // TODO: Add test that verifies positive numbers
+     * // TODO: Add test that verifies no duplicate categories
+     */
+    static calculateMonthlyExpensesPerCategory(subscriptions: Subscription[]) {
+        const result: CategoryOverview = {};
+        const expenses = subscriptions
+            .filter(({ amount }) => amount < 0)
+            .map((subscription) => ({ ...subscription, amount: Math.abs(subscription.amount) }));
+
+        for (const {
+            categories: { id, name },
+            amount,
+        } of expenses) {
+            if (result[id] === undefined) {
+                result[id] = {
+                    amount: Math.abs(amount),
+                    name: name,
+                };
+            } else result[id].amount += Math.abs(amount);
+        }
+
+        return result;
+    }
+
+    /**
+     * // TODO: Add test
+     */
+    static sortByExecutionDate(subscriptions: Subscription[]) {
+        return subscriptions.sort(function (a, b) {
+            const today = new Date();
+            // It does work fine for dates
+            return (
+                // @ts-ignore
+                Math.abs(today - determineNextExecutionDate(a.execute_at)) -
+                // @ts-ignore
+                Math.abs(today - determineNextExecutionDate(b.execute_at))
+            );
+        });
     }
 
     /**
      * Get the subscriptions, ready for the export
      */
-    static export(type: TExportType = 'json'): Promise<IExportSubscription[] | string> {
+    static export(type: ExportFormat = 'JSON'): Promise<TExportSubscription[] | string> {
         return new Promise((res, rej) => {
             switch (type) {
-                case 'json':
-                    supabase
-                        .from<IExportSubscription>(this.table)
+                case 'JSON':
+                    SupabaseClient()
+                        .from(this.table)
                         .select(`*, categories:category(*), paymentMethods:paymentMethod(*)`)
                         .then((result) => {
                             if (result.error) rej(result.error);
-                            // @ts-ignore
                             res(result.data ?? []);
                         });
                     break;
 
-                case 'csv':
-                    supabase
-                        .from<IBaseSubscription>(this.table)
+                case 'CSV':
+                    SupabaseClient()
+                        .from(this.table)
                         .select(`*`)
                         .csv()
                         .then((result) => {

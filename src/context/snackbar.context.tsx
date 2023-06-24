@@ -1,34 +1,30 @@
-import * as React from 'react';
+import React from 'react';
 import { Snackbar, darken } from '@mui/material';
 
-export interface IShowSnackbarProps {
+export type ShowSnackbarProps = {
     message: string;
     action?: React.ReactNode;
-}
+};
 
-export interface ISnackbarProps extends IShowSnackbarProps {
-    key: number;
-}
+export type SnackbarProps = ShowSnackbarProps & { key: number };
 
 export interface ISnackbarContext {
-    showSnackbar: (props: IShowSnackbarProps) => void;
+    showSnackbar: (props: ShowSnackbarProps) => void;
 }
 
 export const SnackbarContext = React.createContext({} as ISnackbarContext);
 
 export const SnackbarProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-    const [snackPack, setSnackPack] = React.useState<readonly ISnackbarProps[]>([]);
+    const [snackPack, setSnackPack] = React.useState<readonly SnackbarProps[]>([]);
     const [open, setOpen] = React.useState(false);
-    const [messageInfo, setMessageInfo] = React.useState<ISnackbarProps | undefined>(undefined);
+    const [messageInfo, setMessageInfo] = React.useState<SnackbarProps | undefined>(undefined);
 
-    const showSnackbar = (props: IShowSnackbarProps) => {
+    const showSnackbar = (props: ShowSnackbarProps) => {
         setSnackPack((prev) => [...prev, { message: props.message, action: props.action, key: new Date().getTime() }]);
     };
 
-    const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
+    const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') return;
         setOpen(false);
     };
 

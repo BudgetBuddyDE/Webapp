@@ -1,115 +1,126 @@
 import React from 'react';
-import { DEFAULT_FILTER_VALUE, getSavedSidebarState, saveSidebarState } from '@/components';
-import { Budget, Category, PaymentMethod, Subscription, Transaction } from '@/models/';
+import { getSavedSidebarState, saveSidebarState } from '@/components/Core/Drawer';
+import { DEFAULT_FILTER_VALUE } from '@/components/Core/Drawer/FilterDrawer.component';
+import { Budget } from '@/models/Budget.model';
+import { Category } from '@/models/Category.model';
+import { PaymentMethod } from '@/models/PaymentMethod.model';
+import { Subscription } from '@/models/Subscription.model';
+import { Transaction } from '@/models/Transaction.model';
 import {
-    BaseListReducer,
-    BaseReducer,
-    BudgetTransactionsReducer,
-    InitialBudgetTransactionsState,
-    generateBaseState,
-} from '@/reducer';
-import { CategorySpendingsState } from '@/reducer/CategorySpendings.reducer';
-import type { IFilter, IStoreContext } from '@/types/';
-import { IMonthlyBalanceAvg } from '@/types/';
-import { sortSubscriptionsByExecution } from '@/utils';
+    CategoryExpensesAction,
+    CategoryExpensesState,
+    categoryExpensesReducer,
+} from '@/reducer/CategoryExpenses.reducer';
+import {
+    DataReducer,
+    type DataReducerAction,
+    type DataReducerState,
+    GenerateDefaultDataState,
+} from '@/reducer/Data.reducer';
+import { SubscriptionService } from '@/services/Subscription.service';
+import type { BudgetTransactions } from '@/type/budget.type';
+import type { ContextDispatch } from '@/type/context.type';
+import type { Filter } from '@/type/filter.type';
 
-export const StoreContext = React.createContext({} as IStoreContext);
+export interface StoreContext {
+    showDrawer: boolean;
+    setShowDrawer: ContextDispatch<StoreContext['showDrawer']>;
+    showFilterDrawer: boolean;
+    setShowFilterDrawer: ContextDispatch<StoreContext['showFilterDrawer']>;
+    filter: Filter;
+    setFilter: ContextDispatch<StoreContext['filter']>;
+    categories: DataReducerState<Category[]>;
+    setCategories: React.Dispatch<DataReducerAction<Category[]>>;
+    categoryExpenses: CategoryExpensesState;
+    setCategoryExpenses: React.Dispatch<CategoryExpensesAction>;
+    paymentMethods: DataReducerState<PaymentMethod[]>;
+    setPaymentMethods: React.Dispatch<DataReducerAction<PaymentMethod[]>>;
+    transactions: DataReducerState<Transaction[]>;
+    setTransactions: React.Dispatch<DataReducerAction<Transaction[]>>;
+    transactionReceiverSet: { text: string; value: string }[];
+    subscriptions: DataReducerState<Subscription[]>;
+    setSubscriptions: React.Dispatch<DataReducerAction<Subscription[]>>;
+    budget: DataReducerState<Budget[]>;
+    setBudget: React.Dispatch<DataReducerAction<Budget[]>>;
+    budgetTransactions: DataReducerState<BudgetTransactions>;
+    setBudgetTransactions: React.Dispatch<DataReducerAction<BudgetTransactions>>;
+}
 
-export const StoreProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-    const [loading, setLoading] = React.useState(false);
+export const StoreContext = React.createContext({} as StoreContext);
+
+export type StoreProviderProps = React.PropsWithChildren;
+
+export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
     const [showDrawer, setShowDrawer] = React.useState(getSavedSidebarState());
+    const [showFilterDrawer, setShowFilterDrawer] = React.useState(false);
+    const [filter, setFilter] = React.useState<Filter>(DEFAULT_FILTER_VALUE);
+    const [categories, setCategories] = React.useReducer(
+        DataReducer<Category[]>,
+        GenerateDefaultDataState<Category[]>()
+    );
+    const [categoryExpenses, setCategoryExpenses] = React.useReducer(categoryExpensesReducer, {
+        chart: 'MONTH',
+        month: [],
+        allTime: [],
+    } as CategoryExpensesState);
+    const [paymentMethods, setPaymentMethods] = React.useReducer(
+        DataReducer<PaymentMethod[]>,
+        GenerateDefaultDataState<PaymentMethod[]>()
+    );
     const [transactions, setTransactions] = React.useReducer(
-        BaseListReducer<Transaction>,
-        generateBaseState<Transaction[]>()
+        DataReducer<Transaction[]>,
+        GenerateDefaultDataState<Transaction[]>()
     );
     const [subscriptions, setSubscriptions] = React.useReducer(
-        BaseListReducer<Subscription>,
-        generateBaseState<Subscription[]>()
+        DataReducer<Subscription[]>,
+        GenerateDefaultDataState<Subscription[]>()
     );
-    const [budget, setBudget] = React.useReducer(BaseListReducer<Budget>, generateBaseState<Budget[]>());
-    const [categories, setCategories] = React.useReducer(BaseListReducer<Category>, generateBaseState<Category[]>());
-    const [paymentMethods, setPaymentMethods] = React.useReducer(
-        BaseListReducer<PaymentMethod>,
-        generateBaseState<PaymentMethod[]>()
-    );
-    const [showFilter, setShowFilter] = React.useState(false);
-    const [filter, setFilter] = React.useState<IFilter>(DEFAULT_FILTER_VALUE);
-    const [categorySpendings, setCategorySpendings] = React.useReducer(
-        BaseReducer<CategorySpendingsState>,
-        generateBaseState<CategorySpendingsState>()
-    );
-    const [monthlyAvg, setMonthlyAvg] = React.useReducer(
-        BaseReducer<IMonthlyBalanceAvg>,
-        generateBaseState<IMonthlyBalanceAvg>()
-    );
+    const [budget, setBudget] = React.useReducer(DataReducer<Budget[]>, GenerateDefaultDataState<Budget[]>());
     const [budgetTransactions, setBudgetTransactions] = React.useReducer(
-        BudgetTransactionsReducer,
-        InitialBudgetTransactionsState
+        DataReducer<BudgetTransactions>,
+        GenerateDefaultDataState<BudgetTransactions>()
     );
 
-    React.useMemo(() => saveSidebarState(showDrawer), [showDrawer]);
+    const transactionReceiverSet = React.useMemo(
+        () =>
+            [...new Set((transactions.data ?? []).map((transaction) => transaction.receiver))].map((receiver) => ({
+                text: receiver,
+                value: receiver,
+            })),
+        [transactions.data]
+    );
 
-    const sortedSubscriptions: Subscription[] = React.useMemo(() => {
-        return sortSubscriptionsByExecution(subscriptions.data ?? []);
-    }, [subscriptions]);
-
-    const transactionReceiver = React.useMemo(() => {
-        if (!transactions.data) return [];
-        return [...new Set(transactions.data.map((transaction) => transaction.receiver))].map((receiver) => ({
-            text: receiver,
-            value: receiver,
-        }));
-    }, [transactions]);
+    React.useEffect(() => saveSidebarState(showDrawer), [showDrawer]);
 
     return (
         <StoreContext.Provider
-            value={React.useMemo(
-                () => ({
-                    loading,
-                    setLoading,
-                    showDrawer,
-                    setShowDrawer,
-                    transactions,
-                    setTransactions,
-                    transactionReceiver,
-                    budget,
-                    setBudget,
-                    budgetTransactions,
-                    setBudgetTransactions,
-                    subscriptions: { ...subscriptions, data: sortedSubscriptions },
-                    setSubscriptions,
-                    categories,
-                    setCategories,
-                    paymentMethods,
-                    setPaymentMethods,
-                    showFilter,
-                    setShowFilter,
-                    filter,
-                    setFilter,
-                    categorySpendings,
-                    setCategorySpendings,
-                    monthlyAvg,
-                    setMonthlyAvg,
-                }),
-                [
-                    loading,
-                    showDrawer,
-                    transactions,
-                    transactionReceiver,
-                    budget,
-                    budgetTransactions,
-                    subscriptions,
-                    sortedSubscriptions,
-                    categories,
-                    paymentMethods,
-                    showFilter,
-                    filter,
-                    categorySpendings,
-                    monthlyAvg,
-                ]
-            )}
-        >
-            {children}
-        </StoreContext.Provider>
+            value={{
+                showDrawer,
+                setShowDrawer,
+                showFilterDrawer,
+                setShowFilterDrawer,
+                filter,
+                setFilter,
+                categories,
+                setCategories,
+                categoryExpenses,
+                setCategoryExpenses,
+                paymentMethods,
+                setPaymentMethods,
+                transactions,
+                setTransactions,
+                transactionReceiverSet: transactionReceiverSet,
+                subscriptions: {
+                    ...subscriptions,
+                    data: SubscriptionService.sortByExecutionDate(subscriptions.data ?? []),
+                },
+                setSubscriptions,
+                budget,
+                setBudget,
+                budgetTransactions,
+                setBudgetTransactions,
+            }}
+            children={children}
+        />
     );
 };

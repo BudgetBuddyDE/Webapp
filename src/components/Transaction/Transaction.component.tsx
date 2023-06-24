@@ -1,23 +1,23 @@
 import format from 'date-fns/format';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Icon } from '@/components/Base';
-import { StoreContext } from '@/context';
-import { Category } from '@/models';
-import type { ICategoryView } from '@/types';
-import { formatBalance } from '@/utils';
-import { Receipt as ReceiptIcon } from '@mui/icons-material';
+import { StoreContext } from '@/context/Store.context';
+import { Category } from '@/models/Category.model';
+import type { CategoryView } from '@/type/category.type';
+import { formatBalance } from '@/util/formatBalance.util';
+import { ReceiptRounded as ReceiptIcon } from '@mui/icons-material';
 import { Box, Chip, Typography } from '@mui/material';
+import { Icon } from '../Core/Icon.component';
 
-export interface TransactionProps {
+export type TransactionProps = {
     icon?: JSX.Element;
     title: string;
     subtitle?: string | string[];
-    category?: ICategoryView | Category;
+    category?: Category | CategoryView;
     type?: 'transaction' | 'subscription';
     date?: Date;
     amount: number;
-}
+};
 
 export const Transaction: React.FC<TransactionProps> = ({
     icon = <ReceiptIcon />,

@@ -1,8 +1,10 @@
 import React from 'react';
-import { Card, TabPanel, TabPanelProps } from '@/components';
-import { AuthContext, SnackbarContext } from '@/context';
-import { FeedbackService } from '@/services';
+import { AuthContext } from '@/context/Auth.context';
+import { SnackbarContext } from '@/context/Snackbar.context';
+import { FeedbackService } from '@/services/Feedback.service';
 import { Box, Button, Checkbox, FormControlLabel, FormGroup, Grid, Rating, TextField } from '@mui/material';
+import { Card } from '../Base';
+import { TabPanel, type TabPanelProps } from '../Base/Tab/TabPanel.component';
 
 export type FeedbackTabProps = {
     tabPanelProps: Omit<TabPanelProps, 'children'>;
@@ -24,7 +26,7 @@ export const FeedbackTab: React.FC<FeedbackTabProps> = ({ tabPanelProps }) => {
     const [form, setForm] = React.useState(DefaultFeedbackFormValues);
 
     const handler = {
-        onStarChange: function (event: React.SyntheticEvent<Element, Event>, value: number | null) {
+        onStarChange: function (_event: React.SyntheticEvent<Element, Event>, value: number | null) {
             setForm((prev) => ({ ...prev, rating: Math.round(value ?? 2.5) }));
         },
         onTextChange: function (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {

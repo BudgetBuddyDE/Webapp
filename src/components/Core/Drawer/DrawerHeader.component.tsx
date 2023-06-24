@@ -1,9 +1,9 @@
 import React from 'react';
-import { Brand } from '@/components';
-import { StoreContext } from '@/context';
+import { StoreContext } from '@/context/Store.context';
 import { IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Hamburger } from './Drawer.component';
+import { Brand } from '../Brand.component';
+import { DrawerHamburger } from './DrawerHamburger.component';
 
 const StyledDrawerHeader = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -36,7 +36,7 @@ export const DrawerHeader: React.FC<DrawerHeaderProps> = () => {
                 }}
             />
             <IconButton onClick={() => setShowDrawer((prev) => !prev)}>
-                <Hamburger open={showDrawer} />
+                <DrawerHamburger />
             </IconButton>
         </StyledDrawerHeader>
     );

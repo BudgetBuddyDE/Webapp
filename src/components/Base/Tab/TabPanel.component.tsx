@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, BoxProps, Typography } from '@mui/material';
+import { Box, type BoxProps } from '@mui/material';
 
 export type TabPanelProps = {
     containerProps?: BoxProps;

@@ -1,36 +1,35 @@
 import React from 'react';
-import { supabase } from '@/supabase';
-import { Session } from '@supabase/supabase-js';
+import { SupabaseClient } from '@/supabase';
+import type { ContextDispatch } from '@/type/context.type';
+import type { Session } from '@supabase/supabase-js';
 
-export type IAuthProvider = {
-    session: Session | null;
-    setSession: React.Dispatch<React.SetStateAction<IAuthProvider['session']>>;
+export interface AuthContext {
     loading: boolean;
-};
+    session: Session | null;
+    setSession: ContextDispatch<AuthContext['session']>;
+}
 
-export const AuthContext = React.createContext({} as IAuthProvider);
+export const AuthContext = React.createContext({} as AuthContext);
 
-export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
+export type AuthProviderProps = React.PropsWithChildren;
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [loading, setLoading] = React.useState(true);
-    const [session, setSession] = React.useState<IAuthProvider['session']>(null);
+    const [session, setSession] = React.useState<AuthContext['session']>(null);
+
+    const retrieveCurrentSession = async function () {
+        setLoading(true);
+        const { data: session, error } = await SupabaseClient().auth.getSession();
+        if (error) console.error(error);
+        setSession(session.session);
+        setLoading(false);
+    };
 
     React.useLayoutEffect(() => {
-        setSession(supabase.auth.session());
-        setLoading(false);
-
-        const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-            setSession(session);
-            setLoading(false);
-        });
-
-        return () => {
-            listener?.unsubscribe();
-        };
+        retrieveCurrentSession();
+        const { data: listener } = SupabaseClient().auth.onAuthStateChange((_event, session) => setSession(session));
+        return () => listener.subscription.unsubscribe();
     }, []);
 
-    return (
-        <AuthContext.Provider value={{ loading, session, setSession }}>
-            {loading ? null : children}
-        </AuthContext.Provider>
-    );
+    return <AuthContext.Provider value={{ loading, session, setSession }} children={children} />;
 };

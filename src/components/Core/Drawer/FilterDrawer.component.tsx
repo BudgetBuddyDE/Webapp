@@ -1,15 +1,13 @@
 import { subMonths } from 'date-fns';
 import React from 'react';
 import { useContext } from 'react';
-import { FormDrawer } from '@/components/Base';
-import { CreateCategoryInfo } from '@/components/Category/Cards';
-import { DateRange, IDateRange } from '@/components/Inputs';
-import { CreatePaymentMethodInfo } from '@/components/PaymentMethod';
-import { StoreContext } from '@/context';
-import { useFetchCategories, useFetchPaymentMethods } from '@/hooks';
-import type { IFilter } from '@/types';
-import { getFirstDayOfMonth, getLastDayOfMonth } from '@/utils';
-import { Tune as TuneIcon } from '@mui/icons-material';
+import { CreateCategoryAlert } from '@/components/Category/CreateCategoryAlert.component';
+import { DateRange, type TDateRange } from '@/components/Inputs/DateRange.component';
+import { StoreContext } from '@/context/Store.context';
+import { useFetchCategories } from '@/hook/useFetchCategories.hook';
+import type { Filter } from '@/type/filter.type';
+import { getFirstDayOfMonth, getLastDayOfMonth } from '@/util/date.util';
+import { TuneRounded as TuneIcon } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -23,6 +21,7 @@ import {
     SelectChangeEvent,
 } from '@mui/material';
 import { IconButton, Tooltip } from '@mui/material';
+import { FormDrawer } from './FormDrawer.component';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -36,7 +35,7 @@ const MenuProps = {
 };
 const now = new Date();
 
-export const DEFAULT_FILTER_VALUE: IFilter = {
+export const DEFAULT_FILTER_VALUE: Filter = {
     keyword: null,
     categories: null,
     paymentMethods: null,
@@ -50,7 +49,7 @@ interface FilterDrawerHandler {
     onClose: () => void;
     onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
     onReset: () => void;
-    onDateRangeChange: (props: IDateRange) => void;
+    onDateRangeChange: (props: TDateRange) => void;
     onCategoriesChange: (event: SelectChangeEvent<number[]>) => void;
     onDeleteCategory: (categoryId: number) => void;
     onPaymentMethodsChange: (event: SelectChangeEvent<number[]>) => void;
@@ -62,10 +61,10 @@ interface FilterDrawerHandler {
 export interface IFilterDrawerProps {}
 
 export const ShowFilterButton = () => {
-    const { setShowFilter } = useContext(StoreContext);
+    const { setShowFilterDrawer } = useContext(StoreContext);
     return (
         <Tooltip title="Apply filters">
-            <IconButton aria-label="apply-filters" color="primary" onClick={() => setShowFilter(true)}>
+            <IconButton aria-label="apply-filters" color="primary" onClick={() => setShowFilterDrawer(true)}>
                 <TuneIcon fontSize="inherit" />
             </IconButton>
         </Tooltip>
@@ -73,14 +72,14 @@ export const ShowFilterButton = () => {
 };
 
 export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
-    const { loading, showFilter, setShowFilter, filter, setFilter } = React.useContext(StoreContext);
+    const { showFilterDrawer, setShowFilterDrawer, filter, setFilter } = React.useContext(StoreContext);
     const fetchCategories = useFetchCategories();
-    const fetchPaymentMethods = useFetchPaymentMethods();
+    // const fetchPaymentMethods = useFetchPaymentMethods();
     const [unappliedFilter, setUnappliedFilter] = React.useState(filter);
 
     const handler: FilterDrawerHandler = {
         onClose: () => {
-            setShowFilter(false);
+            setShowFilterDrawer(false);
         },
         onSubmit: (event) => {
             event.preventDefault();
@@ -141,10 +140,9 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
         setUnappliedFilter(filter);
     }, [filter]);
 
-    if (loading) return null;
     return (
         <FormDrawer
-            open={showFilter}
+            open={showFilterDrawer}
             onClose={handler.onClose}
             onSubmit={handler.onSubmit}
             heading="Apply Filters"
@@ -213,10 +211,10 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
                     </Select>
                 </FormControl>
             ) : (
-                <CreateCategoryInfo sx={{ mb: 2 }} />
+                <CreateCategoryAlert sx={{ mb: 2 }} />
             )}
 
-            {!fetchPaymentMethods.loading && fetchPaymentMethods.paymentMethods.length > 0 ? (
+            {/* {!fetchPaymentMethods.loading && fetchPaymentMethods.paymentMethods.length > 0 ? (
                 <FormControl fullWidth sx={{ mb: 2 }}>
                     <InputLabel id="filter-payment-method-label">Payment Method</InputLabel>
                     <Select
@@ -271,7 +269,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
                 </FormControl>
             ) : (
                 <CreatePaymentMethodInfo sx={{ mb: 2 }} />
-            )}
+            )} */}
 
             <Box
                 sx={{

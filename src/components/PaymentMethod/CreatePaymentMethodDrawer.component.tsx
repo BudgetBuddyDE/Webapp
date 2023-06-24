@@ -1,19 +1,20 @@
 import React from 'react';
-import { FormDrawer } from '@/components/Base';
-import { SnackbarContext, StoreContext } from '@/context';
-import { useFetchPaymentMethods } from '@/hooks';
-import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer';
-import { PaymentMethodService } from '@/services';
-import { FormStyle } from '@/theme/form-style';
-import type { IBasePaymentMethod, IPaymentMethod } from '@/types';
-import { sleep } from '@/utils';
+import { SnackbarContext } from '@/context/Snackbar.context';
+import { useFetchPaymentMethods } from '@/hook/useFetchPaymentMethods.hook';
+import { PaymentMethod } from '@/models/PaymentMethod.model';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer/DrawerAction.reducer';
+import { PaymentMethodService } from '@/services/PaymentMethod.service';
+import { FormStyle } from '@/style/Form.style';
+import type { PaymentMethodTable } from '@/type/payment-method.type';
+import { sleep } from '@/util/sleep.util';
 import { TextField } from '@mui/material';
+import { FormDrawer } from '../Core/Drawer/FormDrawer.component';
 
 export interface ICreatePaymentMethodProps {
     open: boolean;
     setOpen: (show: boolean) => void;
-    afterSubmit?: (paymentMethod: IPaymentMethod) => void;
-    paymentMethod?: Partial<IBasePaymentMethod>;
+    afterSubmit?: (paymentMethod: PaymentMethod) => void;
+    paymentMethod?: Partial<PaymentMethodTable>;
 }
 
 export const CreatePaymentMethod: React.FC<ICreatePaymentMethodProps> = ({
@@ -23,9 +24,8 @@ export const CreatePaymentMethod: React.FC<ICreatePaymentMethodProps> = ({
     paymentMethod,
 }) => {
     const { showSnackbar } = React.useContext(SnackbarContext);
-    const { loading } = React.useContext(StoreContext);
     const { refresh } = useFetchPaymentMethods();
-    const [form, setForm] = React.useState<Partial<IBasePaymentMethod>>({});
+    const [form, setForm] = React.useState<Partial<PaymentMethodTable>>({});
     const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
 
     const handler = {
@@ -58,6 +58,8 @@ export const CreatePaymentMethod: React.FC<ICreatePaymentMethodProps> = ({
             } catch (error) {
                 console.error(error);
                 setDrawerAction({ type: 'ERROR', error: error as Error });
+            } finally {
+                setDrawerAction({ type: 'RESET' });
             }
         },
     };
@@ -67,7 +69,6 @@ export const CreatePaymentMethod: React.FC<ICreatePaymentMethodProps> = ({
         setForm({ name: paymentMethod.name });
     }, [paymentMethod]);
 
-    if (loading) return null;
     return (
         <FormDrawer
             open={open}

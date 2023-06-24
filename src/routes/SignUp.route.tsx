@@ -1,10 +1,17 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Card } from '@/components';
-import { AuthContext, SnackbarContext } from '@/context';
-import { AuthService } from '@/services';
-import { supabase } from '@/supabase';
-import { Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon } from '@mui/icons-material';
+import Card from '@/components/Base/Card.component';
+import { StackedIconButton } from '@/components/Core/StackedIconButton.component';
+import { AuthContext } from '@/context/Auth.context';
+import { SnackbarContext } from '@/context/Snackbar.context';
+import { AuthService } from '@/services/Auth.service';
+import { SupabaseClient } from '@/supabase';
+import {
+    ExitToAppRounded,
+    HomeRounded,
+    Visibility as VisibilityIcon,
+    VisibilityOff as VisibilityOffIcon,
+} from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -19,7 +26,7 @@ import {
     Typography,
 } from '@mui/material';
 
-export const SignUp = () => {
+const SignUpRoute = () => {
     const navigate = useNavigate();
     const { session, setSession } = React.useContext(AuthContext);
     const { showSnackbar } = React.useContext(SnackbarContext);
@@ -39,7 +46,10 @@ export const SignUp = () => {
                     if (!values.includes(field)) throw new Error('Provide an ' + field);
                 });
 
-                const { user, session, error } = await AuthService.signUp({
+                const {
+                    data: { user, session },
+                    error,
+                } = await AuthService.signUp({
                     email: form.email,
                     password: form.password,
                     metadata: { username: form.username, avatar: '' },
@@ -49,7 +59,7 @@ export const SignUp = () => {
                 navigate('/dashboard', { replace: true });
                 showSnackbar({
                     message: 'Registration successfull',
-                    action: <Button onClick={async () => await supabase.auth.signOut()}>Sign out</Button>,
+                    action: <Button onClick={async () => await SupabaseClient().auth.signOut()}>Sign out</Button>,
                 });
             } catch (error) {
                 console.error(error);
@@ -131,17 +141,38 @@ export const SignUp = () => {
 
                     <Divider sx={{ my: 3 }} />
 
-                    {session && session.user && (
-                        <Button component={Link} to="/dashboard" sx={{ width: '100%', mb: 2 }}>
-                            Dashboard
-                        </Button>
-                    )}
-
-                    <Button component={Link} to="/sign-in" sx={{ width: '100%' }}>
-                        Already registered? Sign in...
-                    </Button>
+                    <Grid container spacing={1} sx={{ width: '66%', mx: 'auto' }} justifyContent="center">
+                        {session && session.user && (
+                            <Grid item xs={6}>
+                                <StackedIconButton
+                                    // @ts-ignore
+                                    component={Link}
+                                    to="/dashboard"
+                                    size="large"
+                                    startIcon={<HomeRounded />}
+                                    sx={{ width: '100%' }}
+                                >
+                                    Dashboard
+                                </StackedIconButton>
+                            </Grid>
+                        )}
+                        <Grid item xs={6}>
+                            <StackedIconButton
+                                // @ts-ignore
+                                component={Link}
+                                to="/sign-in"
+                                size="large"
+                                startIcon={<ExitToAppRounded />}
+                                sx={{ width: '100%' }}
+                            >
+                                Sign-in
+                            </StackedIconButton>
+                        </Grid>
+                    </Grid>
                 </Card>
             </Grid>
         </Grid>
     );
 };
+
+export default SignUpRoute;

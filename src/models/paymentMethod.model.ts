@@ -1,17 +1,18 @@
-import { PaymentMethodService } from '@/services/payment-method.service';
-import type { IBasePaymentMethod, IPaymentMethodView, uuid } from '@/types';
+import { PaymentMethodService } from '@/services/PaymentMethod.service';
+import type { Description, uuid } from '@/type';
+import { PaymentMethodTable, PaymentMethodView } from '@/type/payment-method.type';
 
 export class PaymentMethod {
     id: number;
     name: string;
     provider: string;
     address: string;
-    description: string | null;
+    description: Description;
     created_by: uuid;
     updated_at: Date;
     inserted_at: Date;
 
-    constructor({ id, name, provider, address, description, created_by, updated_at, inserted_at }: IBasePaymentMethod) {
+    constructor({ id, name, provider, address, description, created_by, updated_at, inserted_at }: PaymentMethodTable) {
         this.id = id;
         this.name = name;
         this.provider = provider;
@@ -23,7 +24,7 @@ export class PaymentMethod {
     }
 
     get paymentMethodView() {
-        const view: IPaymentMethodView = {
+        const view: PaymentMethodView = {
             id: this.id,
             name: this.name,
             address: this.address,

@@ -1,18 +1,28 @@
 import React from 'react';
-import { ActionPaper, Icon } from '@/components/Base';
-import { Budget as BudgetModel } from '@/models';
-import { formatBalance } from '@/utils';
+import { Budget } from '@/models/Budget.model';
+import { formatBalance } from '@/util/formatBalance.util';
 import { Delete as DeleteIcon, Edit as EditIcon, Label as LabelIcon } from '@mui/icons-material';
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
+import { ActionPaper } from '../Base/ActionPaper.component';
+import { Icon } from '../Core/Icon.component';
 
 export type CategoryBudgetProps = {
-    budget: BudgetModel;
+    budget: Budget;
     icon?: JSX.Element;
     onEdit?: (budget: CategoryBudgetProps['budget']) => void;
-    onDelete?: (budget: ReturnType<BudgetModel['delete']>) => void;
+    onDelete?: (budget: ReturnType<Budget['delete']>) => void;
 };
 
 export const CategoryBudget: React.FC<CategoryBudgetProps> = ({ budget, icon = <LabelIcon />, onEdit, onDelete }) => {
+    const handler = {
+        onEdit: function () {
+            if (onEdit) onEdit(budget);
+        },
+        onDelete: function () {
+            if (onDelete) onDelete(budget.delete());
+        },
+    };
+
     return (
         <Box>
             <Box
@@ -76,21 +86,12 @@ export const CategoryBudget: React.FC<CategoryBudgetProps> = ({ budget, icon = <
 
                 <ActionPaper>
                     <Tooltip title="Edit">
-                        <IconButton
-                            onClick={() => {
-                                if (onEdit) onEdit(budget);
-                            }}
-                        >
+                        <IconButton onClick={handler.onEdit}>
                             <EditIcon color="primary" />
                         </IconButton>
                     </Tooltip>
-                    <Tooltip
-                        title="Delete"
-                        onClick={() => {
-                            if (onDelete) onDelete(budget.delete());
-                        }}
-                    >
-                        <IconButton>
+                    <Tooltip title="Delete">
+                        <IconButton onClick={handler.onDelete}>
                             <DeleteIcon color="primary" />
                         </IconButton>
                     </Tooltip>

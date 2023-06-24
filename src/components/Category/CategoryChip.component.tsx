@@ -1,10 +1,10 @@
 import React from 'react';
-import { StoreContext } from '@/context';
-import type { ICategoryView } from '@/types';
+import { StoreContext } from '@/context/Store.context';
+import type { CategoryView } from '@/type/category.type';
 import { Chip } from '@mui/material';
 import type { ChipProps } from '@mui/material';
 
-export type CategoryChipProps = ChipProps & { category: ICategoryView };
+export type CategoryChipProps = ChipProps & { category: CategoryView };
 
 export const CategoryChip: React.FC<CategoryChipProps> = (props) => {
     const { category } = props;

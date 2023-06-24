@@ -1,25 +1,29 @@
 import React from 'react';
-import { FormDrawer } from '@/components/Base';
-import { CreateCategoryInput } from '@/components/Category';
-import { ReceiverAutocomplete } from '@/components/Inputs';
-import { CreatePaymentMethodInput } from '@/components/PaymentMethod';
-import { AuthContext, SnackbarContext, StoreContext } from '@/context';
-import { useFetchSubscriptions, useScreenSize } from '@/hooks';
-import { BaseSubscription } from '@/models';
-import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer';
-import { SubscriptionService } from '@/services';
-import { FormStyle } from '@/theme/form-style';
-import type { IBaseSubscription } from '@/types';
-import { sleep, transformBalance } from '@/utils';
+import { AuthContext } from '@/context/Auth.context';
+import { SnackbarContext } from '@/context/Snackbar.context';
+import { StoreContext } from '@/context/Store.context';
+import { useFetchSubscriptions } from '@/hook/useFetchSubscriptions.hook';
+import { useScreenSize } from '@/hook/useScreenSize.hook';
+import { BaseSubscription } from '@/models/BaseSubscription.model';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer/DrawerAction.reducer';
+import { SubscriptionService } from '@/services/Subscription.service';
+import { FormStyle } from '@/style/Form.style';
+import { TBaseSubscription } from '@/type/subscription.type';
+import { sleep } from '@/util/sleep.util';
+import { transformBalance } from '@/util/transformBalance.util';
 import { Box, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { CategoryAutocomplete } from '../Category/CategoryAutocomplete.component';
+import { FormDrawer } from '../Core/Drawer/FormDrawer.component';
+import { ReceiverAutocomplete } from '../Inputs/ReceiverAutocomplete.component';
+import { PaymentMethodAutocomplete } from '../PaymentMethod/PaymentMethodAutocomplete.component';
 
-export interface ICreateSubscriptionProps {
+export type CreateSubscriptionDrawerProps = {
     open: boolean;
     setOpen: (show: boolean) => void;
     afterSubmit?: (subscription: BaseSubscription) => void;
-}
+};
 
 interface CreateSubscriptionHandler {
     onClose: () => void;
@@ -34,14 +38,14 @@ interface CreateSubscriptionHandler {
     onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, setOpen, afterSubmit }) => {
+export const CreateSubscriptionDrawer: React.FC<CreateSubscriptionDrawerProps> = ({ open, setOpen, afterSubmit }) => {
     const screenSize = useScreenSize();
     const { session } = React.useContext(AuthContext);
+    const { transactionReceiverSet } = React.useContext(StoreContext);
     const { showSnackbar } = React.useContext(SnackbarContext);
-    const { loading, transactionReceiver } = React.useContext(StoreContext);
-    const { refresh } = useFetchSubscriptions();
+    const { loading: loadingSubscriptions, refresh: refreshSubscriptions } = useFetchSubscriptions();
     const [executionDate, setExecutionDate] = React.useState(new Date());
-    const [form, setForm] = React.useState<Partial<IBaseSubscription>>({});
+    const [form, setForm] = React.useState<Partial<TBaseSubscription>>({});
     const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
 
     const handler: CreateSubscriptionHandler = {
@@ -54,7 +58,7 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
         onDateChange: (date) => {
             if (date) setExecutionDate(date);
         },
-        autocompleteChange: (event, key, value) => {
+        autocompleteChange: (_event, key, value) => {
             setForm((prev) => ({ ...prev, [key]: value }));
         },
         inputChange: (event) => {
@@ -92,7 +96,7 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
                 if (afterSubmit) afterSubmit(createdSubscriptions[0]);
                 setDrawerAction({ type: 'SUCCESS' });
                 await sleep(300);
-                refresh();
+                await refreshSubscriptions();
                 handler.onClose();
                 showSnackbar({ message: 'Subscription added' });
             } catch (error) {
@@ -102,7 +106,7 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
         },
     };
 
-    if (loading) return null;
+    if (loadingSubscriptions) return null;
     return (
         <FormDrawer
             open={open}
@@ -141,12 +145,12 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
                     flexWrap: 'wrap',
                 }}
             >
-                <CreateCategoryInput
+                <CategoryAutocomplete
                     onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
                     sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
                 />
 
-                <CreatePaymentMethodInput
+                <PaymentMethodAutocomplete
                     onChange={(event, value) =>
                         handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))
                     }
@@ -158,7 +162,7 @@ export const CreateSubscription: React.FC<ICreateSubscriptionProps> = ({ open, s
                 sx={FormStyle}
                 id="receiver"
                 label="Receiver"
-                options={transactionReceiver}
+                options={transactionReceiverSet}
                 onValueChange={handler.receiverChange}
             />
 

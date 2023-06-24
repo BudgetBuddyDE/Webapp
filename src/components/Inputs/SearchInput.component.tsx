@@ -1,11 +1,10 @@
 import { debounce } from 'lodash';
 import React from 'react';
-import { KeyboardBtn } from '@/components/Base';
-import { useWindowDimensions } from '@/hooks';
-import { determineIfMobileDevice, determineOperatingSystem } from '@/utils';
-import type { SxProps, Theme } from '@mui/base';
-import { Search as SearchIcon } from '@mui/icons-material';
-import { InputBase, alpha, styled } from '@mui/material';
+import { useWindowDimensions } from '@/hook/useWindowDimensions.hook';
+import { determineIfMobileDevice } from '@/util/determineIfMobileDevice.util';
+import { SearchRounded as SearchIcon } from '@mui/icons-material';
+import { InputBase, type SxProps, type Theme, alpha, styled } from '@mui/material';
+import { KeyboardShortcut } from '../KeyboardShortcut.component';
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -47,15 +46,14 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
-export interface SearchInputProps {
+export type SearchInputProps = {
+    sx?: SxProps<Theme>;
     placeholder?: string;
     onSearch: (text: string) => void;
-    sx?: SxProps<Theme>;
-}
+};
 
 export const SearchInput: React.FC<SearchInputProps> = ({ placeholder = 'Searchâ€¦', onSearch, sx }) => {
     const windowSize = useWindowDimensions();
-    const os = determineOperatingSystem();
     const inputRef = React.useRef<HTMLInputElement>(null);
     const isMobileDevice = React.useMemo(() => determineIfMobileDevice(), [windowSize]);
 
@@ -67,13 +65,10 @@ export const SearchInput: React.FC<SearchInputProps> = ({ placeholder = 'Searchâ
     };
 
     React.useEffect(() => {
-        if (!isMobileDevice) {
-            document.addEventListener('keydown', handleKeyPress);
-        }
+        if (!isMobileDevice) document.addEventListener('keydown', handleKeyPress);
+
         return () => {
-            if (!isMobileDevice) {
-                document.removeEventListener('keydown', handleKeyPress);
-            }
+            if (!isMobileDevice) document.removeEventListener('keydown', handleKeyPress);
         };
     }, [isMobileDevice]);
 
@@ -88,7 +83,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({ placeholder = 'Searchâ
                 inputProps={{ 'aria-label': 'search' }}
                 endAdornment={
                     isMobileDevice ? undefined : (
-                        <KeyboardBtn style={{ marginRight: '8px' }}>{os === 'macOS' ? 'Cmd' : 'Ctrl'} + K</KeyboardBtn>
+                        <KeyboardShortcut style={{ marginRight: '8px' }}>Ctrl + K</KeyboardShortcut>
                     )
                 }
                 onChange={debounce((e) => onSearch(e.target.value), 150)}

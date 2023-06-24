@@ -1,38 +1,37 @@
 import React from 'react';
 import { AppConfig } from '@/app.config';
+import { Card } from '@/components/Base';
+import { ActionPaper } from '@/components/Base/ActionPaper.component';
+import { CategoryChip } from '@/components/Category/CategoryChip.component';
+import { CircularProgress } from '@/components/Core/CircularProgress.component';
+import { ShowFilterButton } from '@/components/Core/Drawer/FilterDrawer.component';
+import { AddFab } from '@/components/Core/FAB/AddFab.component';
+import { FabContainer } from '@/components/Core/FAB/FabContainer.component';
+import { OpenFilterFab } from '@/components/Core/FAB/OpenFilterFab.component';
+import { Linkify } from '@/components/Core/Linkify.component';
+import { NoResults } from '@/components/Core/NoResults.component';
 import {
-    ActionPaper,
-    Card,
-    CategoryChip,
-    CircularProgress,
-    CreateFab,
-    CreateSubscription,
-    EarningsByCategory,
-    EditSubscription,
-    FabContainer,
     InitialTablePaginationState,
-    Linkify,
-    NoResults,
-    OpenFilterFab,
-    PageHeader,
-    PaymentMethodChip,
-    SearchInput,
-    SelectMultiple,
-    ShowFilterButton,
-    SubscriptionOverviewChart,
     TablePagination,
     TablePaginationHandler,
-    UsedByPaymentMethod,
-} from '@/components';
-import type { SelectMultipleHandler } from '@/components';
-import { SnackbarContext, StoreContext } from '@/context';
-import { useFetchCategories, useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '@/hooks';
-import { Subscription } from '@/models';
-import { SelectMultipleReducer, TablePaginationReducer, generateInitialState } from '@/reducer';
-import { SubscriptionService } from '@/services';
-import { DescriptionTableCellStyle } from '@/theme/description-table-cell.style';
-import { determineNextExecution, filterSubscriptions } from '@/utils';
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+} from '@/components/Core/TablePagination.component';
+import { SearchInput } from '@/components/Inputs/SearchInput.component';
+import { PageHeader } from '@/components/Layout/PageHeader.component';
+import { PaymentMethodChip } from '@/components/PaymentMethod/PaymentMethodChip.component';
+import { SelectMultiple, SelectMultipleHandler } from '@/components/SelectMultiple';
+import { CreateSubscriptionDrawer } from '@/components/Subscription/CreateSubscriptionDrawer.component';
+import { EditSubscriptionDrawer } from '@/components/Subscription/EditSubscriptionDrawer.component';
+import { SubscriptionOverviewChartCard } from '@/components/Subscription/SubscriptionOverviewChartCard.component';
+import { SnackbarContext } from '@/context/Snackbar.context';
+import { StoreContext } from '@/context/Store.context';
+import { useFetchSubscriptions } from '@/hook/useFetchSubscriptions.hook';
+import { Subscription } from '@/models/Subscription.model';
+import { SelectMultipleReducer, generateInitialState } from '@/reducer/SelectMultuple.reducer';
+import { TablePaginationReducer } from '@/reducer/TablePagination.reducer';
+import { SubscriptionService } from '@/services/Subscription.service';
+import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
+import { filterSubscriptions } from '@/util/filter.util';
+import { AddRounded as AddIcon, DeleteRounded as DeleteIcon, EditRounded as EditIcon } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -59,22 +58,18 @@ interface SubscriptionsHandler {
     selectMultiple: SelectMultipleHandler;
 }
 
-export const Subscriptions = () => {
+const SubscriptionsRoute = () => {
+    const { filter } = React.useContext(StoreContext);
     const { showSnackbar } = React.useContext(SnackbarContext);
-    const { filter, setSubscriptions } = React.useContext(StoreContext);
-    const fetchTransactions = useFetchTransactions();
-    const fetchSubscriptions = useFetchSubscriptions();
-    const fetchCategories = useFetchCategories();
-    const fetchPaymentMethods = useFetchPaymentMethods();
-    const [keyword, setKeyword] = React.useState('');
-    const [, startTransition] = React.useTransition();
-    const [showAddForm, setShowAddForm] = React.useState(false);
-    const [editSubscription, setEditSubscription] = React.useState<Subscription | null>(null);
+    const { loading: loadingSubscriptions, subscriptions, refresh: refreshSubscriptions } = useFetchSubscriptions();
     const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
     const [selectedSubscriptions, setSelectedSubscriptions] = React.useReducer(
         SelectMultipleReducer,
         generateInitialState()
     );
+    const [keyword, setKeyword] = React.useState('');
+    const [showAddForm, setShowAddForm] = React.useState(false);
+    const [editSubscription, setEditSubscription] = React.useState<Subscription | null>(null);
 
     const handler: SubscriptionsHandler = {
         onSearch(keyword) {
@@ -94,9 +89,8 @@ export const Subscriptions = () => {
                     const deletedSubscriptions = await subscription.delete();
                     if (!deletedSubscriptions || deletedSubscriptions.length < 1)
                         throw new Error('No subscription deleted');
-                    startTransition(() => {
-                        setSubscriptions({ type: 'REMOVE_BY_ID', id: deletedSubscriptions[0].id });
-                    });
+
+                    await refreshSubscriptions();
                     showSnackbar({ message: `Subscription ${subscription.receiver} deleted` });
                 } catch (error) {
                     console.error(error);
@@ -114,17 +108,15 @@ export const Subscriptions = () => {
             },
         },
         selectMultiple: {
-            onSelectAll: (event, checked) => {
-                startTransition(() => {
-                    setSelectedSubscriptions({
-                        type: 'SET_SELECTED',
-                        selected:
-                            selectedSubscriptions.selected.length > 0 &&
-                            (selectedSubscriptions.selected.length < shownSubscriptions.length ||
-                                shownSubscriptions.length === selectedSubscriptions.selected.length)
-                                ? []
-                                : fetchSubscriptions.subscriptions.map(({ id }) => id),
-                    });
+            onSelectAll: (_event, _checked) => {
+                setSelectedSubscriptions({
+                    type: 'SET_SELECTED',
+                    selected:
+                        selectedSubscriptions.selected.length > 0 &&
+                        (selectedSubscriptions.selected.length < shownSubscriptions.length ||
+                            shownSubscriptions.length === selectedSubscriptions.selected.length)
+                            ? []
+                            : subscriptions.map(({ id }) => id),
                 });
             },
             onSelectSingle: (event, checked) => {
@@ -150,7 +142,7 @@ export const Subscriptions = () => {
                             id
                         );
                         if (result.length === 0) return showSnackbar({ message: 'No subscriptions were updated' });
-                        await fetchSubscriptions.refresh();
+                        await refreshSubscriptions();
                         setSelectedSubscriptions({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
                         showSnackbar({ message: 'Subscriptions updated' });
                     } catch (error) {
@@ -175,13 +167,13 @@ export const Subscriptions = () => {
                 },
                 onDeleteConfirm: async () => {
                     try {
+                        if (selectedSubscriptions.selected.length == 0) throw new Error('No subscriptions selected');
                         const result = await SubscriptionService.delete(selectedSubscriptions.selected);
-                        setSubscriptions({
-                            type: 'REMOVE_MULTIPLE_BY_ID',
-                            ids: result.map((transaction) => transaction.id),
-                        });
+                        if (result.length != selectedSubscriptions.selected.length)
+                            throw new Error("Couldn't delete all subscriptions");
+                        await refreshSubscriptions();
                         setSelectedSubscriptions({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
-                        showSnackbar({ message: 'Transactions deleted' });
+                        showSnackbar({ message: 'Subscriptions deleted' });
                     } catch (error) {
                         console.error(error);
                         showSnackbar({
@@ -196,8 +188,8 @@ export const Subscriptions = () => {
     };
 
     const shownSubscriptions: Subscription[] = React.useMemo(() => {
-        return filterSubscriptions(keyword, filter, fetchSubscriptions.subscriptions);
-    }, [fetchSubscriptions.subscriptions, keyword, filter]);
+        return filterSubscriptions(keyword, filter, subscriptions);
+    }, [subscriptions, keyword, filter]);
 
     const currentPageSubscriptions: Subscription[] = React.useMemo(() => {
         const { page, rowsPerPage } = tablePagination;
@@ -220,14 +212,14 @@ export const Subscriptions = () => {
                                 <ShowFilterButton />
                                 <SearchInput onSearch={handler.onSearch} />
                                 <Tooltip title="Add Subscription">
-                                    <IconButton color="primary" onClick={() => handler.subscription.onShowAddForm()}>
+                                    <IconButton color="primary" onClick={handler.subscription.onShowAddForm}>
                                         <AddIcon fontSize="inherit" />
                                     </IconButton>
                                 </Tooltip>
                             </ActionPaper>
                         </Card.HeaderActions>
                     </Card.Header>
-                    {fetchSubscriptions.loading ? (
+                    {loadingSubscriptions ? (
                         <CircularProgress />
                     ) : shownSubscriptions.length > 0 ? (
                         <React.Fragment>
@@ -288,7 +280,7 @@ export const Subscriptions = () => {
                                                     </TableCell>
                                                     <TableCell size={AppConfig.table.cellSize}>
                                                         <Typography fontWeight="bolder">
-                                                            {determineNextExecution(row.execute_at)}
+                                                            {row.determineNextExecution()}
                                                         </Typography>
                                                     </TableCell>
                                                     <TableCell size={AppConfig.table.cellSize}>
@@ -356,32 +348,14 @@ export const Subscriptions = () => {
             </Grid>
 
             <Grid item xs={12} md={4} lg={4} xl={4}>
-                <SubscriptionOverviewChart />
-            </Grid>
-
-            <Grid item xs={12} md={4} lg={4} xl={4}>
-                {!fetchCategories.loading && !fetchTransactions.loading && (
-                    <EarningsByCategory
-                        categories={fetchCategories.categories}
-                        transactions={fetchTransactions.transactions}
-                    />
-                )}
-            </Grid>
-
-            <Grid item xs={12} md={4} lg={4} xl={4}>
-                {!fetchPaymentMethods.loading && !fetchTransactions.loading && !fetchSubscriptions.loading && (
-                    <UsedByPaymentMethod
-                        paymentMethods={fetchPaymentMethods.paymentMethods}
-                        transactions={fetchTransactions.transactions}
-                        subscriptions={fetchSubscriptions.subscriptions}
-                    />
-                )}
+                <SubscriptionOverviewChartCard subscriptions={subscriptions} />
             </Grid>
 
             <FabContainer>
                 <OpenFilterFab />
-                <CreateFab onClick={() => handler.subscription.onShowAddForm()} />
+                <AddFab onClick={() => handler.subscription.onShowAddForm()} />
             </FabContainer>
+
             <SelectMultiple.EditDialog
                 open={selectedSubscriptions.dialog.show && selectedSubscriptions.dialog.type === 'EDIT'}
                 onCancel={handler.selectMultiple.dialog.onEditCancel!}
@@ -393,9 +367,9 @@ export const Subscriptions = () => {
                 onConfirm={handler.selectMultiple.dialog.onDeleteConfirm!}
             />
 
-            <CreateSubscription open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
+            <CreateSubscriptionDrawer open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
 
-            <EditSubscription
+            <EditSubscriptionDrawer
                 open={editSubscription !== null}
                 setOpen={(show) => {
                     if (!show) setEditSubscription(null);
@@ -405,3 +379,5 @@ export const Subscriptions = () => {
         </Grid>
     );
 };
+
+export default SubscriptionsRoute;

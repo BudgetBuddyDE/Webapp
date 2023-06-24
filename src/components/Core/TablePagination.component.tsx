@@ -1,8 +1,8 @@
 import React from 'react';
-import { ActionPaper } from '@/components/Base';
-import { TablePaginationState } from '@/reducer';
+import { type TablePaginationState } from '@/reducer/TablePagination.reducer';
 import { TablePagination as MuiTablePagination } from '@mui/material';
 import type { TablePaginationProps as MuiTablePaginationProps } from '@mui/material';
+import { ActionPaper } from '../Base/ActionPaper.component';
 
 export type TablePaginationProps = {
     count: MuiTablePaginationProps['count'];
@@ -34,12 +34,12 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
     onRowsPerPageChange,
 }) => {
     return (
-        <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
+        <ActionPaper sx={{ width: 'fit-content', ml: 'auto', pr: 0.5 }}>
             <MuiTablePagination
                 component="div"
                 count={count}
                 page={page}
-                onPageChange={(event, page) => onPageChange(page)}
+                onPageChange={(_event, page) => onPageChange(page)}
                 labelRowsPerPage={labelRowsPerPage}
                 rowsPerPage={rowsPerPage}
                 onRowsPerPageChange={(event) => onRowsPerPageChange(Number(event.target.value))}

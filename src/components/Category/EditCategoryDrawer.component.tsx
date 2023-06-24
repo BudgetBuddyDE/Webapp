@@ -1,30 +1,30 @@
 import React from 'react';
-import { FormDrawer } from '@/components/Base';
-import { SnackbarContext, StoreContext } from '@/context';
-import { Category } from '@/models';
-import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer';
-import { FormStyle } from '@/theme/form-style';
-import { sleep } from '@/utils';
+import { SnackbarContext } from '@/context/Snackbar.context';
+import { useFetchCategories } from '@/hook/useFetchCategories.hook';
+import { Category } from '@/models/Category.model';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer/DrawerAction.reducer';
+import { FormStyle } from '@/style/Form.style';
+import { sleep } from '@/util/sleep.util';
 import { TextField } from '@mui/material';
+import { FormDrawer } from '../Core/Drawer/FormDrawer.component';
 
-interface EditCategoryHandler {
+export interface EditCategoryDrawerHandler {
     onClose: () => void;
     onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export const EditCategory: React.FC<{
+export const EditCategoryDrawer: React.FC<{
     open: boolean;
     setOpen: (show: boolean) => void;
     afterSubmit?: (category: Category) => void;
     category: Category | null;
 }> = ({ open, setOpen, afterSubmit, category }) => {
     const { showSnackbar } = React.useContext(SnackbarContext);
-    const { loading, setCategories } = React.useContext(StoreContext);
-    const [, startTransition] = React.useTransition();
+    const { refresh: refreshCategories } = useFetchCategories();
     const [form, setForm] = React.useState<{ name: string; description: string | null } | null>(null);
     const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
 
-    const handler: EditCategoryHandler = {
+    const handler: EditCategoryDrawerHandler = {
         onClose: () => {
             setOpen(false);
             setForm(null);
@@ -38,12 +38,9 @@ export const EditCategory: React.FC<{
                 setDrawerAction({ type: 'SUBMIT' });
                 const update = await category.update(form);
                 if (!update || update.length < 1) throw new Error('No category updated');
-
                 const updatedItem = update[0];
                 if (afterSubmit) afterSubmit(updatedItem);
-                startTransition(() => {
-                    setCategories({ type: 'UPDATE_BY_ID', entry: updatedItem });
-                });
+                refreshCategories();
                 setDrawerAction({ type: 'SUCCESS' });
                 await sleep(300);
                 handler.onClose();
@@ -53,6 +50,8 @@ export const EditCategory: React.FC<{
             } catch (error) {
                 console.error(error);
                 setDrawerAction({ type: 'ERROR', error: error as Error });
+            } finally {
+                setDrawerAction({ type: 'RESET' });
             }
         },
     };
@@ -61,7 +60,6 @@ export const EditCategory: React.FC<{
         setForm(category ? { name: category.name, description: category.description } : null);
     }, [category]);
 
-    if (loading) return null;
     return (
         <FormDrawer
             open={open}
