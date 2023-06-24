@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: lizheming/github-translate-action@ltest
+      - uses: lizheming/github-translate-action@latest
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
         with:
