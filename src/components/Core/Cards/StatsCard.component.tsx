@@ -1,5 +1,5 @@
 import React from 'react';
-import Card from '@/components/Base/Card.component';
+import { Card } from '@/components/Base';
 import { AccountBalanceWallet as AccountBalanceWalletIcon, Info as InfoIcon } from '@mui/icons-material';
 import { Box, Skeleton, Tooltip, Typography } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material';

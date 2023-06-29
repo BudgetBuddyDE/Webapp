@@ -7,6 +7,7 @@ import { Group } from '@visx/group';
 import { scaleOrdinal } from '@visx/scale';
 import { Pie } from '@visx/shape';
 import { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
+import { NoResults } from '../Core/NoResults.component';
 
 export type PieChartData = {
     label: string;
@@ -78,6 +79,9 @@ export const PieChart: React.FC<PieChartProps> = ({
         range: color_range,
     });
 
+    if (displayedData.length === 0) {
+        return <NoResults text="There is no data to display" />;
+    }
     return (
         <svg width={width} height={width}>
             <Group top={axis.y + margin.top} left={axis.x + margin.left}>

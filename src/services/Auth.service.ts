@@ -10,7 +10,12 @@ export class AuthService {
     }
 
     static async signUp({ email, password, metadata }: SignUpProps) {
-        // @ts-expect-error
-        return SupabaseClient().auth.signInWithPassword({ email, password, options: { data: metadata } });
+        return SupabaseClient().auth.signUp({
+            email,
+            password,
+            options: {
+                data: metadata,
+            },
+        });
     }
 }

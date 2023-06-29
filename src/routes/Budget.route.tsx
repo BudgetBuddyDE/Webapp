@@ -92,7 +92,7 @@ const BudgetRoute = () => {
         editBudget: null,
     });
     const [categoryStatsVisualizationType, setCategoryStatsVisualizationType] = React.useState<'CHART' | 'LIST'>(
-        'CHART'
+        'LIST'
     );
 
     const subscriptionCategorySum = React.useMemo(() => {
@@ -469,11 +469,12 @@ const BudgetRoute = () => {
                                                 size="small"
                                                 color="primary"
                                                 value={categoryStatsVisualizationType}
-                                                onChange={() =>
+                                                onChange={(_event, value: string | null) => {
+                                                    if (!value || value === categoryStatsVisualizationType) return;
                                                     setCategoryStatsVisualizationType((prev) =>
                                                         prev === 'CHART' ? 'LIST' : 'CHART'
-                                                    )
-                                                }
+                                                    );
+                                                }}
                                                 exclusive
                                             >
                                                 {[
@@ -508,7 +509,8 @@ const BudgetRoute = () => {
                                                 />
                                             )}
                                         </ParentSize>
-                                    ) : (
+                                    ) : // @ts-ignore
+                                    Array.from(subscriptionCategorySum[item.type]).length > 0 ? (
                                         // @ts-ignore
                                         Array.from(subscriptionCategorySum[item.type]).map(([category, amount]) => (
                                             <Transaction
@@ -518,6 +520,8 @@ const BudgetRoute = () => {
                                                 amount={amount}
                                             />
                                         ))
+                                    ) : (
+                                        <NoResults text="There is no data to display" />
                                     )}
                                 </Card.Body>
                             </Card>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Card from '@/components/Base/Card.component';
+import { Card } from '@/components/Base';
 import { StackedIconButton } from '@/components/Core/StackedIconButton.component';
 import { AuthContext } from '@/context/Auth.context';
 import { SnackbarContext } from '@/context/Snackbar.context';

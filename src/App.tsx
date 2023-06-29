@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthentificatedLayout } from './components/Layout/AuthentificatedLayout.component';
 import { NotAuthentificatedLayout } from './components/Layout/NotAuthentificatedLayout.component';
-import BudgetRoute from './routes/BudgetRoute.route';
+import BudgetRoute from './routes/Budget.route';
 import CategoriesRoute from './routes/Categories.route';
 import DashboardRoute from './routes/Dashboard.route';
 import PageNotFoundRoute from './routes/PageNotFound.route';
