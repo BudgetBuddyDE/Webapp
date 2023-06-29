@@ -141,9 +141,9 @@ const SignUpRoute = () => {
 
                     <Divider sx={{ my: 3 }} />
 
-                    <Grid container spacing={1} sx={{ width: '66%', mx: 'auto' }} justifyContent="center">
+                    <Grid container spacing={1} justifyContent="center">
                         {session && session.user && (
-                            <Grid item xs={6}>
+                            <Grid item xs={6} md={4}>
                                 <StackedIconButton
                                     // @ts-ignore
                                     component={Link}
@@ -156,7 +156,7 @@ const SignUpRoute = () => {
                                 </StackedIconButton>
                             </Grid>
                         )}
-                        <Grid item xs={6}>
+                        <Grid item xs={6} md={4}>
                             <StackedIconButton
                                 // @ts-ignore
                                 component={Link}

@@ -94,7 +94,7 @@ const ResetPasswordRoute = () => {
 
                     <Grid container spacing={1} justifyContent="center">
                         {session && session.user && (
-                            <Grid item xs={4}>
+                            <Grid item xs={6} md={4}>
                                 <StackedIconButton
                                     // @ts-ignore
                                     component={Link}
@@ -107,7 +107,7 @@ const ResetPasswordRoute = () => {
                                 </StackedIconButton>
                             </Grid>
                         )}
-                        <Grid item xs={4}>
+                        <Grid item xs={6} md={4}>
                             <StackedIconButton
                                 // @ts-ignore
                                 component={Link}
@@ -119,7 +119,7 @@ const ResetPasswordRoute = () => {
                                 Sign-in
                             </StackedIconButton>
                         </Grid>
-                        <Grid item xs={4}>
+                        <Grid item xs={6} md={4}>
                             <StackedIconButton
                                 // @ts-ignore
                                 component={Link}
