@@ -3,8 +3,10 @@ import React from 'react';
 import { useContext } from 'react';
 import { CreateCategoryAlert } from '@/components/Category/CreateCategoryAlert.component';
 import { DateRange, type TDateRange } from '@/components/Inputs/DateRange.component';
+import { CreatePaymentMethodAlert } from '@/components/PaymentMethod/CreatePaymentMethodAlert.component';
 import { StoreContext } from '@/context/Store.context';
 import { useFetchCategories } from '@/hook/useFetchCategories.hook';
+import { useFetchPaymentMethods } from '@/hook/useFetchPaymentMethods.hook';
 import type { Filter } from '@/type/filter.type';
 import { getFirstDayOfMonth, getLastDayOfMonth } from '@/util/date.util';
 import { TuneRounded as TuneIcon } from '@mui/icons-material';
@@ -33,13 +35,12 @@ const MenuProps = {
         },
     },
 };
-const now = new Date();
 
 export const DEFAULT_FILTER_VALUE: Filter = {
     keyword: null,
     categories: null,
     paymentMethods: null,
-    dateFrom: getFirstDayOfMonth(subMonths(now, 12)),
+    dateFrom: getFirstDayOfMonth(subMonths(new Date(), 12)),
     dateTo: getLastDayOfMonth(),
     priceFrom: -99999,
     priceTo: 99999,
@@ -73,8 +74,8 @@ export const ShowFilterButton = () => {
 
 export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
     const { showFilterDrawer, setShowFilterDrawer, filter, setFilter } = React.useContext(StoreContext);
-    const fetchCategories = useFetchCategories();
-    // const fetchPaymentMethods = useFetchPaymentMethods();
+    const { loading: loaidngCategories, categories } = useFetchCategories();
+    const { loading: loadingPaymentMethods, paymentMethods } = useFetchPaymentMethods();
     const [unappliedFilter, setUnappliedFilter] = React.useState(filter);
 
     const handler: FilterDrawerHandler = {
@@ -157,7 +158,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
                 />
             </Box>
 
-            {!fetchCategories.loading && fetchCategories.categories.length > 0 ? (
+            {!loaidngCategories && categories.length > 0 ? (
                 <FormControl fullWidth sx={{ mb: 2 }}>
                     <InputLabel id="filter-category-label">Category</InputLabel>
                     <Select
@@ -169,9 +170,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
                         renderValue={(selected) => (
                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                                 {selected.map((categoryId) => {
-                                    const matchedCategory = fetchCategories.categories.find(
-                                        (category) => category.id === categoryId
-                                    );
+                                    const matchedCategory = categories.find((category) => category.id === categoryId);
                                     if (!matchedCategory) return null;
                                     return (
                                         <Chip
@@ -187,7 +186,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
                         )}
                         MenuProps={MenuProps}
                     >
-                        {fetchCategories.categories.map((category) => {
+                        {categories.map((category) => {
                             const selected =
                                 Array.isArray(unappliedFilter.categories) &&
                                 unappliedFilter.categories.includes(category.id);
@@ -214,7 +213,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
                 <CreateCategoryAlert sx={{ mb: 2 }} />
             )}
 
-            {/* {!fetchPaymentMethods.loading && fetchPaymentMethods.paymentMethods.length > 0 ? (
+            {!loadingPaymentMethods && paymentMethods.length > 0 ? (
                 <FormControl fullWidth sx={{ mb: 2 }}>
                     <InputLabel id="filter-payment-method-label">Payment Method</InputLabel>
                     <Select
@@ -226,7 +225,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
                         renderValue={(selected) => (
                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                                 {selected.map((paymentMethodId) => {
-                                    const matchedPaymentMethod = fetchPaymentMethods.paymentMethods.find(
+                                    const matchedPaymentMethod = paymentMethods.find(
                                         (paymentMethod) => paymentMethod.id === paymentMethodId
                                     );
                                     if (!matchedPaymentMethod) return null;
@@ -244,7 +243,7 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
                         )}
                         MenuProps={MenuProps}
                     >
-                        {fetchPaymentMethods.paymentMethods.map((paymentMethod) => {
+                        {paymentMethods.map((paymentMethod) => {
                             const selected =
                                 Array.isArray(unappliedFilter.paymentMethods) &&
                                 unappliedFilter.paymentMethods.includes(paymentMethod.id);
@@ -268,8 +267,8 @@ export const FilterDrawer: React.FC<IFilterDrawerProps> = () => {
                     </Select>
                 </FormControl>
             ) : (
-                <CreatePaymentMethodInfo sx={{ mb: 2 }} />
-            )} */}
+                <CreatePaymentMethodAlert sx={{ mb: 2 }} />
+            )}
 
             <Box
                 sx={{

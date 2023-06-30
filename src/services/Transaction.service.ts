@@ -185,14 +185,14 @@ export class TransactionService {
     static calculateUpcomingEarnings(transactions: Transaction[]): number {
         const now = new Date();
         return transactions
-            .filter(({ amount, date }) => amount > 0 && date > now && isSameMonth(date, now))
+            .filter(({ date, amount }) => isSameMonth(date, now) && date > now && amount > 0)
             .reduce((prev, cur) => prev + cur.amount, 0);
     }
 
     static calculatePaidExpenses(transactions: Transaction[]): number {
         const now = new Date();
         return transactions
-            .filter(({ amount, date }) => amount <= 0 && date < now && isSameMonth(date, now))
+            .filter(({ amount, date }) => amount <= 0 && date <= now && isSameMonth(date, now))
             .reduce((prev, cur) => prev + Math.abs(cur.amount), 0);
     }
 
