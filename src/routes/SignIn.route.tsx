@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AppConfig } from '@/app.config';
 import { Card } from '@/components/Base';
 import { StackedIconButton } from '@/components/Core/StackedIconButton.component';
+import { FailedLoginAttemptsDialog } from '@/components/Profile/FailedLoginAttemptsDialog.component';
 import { AuthContext } from '@/context/Auth.context';
 import { SnackbarContext } from '@/context/Snackbar.context';
 import { AuthService } from '@/services/Auth.service';
@@ -33,6 +35,7 @@ const SignInRoute = () => {
     const { showSnackbar } = React.useContext(SnackbarContext);
     const [form, setForm] = React.useState<Record<string, string>>({});
     const [showPassword, setShowPassword] = React.useState(false);
+    const [failedLogins, setFailedLogins] = React.useState<number>(0);
 
     const formHandler = {
         inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -63,8 +66,11 @@ const SignInRoute = () => {
                 });
             } catch (error) {
                 console.error(error);
-                // @ts-ignore
-                showSnackbar({ message: error.message || 'Authentification failed' });
+                if (error instanceof Error && error.message === 'Invalid login credentials') {
+                    setFailedLogins((prev) => (prev += 1));
+                }
+
+                showSnackbar({ message: error instanceof Error ? error.message : 'Authentification failed' });
             }
         },
     };
@@ -123,7 +129,7 @@ const SignInRoute = () => {
                             </FormControl>
                         </Box>
                         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                            <Button type="submit" variant="contained" sx={{ mt: 3 }}>
+                            <Button disabled={failedLogins === 3} type="submit" variant="contained" sx={{ mt: 3 }}>
                                 Sign in
                             </Button>
                         </Box>
@@ -173,6 +179,13 @@ const SignInRoute = () => {
                     </Grid>
                 </Card>
             </Grid>
+
+            <FailedLoginAttemptsDialog
+                open={failedLogins === AppConfig.signInDialogAfterAttempts}
+                onClose={() => setFailedLogins(0)}
+                onCancel={() => setFailedLogins(0)}
+                onResetPassword={() => navigate('/request-reset')}
+            />
         </Grid>
     );
 };

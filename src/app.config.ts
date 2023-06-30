@@ -7,6 +7,7 @@ export const AppConfig: AppConfig = {
     table: {
         cellSize: 'medium',
     },
+    signInDialogAfterAttempts: 3,
 };
 
 export type AppConfig = {
@@ -16,4 +17,5 @@ export type AppConfig = {
     table: {
         cellSize: TableCellProps['size'];
     };
+    signInDialogAfterAttempts: number;
 };
