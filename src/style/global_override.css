@@ -8,3 +8,10 @@
 ::-webkit-scrollbar-thumb {
     background: #032950;
 }
+
+@media (max-width: 689px) {
+    ::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+}
