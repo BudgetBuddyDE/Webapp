@@ -1,0 +1,17 @@
+::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
+}
+::-webkit-scrollbar-track {
+    background-color: #001e3c;
+}
+::-webkit-scrollbar-thumb {
+    background: #032950;
+}
+
+@media (max-width: 689px) {
+    ::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+}

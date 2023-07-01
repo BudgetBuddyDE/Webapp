@@ -1,17 +1,22 @@
 import React from 'react';
-import { Card, TabPanel, UploadProfileAvatar } from '@/components';
-import type { TabPanelProps } from '@/components';
-import { AuthContext, SnackbarContext } from '@/context';
-import { UserService } from '@/services';
+import { Link } from 'react-router-dom';
+import { AuthContext } from '@/context/Auth.context';
+import { SnackbarContext } from '@/context/Snackbar.context';
+import { UserService } from '@/services/User.service';
 import { Box, Button, Grid, TextField } from '@mui/material';
+import { Card } from '../Base';
+import { TabPanel, type TabPanelProps } from '../Base/Tab/TabPanel.component';
+import { ProfileAvatar } from '../Profile/ProfileAvatar.component';
+import { UploadProfileAvatar } from '../Profile/UploadProfileAvatar.component';
 
 export type ProfileTabProps = {
     tabPanelProps: Omit<TabPanelProps, 'children'>;
+    editProfile?: boolean;
 };
 
 type ProfileFormFields = 'uuid' | 'email' | 'username';
 
-export const ProfileTab: React.FC<ProfileTabProps> = ({ tabPanelProps }) => {
+export const ProfileTab: React.FC<ProfileTabProps> = ({ tabPanelProps, editProfile = false }) => {
     const { session } = React.useContext(AuthContext);
     const user = React.useMemo(() => (session && session.user ? session.user : null), [session]);
     const { showSnackbar } = React.useContext(SnackbarContext);
@@ -21,6 +26,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ tabPanelProps }) => {
         email: user?.email ?? null,
         username: user?.user_metadata.username ?? null,
     });
+
+    const enableInputs = React.useMemo(() => editProfile, [editProfile]);
 
     const handler = {
         onTextChange: function (event: React.ChangeEvent<HTMLInputElement>) {
@@ -66,11 +73,15 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ tabPanelProps }) => {
                                                 py: 2,
                                             }}
                                         >
-                                            <UploadProfileAvatar sx={{ width: 88 }} />
+                                            {enableInputs ? (
+                                                <UploadProfileAvatar sx={{ width: 88 }} />
+                                            ) : (
+                                                <ProfileAvatar sx={{ width: 88 }} />
+                                            )}
                                         </Box>
                                     </Grid>
 
-                                    <Grid item xs={12} md={6}>
+                                    <Grid item xs={12} md={12}>
                                         <TextField
                                             fullWidth
                                             disabled
@@ -81,7 +92,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ tabPanelProps }) => {
                                             sx={{ mt: 2 }}
                                         />
                                     </Grid>
-                                    <Grid item xs={12} md={6}>
+                                    <Grid item xs={12} md={12}>
                                         <TextField
                                             fullWidth
                                             disabled
@@ -101,14 +112,44 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ tabPanelProps }) => {
                                             onChange={handler.onTextChange}
                                             sx={{ mt: 2 }}
                                             fullWidth
+                                            disabled={!enableInputs}
                                         />
                                     </Grid>
                                 </Grid>
 
                                 <Box display="flex" flexDirection="row" justifyContent="flex-end">
-                                    <Button type="submit" disabled={submitting} variant="contained" sx={{ mt: 2 }}>
-                                        Save changes
-                                    </Button>
+                                    {enableInputs ? (
+                                        <Box sx={{ mt: 2 }}>
+                                            <Button
+                                                component={Link}
+                                                to="/settings/profile"
+                                                variant="text"
+                                                sx={{ mr: 1 }}
+                                                onClick={() =>
+                                                    // @ts-ignore
+                                                    setForm((prev) => ({
+                                                        ...prev,
+                                                        username: session?.user.user_metadata.username,
+                                                    }))
+                                                }
+                                            >
+                                                Discard
+                                            </Button>
+
+                                            <Button type="submit" disabled={submitting} variant="contained">
+                                                Save changes
+                                            </Button>
+                                        </Box>
+                                    ) : (
+                                        <Button
+                                            component={Link}
+                                            to="/settings/profile/edit"
+                                            variant="contained"
+                                            sx={{ mt: 2 }}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )}
                                 </Box>
                             </form>
                         </Card.Body>

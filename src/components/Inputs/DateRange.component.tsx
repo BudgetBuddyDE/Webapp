@@ -1,28 +1,29 @@
 import React from 'react';
-import { useScreenSize, useStateCallback } from '@/hooks';
-import { Box, SxProps, TextField, TextFieldProps, Theme } from '@mui/material';
+import { useScreenSize } from '@/hook/useScreenSize.hook';
+import { useStateCallback } from '@/hook/useStateCallback.hook';
+import { Box, type SxProps, TextField, TextFieldProps, type Theme } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
-export type IDateInputProps = TextFieldProps & { sx?: SxProps<Theme> };
+export type DateRangeInputProps = TextFieldProps & { sx?: SxProps<Theme> };
 
-export const DateFromInput: React.FC<IDateInputProps> = (props) => {
+export const DateFromInput: React.FC<DateRangeInputProps> = (props) => {
     // 1rem is the default gap defined for the container
     return <TextField {...props} sx={{ width: 'calc(50% - 0.5rem)', ...props.sx }} />;
 };
 
-export const DateToInput: React.FC<IDateInputProps> = (props) => {
+export const DateToInput: React.FC<DateRangeInputProps> = (props) => {
     // 1rem is the default gap defined for the container
     return <TextField {...props} sx={{ width: 'calc(50% - 0.5rem)', ...props.sx }} />;
 };
 
-export interface IDateRange {
+export type TDateRange = {
     dateFrom: Date;
     dateTo: Date;
-}
+};
 
-export interface IDateRangeProps {
-    onDateChange: (range: IDateRange) => void;
+export type DateRaneProps = {
+    onDateChange: (range: TDateRange) => void;
     dateFormat?: string;
     defaultDateFrom?: Date;
     defaultDateTo?: Date;
@@ -32,9 +33,9 @@ export interface IDateRangeProps {
     dateToSx?: SxProps<Theme>;
     containerSx?: SxProps<Theme>;
     inputSize?: 'small' | 'medium';
-}
+};
 
-export const DateRange: React.FC<IDateRangeProps> = ({
+export const DateRange: React.FC<DateRaneProps> = ({
     onDateChange,
     dateFormat = 'dd.MM.yyyy',
     defaultDateFrom = new Date(),

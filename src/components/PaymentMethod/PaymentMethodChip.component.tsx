@@ -1,9 +1,9 @@
 import React from 'react';
-import { StoreContext } from '@/context';
-import type { IPaymentMethodView } from '@/types';
-import { Chip, ChipProps } from '@mui/material';
+import { StoreContext } from '@/context/Store.context';
+import type { PaymentMethodView } from '@/type/payment-method.type';
+import { Chip, type ChipProps } from '@mui/material';
 
-export type PaymentMethodChipProps = ChipProps & { paymentMethod: IPaymentMethodView };
+export type PaymentMethodChipProps = ChipProps & { paymentMethod: PaymentMethodView };
 
 export const PaymentMethodChip: React.FC<PaymentMethodChipProps> = (props) => {
     const { paymentMethod } = props;

@@ -1,12 +1,1 @@
-export * from './ActionPaper.component';
-export * from './FormDrawer.component';
-export * from './Icon.component';
-export * from './KeyboardBtn.component';
-export * from './Link.component';
-export * from './Linkify.component';
-export * from './Main.component';
-export * from './Progress.component';
-export * from './Brand.component';
 export { default as Card } from './Card.component';
-export * from './FAB';
-export * from './Tab';

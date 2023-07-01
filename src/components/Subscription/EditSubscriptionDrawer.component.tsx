@@ -1,25 +1,32 @@
 import React from 'react';
-import { FormDrawer } from '@/components/Base';
-import { CreateCategoryInfo } from '@/components/Category';
-import { ReceiverAutocomplete } from '@/components/Inputs';
-import { CreatePaymentMethodInfo } from '@/components/PaymentMethod';
-import { SnackbarContext, StoreContext } from '@/context';
-import { useFetchCategories, useFetchPaymentMethods, useScreenSize } from '@/hooks';
-import { Subscription } from '@/models';
-import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer';
-import { FormStyle } from '@/theme/form-style';
-import type { IBaseSubscription } from '@/types';
-import { getCategoryFromList, getPaymentMethodFromList, sleep, transformBalance } from '@/utils';
+import { SnackbarContext } from '@/context/Snackbar.context';
+import { StoreContext } from '@/context/Store.context';
+import { useFetchCategories } from '@/hook/useFetchCategories.hook';
+import { useFetchPaymentMethods } from '@/hook/useFetchPaymentMethods.hook';
+import { useFetchSubscriptions } from '@/hook/useFetchSubscriptions.hook';
+import { useScreenSize } from '@/hook/useScreenSize.hook';
+import { Subscription } from '@/models/Subscription.model';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer/DrawerAction.reducer';
+import { FormStyle } from '@/style/Form.style';
+import type { TBaseSubscription } from '@/type/subscription.type';
+import { getCategoryFromList } from '@/util/getCategoryFromList.util';
+import { getPaymentMethodFromList } from '@/util/getPaymentMethodFromList.util';
+import { sleep } from '@/util/sleep.util';
+import { transformBalance } from '@/util/transformBalance.util';
 import { Autocomplete, Box, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { CreateCategoryAlert } from '../Category/CreateCategoryAlert.component';
+import { FormDrawer } from '../Core/Drawer/FormDrawer.component';
+import { ReceiverAutocomplete } from '../Inputs/ReceiverAutocomplete.component';
+import { CreatePaymentMethodAlert } from '../PaymentMethod/CreatePaymentMethodAlert.component';
 
-export interface IEditSubscriptionProps {
+export type EditSubscriptionDrawerProps = {
     open: boolean;
     setOpen: (show: boolean) => void;
     afterSubmit?: (subscription: Subscription) => void;
     subscription: Subscription | null;
-}
+};
 
 interface EditSubscriptionHandler {
     onClose: () => void;
@@ -34,16 +41,21 @@ interface EditSubscriptionHandler {
     onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOpen, afterSubmit, subscription }) => {
+export const EditSubscriptionDrawer: React.FC<EditSubscriptionDrawerProps> = ({
+    open,
+    setOpen,
+    afterSubmit,
+    subscription,
+}) => {
     const screenSize = useScreenSize();
     const { showSnackbar } = React.useContext(SnackbarContext);
-    const { loading, setSubscriptions, transactionReceiver } = React.useContext(StoreContext);
+    const { transactionReceiverSet } = React.useContext(StoreContext);
+    const { loading: loadingSubscriptions, refresh: refreshSubscriptions } = useFetchSubscriptions();
     const fetchCategories = useFetchCategories();
     const fetchPaymentMethods = useFetchPaymentMethods();
-    const [, startTransition] = React.useTransition();
-    const [executionDate, setExecutionDate] = React.useState(new Date());
-    const [form, setForm] = React.useState<Partial<IBaseSubscription> | null>(null);
     const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
+    const [executionDate, setExecutionDate] = React.useState(new Date());
+    const [form, setForm] = React.useState<Partial<TBaseSubscription> | null>(null);
 
     const handler: EditSubscriptionHandler = {
         onClose: () => {
@@ -54,7 +66,7 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
         onDateChange: (date) => {
             if (date) setExecutionDate(date);
         },
-        autocompleteChange: (event, key, value) => {
+        autocompleteChange: (_event, key, value) => {
             setForm((prev) => ({ ...prev, [key]: value }));
         },
         inputChange: (event) => {
@@ -113,7 +125,7 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
                 });
 
                 if (afterSubmit) afterSubmit(updatedItem);
-                startTransition(() => setSubscriptions({ type: 'UPDATE_BY_ID', entry: updatedItem }));
+                await refreshSubscriptions();
                 setDrawerAction({ type: 'SUCCESS' });
                 await sleep(300);
                 handler.onClose();
@@ -141,7 +153,7 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
         } else setForm(null);
     }, [subscription]);
 
-    if (loading) return null;
+    if (loadingSubscriptions) return null;
     return (
         <FormDrawer
             open={open}
@@ -198,7 +210,7 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
                                 isOptionEqualToValue={(option, value) => option.value === value.value}
                             />
                         ) : (
-                            <CreateCategoryInfo sx={{ mb: 2 }} />
+                            <CreateCategoryAlert sx={{ mb: 2 }} />
                         )}
 
                         {!fetchPaymentMethods.loading && fetchPaymentMethods.paymentMethods.length > 0 ? (
@@ -220,7 +232,7 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
                                 isOptionEqualToValue={(option, value) => option.value === value.value}
                             />
                         ) : (
-                            <CreatePaymentMethodInfo sx={{ mb: 2 }} />
+                            <CreatePaymentMethodAlert sx={{ mb: 2 }} />
                         )}
                     </Box>
 
@@ -228,7 +240,7 @@ export const EditSubscription: React.FC<IEditSubscriptionProps> = ({ open, setOp
                         sx={FormStyle}
                         id="receiver"
                         label="Receiver"
-                        options={transactionReceiver}
+                        options={transactionReceiverSet}
                         onValueChange={handler.receiverChange}
                         defaultValue={String(form.receiver)}
                     />

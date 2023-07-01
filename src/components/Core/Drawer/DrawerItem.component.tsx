@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { StoreContext } from '@/context';
+import { StoreContext } from '@/context/Store.context';
 import { ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip, alpha } from '@mui/material';
 
 export type DrawerItemProps = {

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Autocomplete, SxProps, TextField, Theme, createFilterOptions } from '@mui/material';
+import { Autocomplete, type SxProps, TextField, type Theme, createFilterOptions } from '@mui/material';
 import { StyledAutocompleteOption } from './StyledAutocompleteOption.component';
 
-export type TOption = {
+export type AutocompleteOption = {
     text: string;
     value: string;
 };
@@ -11,12 +11,12 @@ export type TReceiverAutocompleteProps = {
     sx?: SxProps<Theme>;
     id?: string;
     label: string;
-    options: TOption[];
+    options: AutocompleteOption[];
     defaultValue?: string;
     onValueChange: (value: string | number) => void;
 };
 
-const filter = createFilterOptions<TOption>();
+const filter = createFilterOptions<AutocompleteOption>();
 
 /**
  * Docs:
@@ -30,7 +30,7 @@ export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
     defaultValue = null,
     onValueChange,
 }) => {
-    const [value, setValue] = React.useState<TOption | null>(
+    const [value, setValue] = React.useState<AutocompleteOption | null>(
         defaultValue ? { text: defaultValue, value: defaultValue } : null
     );
 
@@ -42,7 +42,7 @@ export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
             id={id}
             options={options}
             value={value}
-            onChange={(event, newValue) => {
+            onChange={(_event, newValue) => {
                 if (typeof newValue === 'string') {
                     setValue({
                         text: newValue,
@@ -87,7 +87,7 @@ export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
                 </StyledAutocompleteOption>
             )}
             renderInput={(params) => <TextField {...params} label={label} />}
-            isOptionEqualToValue={(option, value) => true}
+            isOptionEqualToValue={(_option, _value) => /*FIXME:*/ true}
             selectOnFocus
         />
     );

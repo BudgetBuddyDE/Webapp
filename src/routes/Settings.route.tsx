@@ -1,27 +1,38 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AboutInformation, Card, PageHeader, ProfileAvatar, StyledTab } from '@/components';
+import { Card } from '@/components/Base';
+import { StyledTab } from '@/components/Base/Tab/StyledTab.component';
+import { PageHeader } from '@/components/Layout/PageHeader.component';
+import { ProfileAvatar } from '@/components/Profile/ProfileAvatar.component';
+import { AboutInformation } from '@/components/Settings/AboutInformation.component';
 import { FeedbackTab } from '@/components/Settings/FeedbackTab.component';
 import { ProfileTab } from '@/components/Settings/ProfileTab.component';
-import { AuthContext } from '@/context';
 import { AccountCircleRounded, FeedbackRounded } from '@mui/icons-material';
-import { Avatar, Grid, Tabs } from '@mui/material';
+import { Grid, Tabs } from '@mui/material';
 
 function determineDefaultTabValue(currentPathname: string) {
-    if (currentPathname === '/settings') return 'profile';
-    if (currentPathname.includes('/settings/')) return currentPathname.split('/settings/')[1];
-    return currentPathname;
+    if (
+        currentPathname === '/settings' ||
+        currentPathname === '/settings/profile' ||
+        currentPathname === '/settings/profile/edit'
+    ) {
+        return 'profile';
+    } else return 'feedback';
 }
 
-export const Settings = () => {
+export type SettingsRouteProps = {
+    editProfile?: boolean;
+};
+
+const SettingsRoute: React.FC<SettingsRouteProps> = ({ editProfile = false }) => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { session } = React.useContext(AuthContext);
     const [value, setValue] = React.useState(determineDefaultTabValue(location.pathname));
 
-    const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+    const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
+        let route = '/settings';
         setValue(newValue);
-        navigate(newValue);
+        navigate(route + '/' + newValue);
     };
 
     return (
@@ -86,7 +97,7 @@ export const Settings = () => {
             </Grid>
 
             <Grid container item xs={12} md={8} lg={9} order={{ xs: 0, md: 1 }}>
-                <ProfileTab tabPanelProps={{ index: 'profile', value: value }} />
+                <ProfileTab tabPanelProps={{ index: 'profile', value: value }} editProfile={editProfile} />
                 <FeedbackTab
                     tabPanelProps={{
                         index: 'feedback',
@@ -97,3 +108,5 @@ export const Settings = () => {
         </Grid>
     );
 };
+
+export default SettingsRoute;

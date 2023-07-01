@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ProfileAvatar } from '@/components';
-import { AuthContext, StoreContext } from '@/context';
-import { supabase } from '@/supabase';
+import { ProfileAvatar } from '@/components/Profile/ProfileAvatar.component';
+import { AuthContext } from '@/context/Auth.context';
+import { SupabaseClient } from '@/supabase';
 import { Logout as LogoutIcon } from '@mui/icons-material';
 import { Box, Button, ButtonProps, Chip, Divider, Typography } from '@mui/material';
 
@@ -13,27 +13,9 @@ export type DrawerProfileProps = {
 export const DrawerProfile: React.FC<DrawerProfileProps> = ({ open }) => {
     const navigate = useNavigate();
     const { session } = React.useContext(AuthContext);
-    const {
-        setTransactions,
-        setSubscriptions,
-        setBudget,
-        setBudgetTransactions,
-        setCategories,
-        setPaymentMethods,
-        setCategorySpendings,
-        setMonthlyAvg,
-    } = React.useContext(StoreContext);
 
     const handleSignOut = async () => {
-        setTransactions({ type: 'CLEAR_DATA' });
-        setSubscriptions({ type: 'CLEAR_DATA' });
-        setBudget({ type: 'CLEAR_DATA' });
-        setBudgetTransactions({ type: 'CLEAR_DATA' });
-        setCategories({ type: 'CLEAR_DATA' });
-        setPaymentMethods({ type: 'CLEAR_DATA' });
-        setCategorySpendings({ type: 'CLEAR_DATA' });
-        setMonthlyAvg({ type: 'CLEAR_DATA' });
-        await supabase.auth.signOut();
+        await SupabaseClient().auth.signOut();
     };
 
     return (

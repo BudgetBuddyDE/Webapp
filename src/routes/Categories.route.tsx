@@ -1,34 +1,32 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AppConfig } from '@/app.config';
+import { Card } from '@/components/Base';
+import { ActionPaper } from '@/components/Base/ActionPaper.component';
+import { CreateCategoryDrawer } from '@/components/Category/CreateCategoryDrawer.component';
+import { EditCategoryDrawer } from '@/components/Category/EditCategoryDrawer.component';
+import { CircularProgress } from '@/components/Core/CircularProgress.component';
+import { AddFab } from '@/components/Core/FAB/AddFab.component';
+import { FabContainer } from '@/components/Core/FAB/FabContainer.component';
+import { Linkify } from '@/components/Core/Linkify.component';
+import { NoResults } from '@/components/Core/NoResults.component';
 import {
-    ActionPaper,
-    Card,
-    CircularProgress,
-    CreateCategory,
-    CreateFab,
-    EarningsByCategory,
-    EditCategory,
-    FabContainer,
     InitialTablePaginationState,
-    Linkify,
-    NoResults,
-    OpenFilterFab,
-    PageHeader,
-    RedirectChip,
-    SearchInput,
-    SelectMultiple,
     TablePagination,
-    TablePaginationHandler,
-} from '@/components';
-import type { SelectMultipleHandler } from '@/components';
-import { SnackbarContext, StoreContext } from '@/context';
-import { useFetchCategories, useFetchTransactions } from '@/hooks';
-import { Category } from '@/models';
-import { SelectMultipleReducer, TablePaginationReducer, generateInitialState } from '@/reducer';
-import { CategoryService } from '@/services';
-import { DescriptionTableCellStyle } from '@/theme/description-table-cell.style';
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+    type TablePaginationHandler,
+} from '@/components/Core/TablePagination.component';
+import { SearchInput } from '@/components/Inputs/SearchInput.component';
+import { PageHeader } from '@/components/Layout/PageHeader.component';
+import { RedirectChip } from '@/components/RedirectChip.component';
+import { SelectMultiple, type SelectMultipleHandler } from '@/components/SelectMultiple';
+import { SnackbarContext } from '@/context/Snackbar.context';
+import { useFetchCategories } from '@/hook/useFetchCategories.hook';
+import { Category } from '@/models/Category.model';
+import { SelectMultipleReducer, generateInitialState } from '@/reducer/SelectMultuple.reducer';
+import { TablePaginationReducer } from '@/reducer/TablePagination.reducer';
+import { CategoryService } from '@/services/Category.service';
+import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
+import { AddRounded as AddIcon, DeleteRounded as DeleteIcon, EditRounded as EditIcon } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -44,7 +42,7 @@ import {
     Typography,
 } from '@mui/material';
 
-interface CategoryHandler {
+export interface CategoriesRouteHandler {
     clearLocationState: () => void;
     onSearch: (keyword: string) => void;
     pagination: TablePaginationHandler;
@@ -53,26 +51,22 @@ interface CategoryHandler {
     };
     selectMultiple: SelectMultipleHandler;
 }
-
-export const Categories = () => {
+const CategoriesRoute = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { showSnackbar } = React.useContext(SnackbarContext);
-    const { setCategories } = React.useContext(StoreContext);
-    const fetchTransactions = useFetchTransactions();
-    const fetchCategories = useFetchCategories();
+    const { loading: loadingCategories, categories, refresh: refreshCategories } = useFetchCategories();
+    const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
+    const [selectedCategories, setSelectedCategories] = React.useReducer(SelectMultipleReducer, generateInitialState());
+    const [keyword, setKeyword] = React.useState('');
     const [showAddForm, setShowAddForm] = React.useState(
         location.state !== null &&
             (location.state as any).create !== undefined &&
             (location.state as any).create === true
     );
-    const [keyword, setKeyword] = React.useState('');
     const [editCategory, setEditCategory] = React.useState<Category | null>(null);
-    const [, startTransition] = React.useTransition();
-    const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
-    const [selectedCategories, setSelectedCategories] = React.useReducer(SelectMultipleReducer, generateInitialState());
 
-    const handler: CategoryHandler = {
+    const handler: CategoriesRouteHandler = {
         clearLocationState() {
             window.history.replaceState(null, '');
         },
@@ -92,9 +86,7 @@ export const Categories = () => {
                 try {
                     const deletedCategories = await category.delete();
                     if (!deletedCategories || deletedCategories.length < 1) throw new Error('No category deleted');
-                    startTransition(() => {
-                        setCategories({ type: 'REMOVE_BY_ID', id: deletedCategories[0].id });
-                    });
+                    await refreshCategories();
                     showSnackbar({ message: `Category ${deletedCategories[0].name} deleted` });
                 } catch (error) {
                     console.error(error);
@@ -106,17 +98,15 @@ export const Categories = () => {
             },
         },
         selectMultiple: {
-            onSelectAll: (event, checked) => {
-                startTransition(() => {
-                    setSelectedCategories({
-                        type: 'SET_SELECTED',
-                        selected:
-                            selectedCategories.selected.length > 0 &&
-                            (selectedCategories.selected.length < shownCategories.length ||
-                                shownCategories.length === selectedCategories.selected.length)
-                                ? []
-                                : shownCategories.map(({ id }) => id),
-                    });
+            onSelectAll: (_event, _checked) => {
+                setSelectedCategories({
+                    type: 'SET_SELECTED',
+                    selected:
+                        selectedCategories.selected.length > 0 &&
+                        (selectedCategories.selected.length < shownCategories.length ||
+                            shownCategories.length === selectedCategories.selected.length)
+                            ? []
+                            : shownCategories.map(({ id }) => id),
                 });
             },
             onSelectSingle: (event, checked) => {
@@ -137,10 +127,13 @@ export const Categories = () => {
                 },
                 onDeleteConfirm: async () => {
                     try {
+                        if (selectedCategories.selected.length == 0) throw new Error('No categories were selected');
                         const result = await CategoryService.delete(selectedCategories.selected);
-                        setCategories({ type: 'REMOVE_MULTIPLE_BY_ID', ids: result.map((category) => category.id) });
+                        if (selectedCategories.selected.length != result.length)
+                            throw new Error("Couldn't delete all selected categories");
+                        await refreshCategories();
                         setSelectedCategories({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
-                        showSnackbar({ message: 'Categories deleted' });
+                        showSnackbar({ message: `${selectedCategories.selected.length} categories deleted` });
                     } catch (error) {
                         console.error(error);
                         showSnackbar({
@@ -155,9 +148,9 @@ export const Categories = () => {
     };
 
     const shownCategories: Category[] = React.useMemo(() => {
-        if (keyword === '') return fetchCategories.categories;
-        return fetchCategories.categories.filter((item) => item.name.toLowerCase().includes(keyword));
-    }, [keyword, fetchCategories.categories]);
+        if (keyword === '') return categories;
+        return categories.filter((item) => item.name.toLowerCase().includes(keyword));
+    }, [keyword, categories]);
 
     const currentPageCategories: Category[] = React.useMemo(() => {
         const { page, rowsPerPage } = tablePagination;
@@ -190,9 +183,9 @@ export const Categories = () => {
                             </ActionPaper>
                         </Card.HeaderActions>
                     </Card.Header>
-                    {fetchCategories.loading ? (
+                    {loadingCategories ? (
                         <CircularProgress />
-                    ) : fetchCategories.categories.length > 0 ? (
+                    ) : shownCategories.length > 0 ? (
                         <React.Fragment>
                             <Card.Body>
                                 <SelectMultiple.Actions
@@ -288,26 +281,17 @@ export const Categories = () => {
                 </Card>
             </Grid>
 
-            <Grid item xs={12} md={3} lg={4} xl={3}>
-                {!fetchTransactions.loading && !fetchCategories.loading && (
-                    <EarningsByCategory
-                        categories={fetchCategories.categories}
-                        transactions={fetchTransactions.transactions}
-                    />
-                )}
-            </Grid>
-
             <FabContainer>
-                <OpenFilterFab />
-                <CreateFab onClick={() => setShowAddForm(true)} />
+                <AddFab onClick={() => setShowAddForm(true)} />
             </FabContainer>
+
             <SelectMultiple.ConfirmDeleteDialog
                 open={selectedCategories.dialog.show && selectedCategories.dialog.type === 'DELETE'}
                 onCancel={handler.selectMultiple.dialog.onDeleteCancel!}
                 onConfirm={handler.selectMultiple.dialog.onDeleteConfirm!}
             />
 
-            <CreateCategory
+            <CreateCategoryDrawer
                 open={showAddForm}
                 setOpen={(show) => {
                     // If we have an location.state we're gonna clear it on close
@@ -330,7 +314,7 @@ export const Categories = () => {
                 }
             />
 
-            <EditCategory
+            <EditCategoryDrawer
                 open={editCategory !== null}
                 setOpen={(show) => {
                     if (!show) setEditCategory(null);
@@ -340,3 +324,5 @@ export const Categories = () => {
         </Grid>
     );
 };
+
+export default CategoriesRoute;

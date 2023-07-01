@@ -1,38 +1,37 @@
 import { format } from 'date-fns';
 import React from 'react';
 import { AppConfig } from '@/app.config';
+import { Card } from '@/components/Base';
+import { ActionPaper } from '@/components/Base/ActionPaper.component';
+import { CategoryChip } from '@/components/Category/CategoryChip.component';
+import { CircularProgress } from '@/components/Core/CircularProgress.component';
+import { ShowFilterButton } from '@/components/Core/Drawer/FilterDrawer.component';
+import { AddFab } from '@/components/Core/FAB/AddFab.component';
+import { FabContainer } from '@/components/Core/FAB/FabContainer.component';
+import { OpenFilterFab } from '@/components/Core/FAB/OpenFilterFab.component';
+import { Linkify } from '@/components/Core/Linkify.component';
+import { NoResults } from '@/components/Core/NoResults.component';
 import {
-    ActionPaper,
-    Card,
-    CategoryChip,
-    CircularProgress,
-    CreateFab,
-    CreateTransaction,
-    EarningsByCategory,
-    EditTransaction,
-    FabContainer,
     InitialTablePaginationState,
-    Linkify,
-    NoResults,
-    OpenFilterFab,
-    PageHeader,
-    PaymentMethodChip,
-    SearchInput,
-    SelectMultiple,
-    ShowFilterButton,
     TablePagination,
     TablePaginationHandler,
-    UsedByPaymentMethod,
-} from '@/components';
-import type { SelectMultipleHandler } from '@/components';
-import { SnackbarContext, StoreContext } from '@/context';
-import { useFetchCategories, useFetchPaymentMethods, useFetchSubscriptions, useFetchTransactions } from '@/hooks';
-import { Transaction } from '@/models';
-import { SelectMultipleReducer, TablePaginationReducer, generateInitialState } from '@/reducer';
-import { TransactionService } from '@/services';
-import { DescriptionTableCellStyle } from '@/theme/description-table-cell.style';
-import { filterTransactions } from '@/utils';
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+} from '@/components/Core/TablePagination.component';
+import { SearchInput } from '@/components/Inputs/SearchInput.component';
+import { PageHeader } from '@/components/Layout/PageHeader.component';
+import { PaymentMethodChip } from '@/components/PaymentMethod/PaymentMethodChip.component';
+import { SelectMultiple, SelectMultipleHandler } from '@/components/SelectMultiple';
+import { CreateTransactionDrawer } from '@/components/Transaction/CreateTransactionDrawer.component';
+import { EditTransactionDrawer } from '@/components/Transaction/EditTransactionsDrawer.component';
+import { SnackbarContext } from '@/context/Snackbar.context';
+import { StoreContext } from '@/context/Store.context';
+import { useFetchTransactions } from '@/hook/useFetchTransactions.hook';
+import { Transaction } from '@/models/Transaction.model';
+import { SelectMultipleReducer, generateInitialState } from '@/reducer/SelectMultuple.reducer';
+import { TablePaginationReducer } from '@/reducer/TablePagination.reducer';
+import { TransactionService } from '@/services/Transaction.service';
+import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
+import { filterTransactions } from '@/util/filter.util';
+import { AddRounded as AddIcon, DeleteRounded as DeleteIcon, EditRounded as EditIcon } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -56,22 +55,18 @@ interface TransactionHandler {
     selectMultiple: SelectMultipleHandler;
 }
 
-export const Transactions = () => {
+const TransactionsRoute = () => {
     const { showSnackbar } = React.useContext(SnackbarContext);
-    const { filter, setTransactions } = React.useContext(StoreContext);
-    const fetchTransactions = useFetchTransactions();
-    const fetchSubscriptions = useFetchSubscriptions();
-    const fetchCategories = useFetchCategories();
-    const fetchPaymentMethods = useFetchPaymentMethods();
-    const [keyword, setKeyword] = React.useState('');
-    const [, startTransition] = React.useTransition();
-    const [showAddForm, setShowAddForm] = React.useState(false);
-    const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
+    const { filter } = React.useContext(StoreContext);
+    const { loading: loadingTransactions, transactions, refresh: refreshTransactions } = useFetchTransactions();
     const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
     const [selectedTransactions, setSelectedTransactions] = React.useReducer(
         SelectMultipleReducer,
         generateInitialState()
     );
+    const [keyword, setKeyword] = React.useState('');
+    const [showAddForm, setShowAddForm] = React.useState(false);
+    const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
 
     const handler: TransactionHandler = {
         onSearch(text) {
@@ -84,12 +79,7 @@ export const Transactions = () => {
             try {
                 const deletedTransactions = await transaction.delete();
                 if (!deletedTransactions || deletedTransactions.length < 0) throw new Error('No transaction deleted');
-                startTransition(() => {
-                    setTransactions({
-                        type: 'REMOVE_BY_ID',
-                        id: transaction.id,
-                    });
-                });
+                await refreshTransactions();
                 showSnackbar({ message: `Transaction ${transaction.receiver} deleted` });
             } catch (error) {
                 console.error(error);
@@ -108,17 +98,15 @@ export const Transactions = () => {
             },
         },
         selectMultiple: {
-            onSelectAll: (event, checked) => {
-                startTransition(() => {
-                    setSelectedTransactions({
-                        type: 'SET_SELECTED',
-                        selected:
-                            selectedTransactions.selected.length > 0 &&
-                            (selectedTransactions.selected.length < shownTransactions.length ||
-                                shownTransactions.length === selectedTransactions.selected.length)
-                                ? []
-                                : shownTransactions.map(({ id }) => id),
-                    });
+            onSelectAll: (_event, _checked) => {
+                setSelectedTransactions({
+                    type: 'SET_SELECTED',
+                    selected:
+                        selectedTransactions.selected.length > 0 &&
+                        (selectedTransactions.selected.length < shownTransactions.length ||
+                            shownTransactions.length === selectedTransactions.selected.length)
+                            ? []
+                            : shownTransactions.map(({ id }) => id),
                 });
             },
             onSelectSingle: (event, checked) => {
@@ -144,15 +132,15 @@ export const Transactions = () => {
                             id
                         );
                         if (result.length === 0) return showSnackbar({ message: 'No transactions were updated' });
-                        await fetchTransactions.refresh();
+                        await refreshTransactions();
                         setSelectedTransactions({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
                         showSnackbar({ message: 'Transactions updated' });
                     } catch (error) {
                         console.error(error);
                         showSnackbar({
                             message: "Couln't update the transactions",
-                            // @ts-expect-error
                             action: (
+                                // @ts-ignore
                                 <Button onClick={() => handler.selectMultiple.dialog.onEditConfirm(action, id)}>
                                     Retry
                                 </Button>
@@ -169,11 +157,12 @@ export const Transactions = () => {
                 },
                 onDeleteConfirm: async () => {
                     try {
+                        if (selectedTransactions.selected.length === 0)
+                            throw new Error('No transactions were selected');
                         const result = await TransactionService.delete(selectedTransactions.selected);
-                        setTransactions({
-                            type: 'REMOVE_MULTIPLE_BY_ID',
-                            ids: result.map((transaction) => transaction.id),
-                        });
+                        if (result.length != selectedTransactions.selected.length)
+                            throw new Error("Couldn't delete all selected transactions");
+                        await refreshTransactions();
                         setSelectedTransactions({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
                         showSnackbar({ message: 'Transactions deleted' });
                     } catch (error) {
@@ -190,9 +179,9 @@ export const Transactions = () => {
     };
 
     const shownTransactions: Transaction[] = React.useMemo(() => {
-        if (!fetchTransactions.transactions) return [];
-        return filterTransactions(keyword, filter, fetchTransactions.transactions);
-    }, [fetchTransactions.transactions, keyword, filter]);
+        if (!transactions) return [];
+        return filterTransactions(keyword, filter, transactions);
+    }, [transactions, keyword, filter]);
 
     const currentPageTransactions: Transaction[] = React.useMemo(() => {
         const { page, rowsPerPage } = tablePagination;
@@ -222,7 +211,7 @@ export const Transactions = () => {
                             </ActionPaper>
                         </Card.HeaderActions>
                     </Card.Header>
-                    {fetchTransactions.loading ? (
+                    {loadingTransactions ? (
                         <CircularProgress />
                     ) : shownTransactions.length > 0 ? (
                         <React.Fragment>
@@ -355,16 +344,16 @@ export const Transactions = () => {
                 </Card>
             </Grid>
 
-            <Grid item xs={12} md={4} lg={4} xl={4}>
+            {/* FIXME: <Grid item xs={12} md={4} lg={4} xl={4}>
                 {!fetchCategories.loading && !fetchTransactions.loading && (
                     <EarningsByCategory
                         categories={fetchCategories.categories}
                         transactions={fetchTransactions.transactions}
                     />
                 )}
-            </Grid>
+            </Grid> */}
 
-            <Grid item xs={12} md={4} lg={4} xl={4}>
+            {/* FIXME: <Grid item xs={12} md={4} lg={4} xl={4}>
                 {!fetchPaymentMethods.loading && !fetchTransactions.loading && !fetchSubscriptions.subscriptions && (
                     <UsedByPaymentMethod
                         paymentMethods={fetchPaymentMethods.paymentMethods}
@@ -372,26 +361,28 @@ export const Transactions = () => {
                         subscriptions={fetchSubscriptions.subscriptions}
                     />
                 )}
-            </Grid>
+            </Grid> */}
 
             <FabContainer>
                 <OpenFilterFab />
-                <CreateFab onClick={() => handler.onAddTransaction(true)} />
+                <AddFab onClick={() => handler.onAddTransaction(true)} />
             </FabContainer>
+
             <SelectMultiple.EditDialog
                 open={selectedTransactions.dialog.show && selectedTransactions.dialog.type === 'EDIT'}
                 onCancel={handler.selectMultiple.dialog.onEditCancel!}
                 onUpdate={handler.selectMultiple.dialog.onEditConfirm!}
             />
+
             <SelectMultiple.ConfirmDeleteDialog
                 open={selectedTransactions.dialog.show && selectedTransactions.dialog.type === 'DELETE'}
                 onCancel={handler.selectMultiple.dialog.onDeleteCancel!}
                 onConfirm={handler.selectMultiple.dialog.onDeleteConfirm!}
             />
 
-            <CreateTransaction open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
+            <CreateTransactionDrawer open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
 
-            <EditTransaction
+            <EditTransactionDrawer
                 open={editTransaction !== null}
                 setOpen={(show) => {
                     if (!show) setEditTransaction(null);
@@ -401,3 +392,5 @@ export const Transactions = () => {
         </Grid>
     );
 };
+
+export default TransactionsRoute;

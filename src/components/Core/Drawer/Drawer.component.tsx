@@ -1,13 +1,11 @@
 import React from 'react';
-import { DrawerLinks } from '@/constants/drawer-items.constant';
-import { StoreContext } from '@/context';
-import { useScreenSize } from '@/hooks';
-import { drawerWidth } from '@/theme/default.theme';
-import { Menu as MenuIcon, MenuOpen as MenuOpenIcon } from '@mui/icons-material';
-import { Divider, List, Drawer as MuiDrawer } from '@mui/material';
-import { CSSObject, Theme, styled } from '@mui/material/styles';
+import { StoreContext } from '@/context/Store.context';
+import { drawerWidth } from '@/style/theme/default.theme';
+import { Divider, List, Drawer as MuiDrawer, styled } from '@mui/material';
+import type { CSSObject, Theme } from '@mui/material';
 import { DrawerHeader } from './DrawerHeader.component';
 import { DrawerItem } from './DrawerItem.component';
+import { DrawerLinks } from './DrawerItems';
 import { DrawerProfile } from './DrawerProfile.component';
 
 const openedMixin = (theme: Theme): CSSObject => ({
@@ -46,13 +44,6 @@ const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== '
     }),
 }));
 
-export const Hamburger: React.FC<{ open: boolean }> = ({ open }) => {
-    const screenSize = useScreenSize();
-    if (screenSize === 'small') {
-        return open ? <MenuIcon /> : <MenuOpenIcon />;
-    } else return open ? <MenuOpenIcon /> : <MenuIcon />;
-};
-
 /**
  * We're inverting the showDrawer-value on mobile devices because it should be hidden by default on mobile devices for better UX
  */
@@ -77,7 +68,7 @@ export const Drawer = () => {
             <MuiDrawer
                 variant="temporary"
                 open={!showDrawer} /*For information about the inverted value see comment above*/
-                onClose={(ev, reason) => reason === 'backdropClick' && setShowDrawer(!showDrawer)}
+                onClose={(_ev, reason) => reason === 'backdropClick' && setShowDrawer(!showDrawer)}
                 ModalProps={{
                     keepMounted: true, // Better open performance on mobile.
                 }}

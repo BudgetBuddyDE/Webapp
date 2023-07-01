@@ -1,37 +1,36 @@
 import { format, isSameDay } from 'date-fns';
 import React from 'react';
+import { Card } from '@/components/Base';
+import { ActionPaper } from '@/components/Base/ActionPaper.component';
+import { CategoryBudget, type CategoryBudgetProps } from '@/components/Budget/CategoryBudget.component';
+import { CreateBudgetDrawer, type CreateBudgetDrawerProps } from '@/components/Budget/CreateBudgetDrawer.component';
+import { EditBudgetDrawer, type EditBudgetDrawerProps } from '@/components/Budget/EditBudgetDrawer.component';
+import { BarChart, type BarChartData } from '@/components/Chart/BarChart.component';
+import { PieChart } from '@/components/Chart/PieChart.component';
+import { Stats, StatsIconStyle, type StatsProps } from '@/components/Core/Cards/StatsCard.component';
+import { CircularProgress } from '@/components/Core/CircularProgress.component';
+import { AddFab } from '@/components/Core/FAB/AddFab.component';
+import { FabContainer } from '@/components/Core/FAB/FabContainer.component';
+import { NoResults } from '@/components/Core/NoResults.component';
+import { PageHeader } from '@/components/Layout/PageHeader.component';
+import { Transaction } from '@/components/Transaction/Transaction.component';
+import { SnackbarContext } from '@/context/Snackbar.context';
+import { StoreContext } from '@/context/Store.context';
+import { useFetchBudget } from '@/hook/useFetchBudget.hook';
+import { useFetchBudgetTransactions } from '@/hook/useFetchBudgetTransactions.hook';
+import { useFetchSubscriptions } from '@/hook/useFetchSubscriptions.hook';
+import { useScreenSize } from '@/hook/useScreenSize.hook';
+import { Budget } from '@/models/Budget.model';
+import { getFirstDayOfMonth } from '@/util/date.util';
+import { formatBalance } from '@/util/formatBalance.util';
 import {
-    ActionPaper,
-    BarChart,
-    BarChartData,
-    Card,
-    CategoryBudget,
-    CircularProgress,
-    CreateBudget,
-    CreateFab,
-    EditBudget,
-    FabContainer,
-    IStatsProps,
-    NoResults,
-    PageHeader,
-    PieChart,
-    Stats,
-    StatsIconStyle,
-    Transaction,
-} from '@/components';
-import type { CategoryBudgetProps, ICreateBudgetProps, IEditBudgetProps } from '@/components';
-import { AuthContext, SnackbarContext, StoreContext } from '@/context';
-import { useFetchSubscriptions, useScreenSize } from '@/hooks';
-import { Budget as BudgetModel } from '@/models';
-import { BudgetService, ExpenseService, IncomeService } from '@/services';
-import { formatBalance, getFirstDayOfMonth } from '@/utils';
-import {
-    Add as AddIcon,
-    Balance as BalanceIcon,
-    DonutSmall as DonutSmallIcon,
-    List as ListIcon,
-    Payments as PaymentsIcon,
-    Remove as RemoveIcon,
+    AddRounded as AddIcon,
+    BalanceRounded as BalanceIcon,
+    DonutSmallRounded as DonutSmallIcon,
+    EventRepeatRounded as EventRepeatRoundedIcon,
+    ListRounded as ListIcon,
+    PaymentsRounded as PaymentsIcon,
+    RemoveRounded as RemoveIcon,
 } from '@mui/icons-material';
 import {
     Box,
@@ -48,7 +47,25 @@ import {
 } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import ParentSize from '@visx/responsive/lib/components/ParentSizeModern';
+import { ParentSize } from '@visx/responsive';
+
+interface BudgetRouteHandler {
+    onDateFromChange: (value: Date | null, keyboardInputValue?: string | undefined) => void;
+    onDateToChange: (value: Date | null, keyboardInputValue?: string | undefined) => void;
+    onBudgetDelete: CategoryBudgetProps['onDelete'];
+    createBudget: {
+        onShowAddBudgetForm: () => void;
+        onSetOpen: CreateBudgetDrawerProps['setOpen'];
+    };
+    editBudget: {
+        onSetOpen: EditBudgetDrawerProps['setOpen'];
+        onEdit: CategoryBudgetProps['onEdit'];
+    };
+    charts: {
+        onEvent: (bar: BarChartData | null) => void;
+        onChangeChart: (event: React.BaseSyntheticEvent) => void;
+    };
+}
 
 export const DATE_RANGE_INPUT_FORMAT = 'dd.MM';
 export type ChartContentType = 'INCOME' | 'SPENDINGS';
@@ -57,22 +74,25 @@ export const ChartContentTypes = [
     { type: 'SPENDINGS' as ChartContentType, label: 'Spendings' },
 ];
 
-export const Budget = () => {
+const BudgetRoute = () => {
+    const fetchSubscriptions = useFetchSubscriptions();
     const screenSize = useScreenSize();
-    const [, startTransition] = React.useTransition();
-    const { session } = React.useContext(AuthContext);
+    const { loading: loadingBudget, budget } = useFetchBudget();
     const { showSnackbar } = React.useContext(SnackbarContext);
-    const { loading, setLoading, budget, setBudget, budgetTransactions, setBudgetTransactions } =
-        React.useContext(StoreContext);
+    const { setBudgetTransactions } = React.useContext(StoreContext);
     const [chart, setChart] = React.useState<ChartContentType>('INCOME');
     const [dateRange, setDateRange] = React.useState({ from: getFirstDayOfMonth(), to: new Date() });
-    const [showForm, setShowForm] = React.useState<{ createBudget: boolean; editBudget: BudgetModel | null }>({
+    const {
+        loading: loadingBudgetTransactions,
+        refresh: refreshBudgetTransactions,
+        budgetTransactions,
+    } = useFetchBudgetTransactions(dateRange.from, dateRange.to);
+    const [showForm, setShowForm] = React.useState<{ createBudget: boolean; editBudget: Budget | null }>({
         createBudget: false,
         editBudget: null,
     });
-    const fetchSubscriptions = useFetchSubscriptions();
     const [categoryStatsVisualizationType, setCategoryStatsVisualizationType] = React.useState<'CHART' | 'LIST'>(
-        'CHART'
+        'LIST'
     );
 
     const subscriptionCategorySum = React.useMemo(() => {
@@ -111,14 +131,14 @@ export const Budget = () => {
 
     const pageStats = React.useMemo(() => {
         const income = Array.from(subscriptionCategorySum.income).reduce(
-            (prev, [category, amount]) => prev + amount,
+            (prev, [_category, amount]) => prev + amount,
             0
         );
         const outcome = Array.from(subscriptionCategorySum.spendings).reduce(
-            (prev, [category, amount]) => prev + amount,
+            (prev, [_category, amount]) => prev + amount,
             0
         );
-        const plannedBudget = budget.data?.reduce((prev, cur) => prev + cur.budget, 0) || 0;
+        const plannedBudget = budget.reduce((prev, cur) => prev + cur.budget, 0) || 0;
 
         return {
             income: income,
@@ -128,42 +148,47 @@ export const Budget = () => {
         };
     }, [subscriptionCategorySum, budget]);
 
-    const handler: {
-        onDateFromChange: (value: Date | null, keyboardInputValue?: string | undefined) => void;
-        onDateToChange: (value: Date | null, keyboardInputValue?: string | undefined) => void;
-        onBudgetDelete: CategoryBudgetProps['onDelete'];
-        createBudget: {
-            onShowAddBudgetForm: () => void;
-            onSetOpen: ICreateBudgetProps['setOpen'];
-        };
-        editBudget: {
-            onSetOpen: IEditBudgetProps['setOpen'];
-            onEdit: CategoryBudgetProps['onEdit'];
-        };
-        charts: {
-            onEvent: (bar: BarChartData | null) => void;
-            onChangeChart: (event: React.BaseSyntheticEvent) => void;
-        };
-    } = {
-        onDateFromChange(value, keyboardInputValue) {
+    const StatsCardValues: StatsProps[] = [
+        {
+            icon: <AddIcon sx={StatsIconStyle} />,
+            title: formatBalance(pageStats.income),
+            subtitle: 'Fixed income',
+        },
+        {
+            icon: <RemoveIcon sx={StatsIconStyle} />,
+            title: formatBalance(pageStats.outcome),
+            subtitle: 'Fixed outcome',
+        },
+        {
+            icon: <PaymentsIcon sx={StatsIconStyle} />,
+            title: formatBalance(pageStats.plannedBudget),
+            subtitle: 'Planned budgets',
+        },
+        {
+            icon: <BalanceIcon sx={StatsIconStyle} />,
+            title: formatBalance(pageStats.unplannedBudget),
+            subtitle: 'Unplanned balance',
+            info: 'Income - (Spendings + Budget Spendings)',
+        },
+    ];
+
+    const handler: BudgetRouteHandler = {
+        onDateFromChange(value, _keyboardInputValue) {
             setDateRange((prev) => ({ ...prev, from: value || new Date() }));
         },
-        onDateToChange(value, keyboardInputValue) {
+        onDateToChange(value, _keyboardInputValue) {
             setDateRange((prev) => ({ ...prev, from: value || new Date() }));
         },
         onBudgetDelete: async (deleteBudget) => {
             try {
                 const deletedBudgets = await deleteBudget;
                 if (!deletedBudgets || deletedBudgets.length < 1) throw new Error('No budget deleted');
-                startTransition(() => {
-                    setBudget({ type: 'REMOVE_BY_ID', id: deletedBudgets[0].id });
-                });
+                await refreshBudgetTransactions(dateRange.from, dateRange.to);
                 showSnackbar({ message: `Budget deleted` });
             } catch (error) {
                 console.error(error);
                 showSnackbar({
-                    // @ts-ignore
-                    message: error.message || "Could'nt delete the budget",
+                    message: error instanceof Error ? error.message : "Could'nt delete the budget",
                     action: deleteBudget ? (
                         // @ts-ignore
                         <Button onClick={() => handler.onBudgetDelete(deleteBudget)}>Retry</Button>
@@ -189,30 +214,34 @@ export const Budget = () => {
         },
         charts: {
             onEvent(bar) {
-                if (!bar) return;
+                if (!bar && !budgetTransactions) return;
                 setBudgetTransactions({
-                    type: 'UPDATE_SELECTED',
-                    selected: {
-                        date: new Date(bar.label),
-                        amount: bar.value,
+                    type: 'UPDATE_DATA',
+                    data: {
+                        ...budgetTransactions!,
+                        selected: {
+                            date: new Date(bar!.label),
+                            amount: bar!.value,
+                        },
                     },
                 });
             },
             onChangeChart(event) {
                 const newChart = event.target.value as ChartContentType;
                 if (newChart === chart) return;
-
+                if (!budgetTransactions) return;
                 setChart(newChart);
                 const transactions =
-                    newChart === 'INCOME'
-                        ? budgetTransactions.data.income.daily
-                        : budgetTransactions.data.spendings.daily;
+                    newChart === 'INCOME' ? budgetTransactions.income.daily : budgetTransactions.spendings.daily;
                 const today = transactions[transactions.length - 1];
                 setBudgetTransactions({
-                    type: 'UPDATE_SELECTED',
-                    selected: {
-                        amount: today.amount,
-                        date: new Date(today.date),
+                    type: 'UPDATE_DATA',
+                    data: {
+                        ...budgetTransactions!,
+                        selected: {
+                            amount: today.amount,
+                            date: new Date(today.date),
+                        },
                     },
                 });
             },
@@ -220,98 +249,8 @@ export const Budget = () => {
     };
 
     React.useEffect(() => {
-        if (!session || !session.user) return setBudgetTransactions({ type: 'CLEAR_DATA' });
-        if (!budgetTransactions.fetched) return;
-        setLoading(true);
-        const from = dateRange.from;
-        const to = dateRange.to;
-        Promise.all([
-            IncomeService.getIncome(session!.user!.id, from, to),
-            IncomeService.getDailyIncome(from, to),
-            ExpenseService.getExpenses(session!.user!.id, from, to),
-            ExpenseService.getDailyExpenses(from, to),
-        ])
-            .then(([getIncome, getDailyIncome, getExpenses, getDailyExpenses]) => {
-                const today = getDailyIncome ? getDailyIncome[getDailyIncome.length - 1] : null;
-                setBudgetTransactions({
-                    type: 'FETCH_DATA',
-                    fetchedBy: session!.user!.id,
-                    data: {
-                        selected: today
-                            ? {
-                                  date: new Date(today.date),
-                                  amount: today.amount,
-                              }
-                            : null,
-                        income: {
-                            daily: getDailyIncome ?? [],
-                            grouped: getIncome ?? [],
-                        },
-                        spendings: {
-                            daily: getDailyExpenses ?? [],
-                            grouped: getExpenses ?? [],
-                        },
-                    },
-                });
-            })
-            .catch(console.error)
-            .finally(() => setLoading(false));
+        refreshBudgetTransactions(dateRange.from, dateRange.to);
     }, [dateRange]);
-
-    React.useEffect(() => {
-        if (!session || !session.user) return setBudgetTransactions({ type: 'CLEAR_DATA' });
-        if (
-            budgetTransactions.fetched &&
-            budgetTransactions.fetchedBy === session.user.id &&
-            budgetTransactions.data !== null
-        ) {
-            return;
-        }
-        setLoading(true);
-        const from = dateRange.from;
-        const to = dateRange.to;
-        Promise.all([
-            IncomeService.getIncome(session!.user!.id, from, to),
-            IncomeService.getDailyIncome(from, to),
-            ExpenseService.getExpenses(session!.user!.id, from, to),
-            ExpenseService.getDailyExpenses(from, to),
-        ])
-            .then(([getIncome, getDailyIncome, getExpenses, getDailyExpenses]) => {
-                const today = getDailyIncome ? getDailyIncome[getDailyIncome.length - 1] : null;
-                setBudgetTransactions({
-                    type: 'FETCH_DATA',
-                    fetchedBy: session!.user!.id,
-                    data: {
-                        selected: today
-                            ? {
-                                  date: new Date(today.date),
-                                  amount: today.amount,
-                              }
-                            : null,
-                        income: {
-                            daily: getDailyIncome ?? [],
-                            grouped: getIncome ?? [],
-                        },
-                        spendings: {
-                            daily: getDailyExpenses ?? [],
-                            grouped: getExpenses ?? [],
-                        },
-                    },
-                });
-            })
-            .catch(console.error)
-            .finally(() => setLoading(false));
-    }, [session, budgetTransactions]);
-
-    React.useEffect(() => {
-        if (!session || !session.user) return;
-        if (budget.fetched && budget.fetchedBy === session.user.id && budget.data !== null) return;
-        setLoading(true);
-        BudgetService.getBudget(session.user.id)
-            .then((rows) => setBudget({ type: 'FETCH_DATA', data: rows, fetchedBy: session!.user!.id }))
-            .catch(console.error)
-            .finally(() => setLoading(false));
-    }, [session, budget]);
 
     return (
         <Grid container spacing={3}>
@@ -393,19 +332,19 @@ export const Budget = () => {
                         </Box>
                     </Card.Header>
                     <Card.Body>
-                        {loading && !budgetTransactions.fetched ? (
+                        {loadingBudgetTransactions ? (
                             <CircularProgress />
-                        ) : budgetTransactions.data.income.daily && budgetTransactions.data.spendings.daily ? (
+                        ) : budgetTransactions ? (
                             <Paper elevation={0} sx={{ mt: '1rem' }}>
-                                {budgetTransactions.data.selected && (
+                                {budgetTransactions.selected && (
                                     <Box sx={{ ml: 2, mt: 1 }}>
                                         <Typography variant="caption">
-                                            {isSameDay(budgetTransactions.data.selected.date, new Date())
+                                            {isSameDay(budgetTransactions.selected.date, new Date())
                                                 ? 'Today'
-                                                : format(budgetTransactions.data.selected.date, 'dd.MM.yy')}
+                                                : format(budgetTransactions.selected.date, 'dd.MM.yy')}
                                         </Typography>
                                         <Typography variant="subtitle1">
-                                            {formatBalance(budgetTransactions.data.selected.amount)}
+                                            {formatBalance(budgetTransactions.selected.amount)}
                                         </Typography>
                                     </Box>
                                 )}
@@ -415,7 +354,7 @@ export const Budget = () => {
                                         <BarChart
                                             width={width}
                                             height={width * 0.6}
-                                            data={budgetTransactions.data[
+                                            data={budgetTransactions[
                                                 chart === 'INCOME' ? 'income' : 'spendings'
                                             ].daily.map((day) => ({
                                                 label: day.date.toString(),
@@ -433,11 +372,11 @@ export const Budget = () => {
 
                         <Divider sx={{ mt: 2 }} />
 
-                        {loading && !budgetTransactions.fetched ? (
+                        {loadingBudgetTransactions ? (
                             <CircularProgress />
                         ) : chart === 'INCOME' ? (
-                            budgetTransactions.data.income.grouped.length > 0 ? (
-                                budgetTransactions.data.income.grouped.map(({ category, sum }) => (
+                            budgetTransactions && budgetTransactions.income.grouped.length > 0 ? (
+                                budgetTransactions.income.grouped.map(({ category, sum }) => (
                                     <Transaction
                                         key={category.id}
                                         title={category.name}
@@ -448,8 +387,8 @@ export const Budget = () => {
                             ) : (
                                 <NoResults sx={{ mt: 2 }} text="No results for the timespan" />
                             )
-                        ) : budgetTransactions.data.spendings.grouped.length > 0 ? (
-                            budgetTransactions.data.spendings.grouped.map(({ category, sum }) => (
+                        ) : budgetTransactions && budgetTransactions.spendings.grouped.length > 0 ? (
+                            budgetTransactions.spendings.grouped.map(({ category, sum }) => (
                                 <Transaction
                                     key={category.id}
                                     title={category.name}
@@ -467,31 +406,7 @@ export const Budget = () => {
             <Grid item xs={12} md={12} lg={7} xl={7}>
                 {/* Stats */}
                 <Grid container spacing={2}>
-                    {(
-                        [
-                            {
-                                icon: <AddIcon sx={StatsIconStyle} />,
-                                title: formatBalance(pageStats.income),
-                                subtitle: 'Fixed income',
-                            },
-                            {
-                                icon: <RemoveIcon sx={StatsIconStyle} />,
-                                title: formatBalance(pageStats.outcome),
-                                subtitle: 'Fixed outcome',
-                            },
-                            {
-                                icon: <PaymentsIcon sx={StatsIconStyle} />,
-                                title: formatBalance(pageStats.plannedBudget),
-                                subtitle: 'Planned budgets',
-                            },
-                            {
-                                icon: <BalanceIcon sx={StatsIconStyle} />,
-                                title: formatBalance(pageStats.unplannedBudget),
-                                subtitle: 'Unplanned balance',
-                                info: 'Income - (Spendings + Budget Spendings)',
-                            },
-                        ] as IStatsProps[]
-                    ).map((item, index) => (
+                    {StatsCardValues.map((item, index) => (
                         <Grid key={index} item xs={6} md={3}>
                             <Stats {...item} />
                         </Grid>
@@ -516,10 +431,10 @@ export const Budget = () => {
                         </Card.HeaderActions>
                     </Card.Header>
                     <Card.Body>
-                        {loading && !budget.fetched ? (
+                        {loadingBudget ? (
                             <CircularProgress />
-                        ) : budget.data && budget.data.length > 0 ? (
-                            budget.data.map((item) => (
+                        ) : budget.length > 0 ? (
+                            budget.map((item) => (
                                 <Box key={item.id} sx={{ mt: 1 }}>
                                     <CategoryBudget
                                         budget={item}
@@ -554,11 +469,12 @@ export const Budget = () => {
                                                 size="small"
                                                 color="primary"
                                                 value={categoryStatsVisualizationType}
-                                                onChange={() =>
+                                                onChange={(_event, value: string | null) => {
+                                                    if (!value || value === categoryStatsVisualizationType) return;
                                                     setCategoryStatsVisualizationType((prev) =>
                                                         prev === 'CHART' ? 'LIST' : 'CHART'
-                                                    )
-                                                }
+                                                    );
+                                                }}
                                                 exclusive
                                             >
                                                 {[
@@ -593,11 +509,19 @@ export const Budget = () => {
                                                 />
                                             )}
                                         </ParentSize>
-                                    ) : (
+                                    ) : // @ts-ignore
+                                    Array.from(subscriptionCategorySum[item.type]).length > 0 ? (
                                         // @ts-ignore
                                         Array.from(subscriptionCategorySum[item.type]).map(([category, amount]) => (
-                                            <Transaction title={category} subtitle="" amount={amount} />
+                                            <Transaction
+                                                icon={<EventRepeatRoundedIcon />}
+                                                title={category}
+                                                subtitle=""
+                                                amount={amount}
+                                            />
                                         ))
+                                    ) : (
+                                        <NoResults text="There is no data to display" />
                                     )}
                                 </Card.Body>
                             </Card>
@@ -607,11 +531,12 @@ export const Budget = () => {
             </Grid>
 
             <FabContainer>
-                <CreateFab onClick={() => handler.createBudget.onSetOpen(true)} />
+                <AddFab onClick={() => handler.createBudget.onSetOpen(true)} />
             </FabContainer>
-            <CreateBudget open={showForm.createBudget} setOpen={handler.createBudget.onSetOpen} />
 
-            <EditBudget
+            <CreateBudgetDrawer open={showForm.createBudget} setOpen={handler.createBudget.onSetOpen} />
+
+            <EditBudgetDrawer
                 open={showForm.editBudget !== null}
                 setOpen={handler.editBudget.onSetOpen}
                 budget={showForm.editBudget}
@@ -619,3 +544,5 @@ export const Budget = () => {
         </Grid>
     );
 };
+
+export default BudgetRoute;

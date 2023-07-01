@@ -1,27 +1,30 @@
 import React from 'react';
-import { FormDrawer } from '@/components/Base';
-import { CreateCategoryInput } from '@/components/Category';
-import { ReceiverAutocomplete } from '@/components/Inputs';
-import { CreatePaymentMethodInput } from '@/components/PaymentMethod';
-import { AuthContext, SnackbarContext, StoreContext } from '@/context';
-import { useFetchTransactions, useScreenSize } from '@/hooks';
-import { BaseTransaction } from '@/models';
-import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer';
-import { TransactionService } from '@/services';
-import { FormStyle } from '@/theme/form-style';
-import type { IBaseTransaction } from '@/types';
-import { sleep, transformBalance } from '@/utils';
+import { AuthContext } from '@/context/Auth.context';
+import { SnackbarContext } from '@/context/Snackbar.context';
+import { StoreContext } from '@/context/Store.context';
+import { useFetchTransactions } from '@/hook/useFetchTransactions.hook';
+import { useScreenSize } from '@/hook/useScreenSize.hook';
+import { TransactionTable } from '@/models/TransactionTable.model';
+import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer/DrawerAction.reducer';
+import { TransactionService } from '@/services/Transaction.service';
+import { FormStyle } from '@/style/Form.style';
+import { sleep } from '@/util/sleep.util';
+import { transformBalance } from '@/util/transformBalance.util';
 import { Box, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { CategoryAutocomplete } from '../Category/CategoryAutocomplete.component';
+import { FormDrawer } from '../Core/Drawer/FormDrawer.component';
+import { ReceiverAutocomplete } from '../Inputs/ReceiverAutocomplete.component';
+import { PaymentMethodAutocomplete } from '../PaymentMethod/PaymentMethodAutocomplete.component';
 
-export interface ICreateTransactionProps {
+export type CreateTransactionDrawerProps = {
     open: boolean;
     setOpen: (show: boolean) => void;
-    afterSubmit?: (transaction: BaseTransaction) => void;
-}
+    afterSubmit?: (transaction: TransactionTable) => void;
+};
 
-interface CreateTransactionHandler {
+interface CreateTransactionDrawerHandler {
     onClose: () => void;
     onDateChange: (date: Date | null) => void;
     autocompleteChange: (
@@ -34,16 +37,16 @@ interface CreateTransactionHandler {
     onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, setOpen, afterSubmit }) => {
+export const CreateTransactionDrawer: React.FC<CreateTransactionDrawerProps> = ({ open, setOpen, afterSubmit }) => {
     const screenSize = useScreenSize();
     const { session } = React.useContext(AuthContext);
     const { showSnackbar } = React.useContext(SnackbarContext);
-    const { loading, transactionReceiver } = React.useContext(StoreContext);
-    const { refresh } = useFetchTransactions();
-    const [form, setForm] = React.useState<Partial<IBaseTransaction>>({ date: new Date() });
+    const { transactionReceiverSet } = React.useContext(StoreContext);
+    const { loading: loadingTransactions, refresh: refreshTransactions } = useFetchTransactions();
     const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
+    const [form, setForm] = React.useState<Partial<TransactionTable>>({ date: new Date() });
 
-    const handler: CreateTransactionHandler = {
+    const handler: CreateTransactionDrawerHandler = {
         onClose: () => {
             setOpen(false);
             setForm({ date: new Date() });
@@ -52,7 +55,7 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
         onDateChange: (date) => {
             if (date) setForm((prev) => ({ ...prev, date: date ?? new Date() }));
         },
-        autocompleteChange: (event, key, value) => {
+        autocompleteChange: (_event, key, value) => {
             setForm((prev) => ({ ...prev, [key]: value }));
         },
         inputChange: (event) => {
@@ -91,7 +94,7 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
                 if (afterSubmit) afterSubmit(createdTransactions[0]);
                 setDrawerAction({ type: 'SUCCESS' });
                 await sleep(300);
-                refresh();
+                await refreshTransactions();
                 handler.onClose();
                 showSnackbar({ message: 'Transaction added' });
             } catch (error) {
@@ -101,7 +104,7 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
         },
     };
 
-    if (loading) return null;
+    if (loadingTransactions) return null;
     return (
         <FormDrawer
             open={open}
@@ -140,12 +143,12 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
                     flexWrap: 'wrap',
                 }}
             >
-                <CreateCategoryInput
+                <CategoryAutocomplete
                     onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
                     sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
                 />
 
-                <CreatePaymentMethodInput
+                <PaymentMethodAutocomplete
                     onChange={(event, value) =>
                         handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))
                     }
@@ -157,7 +160,7 @@ export const CreateTransaction: React.FC<ICreateTransactionProps> = ({ open, set
                 sx={FormStyle}
                 id="receiver"
                 label="Receiver"
-                options={transactionReceiver}
+                options={transactionReceiverSet}
                 onValueChange={handler.receiverChange}
             />
 
