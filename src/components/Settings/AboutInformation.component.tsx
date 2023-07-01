@@ -1,7 +1,6 @@
+import { AppConfig } from '@/app.config';
 import { AlternateEmailRounded, AppSettingsAltRounded, CodeRounded, LanguageRounded } from '@mui/icons-material';
 import { Box, Divider, Stack, Typography } from '@mui/material';
-// FIXME: Select version in config
-import { version } from '../../../package.json';
 import { Card } from '../Base';
 import { StyledLink } from '../Base/Link.component';
 import { ExportProfileData } from '../Profile/ExportProfileData.component';
@@ -39,7 +38,7 @@ export const AboutInformation = () => {
 
                 <Stack spacing={2} direction="row" alignItems="center" sx={{ mt: 1 }}>
                     <AppSettingsAltRounded />
-                    <Typography noWrap>Version {version}</Typography>
+                    <Typography noWrap>Version v{AppConfig.appVersion}</Typography>
                 </Stack>
 
                 <Divider sx={{ mt: 2, mb: 0 }} />

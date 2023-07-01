@@ -5,11 +5,11 @@ export const Footer = () => {
     return (
         <Box sx={{ py: 3 }}>
             <Typography variant="body2" color="text.secondary" align="center">
-                {'Copyright © '}
+                {'Copyright © '} {new Date().getFullYear()}{' '}
                 <Link color="inherit" href={AppConfig.website}>
                     {AppConfig.appName}
                 </Link>{' '}
-                {new Date().getFullYear()}
+                v{AppConfig.appVersion}
             </Typography>
         </Box>
     );

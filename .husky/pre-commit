@@ -1,10 +1,9 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npm run test
-
 files=`git diff --name-only --staged --diff-filter=ACM src/`
 if [[ ${#files[@]} -gt 0 ]]; then
+  npm run test
   npx prettier --write $files
   git add $files
 fi

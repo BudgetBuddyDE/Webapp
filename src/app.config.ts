@@ -1,7 +1,9 @@
 import type { TableCellProps } from '@mui/material';
+import { version } from '../package.json';
 
 export const AppConfig: AppConfig = {
     appName: 'BudgetBuddy',
+    appVersion: version,
     website: 'https://budget-buddy.de',
     repository: 'https://github.com/BudgetBuddyDE/Webapp',
     table: {
@@ -12,6 +14,7 @@ export const AppConfig: AppConfig = {
 
 export type AppConfig = {
     appName: string;
+    appVersion: string;
     website: string;
     repository: string;
     table: {
