@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.0](https://github.com/BudgetBuddyDE/Webapp/compare/v0.2.5...v0.3.0) (2023-07-01)
+
+### ⚠ BREAKING CHANGES
+
+-   REWRITE COMPLETE APPLICATION
+
+### Features
+
+-   Add loading animation for button ([91aecd8](https://github.com/BudgetBuddyDE/Webapp/commit/91aecd8606ddf3720c5f7a13a308bbd100a748f3))
+-   Add redirect chip ([796a883](https://github.com/BudgetBuddyDE/Webapp/commit/796a883a834ef45c97cff33dbc3a4c142ccef200))
+-   Add sleep function ([d596950](https://github.com/BudgetBuddyDE/Webapp/commit/d596950bb834e7e3a17b89ffd83d628c0ba6dc6d))
+-   GIANTIG UPDATE ([ca54b14](https://github.com/BudgetBuddyDE/Webapp/commit/ca54b1409d12ed86916aeefca6c78e98e7becf4a))
+-   Implement missing button loading animations ([1837bef](https://github.com/BudgetBuddyDE/Webapp/commit/1837bef1182c3d7bd2a7644436cbbf1909fbda77))
+-   Implement missing button loading animations ([09ad2a6](https://github.com/BudgetBuddyDE/Webapp/commit/09ad2a69ab5e16a8ae68d3ea1b34955209db9679))
+-   Make filters adjustable for no-results message ([64dc62f](https://github.com/BudgetBuddyDE/Webapp/commit/64dc62f6e01526db3323d945308f2f7566db2183))
+-   Show dialog after multiple failed attempts ([c25a550](https://github.com/BudgetBuddyDE/Webapp/commit/c25a550d485421a4f22d01943181857668ddc9b9)), closes [#56](https://github.com/BudgetBuddyDE/Webapp/issues/56)
+-   Update budget-page information ([948cfcc](https://github.com/BudgetBuddyDE/Webapp/commit/948cfcc4c3742b140bbb9c2496293309721b2f05))
+
+### Bug Fixes
+
+-   Input options will always be valid ([5e3f6dc](https://github.com/BudgetBuddyDE/Webapp/commit/5e3f6dc5248eaeef7914a8dbcc9d631654036f6b))
+-   Only focus when ctrl is pressed ([f7bc65a](https://github.com/BudgetBuddyDE/Webapp/commit/f7bc65a9b26e5f31b1735d4b3e9b67ac629cb150))
+-   Prevent unnecessary changes & add no-results msg ([644c088](https://github.com/BudgetBuddyDE/Webapp/commit/644c0886fddaf4c4be4163ef07842d916cf41b77))
+-   Reduce bottom spacing ([73fcf7f](https://github.com/BudgetBuddyDE/Webapp/commit/73fcf7ffaac23501003f1f0a728f3656f318ca09))
+-   Same days for filtering should now work ([ae2ebe4](https://github.com/BudgetBuddyDE/Webapp/commit/ae2ebe45edfc5dc50cb82932a5076a56d45e3ed4)), closes [#60](https://github.com/BudgetBuddyDE/Webapp/issues/60)
+-   Show chart by default ([3513d4d](https://github.com/BudgetBuddyDE/Webapp/commit/3513d4dc1891ca9f06943d9d7a071d9d9d7cec8e)), closes [#63](https://github.com/BudgetBuddyDE/Webapp/issues/63)
+-   Use absolute number for comparison ([d98ff1a](https://github.com/BudgetBuddyDE/Webapp/commit/d98ff1aa443d836537f743bcc5f165f4115d34ea))
+-   Use absolute path ([b2edb41](https://github.com/BudgetBuddyDE/Webapp/commit/b2edb4144e8f742f64af3160f21aec700709d3fb))
+
+-   REWRITE COMPLETE APPLICATION ([41251cf](https://github.com/BudgetBuddyDE/Webapp/commit/41251cf87343ee4635a6755afd9715c45fe2857b))
+
 ### [0.2.6](https://github.com/BudgetBuddyDE/Webapp/compare/v0.2.5...v0.2.6) (2023-05-06)
 
 ### Features

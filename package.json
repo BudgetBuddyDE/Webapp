@@ -1,7 +1,7 @@
 {
     "name": "budget-buddy-webapp",
     "private": true,
-    "version": "0.2.6",
+    "version": "0.3.0",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -10,7 +10,8 @@
         "preview": "vite preview",
         "test": "jest --passWithNoTests",
         "format": "prettier --write src/",
-        "prepare": "husky install"
+        "prepare": "husky install",
+        "release": "standard-version"
     },
     "dependencies": {
         "@emotion/react": "^11.11.1",
