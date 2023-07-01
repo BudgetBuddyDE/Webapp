@@ -92,7 +92,7 @@ const BudgetRoute = () => {
         editBudget: null,
     });
     const [categoryStatsVisualizationType, setCategoryStatsVisualizationType] = React.useState<'CHART' | 'LIST'>(
-        'LIST'
+        'CHART'
     );
 
     const subscriptionCategorySum = React.useMemo(() => {
