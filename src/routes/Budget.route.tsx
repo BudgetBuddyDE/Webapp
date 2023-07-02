@@ -75,6 +75,7 @@ export const ChartContentTypes = [
 ];
 
 const BudgetRoute = () => {
+    const id = React.useId();
     const fetchSubscriptions = useFetchSubscriptions();
     const screenSize = useScreenSize();
     const { loading: loadingBudget, budget } = useFetchBudget();
@@ -431,7 +432,7 @@ const BudgetRoute = () => {
                         </Card.HeaderActions>
                     </Card.Header>
                     <Card.Body>
-                        {loadingBudget ? (
+                        {loadingBudgetTransactions ? (
                             <CircularProgress />
                         ) : budget.length > 0 ? (
                             budget.map((item) => (
@@ -514,6 +515,7 @@ const BudgetRoute = () => {
                                         // @ts-ignore
                                         Array.from(subscriptionCategorySum[item.type]).map(([category, amount]) => (
                                             <Transaction
+                                                key={`${id}-${item.type}-${category}`}
                                                 icon={<EventRepeatRoundedIcon />}
                                                 title={category}
                                                 subtitle=""
