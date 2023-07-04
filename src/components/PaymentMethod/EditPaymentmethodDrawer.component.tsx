@@ -31,6 +31,7 @@ export const EditPaymentMethodDrawer: React.FC<IEditPaymentMethodProps> = ({
         onClose: () => {
             setOpen(false);
             setForm(null);
+            setDrawerAction({ type: 'RESET' });
         },
         onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
             try {
@@ -50,16 +51,14 @@ export const EditPaymentMethodDrawer: React.FC<IEditPaymentMethodProps> = ({
 
                 const updatedItem = updatedPaymentMethods[0];
                 if (afterSubmit) afterSubmit(updatedItem);
-                refreshPaymentMethods();
                 setDrawerAction({ type: 'SUCCESS' });
+                refreshPaymentMethods();
                 await sleep(300);
                 handler.onClose();
                 showSnackbar({ message: 'Payment method updated' });
             } catch (error) {
                 console.error(error);
                 setDrawerAction({ type: 'ERROR', error: error as Error });
-            } finally {
-                setDrawerAction({ type: 'RESET' });
             }
         },
     };

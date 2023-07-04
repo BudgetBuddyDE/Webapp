@@ -13,13 +13,13 @@ import { getCategoryFromList } from '@/util/getCategoryFromList.util';
 import { getPaymentMethodFromList } from '@/util/getPaymentMethodFromList.util';
 import { sleep } from '@/util/sleep.util';
 import { transformBalance } from '@/util/transformBalance.util';
-import { Autocomplete, Box, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
+import { Box, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { CreateCategoryAlert } from '../Category/CreateCategoryAlert.component';
+import { CategoryAutocomplete } from '../Category/CategoryAutocomplete.component';
 import { FormDrawer } from '../Core/Drawer/FormDrawer.component';
 import { ReceiverAutocomplete } from '../Inputs/ReceiverAutocomplete.component';
-import { CreatePaymentMethodAlert } from '../PaymentMethod/CreatePaymentMethodAlert.component';
+import { PaymentMethodAutocomplete } from '../PaymentMethod/PaymentMethodAutocomplete.component';
 
 export type EditSubscriptionDrawerProps = {
     open: boolean;
@@ -51,8 +51,8 @@ export const EditSubscriptionDrawer: React.FC<EditSubscriptionDrawerProps> = ({
     const { showSnackbar } = React.useContext(SnackbarContext);
     const { transactionReceiverSet } = React.useContext(StoreContext);
     const { loading: loadingSubscriptions, refresh: refreshSubscriptions } = useFetchSubscriptions();
-    const fetchCategories = useFetchCategories();
-    const fetchPaymentMethods = useFetchPaymentMethods();
+    const { categories } = useFetchCategories();
+    const { paymentMethods } = useFetchPaymentMethods();
     const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
     const [executionDate, setExecutionDate] = React.useState(new Date());
     const [form, setForm] = React.useState<Partial<TBaseSubscription> | null>(null);
@@ -112,9 +112,8 @@ export const EditSubscriptionDrawer: React.FC<EditSubscriptionDrawerProps> = ({
                 } = updatedSubscriptions[0];
                 const updatedItem = new Subscription({
                     id: id,
-                    categories: fetchCategories.categories.find((c) => c.id === category)!.categoryView,
-                    paymentMethods: fetchPaymentMethods.paymentMethods.find((pm) => pm.id === paymentMethod)!
-                        .paymentMethodView,
+                    categories: categories.find((c) => c.id === category)!.categoryView,
+                    paymentMethods: paymentMethods.find((pm) => pm.id === paymentMethod)!.paymentMethodView,
                     receiver: receiver,
                     description: description,
                     amount: amount,
@@ -124,12 +123,12 @@ export const EditSubscriptionDrawer: React.FC<EditSubscriptionDrawerProps> = ({
                     inserted_at: inserted_at.toString(),
                 });
 
-                if (afterSubmit) afterSubmit(updatedItem);
-                await refreshSubscriptions();
+                afterSubmit && afterSubmit(updatedItem);
                 setDrawerAction({ type: 'SUCCESS' });
                 await sleep(300);
+                refreshSubscriptions();
                 handler.onClose();
-                showSnackbar({ message: 'Subscription updated' });
+                showSnackbar({ message: 'Changes have been saved' });
             } catch (error) {
                 console.error(error);
                 setDrawerAction({ type: 'ERROR', error: error as Error });
@@ -194,46 +193,21 @@ export const EditSubscriptionDrawer: React.FC<EditSubscriptionDrawerProps> = ({
                             flexWrap: 'wrap',
                         }}
                     >
-                        {!fetchCategories.loading && fetchCategories.categories.length > 0 ? (
-                            <Autocomplete
-                                id="category"
-                                options={fetchCategories.categories.map((item) => ({
-                                    label: item.name,
-                                    value: item.id,
-                                }))}
-                                sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-                                onChange={(event, value) =>
-                                    handler.autocompleteChange(event, 'category', Number(value?.value))
-                                }
-                                defaultValue={getCategoryFromList(Number(form.category), fetchCategories.categories)}
-                                renderInput={(props) => <TextField {...props} label="Category" />}
-                                isOptionEqualToValue={(option, value) => option.value === value.value}
-                            />
-                        ) : (
-                            <CreateCategoryAlert sx={{ mb: 2 }} />
-                        )}
+                        <CategoryAutocomplete
+                            onChange={(event, value) =>
+                                handler.autocompleteChange(event, 'category', Number(value?.value))
+                            }
+                            defaultValue={getCategoryFromList(form.category as number, categories)}
+                            sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+                        />
 
-                        {!fetchPaymentMethods.loading && fetchPaymentMethods.paymentMethods.length > 0 ? (
-                            <Autocomplete
-                                id="payment-method"
-                                options={fetchPaymentMethods.paymentMethods.map((item) => ({
-                                    label: `${item.name} • ${item.provider}`,
-                                    value: item.id,
-                                }))}
-                                sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
-                                onChange={(event, value) =>
-                                    handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))
-                                }
-                                defaultValue={getPaymentMethodFromList(
-                                    Number(form.paymentMethod),
-                                    fetchPaymentMethods.paymentMethods
-                                )}
-                                renderInput={(props) => <TextField {...props} label="Payment Method" />}
-                                isOptionEqualToValue={(option, value) => option.value === value.value}
-                            />
-                        ) : (
-                            <CreatePaymentMethodAlert sx={{ mb: 2 }} />
-                        )}
+                        <PaymentMethodAutocomplete
+                            onChange={(event, value) =>
+                                handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))
+                            }
+                            defaultValue={getPaymentMethodFromList(form.paymentMethod as number, paymentMethods)}
+                            sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+                        />
                     </Box>
 
                     <ReceiverAutocomplete

@@ -3,6 +3,7 @@ import type { Description, uuid } from '@/type';
 import type { CategoryView } from '@/type/category.type';
 import type { PaymentMethodView } from '@/type/payment-method.type';
 import type { TSubscription } from '@/type/subscription.type';
+import { TCreateTransactionProps } from '@/type/transaction.type';
 import { determineNextExecution, determineNextExecutionDate } from '@/util/determineNextExecution.util';
 
 export class Subscription {
@@ -65,6 +66,18 @@ export class Subscription {
         } catch (error) {
             console.error(error);
         }
+    }
+
+    getCreateTransactionsProps(): TCreateTransactionProps {
+        return {
+            date: determineNextExecutionDate(this.execute_at),
+            receiver: this.receiver,
+            amount: this.amount,
+            category: this.categories.id,
+            paymentMethod: this.paymentMethods.id,
+            description: this.description,
+            created_by: this.created_by,
+        };
     }
 
     determineNextExecution(): string {

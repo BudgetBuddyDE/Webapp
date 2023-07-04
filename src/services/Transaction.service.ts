@@ -1,25 +1,46 @@
 import { isSameMonth } from 'date-fns';
+import { BaseTransaction } from '@/models/BaseTransaction.model';
 import { Transaction } from '@/models/Transaction.model';
-import { TransactionTable } from '@/models/TransactionTable.model';
 import { SupabaseClient } from '@/supabase';
 import type { ExportFormat, SupabaseData } from '@/type';
-import { DailyEarning, Earning } from '@/type/earning.type';
-import { DailyExpense, Expense } from '@/type/expense.type';
+import type { DailyEarning, Earning } from '@/type/earning.type';
+import type { DailyExpense, Expense } from '@/type/expense.type';
 import type {
-    ExportTransaction,
-    Transaction as TTransaction,
-    TransactionTable as TTransactionTable,
+    TBaseTransaction,
+    TCreateTransactionProps,
+    TExportTransaction,
+    TTransaction,
+    TUpdateTransactionProps,
 } from '@/type/transaction.type';
 
 export class TransactionService {
     private static table = 'transactions';
 
-    static async createTransactions(transactions: Partial<TTransactionTable>[]): Promise<TransactionTable[]> {
+    static getTableName() {
+        return this.table;
+    }
+
+    static getSelectQuery(): string {
+        return 'id, amount, receiver, description, date, created_by, updated_at, inserted_at, paymentMethods (id, name, address, provider, description), categories (id, name, description)';
+    }
+
+    static async createTransactions(transactions: TCreateTransactionProps[]): Promise<[Transaction[], Error | null]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).insert(transactions).select();
-            if (response.error) rej(response.error);
-            const data = response.data as SupabaseData<TTransactionTable[]>;
-            res(data ? data.map((category) => new TransactionTable(category)) : []);
+            const response = await SupabaseClient()
+                .from(this.table)
+                .insert(
+                    transactions.map((t) => ({
+                        ...t,
+                        date: typeof t.date == 'string' ? new Date(t.date) : t.date,
+                        description: t.description == null || t.description.length == 0 ? null : t.description,
+                    }))
+                )
+                .select(this.getSelectQuery());
+            if (response.error) rej([[], new Error(response.error.message)]);
+            if (!response.data || response.data.length == 0) return [[], new Error("Couldn't save")];
+            // @ts-expect-error
+            const data = response.data as SupabaseData<TTransaction[]>;
+            res([data ? data.map((transaction) => new Transaction(transaction)) : [], null]);
         });
     }
 
@@ -27,23 +48,7 @@ export class TransactionService {
         return new Promise(async (res, rej) => {
             const response = await SupabaseClient()
                 .from(this.table)
-                .select(
-                    `
-                    id,
-                    amount,
-                    receiver,
-                    description, 
-                    date,
-                    created_by,
-                    updated_at,
-                    inserted_at,
-                    paymentMethods (
-                        id, name, address, provider, description
-                    ),
-                    categories (
-                        id, name, description
-                    )`
-                )
+                .select(this.getSelectQuery())
                 .order('date', { ascending: false })
                 .limit(amount);
             if (response.error) rej(response.error);
@@ -52,29 +57,35 @@ export class TransactionService {
         });
     }
 
+    /**
+     * // TODO: Rename to updateField/updateColumn/updateAttribute
+     * @param transactions
+     * @param column
+     * @param value
+     */
     static async update(
-        transactions: TTransactionTable['id'][],
-        column: keyof Pick<TTransactionTable, 'category' | 'paymentMethod'>,
-        value: TTransactionTable['category'] | TTransactionTable['paymentMethod']
-    ): Promise<TransactionTable[]> {
+        transactions: TBaseTransaction['id'][],
+        column: keyof Pick<TBaseTransaction, 'category' | 'paymentMethod'>,
+        value: TBaseTransaction['category'] | TBaseTransaction['paymentMethod']
+    ): Promise<Transaction[]> {
         return new Promise(async (res, rej) => {
             const response = await SupabaseClient()
                 .from(this.table)
                 .update({ [column]: value })
                 .in('id', transactions)
-                .select();
+                .select(this.getSelectQuery());
             if (response.error) rej(response.error);
-            const data = response.data as SupabaseData<TTransactionTable[]>;
-            res(data ? data.map((category) => new TransactionTable(category)) : []);
+            const data = response.data as SupabaseData<TTransaction[]>;
+            res(data ? data.map((transaction) => new Transaction(transaction)) : []);
         });
     }
 
-    static async delete(transactions: TransactionTable['id'][]): Promise<TransactionTable[]> {
+    static async delete(transactions: BaseTransaction['id'][]): Promise<BaseTransaction[]> {
         return new Promise(async (res, rej) => {
             const response = await SupabaseClient().from(this.table).delete().in('id', transactions).select();
             if (response.error) rej(response.error);
-            const data = response.data as SupabaseData<TTransactionTable[]>;
-            res(data ? data.map((category) => new TransactionTable(category)) : []);
+            const data = response.data as SupabaseData<TBaseTransaction[]>;
+            res(data ? data.map((category) => new BaseTransaction(category)) : []);
         });
     }
 
@@ -147,31 +158,16 @@ export class TransactionService {
     /**
      * @deprecated Use `Transaction.update()` instead of the the `TransactionService.updateTransaction(...)`
      */
-    static async updateTransaction(
-        id: number,
-        updatedTransaction: Partial<TTransactionTable>
-    ): Promise<TransactionTable[]> {
+    static async updateTransaction(id: number, updatedTransaction: TUpdateTransactionProps): Promise<Transaction[]> {
         return new Promise(async (res, rej) => {
             const response = await SupabaseClient()
                 .from(this.table)
                 .update(updatedTransaction)
                 .match({ id: id })
-                .select();
+                .select(this.getSelectQuery());
             if (response.error) rej(response.error);
-            const data = response.data as SupabaseData<TTransactionTable[]>;
-            res(data ? data.map((category) => new TransactionTable(category)) : []);
-        });
-    }
-
-    /**
-     * @deprecated Use `Transaction.delete()` instead of the the `TransactionService.deleteTransactionById(...)`
-     */
-    static async deleteTransactionById(id: number): Promise<TransactionTable[]> {
-        return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).delete().match({ id: id }).select();
-            if (response.error) rej(response.error);
-            const data = response.data as SupabaseData<TTransactionTable[]>;
-            res(data ? data.map((category) => new TransactionTable(category)) : []);
+            const data = response.data as SupabaseData<TTransaction[]>;
+            res(data ? data.map((transaction) => new Transaction(transaction)) : []);
         });
     }
 
@@ -206,7 +202,7 @@ export class TransactionService {
     /**
      * Get the transactions, ready for the export
      */
-    static export(type: ExportFormat = 'JSON'): Promise<ExportTransaction[] | string> {
+    static export(type: ExportFormat = 'JSON'): Promise<TExportTransaction[] | string> {
         return new Promise((res, rej) => {
             switch (type) {
                 case 'JSON':
@@ -215,7 +211,6 @@ export class TransactionService {
                         .select(`*, categories:category(*), paymentMethods:paymentMethod(*)`)
                         .then((result) => {
                             if (result.error) rej(result.error);
-                            // @ts-ignore
                             res(result.data ?? []);
                         });
                     break;

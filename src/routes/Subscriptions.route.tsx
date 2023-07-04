@@ -22,6 +22,7 @@ import { SelectMultiple, SelectMultipleHandler } from '@/components/SelectMultip
 import { CreateSubscriptionDrawer } from '@/components/Subscription/CreateSubscriptionDrawer.component';
 import { EditSubscriptionDrawer } from '@/components/Subscription/EditSubscriptionDrawer.component';
 import { SubscriptionOverviewChartCard } from '@/components/Subscription/SubscriptionOverviewChartCard.component';
+import { CreateTransactionDrawer } from '@/components/Transaction/CreateTransactionDrawer.component';
 import { SnackbarContext } from '@/context/Snackbar.context';
 import { StoreContext } from '@/context/Store.context';
 import { useFetchSubscriptions } from '@/hook/useFetchSubscriptions.hook';
@@ -30,8 +31,14 @@ import { SelectMultipleReducer, generateInitialState } from '@/reducer/SelectMul
 import { TablePaginationReducer } from '@/reducer/TablePagination.reducer';
 import { SubscriptionService } from '@/services/Subscription.service';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
+import { TCreateTransactionProps } from '@/type/transaction.type';
 import { filterSubscriptions } from '@/util/filter.util';
-import { AddRounded as AddIcon, DeleteRounded as DeleteIcon, EditRounded as EditIcon } from '@mui/icons-material';
+import {
+    AddRounded as AddIcon,
+    CompareArrowsRounded as CompareArrowsIcon,
+    DeleteRounded as DeleteIcon,
+    EditRounded as EditIcon,
+} from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -55,20 +62,32 @@ interface SubscriptionsHandler {
         onEdit: (subscription: Subscription) => void;
         onShowAddForm: () => void;
     };
+    transaction: {
+        onShowCreateDrawer: (subscription: Subscription) => void;
+        onHideCreateDrawer: () => void;
+    };
     selectMultiple: SelectMultipleHandler;
 }
 
 const SubscriptionsRoute = () => {
     const { filter } = React.useContext(StoreContext);
     const { showSnackbar } = React.useContext(SnackbarContext);
-    const { loading: loadingSubscriptions, subscriptions, refresh: refreshSubscriptions } = useFetchSubscriptions();
+    const {
+        loading: loadingSubscriptions,
+        subscriptions,
+        refresh: refreshSubscriptions,
+        fetched: areSubscriptionsFetched,
+    } = useFetchSubscriptions();
     const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
     const [selectedSubscriptions, setSelectedSubscriptions] = React.useReducer(
         SelectMultipleReducer,
         generateInitialState()
     );
     const [keyword, setKeyword] = React.useState('');
+    const [showCreateTransactionForm, setShowCreateTransactionForm] = React.useState(false);
+    const [createableTransaction, setCreateableTransaction] = React.useState<TCreateTransactionProps | null>(null);
     const [showAddForm, setShowAddForm] = React.useState(false);
+    const [showEditForm, setShowEditForm] = React.useState(false);
     const [editSubscription, setEditSubscription] = React.useState<Subscription | null>(null);
 
     const handler: SubscriptionsHandler = {
@@ -104,7 +123,18 @@ const SubscriptionsRoute = () => {
                 setShowAddForm(true);
             },
             onEdit(subscription) {
+                setShowEditForm(true);
                 setEditSubscription(subscription);
+            },
+        },
+        transaction: {
+            onShowCreateDrawer(subscription) {
+                setShowCreateTransactionForm(true);
+                setCreateableTransaction(subscription.getCreateTransactionsProps());
+            },
+            onHideCreateDrawer() {
+                setShowCreateTransactionForm(false);
+                setCreateableTransaction(null);
             },
         },
         selectMultiple: {
@@ -219,7 +249,7 @@ const SubscriptionsRoute = () => {
                             </ActionPaper>
                         </Card.HeaderActions>
                     </Card.Header>
-                    {loadingSubscriptions ? (
+                    {loadingSubscriptions && !areSubscriptionsFetched ? (
                         <CircularProgress />
                     ) : shownSubscriptions.length > 0 ? (
                         <React.Fragment>
@@ -263,9 +293,9 @@ const SubscriptionsRoute = () => {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {currentPageSubscriptions.map((row) => (
+                                            {currentPageSubscriptions.map((subscription) => (
                                                 <TableRow
-                                                    key={row.id}
+                                                    key={subscription.id}
                                                     sx={{
                                                         '&:last-child td, &:last-child th': { border: 0 },
                                                         whiteSpace: 'nowrap',
@@ -273,58 +303,85 @@ const SubscriptionsRoute = () => {
                                                 >
                                                     <TableCell size={AppConfig.table.cellSize}>
                                                         <SelectMultiple.SelectSingleCheckbox
-                                                            value={row.id}
+                                                            value={subscription.id}
                                                             onChange={handler.selectMultiple.onSelectSingle}
-                                                            checked={selectedSubscriptions.selected.includes(row.id)}
+                                                            checked={selectedSubscriptions.selected.includes(
+                                                                subscription.id
+                                                            )}
                                                         />
                                                     </TableCell>
                                                     <TableCell size={AppConfig.table.cellSize}>
                                                         <Typography fontWeight="bolder">
-                                                            {row.determineNextExecution()}
+                                                            {subscription.determineNextExecution()}
                                                         </Typography>
                                                     </TableCell>
                                                     <TableCell size={AppConfig.table.cellSize}>
-                                                        <CategoryChip category={row.categories} />
+                                                        <CategoryChip category={subscription.categories} />
                                                     </TableCell>
                                                     <TableCell size={AppConfig.table.cellSize}>
-                                                        <Linkify>{row.receiver}</Linkify>
+                                                        <Linkify>{subscription.receiver}</Linkify>
                                                     </TableCell>
                                                     <TableCell size={AppConfig.table.cellSize}>
                                                         <Typography>
-                                                            {row.amount.toLocaleString('de', {
+                                                            {subscription.amount.toLocaleString('de', {
                                                                 style: 'currency',
                                                                 currency: 'EUR',
                                                             })}
                                                         </Typography>
                                                     </TableCell>
                                                     <TableCell size={AppConfig.table.cellSize}>
-                                                        <PaymentMethodChip paymentMethod={row.paymentMethods} />
+                                                        <PaymentMethodChip
+                                                            paymentMethod={subscription.paymentMethods}
+                                                        />
                                                     </TableCell>
                                                     <TableCell
                                                         sx={DescriptionTableCellStyle}
                                                         size={AppConfig.table.cellSize}
                                                     >
-                                                        <Linkify>{row.description || 'No Information'}</Linkify>
+                                                        <Linkify>
+                                                            {subscription.description || 'No Information'}
+                                                        </Linkify>
                                                     </TableCell>
                                                     <TableCell align="right" size={AppConfig.table.cellSize}>
-                                                        <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
-                                                            <Tooltip title="Edit" placement="top">
-                                                                <IconButton
-                                                                    color="primary"
-                                                                    onClick={() => handler.subscription.onEdit(row)}
-                                                                >
-                                                                    <EditIcon />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                            <Tooltip title="Delete" placement="top">
-                                                                <IconButton
-                                                                    color="primary"
-                                                                    onClick={() => handler.subscription.onDelete(row)}
-                                                                >
-                                                                    <DeleteIcon />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </ActionPaper>
+                                                        <Box display="flex" flexDirection="row">
+                                                            <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
+                                                                <Tooltip title="Edit" placement="top">
+                                                                    <IconButton
+                                                                        color="primary"
+                                                                        onClick={() =>
+                                                                            handler.subscription.onEdit(subscription)
+                                                                        }
+                                                                    >
+                                                                        <EditIcon />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                                <Tooltip title="Delete" placement="top">
+                                                                    <IconButton
+                                                                        color="primary"
+                                                                        onClick={() =>
+                                                                            handler.subscription.onDelete(subscription)
+                                                                        }
+                                                                    >
+                                                                        <DeleteIcon />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            </ActionPaper>
+
+                                                            <ActionPaper sx={{ width: 'max-content', ml: 1 }}>
+                                                                <Tooltip title="Create transaction" placement="top">
+                                                                    <IconButton
+                                                                        color="primary"
+                                                                        onClick={() =>
+                                                                            handler.transaction.onShowCreateDrawer(
+                                                                                subscription
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <CompareArrowsIcon />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            </ActionPaper>
+                                                        </Box>
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
@@ -348,7 +405,11 @@ const SubscriptionsRoute = () => {
             </Grid>
 
             <Grid item xs={12} md={4} lg={4} xl={4}>
-                <SubscriptionOverviewChartCard subscriptions={subscriptions} />
+                {loadingSubscriptions ? (
+                    <CircularProgress />
+                ) : (
+                    <SubscriptionOverviewChartCard subscriptions={subscriptions} />
+                )}
             </Grid>
 
             <FabContainer>
@@ -367,11 +428,20 @@ const SubscriptionsRoute = () => {
                 onConfirm={handler.selectMultiple.dialog.onDeleteConfirm!}
             />
 
+            <CreateTransactionDrawer
+                open={showCreateTransactionForm}
+                setOpen={(show) => {
+                    if (!show) handler.transaction.onHideCreateDrawer();
+                }}
+                transaction={createableTransaction ?? undefined}
+            />
+
             <CreateSubscriptionDrawer open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
 
             <EditSubscriptionDrawer
-                open={editSubscription !== null}
+                open={showEditForm}
                 setOpen={(show) => {
+                    setShowEditForm(show);
                     if (!show) setEditSubscription(null);
                 }}
                 subscription={editSubscription}

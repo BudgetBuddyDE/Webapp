@@ -61,13 +61,19 @@ const PaymentMethodsRoute = () => {
         SelectMultipleReducer,
         generateInitialState()
     );
-    const { loading: loadingPaymentMethods, refresh: refreshPaymentMethods, paymentMethods } = useFetchPaymentMethods();
+    const {
+        loading: loadingPaymentMethods,
+        refresh: refreshPaymentMethods,
+        paymentMethods,
+        fetched: arePaymentMethodsFetched,
+    } = useFetchPaymentMethods();
     const [keyword, setKeyword] = React.useState('');
     const [showAddForm, setShowAddForm] = React.useState(
         location.state !== null &&
             (location.state as any).create !== undefined &&
             (location.state as any).create === true
     );
+    const [showEditForm, setShowEditForm] = React.useState(false);
     const [editPaymentMethod, setEditPaymentMethod] = React.useState<PaymentMethod | null>(null);
 
     const handler: PaymentMethodHandler = {
@@ -194,7 +200,7 @@ const PaymentMethodsRoute = () => {
                             </ActionPaper>
                         </Card.HeaderActions>
                     </Card.Header>
-                    {loadingPaymentMethods ? (
+                    {loadingPaymentMethods && !arePaymentMethodsFetched ? (
                         <CircularProgress />
                     ) : shownPaymentMethods.length > 0 ? (
                         <React.Fragment>
@@ -361,8 +367,9 @@ const PaymentMethodsRoute = () => {
             />
 
             <EditPaymentMethodDrawer
-                open={editPaymentMethod !== null}
+                open={showEditForm}
                 setOpen={(show) => {
+                    setShowEditForm(show);
                     if (!show) setEditPaymentMethod(null);
                 }}
                 paymentMethod={editPaymentMethod}
