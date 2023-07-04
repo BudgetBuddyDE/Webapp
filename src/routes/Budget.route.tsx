@@ -78,7 +78,7 @@ const BudgetRoute = () => {
     const id = React.useId();
     const fetchSubscriptions = useFetchSubscriptions();
     const screenSize = useScreenSize();
-    const { loading: loadingBudget, budget } = useFetchBudget();
+    const { loading: loadingBudget, budget, refresh: refreshBudget, fetched: areBudgetsFetched } = useFetchBudget();
     const { showSnackbar } = React.useContext(SnackbarContext);
     const { setBudgetTransactions } = React.useContext(StoreContext);
     const [chart, setChart] = React.useState<ChartContentType>('INCOME');
@@ -88,9 +88,15 @@ const BudgetRoute = () => {
         refresh: refreshBudgetTransactions,
         budgetTransactions,
     } = useFetchBudgetTransactions(dateRange.from, dateRange.to);
-    const [showForm, setShowForm] = React.useState<{ createBudget: boolean; editBudget: Budget | null }>({
+    const [showForm, setShowForm] = React.useState<{
+        createBudget: boolean;
+        editBudget: { show: boolean; budget: Budget | null };
+    }>({
         createBudget: false,
-        editBudget: null,
+        editBudget: {
+            show: false,
+            budget: null,
+        },
     });
     const [categoryStatsVisualizationType, setCategoryStatsVisualizationType] = React.useState<'CHART' | 'LIST'>(
         'CHART'
@@ -184,7 +190,7 @@ const BudgetRoute = () => {
             try {
                 const deletedBudgets = await deleteBudget;
                 if (!deletedBudgets || deletedBudgets.length < 1) throw new Error('No budget deleted');
-                await refreshBudgetTransactions(dateRange.from, dateRange.to);
+                refreshBudget();
                 showSnackbar({ message: `Budget deleted` });
             } catch (error) {
                 console.error(error);
@@ -207,10 +213,10 @@ const BudgetRoute = () => {
         },
         editBudget: {
             onSetOpen(show) {
-                if (!show) setShowForm((prev) => ({ ...prev, editBudget: null }));
+                if (!show) setShowForm((prev) => ({ ...prev, editBudget: { show: false, budget: null } }));
             },
             onEdit: (budget) => {
-                setShowForm((prev) => ({ ...prev, editBudget: budget }));
+                setShowForm((prev) => ({ ...prev, editBudget: { show: true, budget: budget } }));
             },
         },
         charts: {
@@ -432,7 +438,7 @@ const BudgetRoute = () => {
                         </Card.HeaderActions>
                     </Card.Header>
                     <Card.Body>
-                        {loadingBudgetTransactions ? (
+                        {loadingBudget && areBudgetsFetched ? (
                             <CircularProgress />
                         ) : budget.length > 0 ? (
                             budget.map((item) => (
@@ -539,9 +545,9 @@ const BudgetRoute = () => {
             <CreateBudgetDrawer open={showForm.createBudget} setOpen={handler.createBudget.onSetOpen} />
 
             <EditBudgetDrawer
-                open={showForm.editBudget !== null}
+                open={showForm.editBudget.show}
                 setOpen={handler.editBudget.onSetOpen}
-                budget={showForm.editBudget}
+                budget={showForm.editBudget.budget}
             />
         </Grid>
     );

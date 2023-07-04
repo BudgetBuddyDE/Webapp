@@ -38,6 +38,7 @@ export const EditBudgetDrawer: React.FC<EditBudgetDrawerProps> = ({ open, setOpe
         onClose: () => {
             setOpen(false);
             setForm(null);
+            setDrawerAction({ type: 'RESET' });
         },
         autocompleteChange: (_event, value) => {
             setForm((prev) => ({ ...prev, category: Number(value) }));
@@ -46,11 +47,11 @@ export const EditBudgetDrawer: React.FC<EditBudgetDrawerProps> = ({ open, setOpe
             setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
         },
         onSubmit: async (event) => {
+            event.preventDefault();
+            setDrawerAction({ type: 'SUBMIT' });
             try {
-                event.preventDefault();
                 if (!budget) throw new Error('No budget provided');
                 if (!form) throw new Error('No changes provided');
-                setDrawerAction({ type: 'SUBMIT' });
                 const values = Object.keys(form);
                 ['budget'].forEach((field) => {
                     if (!values.includes(field)) throw new Error('Provide an ' + field);
@@ -63,7 +64,7 @@ export const EditBudgetDrawer: React.FC<EditBudgetDrawerProps> = ({ open, setOpe
                 if (afterSubmit) afterSubmit(updatedBudgets);
                 setDrawerAction({ type: 'SUCCESS' });
                 await sleep(300);
-                await refreshBudget();
+                refreshBudget();
                 handler.onClose();
                 showSnackbar({ message: `Budget for category saved` });
             } catch (error) {

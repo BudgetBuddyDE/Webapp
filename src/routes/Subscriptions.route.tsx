@@ -405,7 +405,7 @@ const SubscriptionsRoute = () => {
             </Grid>
 
             <Grid item xs={12} md={4} lg={4} xl={4}>
-                {loadingSubscriptions ? (
+                {loadingSubscriptions && areSubscriptionsFetched ? (
                     <CircularProgress />
                 ) : (
                     <SubscriptionOverviewChartCard subscriptions={subscriptions} />

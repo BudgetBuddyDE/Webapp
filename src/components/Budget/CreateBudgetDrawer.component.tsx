@@ -62,18 +62,19 @@ export const CreateBudgetDrawer: React.FC<CreateBudgetDrawerProps> = ({ open, se
                 if (budget.some((budget) => budget.category.id === form.category)) {
                     throw new Error("You've already set an Budget for this category");
                 }
-                const createdBudgets = await BudgetService.create([
+                const [createdBudgets, error] = await BudgetService.create([
                     {
                         category: Number(form.category),
                         budget: transformBalance(form.budget!.toString()),
                         created_by: session!.user!.id,
                     },
                 ]);
-                if (createdBudgets.length < 1) throw new Error('No budget saved');
-                if (afterSubmit) afterSubmit(createdBudgets);
+                if (error) throw error;
+                if (createdBudgets.length == 0) throw new Error('No budget saved');
+                afterSubmit && afterSubmit(createdBudgets);
                 setDrawerAction({ type: 'SUCCESS' });
                 await sleep(300);
-                await refreshBudget();
+                refreshBudget();
                 handler.onClose();
                 showSnackbar({ message: `Budget for category saved` });
             } catch (error) {
@@ -100,6 +101,7 @@ export const CreateBudgetDrawer: React.FC<CreateBudgetDrawerProps> = ({ open, se
                         setForm((prev) => ({ ...prev, category: Number(value.value) }));
                     }
                 }}
+                sx={{ mb: 2 }}
             />
 
             <FormControl fullWidth sx={{ mb: 2 }}>
