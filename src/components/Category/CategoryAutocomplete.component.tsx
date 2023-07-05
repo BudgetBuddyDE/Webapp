@@ -5,11 +5,10 @@ import {
     Alert,
     AlertTitle,
     Autocomplete,
-    Box,
     CircularProgress,
-    SxProps,
+    type SxProps,
     TextField,
-    Theme,
+    type Theme,
     Typography,
     createFilterOptions,
 } from '@mui/material';
@@ -37,32 +36,18 @@ export const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({
 }) => {
     const id = React.useId();
     const navigate = useNavigate();
-    const { loading, categories, error } = useFetchCategories();
+    const { loading: loadingCategories, categories, error } = useFetchCategories();
 
-    if (loading) {
-        return (
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    ...sx,
-                }}
-            >
-                <CircularProgress size="small" />
-            </Box>
-        );
-    }
-    if (!loading && categories.length < 1) return <CreateCategoryAlert sx={sx} />;
-    if (!loading && categories.length === 0 && error) {
-        return (
-            <Alert severity="error">
-                <AlertTitle>Error</AlertTitle>
-                <Typography>{String(error)}</Typography>
-            </Alert>
-        );
-    }
-    if (!loading && error) console.error('CategoryAutocomplete: ' + error);
+    if (!loadingCategories && categories.length === 0 && !error) {
+        if (error) {
+            return (
+                <Alert severity="error">
+                    <AlertTitle>Error</AlertTitle>
+                    <Typography>{String(error)}</Typography>
+                </Alert>
+            );
+        } else return <CreateCategoryAlert sx={sx} />;
+    } else if (!loadingCategories && error) console.error('CategoryAutocomplete: ' + error);
     return (
         <Autocomplete
             id={id + '-create-category'}
@@ -89,8 +74,24 @@ export const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({
                 </StyledAutocompleteOption>
             )}
             defaultValue={defaultValue}
-            renderInput={(props) => <TextField {...props} label="Category" />}
+            renderInput={(params) => (
+                <TextField
+                    {...params}
+                    label="Category"
+                    InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                            <React.Fragment>
+                                {loadingCategories && <CircularProgress color="inherit" size={20} />}
+                                {params.InputProps.endAdornment}
+                            </React.Fragment>
+                        ),
+                    }}
+                />
+            )}
+            disabled={loadingCategories}
             isOptionEqualToValue={(option, value) => option.value === value.value}
+            loading={loadingCategories}
             sx={sx}
         />
     );

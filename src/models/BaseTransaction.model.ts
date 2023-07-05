@@ -1,14 +1,12 @@
 import { TransactionService } from '@/services/Transaction.service';
 import { SupabaseClient } from '@/supabase';
 import type { Description, SupabaseData, uuid } from '@/type';
-import type { CategoryView } from '@/type/category.type';
-import type { PaymentMethodView } from '@/type/payment-method.type';
-import type { TTransaction, TUpdateTransactionProps } from '@/type/transaction.type';
+import type { TBaseTransaction, TUpdateTransactionProps } from '@/type/transaction.type';
 
-export class Transaction {
+export class BaseTransaction {
     id: number;
-    categories: CategoryView;
-    paymentMethods: PaymentMethodView;
+    category: number;
+    paymentMethod: number;
     receiver: string;
     description: Description;
     amount: number;
@@ -19,8 +17,8 @@ export class Transaction {
 
     constructor({
         id,
-        categories,
-        paymentMethods,
+        category,
+        paymentMethod,
         receiver,
         description,
         amount,
@@ -28,10 +26,10 @@ export class Transaction {
         created_by,
         updated_at,
         inserted_at,
-    }: TTransaction) {
+    }: TBaseTransaction) {
         this.id = id;
-        this.categories = categories;
-        this.paymentMethods = paymentMethods;
+        this.category = category;
+        this.paymentMethod = paymentMethod;
         this.receiver = receiver;
         this.description = description;
         this.amount = amount;
@@ -41,40 +39,24 @@ export class Transaction {
         this.inserted_at = new Date(inserted_at);
     }
 
-    getValuesForUpdate(): TUpdateTransactionProps {
-        return {
-            id: this.id,
-            amount: this.amount,
-            category: this.categories.id,
-            date: this.date,
-            description: this.description,
-            paymentMethod: this.paymentMethods.id,
-            receiver: this.receiver,
-        };
-    }
-
-    async update({
-        description,
-        ...otherFields
-    }: Omit<TUpdateTransactionProps, 'id'>): Promise<[Transaction | null, Error | null]> {
+    async update(
+        updatedInformation: Omit<TUpdateTransactionProps, 'id'>
+    ): Promise<[BaseTransaction | null, Error | null]> {
         try {
             const { data, error } = await SupabaseClient()
                 .from(TransactionService.getTableName())
-                .update({
-                    ...otherFields,
-                    description: description == null || description.length == 0 ? null : description,
-                })
+                .update(updatedInformation)
                 .match({ id: this.id })
-                .select(TransactionService.getSelectQuery());
+                .select();
             if (error) return [null, new Error(error.message)];
-            // @ts-expect-error
-            const updatedTransactions = data as SupabaseData<TTransaction[]>;
+
+            const updatedTransactions = data as SupabaseData<TBaseTransaction[]>;
             if (updatedTransactions && updatedTransactions.length > 0) {
-                const { id, categories, paymentMethods, receiver, description, amount, date, updated_at, inserted_at } =
+                const { id, category, paymentMethod, receiver, description, amount, date, updated_at, inserted_at } =
                     updatedTransactions[0];
                 this.id = id;
-                this.categories = categories;
-                this.paymentMethods = paymentMethods;
+                this.category = category;
+                this.paymentMethod = paymentMethod;
                 this.receiver = receiver;
                 this.description = description;
                 this.amount = amount;
@@ -84,7 +66,7 @@ export class Transaction {
 
                 return [this, null];
             }
-            return [null, new Error('Changes could not be saved')];
+            return [null, new Error('Changed could not be saved')];
         } catch (error) {
             return [null, error as Error];
         }

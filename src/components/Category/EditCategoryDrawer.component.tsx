@@ -4,6 +4,7 @@ import { useFetchCategories } from '@/hook/useFetchCategories.hook';
 import { Category } from '@/models/Category.model';
 import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer/DrawerAction.reducer';
 import { FormStyle } from '@/style/Form.style';
+import type { Description } from '@/type';
 import { sleep } from '@/util/sleep.util';
 import { TextField } from '@mui/material';
 import { FormDrawer } from '../Core/Drawer/FormDrawer.component';
@@ -21,37 +22,33 @@ export const EditCategoryDrawer: React.FC<{
 }> = ({ open, setOpen, afterSubmit, category }) => {
     const { showSnackbar } = React.useContext(SnackbarContext);
     const { refresh: refreshCategories } = useFetchCategories();
-    const [form, setForm] = React.useState<{ name: string; description: string | null } | null>(null);
     const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
+    const [form, setForm] = React.useState<{ name: string; description: Description } | null>(null);
 
     const handler: EditCategoryDrawerHandler = {
         onClose: () => {
             setOpen(false);
             setForm(null);
+            setDrawerAction({ type: 'RESET' });
         },
         onSubmit: async (event) => {
+            event.preventDefault();
+            if (!category) throw new Error('No category provided');
+            if (!form) throw new Error('No updated information provided');
+            setDrawerAction({ type: 'SUBMIT' });
             try {
-                event.preventDefault();
-                if (!category) throw new Error('No category provided');
-                if (!form) throw new Error('No updated information provided');
-
-                setDrawerAction({ type: 'SUBMIT' });
                 const update = await category.update(form);
-                if (!update || update.length < 1) throw new Error('No category updated');
+                if (!update || update.length < 1) throw new Error("Changes haven't been saved");
                 const updatedItem = update[0];
-                if (afterSubmit) afterSubmit(updatedItem);
-                refreshCategories();
+                afterSubmit && afterSubmit(updatedItem);
                 setDrawerAction({ type: 'SUCCESS' });
                 await sleep(300);
+                refreshCategories();
                 handler.onClose();
-                showSnackbar({
-                    message: 'Category updated',
-                });
+                showSnackbar({ message: 'Changed have been saved' });
             } catch (error) {
                 console.error(error);
                 setDrawerAction({ type: 'ERROR', error: error as Error });
-            } finally {
-                setDrawerAction({ type: 'RESET' });
             }
         },
     };

@@ -50,6 +50,7 @@ import {
 interface TransactionHandler {
     onSearch: (text: string) => void;
     onAddTransaction: (show: boolean) => void;
+    onEditTransaction: (transaction: Transaction) => void;
     onTransactionDelete: (transaction: Transaction) => void;
     pagination: TablePaginationHandler;
     selectMultiple: SelectMultipleHandler;
@@ -58,7 +59,12 @@ interface TransactionHandler {
 const TransactionsRoute = () => {
     const { showSnackbar } = React.useContext(SnackbarContext);
     const { filter } = React.useContext(StoreContext);
-    const { loading: loadingTransactions, transactions, refresh: refreshTransactions } = useFetchTransactions();
+    const {
+        loading: loadingTransactions,
+        transactions,
+        refresh: refreshTransactions,
+        fetched: areTransactionsFetched,
+    } = useFetchTransactions();
     const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
     const [selectedTransactions, setSelectedTransactions] = React.useReducer(
         SelectMultipleReducer,
@@ -66,6 +72,7 @@ const TransactionsRoute = () => {
     );
     const [keyword, setKeyword] = React.useState('');
     const [showAddForm, setShowAddForm] = React.useState(false);
+    const [showEditForm, setShowEditForm] = React.useState(false);
     const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
 
     const handler: TransactionHandler = {
@@ -74,6 +81,10 @@ const TransactionsRoute = () => {
         },
         onAddTransaction(show) {
             setShowAddForm(show);
+        },
+        onEditTransaction(transaction) {
+            setShowEditForm(true);
+            setEditTransaction(transaction);
         },
         async onTransactionDelete(transaction) {
             try {
@@ -211,7 +222,7 @@ const TransactionsRoute = () => {
                             </ActionPaper>
                         </Card.HeaderActions>
                     </Card.Header>
-                    {loadingTransactions ? (
+                    {loadingTransactions && !areTransactionsFetched ? (
                         <CircularProgress />
                     ) : shownTransactions.length > 0 ? (
                         <React.Fragment>
@@ -306,7 +317,9 @@ const TransactionsRoute = () => {
                                                             <Tooltip title="Edit" placement="top">
                                                                 <IconButton
                                                                     color="primary"
-                                                                    onClick={() => setEditTransaction(transaction)}
+                                                                    onClick={() =>
+                                                                        handler.onEditTransaction(transaction)
+                                                                    }
                                                                 >
                                                                     <EditIcon />
                                                                 </IconButton>
@@ -344,25 +357,6 @@ const TransactionsRoute = () => {
                 </Card>
             </Grid>
 
-            {/* FIXME: <Grid item xs={12} md={4} lg={4} xl={4}>
-                {!fetchCategories.loading && !fetchTransactions.loading && (
-                    <EarningsByCategory
-                        categories={fetchCategories.categories}
-                        transactions={fetchTransactions.transactions}
-                    />
-                )}
-            </Grid> */}
-
-            {/* FIXME: <Grid item xs={12} md={4} lg={4} xl={4}>
-                {!fetchPaymentMethods.loading && !fetchTransactions.loading && !fetchSubscriptions.subscriptions && (
-                    <UsedByPaymentMethod
-                        paymentMethods={fetchPaymentMethods.paymentMethods}
-                        transactions={fetchTransactions.transactions}
-                        subscriptions={fetchSubscriptions.subscriptions}
-                    />
-                )}
-            </Grid> */}
-
             <FabContainer>
                 <OpenFilterFab />
                 <AddFab onClick={() => handler.onAddTransaction(true)} />
@@ -383,8 +377,9 @@ const TransactionsRoute = () => {
             <CreateTransactionDrawer open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
 
             <EditTransactionDrawer
-                open={editTransaction !== null}
+                open={showEditForm}
                 setOpen={(show) => {
+                    setShowEditForm(show);
                     if (!show) setEditTransaction(null);
                 }}
                 transaction={editTransaction}

@@ -5,11 +5,10 @@ import {
     Alert,
     AlertTitle,
     Autocomplete,
-    Box,
     CircularProgress,
-    SxProps,
+    type SxProps,
     TextField,
-    Theme,
+    type Theme,
     Typography,
     createFilterOptions,
 } from '@mui/material';
@@ -38,32 +37,18 @@ export const PaymentMethodAutocomplete: React.FC<PaymentMethodAutocompleteProps>
 }) => {
     const id = React.useId();
     const navigate = useNavigate();
-    const { loading, paymentMethods, error } = useFetchPaymentMethods();
+    const { loading: loadingPaymentMethods, paymentMethods, error } = useFetchPaymentMethods();
 
-    if (loading) {
-        return (
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    ...sx,
-                }}
-            >
-                <CircularProgress size="small" />
-            </Box>
-        );
-    }
-    if (!loading && paymentMethods.length < 1) return <CreatePaymentMethodAlert sx={sx} />;
-    if (!loading && paymentMethods.length === 0 && error) {
-        return (
-            <Alert severity="error">
-                <AlertTitle>Error</AlertTitle>
-                <Typography>{String(error)}</Typography>
-            </Alert>
-        );
-    }
-    if (!loading && error) console.error('PaymentMethodAutocomplete: ' + error);
+    if (!loadingPaymentMethods && paymentMethods.length === 0 && !error) {
+        if (error) {
+            return (
+                <Alert severity="error">
+                    <AlertTitle>Error</AlertTitle>
+                    <Typography>{String(error)}</Typography>
+                </Alert>
+            );
+        } else return <CreatePaymentMethodAlert sx={sx} />;
+    } else if (!loadingPaymentMethods && error) console.error('PaymentMethodAutocomplete: ' + error);
     return (
         <Autocomplete
             id={id + '-create-payment-method'}
@@ -95,8 +80,24 @@ export const PaymentMethodAutocomplete: React.FC<PaymentMethodAutocompleteProps>
                 </StyledAutocompleteOption>
             )}
             defaultValue={defaultValue}
-            renderInput={(props) => <TextField {...props} label="Payment Method" />}
+            renderInput={(params) => (
+                <TextField
+                    {...params}
+                    label="Payment Method"
+                    InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                            <React.Fragment>
+                                {loadingPaymentMethods && <CircularProgress color="inherit" size={20} />}
+                                {params.InputProps.endAdornment}
+                            </React.Fragment>
+                        ),
+                    }}
+                />
+            )}
+            disabled={loadingPaymentMethods}
             isOptionEqualToValue={(option, value) => option.value === value.value}
+            loading={loadingPaymentMethods}
             sx={sx}
         />
     );

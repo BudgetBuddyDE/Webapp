@@ -13,12 +13,12 @@ import type {
 export class BudgetService {
     private static table = 'budget';
 
-    static async create(budget: Partial<TBaseBudget>[]): Promise<BaseBudget[]> {
+    static async create(budget: Partial<TBaseBudget>[]): Promise<[BaseBudget[], Error | null]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).insert(budget);
-            if (response.error) rej(response.error);
+            const response = await SupabaseClient().from(this.table).insert(budget).select();
+            if (response.error) rej([[], new Error(response.error.message)]);
             const data = response.data as SupabaseData<TBaseBudget[]>;
-            res(data ? data.map((budget) => new BaseBudget(budget)) : []);
+            res([data ? data.map((budget) => new BaseBudget(budget)) : [], null]);
         });
     }
 

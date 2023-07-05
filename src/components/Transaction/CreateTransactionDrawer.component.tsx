@@ -2,12 +2,17 @@ import React from 'react';
 import { AuthContext } from '@/context/Auth.context';
 import { SnackbarContext } from '@/context/Snackbar.context';
 import { StoreContext } from '@/context/Store.context';
+import { useFetchCategories } from '@/hook/useFetchCategories.hook';
+import { useFetchPaymentMethods } from '@/hook/useFetchPaymentMethods.hook';
 import { useFetchTransactions } from '@/hook/useFetchTransactions.hook';
 import { useScreenSize } from '@/hook/useScreenSize.hook';
-import { TransactionTable } from '@/models/TransactionTable.model';
+import { Transaction } from '@/models/Transaction.model';
 import { DrawerActionReducer, generateInitialDrawerActionState } from '@/reducer/DrawerAction.reducer';
 import { TransactionService } from '@/services/Transaction.service';
 import { FormStyle } from '@/style/Form.style';
+import type { TCreateTransactionProps } from '@/type/transaction.type';
+import { getCategoryFromList } from '@/util/getCategoryFromList.util';
+import { getPaymentMethodFromList } from '@/util/getPaymentMethodFromList.util';
 import { sleep } from '@/util/sleep.util';
 import { transformBalance } from '@/util/transformBalance.util';
 import { Box, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
@@ -20,8 +25,9 @@ import { PaymentMethodAutocomplete } from '../PaymentMethod/PaymentMethodAutocom
 
 export type CreateTransactionDrawerProps = {
     open: boolean;
+    transaction?: TCreateTransactionProps;
     setOpen: (show: boolean) => void;
-    afterSubmit?: (transaction: TransactionTable) => void;
+    afterSubmit?: (transaction: Transaction) => void;
 };
 
 interface CreateTransactionDrawerHandler {
@@ -37,19 +43,26 @@ interface CreateTransactionDrawerHandler {
     onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export const CreateTransactionDrawer: React.FC<CreateTransactionDrawerProps> = ({ open, setOpen, afterSubmit }) => {
+export const CreateTransactionDrawer: React.FC<CreateTransactionDrawerProps> = ({
+    open,
+    transaction,
+    setOpen,
+    afterSubmit,
+}) => {
     const screenSize = useScreenSize();
     const { session } = React.useContext(AuthContext);
     const { showSnackbar } = React.useContext(SnackbarContext);
     const { transactionReceiverSet } = React.useContext(StoreContext);
     const { loading: loadingTransactions, refresh: refreshTransactions } = useFetchTransactions();
+    const { categories } = useFetchCategories();
+    const { paymentMethods } = useFetchPaymentMethods();
     const [drawerAction, setDrawerAction] = React.useReducer(DrawerActionReducer, generateInitialDrawerActionState());
-    const [form, setForm] = React.useState<Partial<TransactionTable>>({ date: new Date() });
+    const [form, setForm] = React.useState({ date: new Date() } as TCreateTransactionProps);
 
     const handler: CreateTransactionDrawerHandler = {
         onClose: () => {
             setOpen(false);
-            setForm({ date: new Date() });
+            setForm({ date: new Date() } as TCreateTransactionProps);
             setDrawerAction({ type: 'RESET' });
         },
         onDateChange: (date) => {
@@ -68,33 +81,30 @@ export const CreateTransactionDrawer: React.FC<CreateTransactionDrawerProps> = (
             event.preventDefault();
             setDrawerAction({ type: 'SUBMIT' });
             const values = Object.keys(form);
-            const missingValues = ['date', 'category', 'paymentMethod', 'receiver', 'amount'].filter(
+            const missingValues = ['category', 'paymentMethod', 'receiver', 'amount'].filter(
                 (value) => !values.includes(value)
             );
             try {
                 if (missingValues.length > 0) {
                     throw new Error('Provide an ' + missingValues.join(', ') + '!');
                 }
-
-                const createdTransactions = await TransactionService.createTransactions([
+                const [createdTransactions, error] = await TransactionService.createTransactions([
                     {
                         date: form.date,
                         category: Number(form.category),
                         paymentMethod: Number(form.paymentMethod),
                         receiver: String(form.receiver),
                         amount: transformBalance(form.amount!.toString()),
-                        description:
-                            typeof form.description === 'string' && form.description.length > 0
-                                ? form.description
-                                : null,
+                        description: form.description,
                         created_by: session!.user!.id,
                     },
                 ]);
-                if (createdTransactions.length < 1) throw new Error('No transaction created');
-                if (afterSubmit) afterSubmit(createdTransactions[0]);
+                if (error) throw error;
+                if (createdTransactions.length == 0) throw new Error("No transactions we're saved");
+                afterSubmit && afterSubmit(createdTransactions[0]);
                 setDrawerAction({ type: 'SUCCESS' });
                 await sleep(300);
-                await refreshTransactions();
+                refreshTransactions();
                 handler.onClose();
                 showSnackbar({ message: 'Transaction added' });
             } catch (error) {
@@ -103,6 +113,10 @@ export const CreateTransactionDrawer: React.FC<CreateTransactionDrawerProps> = (
             }
         },
     };
+
+    React.useEffect(() => {
+        setForm(transaction || ({ date: new Date() } as TCreateTransactionProps));
+    }, [transaction]);
 
     if (loadingTransactions) return null;
     return (
@@ -120,7 +134,7 @@ export const CreateTransactionDrawer: React.FC<CreateTransactionDrawerProps> = (
                     <MobileDatePicker
                         label="Date"
                         inputFormat="dd.MM.yy"
-                        value={form.date || new Date()}
+                        value={form.date}
                         onChange={handler.onDateChange}
                         renderInput={(params) => <TextField sx={FormStyle} {...params} />}
                     />
@@ -128,7 +142,7 @@ export const CreateTransactionDrawer: React.FC<CreateTransactionDrawerProps> = (
                     <DesktopDatePicker
                         label="Date"
                         inputFormat="dd.MM.yy"
-                        value={form.date || new Date()}
+                        value={form.date}
                         onChange={handler.onDateChange}
                         renderInput={(params) => <TextField sx={FormStyle} {...params} />}
                     />
@@ -145,12 +159,16 @@ export const CreateTransactionDrawer: React.FC<CreateTransactionDrawerProps> = (
             >
                 <CategoryAutocomplete
                     onChange={(event, value) => handler.autocompleteChange(event, 'category', Number(value?.value))}
+                    defaultValue={transaction ? getCategoryFromList(form.category, categories) : undefined}
                     sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
                 />
 
                 <PaymentMethodAutocomplete
                     onChange={(event, value) =>
                         handler.autocompleteChange(event, 'paymentMethod', Number(value?.value))
+                    }
+                    defaultValue={
+                        transaction ? getPaymentMethodFromList(form.paymentMethod, paymentMethods) : undefined
                     }
                     sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
                 />
@@ -161,7 +179,8 @@ export const CreateTransactionDrawer: React.FC<CreateTransactionDrawerProps> = (
                 id="receiver"
                 label="Receiver"
                 options={transactionReceiverSet}
-                onValueChange={handler.receiverChange}
+                onValueChange={(value) => handler.receiverChange(String(value))}
+                defaultValue={transaction ? String(transaction.receiver) : undefined}
             />
 
             <FormControl fullWidth sx={{ mb: 2 }}>
@@ -172,6 +191,7 @@ export const CreateTransactionDrawer: React.FC<CreateTransactionDrawerProps> = (
                     name="amount"
                     inputProps={{ inputMode: 'numeric' }}
                     onChange={handler.inputChange}
+                    value={form.amount}
                     startAdornment={<InputAdornment position="start">€</InputAdornment>}
                 />
             </FormControl>
@@ -185,6 +205,7 @@ export const CreateTransactionDrawer: React.FC<CreateTransactionDrawerProps> = (
                 multiline
                 rows={2}
                 onChange={handler.inputChange}
+                value={form.description}
             />
         </FormDrawer>
     );

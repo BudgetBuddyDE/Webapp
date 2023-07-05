@@ -5,7 +5,7 @@ import type { PaymentMethodView } from './payment-method.type';
 /**
  * Object like it's stored in our database
  */
-export type TransactionTable = {
+export type TBaseTransaction = {
     id: number;
     category: number;
     paymentMethod: number;
@@ -19,14 +19,14 @@ export type TransactionTable = {
 };
 
 /**
- * `TransactionTable` with resolved foreign-keys
+ * `TBaseTransaction` with resolved foreign-keys
  */
-export type Transaction = {
+export type TTransaction = {
     id: number;
     categories: CategoryView;
     paymentMethods: PaymentMethodView;
     receiver: string;
-    description: string | null;
+    description: Description;
     amount: number;
     date: string;
     created_by: uuid;
@@ -37,7 +37,7 @@ export type Transaction = {
 /**
  * Object that will be avaiable for export
  */
-export type ExportTransaction = {
+export type TExportTransaction = {
     id: number;
     category: number;
     categories: CategoryView;
@@ -51,3 +51,13 @@ export type ExportTransaction = {
     updated_at: string;
     inserted_at: string;
 };
+
+/**
+ * Required properties for the creation of an transaction
+ */
+export type TCreateTransactionProps = Omit<TBaseTransaction, 'id' | 'updated_at' | 'inserted_at'>;
+
+/**
+ * Required properties in order to update an transaction
+ */
+export type TUpdateTransactionProps = Omit<TBaseTransaction, 'created_by' | 'updated_at' | 'inserted_at'>;

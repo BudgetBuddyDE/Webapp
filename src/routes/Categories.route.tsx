@@ -42,7 +42,7 @@ import {
     Typography,
 } from '@mui/material';
 
-export interface CategoriesRouteHandler {
+interface CategoriesRouteHandler {
     clearLocationState: () => void;
     onSearch: (keyword: string) => void;
     pagination: TablePaginationHandler;
@@ -55,7 +55,12 @@ const CategoriesRoute = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { showSnackbar } = React.useContext(SnackbarContext);
-    const { loading: loadingCategories, categories, refresh: refreshCategories } = useFetchCategories();
+    const {
+        loading: loadingCategories,
+        categories,
+        refresh: refreshCategories,
+        fetched: areCategoriesFetched,
+    } = useFetchCategories();
     const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
     const [selectedCategories, setSelectedCategories] = React.useReducer(SelectMultipleReducer, generateInitialState());
     const [keyword, setKeyword] = React.useState('');
@@ -64,6 +69,7 @@ const CategoriesRoute = () => {
             (location.state as any).create !== undefined &&
             (location.state as any).create === true
     );
+    const [showEditForm, setShowEditForm] = React.useState(false);
     const [editCategory, setEditCategory] = React.useState<Category | null>(null);
 
     const handler: CategoriesRouteHandler = {
@@ -183,7 +189,7 @@ const CategoriesRoute = () => {
                             </ActionPaper>
                         </Card.HeaderActions>
                     </Card.Header>
-                    {loadingCategories ? (
+                    {loadingCategories && !areCategoriesFetched ? (
                         <CircularProgress />
                     ) : shownCategories.length > 0 ? (
                         <React.Fragment>
@@ -315,8 +321,9 @@ const CategoriesRoute = () => {
             />
 
             <EditCategoryDrawer
-                open={editCategory !== null}
+                open={showEditForm}
                 setOpen={(show) => {
+                    setShowEditForm(show);
                     if (!show) setEditCategory(null);
                 }}
                 category={editCategory}
