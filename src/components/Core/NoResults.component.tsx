@@ -26,66 +26,70 @@ export const NoResults: React.FC<INoResultsProps> = ({ sx, text = 'No items foun
             }}
         >
             <Typography textAlign="center">{text}</Typography>
-            {withFilters && (
-                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-                    <Typography textAlign="center">Applied filters: </Typography>
-                    {filter.categories &&
-                        filter.categories.map((categoryId) => {
-                            const matchedCategory = categories.find(({ id }) => id === categoryId);
-                            if (!matchedCategory) return null;
-                            return (
-                                <Chip
-                                    key={matchedCategory.id}
-                                    label={matchedCategory.name}
-                                    onDelete={() => {
-                                        setFilter((prev) => {
-                                            const categories = prev.categories;
-                                            const filteredCategories = (categories as number[]).filter(
-                                                (id) => id !== matchedCategory.id
-                                            );
-                                            return {
-                                                ...prev,
-                                                categories: filteredCategories.length === 0 ? null : filteredCategories,
-                                            };
-                                        });
-                                    }}
-                                    size="small"
-                                    // In order to make chpis deletable we need to cancel the mouse-down event
-                                    onMouseDown={(event) => event.stopPropagation()}
-                                    sx={{ ml: 0.5 }}
-                                />
-                            );
-                        })}
-                    {filter.paymentMethods &&
-                        filter.paymentMethods.map((paymentMethodId) => {
-                            const matchedPaymentMethod = paymentMethods.find(({ id }) => id === paymentMethodId);
-                            if (!matchedPaymentMethod) return null;
-                            return (
-                                <Chip
-                                    key={matchedPaymentMethod.id}
-                                    label={matchedPaymentMethod.name}
-                                    onDelete={() => {
-                                        setFilter((prev) => {
-                                            const paymentMethods = prev.paymentMethods;
-                                            const filteredPaymentMethods = (paymentMethods as number[]).filter(
-                                                (id) => id !== matchedPaymentMethod.id
-                                            );
-                                            return {
-                                                ...prev,
-                                                paymentMethods:
-                                                    filteredPaymentMethods.length === 0 ? null : filteredPaymentMethods,
-                                            };
-                                        });
-                                    }}
-                                    size="small"
-                                    // In order to make chips deletable we need to cancel the mouse-down event
-                                    onMouseDown={(event) => event.stopPropagation()}
-                                    sx={{ ml: 0.5 }}
-                                />
-                            );
-                        })}
-                </Box>
-            )}
+            {(withFilters && filter.categories) ||
+                (filter.paymentMethods && (
+                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                        <Typography textAlign="center">Applied filters: </Typography>
+                        {filter.categories &&
+                            filter.categories.map((categoryId) => {
+                                const matchedCategory = categories.find(({ id }) => id === categoryId);
+                                if (!matchedCategory) return null;
+                                return (
+                                    <Chip
+                                        key={matchedCategory.id}
+                                        label={matchedCategory.name}
+                                        onDelete={() => {
+                                            setFilter((prev) => {
+                                                const categories = prev.categories;
+                                                const filteredCategories = (categories as number[]).filter(
+                                                    (id) => id !== matchedCategory.id
+                                                );
+                                                return {
+                                                    ...prev,
+                                                    categories:
+                                                        filteredCategories.length === 0 ? null : filteredCategories,
+                                                };
+                                            });
+                                        }}
+                                        size="small"
+                                        // In order to make chpis deletable we need to cancel the mouse-down event
+                                        onMouseDown={(event) => event.stopPropagation()}
+                                        sx={{ ml: 0.5 }}
+                                    />
+                                );
+                            })}
+                        {filter.paymentMethods &&
+                            filter.paymentMethods.map((paymentMethodId) => {
+                                const matchedPaymentMethod = paymentMethods.find(({ id }) => id === paymentMethodId);
+                                if (!matchedPaymentMethod) return null;
+                                return (
+                                    <Chip
+                                        key={matchedPaymentMethod.id}
+                                        label={matchedPaymentMethod.name}
+                                        onDelete={() => {
+                                            setFilter((prev) => {
+                                                const paymentMethods = prev.paymentMethods;
+                                                const filteredPaymentMethods = (paymentMethods as number[]).filter(
+                                                    (id) => id !== matchedPaymentMethod.id
+                                                );
+                                                return {
+                                                    ...prev,
+                                                    paymentMethods:
+                                                        filteredPaymentMethods.length === 0
+                                                            ? null
+                                                            : filteredPaymentMethods,
+                                                };
+                                            });
+                                        }}
+                                        size="small"
+                                        // In order to make chips deletable we need to cancel the mouse-down event
+                                        onMouseDown={(event) => event.stopPropagation()}
+                                        sx={{ ml: 0.5 }}
+                                    />
+                                );
+                            })}
+                    </Box>
+                ))}
         </Box>
     );
 };
