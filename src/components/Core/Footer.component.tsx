@@ -5,7 +5,7 @@ export const Footer = () => {
     return (
         <Box sx={{ py: 3 }}>
             <Typography variant="body2" color="text.secondary" align="center">
-                {'Copyright © '} {new Date().getFullYear()}{' '}
+                {'© '} {new Date().getFullYear()}{' '}
                 <Link color="inherit" href={AppConfig.website}>
                     {AppConfig.appName}
                 </Link>{' '}
