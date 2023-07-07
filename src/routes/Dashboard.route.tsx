@@ -38,6 +38,7 @@ const DashboardRoute = () => {
     const { loading: loadingSubscriptions, subscriptions } = useFetchSubscriptions();
     const { session } = React.useContext(AuthContext);
     const { transactions: storedTransactions, categoryExpenses, setCategoryExpenses } = React.useContext(StoreContext);
+    const [loadingCategoryExpenses, setLoadingCategoryExpenses] = React.useState(false);
     const [showAddTransactionForm, setShowAddTransactionForm] = React.useState(false);
     const [showAddSubscriptionForm, setShowAddSubscriptionForm] = React.useState(false);
 
@@ -117,6 +118,7 @@ const DashboardRoute = () => {
 
     const fetchCategoryExpenses = () => {
         if (!session || !session.user) return;
+        setLoadingCategoryExpenses(true);
         Promise.all([
             TransactionService.getCurrentMonthExpenses(session.user.id),
             TransactionService.getAllTimeExpenses(session.user.id),
@@ -140,7 +142,8 @@ const DashboardRoute = () => {
                             : [],
                 });
             })
-            .catch(console.error);
+            .catch(console.error)
+            .finally(() => setLoadingCategoryExpenses(false));
     };
 
     React.useEffect(() => {
@@ -208,6 +211,7 @@ const DashboardRoute = () => {
 
             <Grid item xs={12} md={6} lg={4} order={{ xs: 1, md: 2 }}>
                 <CategoryExpensesChartCard
+                    loading={loadingCategoryExpenses}
                     data={categoryExpenses}
                     onChangeChart={(chart) => setCategoryExpenses({ type: 'CHANGE_CHART', chart: chart })}
                 />
