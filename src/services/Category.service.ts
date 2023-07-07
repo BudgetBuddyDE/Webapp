@@ -1,5 +1,5 @@
 import { Category } from '@/models/Category.model';
-import { SupabaseClient } from '@/supabase';
+import { supabase } from '@/supabase';
 import type { ExportFormat, SupabaseData } from '@/type';
 import type { CategoryTable, CategoryView, ExportCategory } from '@/type/category.type';
 
@@ -8,7 +8,7 @@ export class CategoryService {
 
     static async createCategories(categories: Partial<CategoryTable>[]): Promise<Category[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).insert(categories).select();
+            const response = await supabase.from(this.table).insert(categories).select();
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<CategoryTable[]>;
             res(data ? data.map((category) => new Category(category)) : []);
@@ -17,7 +17,7 @@ export class CategoryService {
 
     static async getCategories(): Promise<Category[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).select('*').order('name', { ascending: true });
+            const response = await supabase.from(this.table).select('*').order('name', { ascending: true });
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<CategoryTable[]>;
             res(data ? data.map((category) => new Category(category)) : []);
@@ -26,7 +26,7 @@ export class CategoryService {
 
     static async delete(categories: Category['id'][]): Promise<Category[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).delete().in('id', categories).select();
+            const response = await supabase.from(this.table).delete().in('id', categories).select();
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<CategoryTable[]>;
             res(data ? data.map((category) => new Category(category)) : []);
@@ -41,7 +41,7 @@ export class CategoryService {
         updatedCategory: Pick<CategoryTable, 'name' | 'description' | 'created_by'>
     ): Promise<Category[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).update(updatedCategory).match({ id: id }).select();
+            const response = await supabase.from(this.table).update(updatedCategory).match({ id: id }).select();
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<CategoryTable[]>;
             res(data ? data.map((category) => new Category(category)) : []);
@@ -53,7 +53,7 @@ export class CategoryService {
      */
     static async deleteCategoryById(id: number): Promise<Category[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).delete().match({ id: id }).select();
+            const response = await supabase.from(this.table).delete().match({ id: id }).select();
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<CategoryTable[]>;
             res(data ? data.map((category) => new Category(category)) : []);
@@ -67,7 +67,7 @@ export class CategoryService {
         return new Promise((res, rej) => {
             switch (type) {
                 case 'JSON':
-                    SupabaseClient()
+                    supabase
                         .from(this.table)
                         .select(`*`)
                         .then((result) => {
@@ -77,7 +77,7 @@ export class CategoryService {
                     break;
 
                 case 'CSV':
-                    SupabaseClient()
+                    supabase
                         .from(this.table)
                         .select(`*`)
                         .csv()
@@ -92,7 +92,7 @@ export class CategoryService {
 
     static getStats(type: 'COUNT' | 'EARNINGS' | 'SPENDINGS'): Promise<{ value: number; category: CategoryView }[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().rpc('get_category_stats', { type: type });
+            const response = await supabase.rpc('get_category_stats', { type: type });
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<
                 {

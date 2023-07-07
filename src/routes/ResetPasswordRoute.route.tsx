@@ -4,7 +4,7 @@ import { Card } from '@/components/Base';
 import { StackedIconButton } from '@/components/Core/StackedIconButton.component';
 import { AuthContext } from '@/context/Auth.context';
 import { SnackbarContext } from '@/context/Snackbar.context';
-import { SupabaseClient } from '@/supabase';
+import { supabase } from '@/supabase';
 import { AppRegistrationRounded, ExitToAppRounded, HomeRounded } from '@mui/icons-material';
 import { Box, Button, Divider, Grid, TextField, Typography } from '@mui/material';
 
@@ -35,10 +35,10 @@ const ResetPasswordRoute = () => {
                 if (!form.password1) throw new Error('You have to provide a new password');
                 if (form.password1 !== form.password2) throw new Error('Passwords are not equal');
 
-                const { data, error } = await SupabaseClient().auth.updateUser({ password: form.password1 });
+                const { data, error } = await supabase.auth.updateUser({ password: form.password1 });
                 if (error) throw error;
                 console.log(data);
-                // const { error } = await SupabaseClient().auth.api.updateUser(hashFromString(hash).access_token, {
+                // const { error } = await supabase.auth.api.updateUser(hashFromString(hash).access_token, {
                 //     password: form.password1,
                 // });
                 // if (error) throw error;

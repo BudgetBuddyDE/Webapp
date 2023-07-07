@@ -4,7 +4,7 @@ import { Card } from '@/components/Base';
 import { StackedIconButton } from '@/components/Core/StackedIconButton.component';
 import { AuthContext } from '@/context/Auth.context';
 import { SnackbarContext } from '@/context/Snackbar.context';
-import { SupabaseClient } from '@/supabase';
+import { supabase } from '@/supabase';
 import { AppRegistrationRounded, ExitToAppRounded, HomeRounded } from '@mui/icons-material';
 import { Box, Button, Divider, Grid, TextField, Typography } from '@mui/material';
 
@@ -25,7 +25,7 @@ const RequestPasswordResetRoute = () => {
                     throw new Error('Provide an email');
                 }
                 const redirectLocation = `${window.location.origin}/reset-password`;
-                const { error } = await SupabaseClient().auth.resetPasswordForEmail(form.email, {
+                const { error } = await supabase.auth.resetPasswordForEmail(form.email, {
                     redirectTo: redirectLocation,
                 });
                 if (error) throw error;

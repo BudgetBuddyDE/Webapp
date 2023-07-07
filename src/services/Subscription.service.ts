@@ -1,7 +1,7 @@
 import { BaseSubscription } from '@/models/BaseSubscription.model';
 import { Subscription } from '@/models/Subscription.model';
 import { Transaction } from '@/models/Transaction.model';
-import { SupabaseClient } from '@/supabase';
+import { supabase } from '@/supabase';
 import type { ExportFormat, SupabaseData } from '@/type';
 import type { CategoryOverview } from '@/type/category.type';
 import type { TBaseSubscription, TExportSubscription, TSubscription } from '@/type/subscription.type';
@@ -13,7 +13,7 @@ export class SubscriptionService {
 
     static async createSubscriptions(subscriptions: Partial<TBaseSubscription>[]): Promise<BaseSubscription[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).insert(subscriptions).select();
+            const response = await supabase.from(this.table).insert(subscriptions).select();
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<TBaseSubscription[]>;
             res(data ? data.map((subscription) => new BaseSubscription(subscription)) : []);
@@ -22,7 +22,7 @@ export class SubscriptionService {
 
     static async getSubscriptions(): Promise<Subscription[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).select(`
+            const response = await supabase.from(this.table).select(`
                 id,
                 amount,
                 receiver,
@@ -48,7 +48,7 @@ export class SubscriptionService {
         value: TBaseSubscription['category'] | TBaseSubscription['paymentMethod']
     ): Promise<BaseSubscription[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient()
+            const response = await supabase
                 .from(this.table)
                 .update({ [column]: value })
                 .in('id', subscriptions)
@@ -61,7 +61,7 @@ export class SubscriptionService {
 
     static async delete(subscriptions: Subscription['id'][]): Promise<BaseSubscription[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).delete().in('id', subscriptions).select();
+            const response = await supabase.from(this.table).delete().in('id', subscriptions).select();
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<TBaseSubscription[]>;
             res(data ? data.map((category) => new BaseSubscription(category)) : []);
@@ -76,11 +76,7 @@ export class SubscriptionService {
         updatedSubscription: Partial<TBaseSubscription>
     ): Promise<BaseSubscription[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient()
-                .from(this.table)
-                .update(updatedSubscription)
-                .match({ id: id })
-                .select();
+            const response = await supabase.from(this.table).update(updatedSubscription).match({ id: id }).select();
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<TBaseSubscription[]>;
             res(data ? data.map((subscription) => new BaseSubscription(subscription)) : []);
@@ -92,7 +88,7 @@ export class SubscriptionService {
      */
     static async deleteSubscriptionById(id: number): Promise<BaseSubscription[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).delete().match({ id: id }).select();
+            const response = await supabase.from(this.table).delete().match({ id: id }).select();
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<TBaseSubscription[]>;
             res(data ? data.map((subscription) => new BaseSubscription(subscription)) : []);
@@ -220,7 +216,7 @@ export class SubscriptionService {
         return new Promise((res, rej) => {
             switch (type) {
                 case 'JSON':
-                    SupabaseClient()
+                    supabase
                         .from(this.table)
                         .select(`*, categories:category(*), paymentMethods:paymentMethod(*)`)
                         .then((result) => {
@@ -230,7 +226,7 @@ export class SubscriptionService {
                     break;
 
                 case 'CSV':
-                    SupabaseClient()
+                    supabase
                         .from(this.table)
                         .select(`*`)
                         .csv()

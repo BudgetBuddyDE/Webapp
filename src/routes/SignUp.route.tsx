@@ -5,7 +5,7 @@ import { StackedIconButton } from '@/components/Core/StackedIconButton.component
 import { AuthContext } from '@/context/Auth.context';
 import { SnackbarContext } from '@/context/Snackbar.context';
 import { AuthService } from '@/services/Auth.service';
-import { SupabaseClient } from '@/supabase';
+import { supabase } from '@/supabase';
 import {
     ExitToAppRounded,
     HomeRounded,
@@ -59,7 +59,7 @@ const SignUpRoute = () => {
                 navigate('/dashboard', { replace: true });
                 showSnackbar({
                     message: 'Registration successfull',
-                    action: <Button onClick={async () => await SupabaseClient().auth.signOut()}>Sign out</Button>,
+                    action: <Button onClick={async () => await supabase.auth.signOut()}>Sign out</Button>,
                 });
             } catch (error) {
                 console.error(error);

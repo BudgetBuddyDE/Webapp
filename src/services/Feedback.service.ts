@@ -1,4 +1,4 @@
-import { SupabaseClient } from '@/supabase';
+import { supabase } from '@/supabase';
 import type { FeedbackTable } from '@/type/feedback.type';
 
 export class FeedbackService {
@@ -6,7 +6,7 @@ export class FeedbackService {
 
     static async create(feedback: Partial<FeedbackTable>): Promise<FeedbackTable[] | null> {
         return new Promise(async (res, rej) => {
-            const { data, error } = await SupabaseClient().from(this.table).insert([feedback]).select();
+            const { data, error } = await supabase.from(this.table).insert([feedback]).select();
             if (error) rej(error);
             res(data);
         });

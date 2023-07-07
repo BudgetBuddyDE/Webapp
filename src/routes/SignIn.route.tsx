@@ -7,7 +7,7 @@ import { FailedLoginAttemptsDialog } from '@/components/Profile/FailedLoginAttem
 import { AuthContext } from '@/context/Auth.context';
 import { SnackbarContext } from '@/context/Snackbar.context';
 import { AuthService } from '@/services/Auth.service';
-import { SupabaseClient } from '@/supabase';
+import { supabase } from '@/supabase';
 import {
     AppRegistrationRounded,
     HomeRounded,
@@ -62,7 +62,7 @@ const SignInRoute = () => {
                 navigate('/dashboard', { replace: true });
                 showSnackbar({
                     message: 'Authentification successfull',
-                    action: <Button onClick={async () => await SupabaseClient().auth.signOut()}>Sign out</Button>,
+                    action: <Button onClick={async () => await supabase.auth.signOut()}>Sign out</Button>,
                 });
             } catch (error) {
                 console.error(error);

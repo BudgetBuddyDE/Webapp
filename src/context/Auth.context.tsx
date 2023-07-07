@@ -1,5 +1,5 @@
 import React from 'react';
-import { SupabaseClient } from '@/supabase';
+import { supabase } from '@/supabase';
 import type { ContextDispatch } from '@/type/context.type';
 import type { Session } from '@supabase/supabase-js';
 
@@ -19,7 +19,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const retrieveCurrentSession = async function () {
         setLoading(true);
-        const { data: session, error } = await SupabaseClient().auth.getSession();
+        const { data: session, error } = await supabase.auth.getSession();
         if (error) console.error(error);
         setSession(session.session);
         setLoading(false);
@@ -27,7 +27,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     React.useLayoutEffect(() => {
         retrieveCurrentSession();
-        const { data: listener } = SupabaseClient().auth.onAuthStateChange((_event, session) => setSession(session));
+        const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
         return () => listener.subscription.unsubscribe();
     }, []);
 

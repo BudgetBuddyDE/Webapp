@@ -1,5 +1,5 @@
 import { TransactionService } from '@/services/Transaction.service';
-import { SupabaseClient } from '@/supabase';
+import { supabase } from '@/supabase';
 import type { Description, SupabaseData, uuid } from '@/type';
 import type { CategoryView } from '@/type/category.type';
 import type { PaymentMethodView } from '@/type/payment-method.type';
@@ -58,7 +58,7 @@ export class Transaction {
         ...otherFields
     }: Omit<TUpdateTransactionProps, 'id'>): Promise<[Transaction | null, Error | null]> {
         try {
-            const { data, error } = await SupabaseClient()
+            const { data, error } = await supabase
                 .from(TransactionService.getTableName())
                 .update({
                     ...otherFields,

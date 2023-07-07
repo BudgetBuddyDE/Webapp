@@ -1,7 +1,7 @@
 import { isSameMonth } from 'date-fns';
 import { BaseTransaction } from '@/models/BaseTransaction.model';
 import { Transaction } from '@/models/Transaction.model';
-import { SupabaseClient } from '@/supabase';
+import { supabase } from '@/supabase';
 import type { ExportFormat, SupabaseData } from '@/type';
 import type { DailyEarning, Earning } from '@/type/earning.type';
 import type { DailyExpense, Expense } from '@/type/expense.type';
@@ -26,7 +26,7 @@ export class TransactionService {
 
     static async createTransactions(transactions: TCreateTransactionProps[]): Promise<[Transaction[], Error | null]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient()
+            const response = await supabase
                 .from(this.table)
                 .insert(
                     transactions.map((t) => ({
@@ -46,7 +46,7 @@ export class TransactionService {
 
     static async getTransactions(amount = 1000): Promise<Transaction[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient()
+            const response = await supabase
                 .from(this.table)
                 .select(this.getSelectQuery())
                 .order('date', { ascending: false })
@@ -69,7 +69,7 @@ export class TransactionService {
         value: TBaseTransaction['category'] | TBaseTransaction['paymentMethod']
     ): Promise<Transaction[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient()
+            const response = await supabase
                 .from(this.table)
                 .update({ [column]: value })
                 .in('id', transactions)
@@ -82,7 +82,7 @@ export class TransactionService {
 
     static async delete(transactions: BaseTransaction['id'][]): Promise<BaseTransaction[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).delete().in('id', transactions).select();
+            const response = await supabase.from(this.table).delete().in('id', transactions).select();
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<TBaseTransaction[]>;
             res(data ? data.map((category) => new BaseTransaction(category)) : []);
@@ -91,7 +91,7 @@ export class TransactionService {
 
     static async getAllTimeExpenses(userId: string): Promise<Expense[] | null> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from('AllTimeExpenses').select('*').eq('created_by', userId);
+            const response = await supabase.from('AllTimeExpenses').select('*').eq('created_by', userId);
             if (response.error) rej(response.error);
             res(response.data as SupabaseData<Expense[]>);
         });
@@ -99,7 +99,7 @@ export class TransactionService {
 
     static async getCurrentMonthExpenses(userId: string): Promise<Expense[] | null> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from('CurrentMonthExpenses').select('*').eq('created_by', userId);
+            const response = await supabase.from('CurrentMonthExpenses').select('*').eq('created_by', userId);
             if (response.error) rej(response.error);
             res(response.data as SupabaseData<Expense[]>);
         });
@@ -107,7 +107,7 @@ export class TransactionService {
 
     static async getDailyExpenses(startDate: Date, endDate: Date): Promise<DailyExpense[] | null> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().rpc('get_daily_transactions', {
+            const response = await supabase.rpc('get_daily_transactions', {
                 requested_data: 'SPENDINGS',
                 end_date: endDate,
                 start_date: startDate,
@@ -120,7 +120,7 @@ export class TransactionService {
 
     static async getExpenses(userId: string, startDate: Date, endDate: Date): Promise<Expense[] | null> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().rpc('getExpenses', {
+            const response = await supabase.rpc('getExpenses', {
                 endDate: endDate,
                 startDate: startDate,
                 userId: userId,
@@ -132,7 +132,7 @@ export class TransactionService {
 
     static async getDailyEarnigns(startDate: Date, endDate: Date): Promise<DailyEarning[] | null> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().rpc('get_daily_transactions', {
+            const response = await supabase.rpc('get_daily_transactions', {
                 requested_data: 'INCOME',
                 end_date: endDate,
                 start_date: startDate,
@@ -145,7 +145,7 @@ export class TransactionService {
 
     static async getEarnings(userId: string, startDate: Date, endDate: Date): Promise<Earning[] | null> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().rpc('getIncome', {
+            const response = await supabase.rpc('getIncome', {
                 endDate: endDate,
                 startDate: startDate,
                 userId: userId,
@@ -160,7 +160,7 @@ export class TransactionService {
      */
     static async updateTransaction(id: number, updatedTransaction: TUpdateTransactionProps): Promise<Transaction[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient()
+            const response = await supabase
                 .from(this.table)
                 .update(updatedTransaction)
                 .match({ id: id })
@@ -206,7 +206,7 @@ export class TransactionService {
         return new Promise((res, rej) => {
             switch (type) {
                 case 'JSON':
-                    SupabaseClient()
+                    supabase
                         .from(`transactions`)
                         .select(`*, categories:category(*), paymentMethods:paymentMethod(*)`)
                         .then((result) => {
@@ -216,7 +216,7 @@ export class TransactionService {
                     break;
 
                 case 'CSV':
-                    SupabaseClient()
+                    supabase
                         .from(`transactions`)
                         .select(`*, categories:category(*), paymentMethods:paymentMethod(*)`)
                         .csv()

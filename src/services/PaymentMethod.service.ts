@@ -1,5 +1,5 @@
 import { PaymentMethod } from '@/models/PaymentMethod.model';
-import { SupabaseClient } from '@/supabase';
+import { supabase } from '@/supabase';
 import type { ExportFormat, SupabaseData } from '@/type';
 import type { ExportPaymentMethod, PaymentMethodTable, PaymentMethodView } from '@/type/payment-method.type';
 
@@ -8,7 +8,7 @@ export class PaymentMethodService {
 
     static async createPaymentMethods(paymentMethods: Partial<PaymentMethodTable>[]): Promise<PaymentMethod[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).insert(paymentMethods).select();
+            const response = await supabase.from(this.table).insert(paymentMethods).select();
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<PaymentMethodTable[]>;
             res(data ? data.map((paymentMethod) => new PaymentMethod(paymentMethod)) : []);
@@ -17,7 +17,7 @@ export class PaymentMethodService {
 
     static async getPaymentMethods(): Promise<PaymentMethod[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).select('*').order('name', { ascending: true });
+            const response = await supabase.from(this.table).select('*').order('name', { ascending: true });
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<PaymentMethodTable[]>;
             res(data ? data.map((paymentMethod) => new PaymentMethod(paymentMethod)) : []);
@@ -26,7 +26,7 @@ export class PaymentMethodService {
 
     static async delete(paymentMethods: PaymentMethodTable['id'][]): Promise<PaymentMethod[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).delete().in('id', paymentMethods).select();
+            const response = await supabase.from(this.table).delete().in('id', paymentMethods).select();
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<PaymentMethodTable[]>;
             res(data ? data.map((paymentMethod) => new PaymentMethod(paymentMethod)) : []);
@@ -41,11 +41,7 @@ export class PaymentMethodService {
         updatedPaymentMethod: Partial<PaymentMethodTable>
     ): Promise<PaymentMethod[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient()
-                .from(this.table)
-                .update(updatedPaymentMethod)
-                .match({ id: id })
-                .select();
+            const response = await supabase.from(this.table).update(updatedPaymentMethod).match({ id: id }).select();
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<PaymentMethodTable[]>;
             res(data ? data.map((paymentMethod) => new PaymentMethod(paymentMethod)) : []);
@@ -58,7 +54,7 @@ export class PaymentMethodService {
   */
     static async deletePaymentMethodById(id: number): Promise<PaymentMethod[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).delete().match({ id: id }).select();
+            const response = await supabase.from(this.table).delete().match({ id: id }).select();
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<PaymentMethodTable[]>;
             res(data ? data.map((paymentMethod) => new PaymentMethod(paymentMethod)) : []);
@@ -72,7 +68,7 @@ export class PaymentMethodService {
         return new Promise((res, rej) => {
             switch (type) {
                 case 'JSON':
-                    SupabaseClient()
+                    supabase
                         .from(this.table)
                         .select(`*`)
                         .then((result) => {
@@ -82,7 +78,7 @@ export class PaymentMethodService {
                     break;
 
                 case 'CSV':
-                    SupabaseClient()
+                    supabase
                         .from(this.table)
                         .select(`*`)
                         .csv()
@@ -99,7 +95,7 @@ export class PaymentMethodService {
         type: 'COUNT' | 'EARNINGS' | 'SPENDINGS'
     ): Promise<{ value: number; paymentMethod: PaymentMethodView }[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().rpc('get_pm_stats', { type: type });
+            const response = await supabase.rpc('get_pm_stats', { type: type });
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<
                 {

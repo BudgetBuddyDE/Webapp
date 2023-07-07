@@ -4,7 +4,7 @@ import { ProfileAvatar } from '@/components/Profile/ProfileAvatar.component';
 import { AuthContext } from '@/context/Auth.context';
 import { StoreContext } from '@/context/Store.context';
 import { useWindowDimensions } from '@/hook/useWindowDimensions.hook';
-import { SupabaseClient } from '@/supabase';
+import { supabase } from '@/supabase';
 import { Logout as LogoutIcon } from '@mui/icons-material';
 import { Box, Button, ButtonProps, Chip, Divider, Typography } from '@mui/material';
 
@@ -19,7 +19,7 @@ export const DrawerProfile: React.FC<DrawerProfileProps> = ({ open }) => {
     const { setShowDrawer, showDrawer } = React.useContext(StoreContext);
 
     const handleSignOut = async () => {
-        await SupabaseClient().auth.signOut();
+        await supabase.auth.signOut();
     };
 
     const handleClick = () => {

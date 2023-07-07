@@ -1,16 +1,16 @@
-import { SupabaseClient } from '@/supabase';
+import { supabase } from '@/supabase';
 import type { SignInProps, SignUpProps } from '@/type/authentification.type';
 
 export class AuthService {
     static async signIn({ email, password }: SignInProps) {
-        return SupabaseClient().auth.signInWithPassword({
+        return supabase.auth.signInWithPassword({
             email,
             password,
         });
     }
 
     static async signUp({ email, password, metadata }: SignUpProps) {
-        return SupabaseClient().auth.signUp({
+        return supabase.auth.signUp({
             email,
             password,
             options: {

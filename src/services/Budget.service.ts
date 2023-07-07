@@ -1,6 +1,6 @@
 import { BaseBudget } from '@/models/BaseBudget.model';
 import { Budget } from '@/models/Budget.model';
-import { SupabaseClient } from '@/supabase';
+import { supabase } from '@/supabase';
 import type { ExportFormat, SupabaseData } from '@/type';
 import type {
     BudgetProgressView,
@@ -15,7 +15,7 @@ export class BudgetService {
 
     static async create(budget: Partial<TBaseBudget>[]): Promise<[BaseBudget[], Error | null]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).insert(budget).select();
+            const response = await supabase.from(this.table).insert(budget).select();
             if (response.error) rej([[], new Error(response.error.message)]);
             const data = response.data as SupabaseData<TBaseBudget[]>;
             res([data ? data.map((budget) => new BaseBudget(budget)) : [], null]);
@@ -24,7 +24,7 @@ export class BudgetService {
 
     static async getBudget(uuid: string): Promise<Budget[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from('BudgetProgress').select('*').eq('created_by', uuid);
+            const response = await supabase.from('BudgetProgress').select('*').eq('created_by', uuid);
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<BudgetProgressView[]>;
             res(data ? data.map((budget) => new Budget(budget)) : []);
@@ -33,7 +33,7 @@ export class BudgetService {
 
     static getMonthlyBalance(monthBacklog: number): Promise<MonthlyBalance[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().rpc('get_monthly_balance', {
+            const response = await supabase.rpc('get_monthly_balance', {
                 months: monthBacklog,
             });
             if (response.error) rej(response.error);
@@ -55,7 +55,7 @@ export class BudgetService {
      */
     static async update(id: number, updatedBudget: Partial<TBaseBudget>): Promise<BaseBudget[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).update(updatedBudget).match({ id: id }).select();
+            const response = await supabase.from(this.table).update(updatedBudget).match({ id: id }).select();
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<TBaseBudget[]>;
             res(data ? data.map((budget) => new BaseBudget(budget)) : []);
@@ -67,7 +67,7 @@ export class BudgetService {
      */
     static async deleteById(id: number): Promise<BaseBudget[]> {
         return new Promise(async (res, rej) => {
-            const response = await SupabaseClient().from(this.table).delete().match({ id: id }).select();
+            const response = await supabase.from(this.table).delete().match({ id: id }).select();
             if (response.error) rej(response.error);
             const data = response.data as SupabaseData<TBaseBudget[]>;
             res(data ? data.map((budget) => new BaseBudget(budget)) : []);
@@ -81,7 +81,7 @@ export class BudgetService {
         return new Promise((res, rej) => {
             switch (type) {
                 case 'JSON':
-                    SupabaseClient()
+                    supabase
                         .from(this.table)
                         .select(`*, categories:category(*)`)
                         .then((result) => {
@@ -92,7 +92,7 @@ export class BudgetService {
                     break;
 
                 case 'CSV':
-                    SupabaseClient()
+                    supabase
                         .from(`budget`)
                         .select(`*, categories:category(*)`)
                         .csv()

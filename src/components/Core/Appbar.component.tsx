@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppConfig } from '@/app.config';
 import { AuthContext } from '@/context/Auth.context';
 import { StoreContext } from '@/context/Store.context';
-import { SupabaseClient } from '@/supabase';
+import { supabase } from '@/supabase';
 import { Logout as LogoutIcon, Settings as SettingsIcon } from '@mui/icons-material';
 import {
     Box,
@@ -43,7 +43,7 @@ export const Appbar = () => {
             icon: <LogoutIcon />,
             label: 'Logout',
             onClick: async () => {
-                await SupabaseClient().auth.signOut();
+                await supabase.auth.signOut();
             },
         },
     ];
