@@ -90,13 +90,13 @@ const SettingsRoute: React.FC<SettingsRouteProps> = ({ editProfile = false }) =>
                 </Card>
             </Grid>
 
-            <Grid container item xs={12} md={4} lg={3} order={{ xs: 1, md: 0 }}>
+            <Grid container item xs={12} md={4} lg={4} xl={3} order={{ xs: 1, md: 0 }}>
                 <Grid item xs={12} md={12} lg={12}>
                     <AboutInformation />
                 </Grid>
             </Grid>
 
-            <Grid container item xs={12} md={8} lg={9} order={{ xs: 0, md: 1 }}>
+            <Grid container item xs={12} md={8} lg={8} xl={9} order={{ xs: 0, md: 1 }}>
                 <ProfileTab tabPanelProps={{ index: 'profile', value: value }} editProfile={editProfile} />
                 <FeedbackTab
                     tabPanelProps={{
