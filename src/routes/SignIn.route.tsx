@@ -84,9 +84,12 @@ const SignInRoute = () => {
                         px: 4,
                     }}
                 >
-                    <Typography textAlign="center" variant="h4" fontWeight={600}>
-                        Sign In
-                    </Typography>
+                    <Box display="flex" flexDirection="column">
+                        {/* <AppLogo sx={{mx: "auto"}} /> */}
+                        <Typography variant="h4" textAlign="center" fontWeight={600}>
+                            Sign In
+                        </Typography>
+                    </Box>
 
                     <form onSubmit={formHandler.formSubmit}>
                         <Box style={{ display: 'flex', flexDirection: 'column' }}>
@@ -139,7 +142,7 @@ const SignInRoute = () => {
 
                     <Grid container spacing={1} justifyContent="center">
                         {session && session.user && (
-                            <Grid item xs={6} md={4}>
+                            <Grid item xs={6} md={6} lg={6} xl={4}>
                                 <StackedIconButton
                                     // @ts-ignore
                                     component={Link}
@@ -152,7 +155,7 @@ const SignInRoute = () => {
                                 </StackedIconButton>
                             </Grid>
                         )}
-                        <Grid item xs={6} md={4}>
+                        <Grid item xs={6} md={6} lg={6} xl={4}>
                             <StackedIconButton
                                 // @ts-ignore
                                 component={Link}
@@ -164,7 +167,7 @@ const SignInRoute = () => {
                                 Reset password?
                             </StackedIconButton>
                         </Grid>
-                        <Grid item xs={6} md={4}>
+                        <Grid item xs={6} md={6} lg={6} xl={4}>
                             <StackedIconButton
                                 // @ts-ignore
                                 component={Link}

@@ -143,7 +143,7 @@ const SignUpRoute = () => {
 
                     <Grid container spacing={1} justifyContent="center">
                         {session && session.user && (
-                            <Grid item xs={6} md={4}>
+                            <Grid item xs={6} md={6} lg={6} xl={4}>
                                 <StackedIconButton
                                     // @ts-ignore
                                     component={Link}
@@ -156,7 +156,7 @@ const SignUpRoute = () => {
                                 </StackedIconButton>
                             </Grid>
                         )}
-                        <Grid item xs={6} md={4}>
+                        <Grid item xs={6} md={6} lg={6} xl={4}>
                             <StackedIconButton
                                 // @ts-ignore
                                 component={Link}
