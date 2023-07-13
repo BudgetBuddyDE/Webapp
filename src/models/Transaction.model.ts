@@ -64,7 +64,7 @@ export class Transaction {
                     ...otherFields,
                     description: description == null || description.length == 0 ? null : description,
                 })
-                .match({ id: this.id })
+                .eq('id', this.id)
                 .select(TransactionService.getSelectQuery());
             if (error) return [null, new Error(error.message)];
             // @ts-expect-error

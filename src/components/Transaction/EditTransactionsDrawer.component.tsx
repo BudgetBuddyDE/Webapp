@@ -81,11 +81,10 @@ export const EditTransactionDrawer: React.FC<EditTransactionDrawerProps> = ({
             });
         },
         onDateChange: (date) => {
-            const dateStr = (date ?? new Date()).toString();
             setForm((prev) => {
                 if (!prev) {
-                    return { date: dateStr } as TUpdateTransactionProps;
-                } else return { ...prev, date: dateStr };
+                    return { date: date ?? new Date() } as TUpdateTransactionProps;
+                } else return { ...prev, date: date ?? new Date() };
             });
         },
         onClose: () => {
@@ -103,8 +102,9 @@ export const EditTransactionDrawer: React.FC<EditTransactionDrawerProps> = ({
                     ...form,
                     amount: transformBalance(form.amount.toString()),
                 });
-                if (!updatedTransaction || error) {
-                    throw new Error('Changes haven been saved');
+                if (error) throw error;
+                if (updatedTransaction == null) {
+                    throw new Error("No changes we're saved");
                 }
                 afterSubmit && afterSubmit(transaction);
                 setDrawerAction({ type: 'SUCCESS' });
