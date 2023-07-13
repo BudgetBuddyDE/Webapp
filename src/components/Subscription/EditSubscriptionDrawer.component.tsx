@@ -100,6 +100,7 @@ export const EditSubscriptionDrawer: React.FC<EditSubscriptionDrawerProps> = ({
 
                 const {
                     id,
+                    paused,
                     category,
                     paymentMethod,
                     receiver,
@@ -112,6 +113,7 @@ export const EditSubscriptionDrawer: React.FC<EditSubscriptionDrawerProps> = ({
                 } = updatedSubscriptions[0];
                 const updatedItem = new Subscription({
                     id: id,
+                    paused: paused,
                     categories: categories.find((c) => c.id === category)!.categoryView,
                     paymentMethods: paymentMethods.find((pm) => pm.id === paymentMethod)!.paymentMethodView,
                     receiver: receiver,
