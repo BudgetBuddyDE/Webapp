@@ -9,7 +9,7 @@
         "build": "tsc && vite build",
         "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "preview": "vite preview",
-        "test": "jest --passWithNoTests",
+        "test": "jest --passWithNoTests --setupFiles dotenv/config",
         "format": "prettier --write src/",
         "prepare": "husky install",
         "release": "standard-version"
