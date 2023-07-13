@@ -21,6 +21,7 @@ import { PaymentMethodChip } from '@/components/PaymentMethod/PaymentMethodChip.
 import { SelectMultiple, SelectMultipleHandler } from '@/components/SelectMultiple';
 import { CreateSubscriptionDrawer } from '@/components/Subscription/CreateSubscriptionDrawer.component';
 import { EditSubscriptionDrawer } from '@/components/Subscription/EditSubscriptionDrawer.component';
+import { SubscriptionActionMenu } from '@/components/Subscription/SubscriptionActionMenu.component';
 import { SubscriptionOverviewChartCard } from '@/components/Subscription/SubscriptionOverviewChartCard.component';
 import { CreateTransactionDrawer } from '@/components/Transaction/CreateTransactionDrawer.component';
 import { SnackbarContext } from '@/context/Snackbar.context';
@@ -33,15 +34,11 @@ import { SubscriptionService } from '@/services/Subscription.service';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import { TCreateTransactionProps } from '@/type/transaction.type';
 import { filterSubscriptions } from '@/util/filter.util';
-import {
-    AddRounded as AddIcon,
-    CompareArrowsRounded as CompareArrowsIcon,
-    DeleteRounded as DeleteIcon,
-    EditRounded as EditIcon,
-} from '@mui/icons-material';
+import { AddRounded as AddIcon, DeleteRounded as DeleteIcon, EditRounded as EditIcon } from '@mui/icons-material';
 import {
     Box,
     Button,
+    Chip,
     Grid,
     IconButton,
     Table,
@@ -61,6 +58,7 @@ interface SubscriptionsHandler {
         onDelete: (subscription: Subscription) => void;
         onEdit: (subscription: Subscription) => void;
         onShowAddForm: () => void;
+        toggleExecutionStatus: (subscription: Subscription) => void;
     };
     transaction: {
         onShowCreateDrawer: (subscription: Subscription) => void;
@@ -125,6 +123,24 @@ const SubscriptionsRoute = () => {
             onEdit(subscription) {
                 setShowEditForm(true);
                 setEditSubscription(subscription);
+            },
+            async toggleExecutionStatus(subscription) {
+                try {
+                    const [updatedSubscription, error] = await subscription.toggleExecutionState();
+                    if (error) throw error;
+                    if (!updatedSubscription) {
+                        throw new Error("No changes we're saved");
+                    }
+                    refreshSubscriptions();
+                    showSnackbar({
+                        message: `Subscription is now ${updatedSubscription.paused ? 'paused' : 'active'}`,
+                    });
+                } catch (error) {
+                    console.error(error);
+                    showSnackbar({
+                        message: error instanceof Error ? error.message : "Something wen't wrong",
+                    });
+                }
             },
         },
         transaction: {
@@ -311,7 +327,14 @@ const SubscriptionsRoute = () => {
                                                         />
                                                     </TableCell>
                                                     <TableCell size={AppConfig.table.cellSize}>
-                                                        <Typography fontWeight="bolder">
+                                                        <Typography
+                                                            fontWeight="bolder"
+                                                            sx={{
+                                                                textDecoration: subscription.paused
+                                                                    ? 'line-through'
+                                                                    : 'unset',
+                                                            }}
+                                                        >
                                                             {subscription.determineNextExecution()}
                                                         </Typography>
                                                     </TableCell>
@@ -366,20 +389,16 @@ const SubscriptionsRoute = () => {
                                                                     </IconButton>
                                                                 </Tooltip>
                                                             </ActionPaper>
-
                                                             <ActionPaper sx={{ width: 'max-content', ml: 1 }}>
-                                                                <Tooltip title="Create transaction" placement="top">
-                                                                    <IconButton
-                                                                        color="primary"
-                                                                        onClick={() =>
-                                                                            handler.transaction.onShowCreateDrawer(
-                                                                                subscription
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        <CompareArrowsIcon />
-                                                                    </IconButton>
-                                                                </Tooltip>
+                                                                <SubscriptionActionMenu
+                                                                    subscription={subscription}
+                                                                    onCreateTransaction={
+                                                                        handler.transaction.onShowCreateDrawer
+                                                                    }
+                                                                    onToggleExecutionState={
+                                                                        handler.subscription.toggleExecutionStatus
+                                                                    }
+                                                                />
                                                             </ActionPaper>
                                                         </Box>
                                                     </TableCell>

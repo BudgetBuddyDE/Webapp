@@ -5,6 +5,7 @@ import { determineNextExecution, determineNextExecutionDate } from '@/util/deter
 
 export class BaseSubscription {
     id: number;
+    paused: boolean;
     category: number;
     paymentMethod: number;
     receiver: string;
@@ -17,6 +18,7 @@ export class BaseSubscription {
 
     constructor({
         id,
+        paused,
         category,
         paymentMethod,
         receiver,
@@ -28,6 +30,7 @@ export class BaseSubscription {
         inserted_at,
     }: TBaseSubscription) {
         this.id = id;
+        this.paused = paused;
         this.category = category;
         this.paymentMethod = paymentMethod;
         this.receiver = receiver;
@@ -38,16 +41,6 @@ export class BaseSubscription {
         this.updated_at = new Date(updated_at);
         this.inserted_at = new Date(inserted_at);
     }
-
-    // {
-    //     execute_at: number;
-    //     name: string;
-    //     receiver: string;
-    //     category: number;
-    //     paymentMethod: number;
-    //     amount: number;
-    //     description: Description;
-    // }
 
     async update(updatedInformation: Omit<TBaseSubscription, 'id' | 'inserted_at' | 'updated_at' | 'created_by'>) {
         try {

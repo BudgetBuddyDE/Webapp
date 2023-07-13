@@ -55,7 +55,7 @@ const DashboardRoute = () => {
     }, [transactions]);
 
     const latestSubscriptions: Subscription[] = React.useMemo(() => {
-        return subscriptions.slice(0, LATEST_ITEMS);
+        return subscriptions.filter((subscription) => !subscription.paused).slice(0, LATEST_ITEMS);
     }, [subscriptions]);
 
     const StatsCards: StatsProps[] = [

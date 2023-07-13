@@ -1,4 +1,5 @@
 import { SubscriptionService } from '@/services/Subscription.service';
+import { supabase } from '@/supabase';
 import type { Description, uuid } from '@/type';
 import type { CategoryView } from '@/type/category.type';
 import type { PaymentMethodView } from '@/type/payment-method.type';
@@ -8,6 +9,7 @@ import { determineNextExecution, determineNextExecutionDate } from '@/util/deter
 
 export class Subscription {
     id: number;
+    paused: boolean;
     categories: CategoryView;
     paymentMethods: PaymentMethodView;
     receiver: string;
@@ -20,6 +22,7 @@ export class Subscription {
 
     constructor({
         id,
+        paused,
         categories,
         paymentMethods,
         receiver,
@@ -31,6 +34,7 @@ export class Subscription {
         inserted_at,
     }: TSubscription) {
         this.id = id;
+        this.paused = paused;
         this.categories = categories;
         this.paymentMethods = paymentMethods;
         this.receiver = receiver;
@@ -40,6 +44,37 @@ export class Subscription {
         this.created_by = created_by;
         this.updated_at = new Date(updated_at);
         this.inserted_at = new Date(inserted_at);
+    }
+
+    getPausedLabel(): string {
+        return this.paused + '';
+    }
+
+    async updatePausedState(): Promise<Subscription> {
+        return Promise.resolve(this);
+    }
+
+    /**
+     * Update the `paused` state the subscription
+     */
+    async updateExecutionStatus(paused: boolean): Promise<[Subscription | null, Error | null]> {
+        try {
+            const { data, error } = await supabase
+                .from(SubscriptionService.getTable())
+                .update({ paused: paused })
+                .eq('id', this.id)
+                .select();
+            if (error) throw new Error(error.message);
+            if (!data || data.length == 0) throw new Error("Wasn't able to save the changes");
+            this.paused = paused;
+            return [this, null];
+        } catch (error) {
+            return [null, error instanceof Error ? error : new Error(String(error))];
+        }
+    }
+
+    toggleExecutionState(): ReturnType<Subscription['updateExecutionStatus']> {
+        return this.updateExecutionStatus(!this.paused);
     }
 
     async update(updatedInformation: {

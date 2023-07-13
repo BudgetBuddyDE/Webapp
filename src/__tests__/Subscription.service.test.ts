@@ -12,13 +12,13 @@ let unrelevantData = {
 };
 
 const subscriptions = [
-    new Subscription({ id: 1, amount: 100, execute_at: 1, ...unrelevantData }),
-    new Subscription({ id: 2, amount: -100, execute_at: 1, ...unrelevantData }),
-    new Subscription({ id: 3, amount: 100, execute_at: 1, ...unrelevantData }),
-    new Subscription({ id: 4, amount: 100, execute_at: 1, ...unrelevantData }),
-    new Subscription({ id: 5, amount: 100, execute_at: 1, ...unrelevantData }),
-    new Subscription({ id: 6, amount: 750, execute_at: 1, ...unrelevantData }),
-    new Subscription({ id: 7, amount: -50.75, execute_at: 1, ...unrelevantData }),
+    new Subscription({ id: 1, paused: false, amount: 100, execute_at: 1, ...unrelevantData }),
+    new Subscription({ id: 2, paused: false, amount: -100, execute_at: 1, ...unrelevantData }),
+    new Subscription({ id: 3, paused: false, amount: 100, execute_at: 1, ...unrelevantData }),
+    new Subscription({ id: 4, paused: false, amount: 100, execute_at: 1, ...unrelevantData }),
+    new Subscription({ id: 5, paused: false, amount: 100, execute_at: 1, ...unrelevantData }),
+    new Subscription({ id: 6, paused: false, amount: 750, execute_at: 1, ...unrelevantData }),
+    new Subscription({ id: 7, paused: false, amount: -50.75, execute_at: 1, ...unrelevantData }),
 ];
 
 describe('SubscriptionService', () => {

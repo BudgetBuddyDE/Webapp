@@ -7,6 +7,8 @@ import type { PaymentMethodView } from './payment-method.type';
  */
 export type TBaseSubscription = {
     id: number;
+    /** Default `false` */
+    paused: boolean;
     category: number;
     paymentMethod: number;
     receiver: string;
@@ -23,6 +25,8 @@ export type TBaseSubscription = {
  */
 export type TExportSubscription = {
     id: number;
+    /** Default `false` */
+    paused: boolean;
     category: number;
     categories: CategoryView;
     paymentMethod: number;
@@ -41,6 +45,8 @@ export type TExportSubscription = {
  */
 export type TSubscription = {
     id: number;
+    /** Default `false` */
+    paused: boolean;
     categories: CategoryView;
     paymentMethods: PaymentMethodView;
     receiver: string;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AppConfig } from '@/app.config';
-import { Savings as SavingsIcon } from '@mui/icons-material';
+import { SavingsRounded as SavingsIcon } from '@mui/icons-material';
 import { Box, Typography } from '@mui/material';
 import type { BoxProps, IconProps, TypographyProps } from '@mui/material';
 

@@ -6,6 +6,8 @@ describe('filterSubscriptions', () => {
     const subscriptions = [
         new Subscription({
             id: 1,
+
+            paused: false,
             categories: { id: 1, name: 'Category 1', description: 'Category 1 description' },
             paymentMethods: {
                 id: 1,
@@ -24,6 +26,7 @@ describe('filterSubscriptions', () => {
         }),
         new Subscription({
             id: 2,
+            paused: false,
             categories: { id: 2, name: 'Category 2', description: 'Category 2 description' },
             paymentMethods: {
                 id: 2,
@@ -42,6 +45,7 @@ describe('filterSubscriptions', () => {
         }),
         new Subscription({
             id: 3,
+            paused: false,
             categories: { id: 3, name: 'Category 3', description: 'Category 3 description' },
             paymentMethods: {
                 id: 3,

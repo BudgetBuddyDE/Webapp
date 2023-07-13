@@ -11,6 +11,10 @@ import { TransactionService } from './Transaction.service';
 export class SubscriptionService {
     private static table = 'subscriptions';
 
+    public static getTable(): string {
+        return this.table;
+    }
+
     static async createSubscriptions(subscriptions: Partial<TBaseSubscription>[]): Promise<BaseSubscription[]> {
         return new Promise(async (res, rej) => {
             const response = await supabase.from(this.table).insert(subscriptions).select();
@@ -24,6 +28,7 @@ export class SubscriptionService {
         return new Promise(async (res, rej) => {
             const response = await supabase.from(this.table).select(`
                 id,
+                paused,
                 amount,
                 receiver,
                 description, 
