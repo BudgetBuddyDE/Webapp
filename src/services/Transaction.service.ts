@@ -1,4 +1,4 @@
-import { isSameMonth } from 'date-fns';
+import { isSameDay, isSameMonth } from 'date-fns';
 import { BaseTransaction } from '@/models/BaseTransaction.model';
 import { Transaction } from '@/models/Transaction.model';
 import { supabase } from '@/supabase';
@@ -113,7 +113,14 @@ export class TransactionService {
                 start_date: startDate,
             });
             if (response.error) rej(response.error);
-            const data = response.data as SupabaseData<DailyExpense[]>;
+            let data = response.data as SupabaseData<DailyExpense[]>;
+
+            if (data != null) {
+                if (!isSameDay(data[0].date, startDate)) {
+                    data = data.slice(1);
+                }
+            }
+
             res(data ? data.map((day) => ({ ...day, amount: Math.abs(day.amount) })) : null);
         });
     }
