@@ -87,7 +87,9 @@ export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
                 </StyledAutocompleteOption>
             )}
             renderInput={(params) => <TextField {...params} label={label} />}
-            isOptionEqualToValue={(_option, _value) => /*FIXME:*/ true}
+            isOptionEqualToValue={(option, value) => {
+                return option.value == value.value && option.text == value.text;
+            }}
             selectOnFocus
         />
     );
