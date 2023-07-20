@@ -104,7 +104,9 @@ export class SubscriptionService {
      * Get planned earnings for the current month
      */
     static calculatePlannedEarnings(subscriptions: Subscription[]): number {
-        return subscriptions.filter(({ amount }) => amount > 0).reduce((prev, cur) => prev + cur.amount, 0);
+        return subscriptions
+            .filter(({ amount, paused }) => amount > 0 && !paused)
+            .reduce((prev, cur) => prev + cur.amount, 0);
     }
 
     /**
@@ -112,7 +114,7 @@ export class SubscriptionService {
      */
     static calculatePlannedExpenses(subscriptions: Subscription[]): number {
         return subscriptions
-            .filter((subscription) => subscription.amount <= 0)
+            .filter(({ amount, paused }) => amount <= 0 && !paused)
             .reduce((prev, cur) => prev + Math.abs(cur.amount), 0);
     }
 
@@ -123,7 +125,7 @@ export class SubscriptionService {
         const now = new Date();
         const processedSubscriptions = Math.abs(
             subscriptions
-                .filter((subscription) => subscription.execute_at > now.getDate() && subscription.amount > 0)
+                .filter(({ execute_at, amount, paused }) => execute_at > now.getDate() && amount > 0 && !paused)
                 .reduce((prev, cur) => prev + cur.amount, 0)
         );
 
@@ -140,7 +142,7 @@ export class SubscriptionService {
         const now = new Date();
         const processedSubscriptions = Math.abs(
             subscriptions
-                .filter((subscription) => subscription.execute_at > now.getDate() && subscription.amount <= 0)
+                .filter(({ execute_at, amount, paused }) => execute_at > now.getDate() && amount <= 0 && !paused)
                 .reduce((prev, cur) => prev + cur.amount, 0)
         );
 
@@ -155,7 +157,7 @@ export class SubscriptionService {
     static calculateMonthlyEarningsPerCategory(subscriptions: Subscription[]) {
         const result: CategoryOverview = {};
         const earnings = subscriptions
-            .filter(({ amount }) => amount >= 0)
+            .filter(({ amount, paused }) => amount >= 0 && !paused)
             .map((subscription) => ({ ...subscription, amount: subscription.amount }));
 
         for (const {
@@ -180,7 +182,7 @@ export class SubscriptionService {
     static calculateMonthlyExpensesPerCategory(subscriptions: Subscription[]) {
         const result: CategoryOverview = {};
         const expenses = subscriptions
-            .filter(({ amount }) => amount < 0)
+            .filter(({ amount, paused }) => amount < 0 && paused)
             .map((subscription) => ({ ...subscription, amount: Math.abs(subscription.amount) }));
 
         for (const {
