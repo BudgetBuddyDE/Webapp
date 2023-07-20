@@ -24,8 +24,8 @@ export const DrawerProfile: React.FC<DrawerProfileProps> = ({ open }) => {
 
     const handleClick = () => {
         navigate('/settings/profile');
-        if (showDrawer && (breakpoint == 'sm' || breakpoint == 'xs')) {
-            setShowDrawer(false);
+        if (!showDrawer && (breakpoint == 'sm' || breakpoint == 'xs')) {
+            setShowDrawer((prev) => !prev);
         }
     };
 
