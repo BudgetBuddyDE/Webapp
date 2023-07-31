@@ -41,7 +41,7 @@ const App = () => {
                 <Route path="/sign-up" element={<NonAuthWrapper children={<SignUpRoute />} />} />
                 <Route path="/request-reset" element={<NonAuthWrapper children={<RequestPasswordResetRoute />} />} />
                 <Route path="/reset-password" element={<NonAuthWrapper children={<ResetPasswordRoute />} />} />
-                <Route path="*" element={<PageNotFoundRoute />} />
+                <Route path="*" element={<NonAuthWrapper children={<PageNotFoundRoute />} />} />
             </Routes>
         </BrowserRouter>
     );
