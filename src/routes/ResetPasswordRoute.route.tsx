@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/Base';
+import { AppLogo } from '@/components/Core/App/AppLogo.component';
 import { StackedIconButton } from '@/components/Core/StackedIconButton.component';
 import { AuthContext } from '@/context/Auth.context';
 import { SnackbarContext } from '@/context/Snackbar.context';
@@ -54,87 +55,88 @@ const ResetPasswordRoute = () => {
 
     // if (!hash) return <Navigate to="/request-reset" />;
     return (
-        <Grid container spacing={3} justifyContent="center">
-            <Grid item xs={12} sm={6} lg={4}>
-                <Card sx={{ py: 3, px: 4 }}>
+        <Box sx={{ width: { xs: '90%', md: '40%', lg: '25%' }, maxWidth: '480px', mx: 'auto' }}>
+            <Card sx={{ py: 3, px: 4 }}>
+                <Box display="flex" flexDirection="column">
+                    <AppLogo sx={{ mx: 'auto' }} />
                     <Typography textAlign="center" variant="h4" fontWeight={600}>
                         Reset Password
                     </Typography>
+                </Box>
 
-                    <form onSubmit={formHandler.formSubmit}>
-                        <Box style={{ display: 'flex', flexDirection: 'column' }}>
-                            <TextField
-                                sx={{ mt: 3 }}
-                                variant="outlined"
-                                type="password"
-                                label="Password"
-                                name="password1"
-                                onChange={formHandler.inputChange}
-                                required
-                            />
+                <form onSubmit={formHandler.formSubmit}>
+                    <Box style={{ display: 'flex', flexDirection: 'column' }}>
+                        <TextField
+                            sx={{ mt: 3 }}
+                            variant="outlined"
+                            type="password"
+                            label="Password"
+                            name="password1"
+                            onChange={formHandler.inputChange}
+                            required
+                        />
 
-                            <TextField
-                                sx={{ mt: 3 }}
-                                variant="outlined"
-                                type="password"
-                                label="Re-enter Password"
-                                name="password2"
-                                onChange={formHandler.inputChange}
-                                required
-                            />
-                        </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                            <Button type="submit" variant="contained" sx={{ mt: 3 }}>
-                                Reset
-                            </Button>
-                        </Box>
-                    </form>
+                        <TextField
+                            sx={{ mt: 3 }}
+                            variant="outlined"
+                            type="password"
+                            label="Re-enter Password"
+                            name="password2"
+                            onChange={formHandler.inputChange}
+                            required
+                        />
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                        <Button type="submit" variant="contained" sx={{ mt: 3 }}>
+                            Reset
+                        </Button>
+                    </Box>
+                </form>
 
-                    <Divider sx={{ my: 3 }} />
+                <Divider sx={{ my: 3 }} />
 
-                    <Grid container spacing={1} justifyContent="center">
-                        {session && session.user && (
-                            <Grid item xs={6} md={6} lg={6} xl={4}>
-                                <StackedIconButton
-                                    // @ts-ignore
-                                    component={Link}
-                                    to="/dashboard"
-                                    size="large"
-                                    startIcon={<HomeRounded />}
-                                    sx={{ width: '100%' }}
-                                >
-                                    Dashboard
-                                </StackedIconButton>
-                            </Grid>
-                        )}
+                <Grid container spacing={1} justifyContent="center">
+                    {session && session.user && (
                         <Grid item xs={6} md={6} lg={6} xl={4}>
                             <StackedIconButton
                                 // @ts-ignore
                                 component={Link}
-                                to="/sign-in"
+                                to="/dashboard"
                                 size="large"
-                                startIcon={<ExitToAppRounded />}
+                                startIcon={<HomeRounded />}
                                 sx={{ width: '100%' }}
                             >
-                                Sign-in
+                                Dashboard
                             </StackedIconButton>
                         </Grid>
-                        <Grid item xs={6} md={6} lg={6} xl={4}>
-                            <StackedIconButton
-                                // @ts-ignore
-                                component={Link}
-                                to="/sign-up"
-                                size="large"
-                                startIcon={<AppRegistrationRounded />}
-                                sx={{ width: '100%' }}
-                            >
-                                Sign up
-                            </StackedIconButton>
-                        </Grid>
+                    )}
+                    <Grid item xs={6} md={6} lg={6} xl={4}>
+                        <StackedIconButton
+                            // @ts-ignore
+                            component={Link}
+                            to="/sign-in"
+                            size="large"
+                            startIcon={<ExitToAppRounded />}
+                            sx={{ width: '100%' }}
+                        >
+                            Sign-in
+                        </StackedIconButton>
                     </Grid>
-                </Card>
-            </Grid>
-        </Grid>
+                    <Grid item xs={6} md={6} lg={6} xl={4}>
+                        <StackedIconButton
+                            // @ts-ignore
+                            component={Link}
+                            to="/sign-up"
+                            size="large"
+                            startIcon={<AppRegistrationRounded />}
+                            sx={{ width: '100%' }}
+                        >
+                            Sign up
+                        </StackedIconButton>
+                    </Grid>
+                </Grid>
+            </Card>
+        </Box>
     );
 };
 

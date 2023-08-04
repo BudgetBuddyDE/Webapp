@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppConfig } from '@/app.config';
 import { Card } from '@/components/Base';
+import { AppLogo } from '@/components/Core/App/AppLogo.component';
 import { StackedIconButton } from '@/components/Core/StackedIconButton.component';
 import { FailedLoginAttemptsDialog } from '@/components/Profile/FailedLoginAttemptsDialog.component';
 import { AuthContext } from '@/context/Auth.context';
@@ -26,7 +27,6 @@ import {
     InputLabel,
     OutlinedInput,
     TextField,
-    Typography,
 } from '@mui/material';
 
 const SignInRoute = () => {
@@ -76,112 +76,102 @@ const SignInRoute = () => {
     };
 
     return (
-        <Grid container spacing={3} justifyContent="center">
-            <Grid item xs={12} sm={6} lg={4}>
-                <Card
-                    sx={{
-                        py: 3,
-                        px: 4,
-                    }}
-                >
-                    <Box display="flex" flexDirection="column">
-                        {/* <AppLogo sx={{mx: "auto"}} /> */}
-                        <Typography variant="h4" textAlign="center" fontWeight={600}>
-                            Sign In
-                        </Typography>
-                    </Box>
+        <Box sx={{ width: { xs: '90%', md: '40%', lg: '25%' }, maxWidth: '480px', mx: 'auto' }}>
+            <Card sx={{ py: 3, px: 4 }}>
+                <Box display="flex" flexDirection="column">
+                    <AppLogo sx={{ mx: 'auto' }} />
+                </Box>
 
-                    <form onSubmit={formHandler.formSubmit}>
-                        <Box style={{ display: 'flex', flexDirection: 'column' }}>
-                            <TextField
-                                sx={{
-                                    mt: 3,
-                                }}
-                                variant="outlined"
-                                type="email"
-                                label="E-Mail"
-                                name="email"
+                <form onSubmit={formHandler.formSubmit}>
+                    <Box style={{ display: 'flex', flexDirection: 'column' }}>
+                        <TextField
+                            sx={{
+                                mt: 3,
+                            }}
+                            variant="outlined"
+                            type="email"
+                            label="E-Mail"
+                            name="email"
+                            onChange={formHandler.inputChange}
+                        />
+
+                        <FormControl
+                            variant="outlined"
+                            sx={{
+                                mt: 3,
+                            }}
+                        >
+                            <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+                            <OutlinedInput
+                                type={showPassword ? 'text' : 'password'}
+                                name="password"
                                 onChange={formHandler.inputChange}
+                                label="Password"
+                                endAdornment={
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            aria-label="toggle password visibility"
+                                            onClick={() => setShowPassword((prev) => !prev)}
+                                            onMouseDown={() => setShowPassword((prev) => !prev)}
+                                            edge="end"
+                                        >
+                                            {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                }
                             />
+                        </FormControl>
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                        <Button disabled={failedLogins === 3} type="submit" variant="contained" sx={{ mt: 3 }}>
+                            Sign in
+                        </Button>
+                    </Box>
+                </form>
 
-                            <FormControl
-                                variant="outlined"
-                                sx={{
-                                    mt: 3,
-                                }}
-                            >
-                                <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-                                <OutlinedInput
-                                    type={showPassword ? 'text' : 'password'}
-                                    name="password"
-                                    onChange={formHandler.inputChange}
-                                    label="Password"
-                                    endAdornment={
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={() => setShowPassword((prev) => !prev)}
-                                                onMouseDown={() => setShowPassword((prev) => !prev)}
-                                                edge="end"
-                                            >
-                                                {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    }
-                                />
-                            </FormControl>
-                        </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                            <Button disabled={failedLogins === 3} type="submit" variant="contained" sx={{ mt: 3 }}>
-                                Sign in
-                            </Button>
-                        </Box>
-                    </form>
+                <Divider sx={{ my: 3 }} />
 
-                    <Divider sx={{ my: 3 }} />
-
-                    <Grid container spacing={1} justifyContent="center">
-                        {session && session.user && (
-                            <Grid item xs={6} md={6} lg={6} xl={4}>
-                                <StackedIconButton
-                                    // @ts-ignore
-                                    component={Link}
-                                    to="/dashboard"
-                                    size="large"
-                                    startIcon={<HomeRounded />}
-                                    sx={{ width: '100%' }}
-                                >
-                                    Dashboard
-                                </StackedIconButton>
-                            </Grid>
-                        )}
+                <Grid container spacing={1} justifyContent="center">
+                    {session && session.user && (
                         <Grid item xs={6} md={6} lg={6} xl={4}>
                             <StackedIconButton
                                 // @ts-ignore
                                 component={Link}
-                                to="/request-reset"
+                                to="/dashboard"
                                 size="large"
-                                startIcon={<LockResetRounded />}
+                                startIcon={<HomeRounded />}
                                 sx={{ width: '100%' }}
                             >
-                                Reset password?
+                                Dashboard
                             </StackedIconButton>
                         </Grid>
-                        <Grid item xs={6} md={6} lg={6} xl={4}>
-                            <StackedIconButton
-                                // @ts-ignore
-                                component={Link}
-                                to="/sign-up"
-                                size="large"
-                                startIcon={<AppRegistrationRounded />}
-                                sx={{ width: '100%' }}
-                            >
-                                Sign up
-                            </StackedIconButton>
-                        </Grid>
+                    )}
+                    <Grid item xs={6} md={6} lg={6} xl={4}>
+                        <StackedIconButton
+                            // @ts-ignore
+                            component={Link}
+                            to="/request-reset"
+                            size="large"
+                            startIcon={<LockResetRounded />}
+                            sx={{ width: '100%' }}
+                        >
+                            Reset password?
+                        </StackedIconButton>
                     </Grid>
-                </Card>
-            </Grid>
+                    <Grid item xs={6} md={6} lg={6} xl={4}>
+                        <StackedIconButton
+                            // @ts-ignore
+                            component={Link}
+                            to="/sign-up"
+                            size="large"
+                            startIcon={<AppRegistrationRounded />}
+                            sx={{ width: '100%' }}
+                        >
+                            Sign up
+                        </StackedIconButton>
+                    </Grid>
+                </Grid>
+            </Card>
 
             <FailedLoginAttemptsDialog
                 open={failedLogins === AppConfig.signInDialogAfterAttempts}
@@ -189,7 +179,7 @@ const SignInRoute = () => {
                 onCancel={() => setFailedLogins(0)}
                 onResetPassword={() => navigate('/request-reset')}
             />
-        </Grid>
+        </Box>
     );
 };
 

@@ -1,33 +1,28 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { Box, Container } from '@mui/material';
-import { Main } from '../Base/Main.component';
+import { Box, styled } from '@mui/material';
 import { Footer } from '../Core/Footer.component';
 
-export type NotAuthentificatedLayoutProps = React.PropsWithChildren<{}>;
+const Main = styled('main')(() => ({
+    display: 'flex',
+    flexDirection: 'column',
+    height: 'inherit',
+    justifyContent: 'center',
+    alignItems: 'center',
+}));
 
-export const NotAuthentificatedLayout: React.FC<NotAuthentificatedLayoutProps> = ({ children }) => {
+export type NotAuthentificatedLayoutProps = React.PropsWithChildren<{
+    useOutlet?: boolean;
+}>;
+
+export const NotAuthentificatedLayout: React.FC<NotAuthentificatedLayoutProps> = ({ children, useOutlet = false }) => {
     return (
-        <Box sx={{ display: 'flex' }}>
-            <Main
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    flexGrow: 1,
-                    overflow: 'auto',
-                    height: '100vh',
-                    backgroundColor: (theme) => theme.palette.background.default,
-                }}
-            >
-                <Container maxWidth="xl" sx={{ mt: 2, mb: 4 }}>
-                    {children}
-                    <Outlet />
-                </Container>
-
-                <Box sx={{ mt: 'auto' }}>
-                    <Footer />
-                </Box>
-            </Main>
-        </Box>
+        <Main>
+            <Box sx={{ width: '100%', mt: 'auto' }}>
+                {useOutlet && <Outlet />}
+                {children}
+            </Box>
+            <Box sx={{ mt: 'auto' }} children={<Footer />} />
+        </Main>
     );
 };

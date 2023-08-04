@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/Base';
+import { AppLogo } from '@/components/Core/App/AppLogo.component';
 import { StackedIconButton } from '@/components/Core/StackedIconButton.component';
 import { AuthContext } from '@/context/Auth.context';
 import { SnackbarContext } from '@/context/Snackbar.context';
@@ -23,7 +24,6 @@ import {
     InputLabel,
     OutlinedInput,
     TextField,
-    Typography,
 } from '@mui/material';
 
 const SignUpRoute = () => {
@@ -70,108 +70,101 @@ const SignUpRoute = () => {
     };
 
     return (
-        <Grid container spacing={3} justifyContent="center">
-            <Grid item xs={12} sm={6} lg={4}>
-                <Card
-                    sx={{
-                        py: 3,
-                        px: 4,
-                    }}
-                >
-                    <Typography textAlign="center" variant="h4" fontWeight={600}>
-                        Sign Up
-                    </Typography>
+        <Box sx={{ width: { xs: '90%', md: '40%', lg: '25%' }, maxWidth: '480px', mx: 'auto' }}>
+            <Card sx={{ py: 3, px: 4 }}>
+                <Box display="flex" flexDirection="column">
+                    <AppLogo sx={{ mx: 'auto' }} />
+                </Box>
 
-                    <form onSubmit={formHandler.formSubmit}>
-                        <Box style={{ display: 'flex', flexDirection: 'column' }}>
-                            <TextField
-                                sx={{
-                                    mt: 3,
-                                }}
-                                variant="outlined"
-                                label="Username"
-                                name="username"
+                <form onSubmit={formHandler.formSubmit}>
+                    <Box style={{ display: 'flex', flexDirection: 'column' }}>
+                        <TextField
+                            sx={{
+                                mt: 3,
+                            }}
+                            variant="outlined"
+                            label="Username"
+                            name="username"
+                            onChange={formHandler.inputChange}
+                        />
+
+                        <TextField
+                            sx={{
+                                mt: 3,
+                            }}
+                            variant="outlined"
+                            type="email"
+                            label="E-Mail"
+                            name="email"
+                            onChange={formHandler.inputChange}
+                        />
+
+                        <FormControl
+                            variant="outlined"
+                            sx={{
+                                mt: 3,
+                            }}
+                        >
+                            <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+                            <OutlinedInput
+                                type={showPassword ? 'text' : 'password'}
+                                name="password"
                                 onChange={formHandler.inputChange}
+                                endAdornment={
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            aria-label="toggle password visibility"
+                                            onClick={() => setShowPassword((prev) => !prev)}
+                                            onMouseDown={() => setShowPassword((prev) => !prev)}
+                                            edge="end"
+                                        >
+                                            {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                }
+                                label="Password"
                             />
+                        </FormControl>
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                        <Button type="submit" variant="contained" sx={{ mt: 3 }}>
+                            Sign up
+                        </Button>
+                    </Box>
+                </form>
 
-                            <TextField
-                                sx={{
-                                    mt: 3,
-                                }}
-                                variant="outlined"
-                                type="email"
-                                label="E-Mail"
-                                name="email"
-                                onChange={formHandler.inputChange}
-                            />
+                <Divider sx={{ my: 3 }} />
 
-                            <FormControl
-                                variant="outlined"
-                                sx={{
-                                    mt: 3,
-                                }}
-                            >
-                                <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-                                <OutlinedInput
-                                    type={showPassword ? 'text' : 'password'}
-                                    name="password"
-                                    onChange={formHandler.inputChange}
-                                    endAdornment={
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={() => setShowPassword((prev) => !prev)}
-                                                onMouseDown={() => setShowPassword((prev) => !prev)}
-                                                edge="end"
-                                            >
-                                                {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    }
-                                    label="Password"
-                                />
-                            </FormControl>
-                        </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                            <Button type="submit" variant="contained" sx={{ mt: 3 }}>
-                                Sign up
-                            </Button>
-                        </Box>
-                    </form>
-
-                    <Divider sx={{ my: 3 }} />
-
-                    <Grid container spacing={1} justifyContent="center">
-                        {session && session.user && (
-                            <Grid item xs={6} md={6} lg={6} xl={4}>
-                                <StackedIconButton
-                                    // @ts-ignore
-                                    component={Link}
-                                    to="/dashboard"
-                                    size="large"
-                                    startIcon={<HomeRounded />}
-                                    sx={{ width: '100%' }}
-                                >
-                                    Dashboard
-                                </StackedIconButton>
-                            </Grid>
-                        )}
+                <Grid container spacing={1} justifyContent="center">
+                    {session && session.user && (
                         <Grid item xs={6} md={6} lg={6} xl={4}>
                             <StackedIconButton
                                 // @ts-ignore
                                 component={Link}
-                                to="/sign-in"
+                                to="/dashboard"
                                 size="large"
-                                startIcon={<ExitToAppRounded />}
+                                startIcon={<HomeRounded />}
                                 sx={{ width: '100%' }}
                             >
-                                Sign-in
+                                Dashboard
                             </StackedIconButton>
                         </Grid>
+                    )}
+                    <Grid item xs={6} md={6} lg={6} xl={4}>
+                        <StackedIconButton
+                            // @ts-ignore
+                            component={Link}
+                            to="/sign-in"
+                            size="large"
+                            startIcon={<ExitToAppRounded />}
+                            sx={{ width: '100%' }}
+                        >
+                            Sign-in
+                        </StackedIconButton>
                     </Grid>
-                </Card>
-            </Grid>
-        </Grid>
+                </Grid>
+            </Card>
+        </Box>
     );
 };
 
