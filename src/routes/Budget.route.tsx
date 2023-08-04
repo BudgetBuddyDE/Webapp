@@ -111,7 +111,7 @@ const BudgetRoute = () => {
 
         // Income
         subscriptions
-            .filter((sub) => sub.amount >= 0)
+            .filter(({ amount, paused }) => amount >= 0 && !paused)
             .forEach((sub) => {
                 const categoryName = sub.categories.name,
                     amount = Math.abs(sub.amount);
@@ -123,7 +123,7 @@ const BudgetRoute = () => {
 
         // Spendings
         subscriptions
-            .filter((sub) => sub.amount < 0)
+            .filter(({ amount, paused }) => amount < 0 && !paused)
             .forEach((sub) => {
                 const categoryName = sub.categories.name,
                     amount = Math.abs(sub.amount);
