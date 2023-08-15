@@ -16,6 +16,7 @@ import { useFetchSubscriptions } from '@/hook/useFetchSubscriptions.hook';
 import { useFetchTransactions } from '@/hook/useFetchTransactions.hook';
 import { Subscription } from '@/models/Subscription.model';
 import { Transaction } from '@/models/Transaction.model';
+import { BudgetService } from '@/services/Budget.service';
 import { SubscriptionService } from '@/services/Subscription.service';
 import { TransactionService } from '@/services/Transaction.service';
 import { formatBalance } from '@/util/formatBalance.util';
@@ -37,7 +38,15 @@ const DashboardRoute = () => {
     const { loading: loadingTransactions, transactions } = useFetchTransactions();
     const { loading: loadingSubscriptions, subscriptions } = useFetchSubscriptions();
     const { session } = React.useContext(AuthContext);
-    const { transactions: storedTransactions, categoryExpenses, setCategoryExpenses } = React.useContext(StoreContext);
+    const {
+        loading,
+        setLoading,
+        transactions: storedTransactions,
+        categoryExpenses,
+        setCategoryExpenses,
+        avgBalance,
+        setAvgBalance,
+    } = React.useContext(StoreContext);
     const [loadingCategoryExpenses, setLoadingCategoryExpenses] = React.useState(false);
     const [showAddTransactionForm, setShowAddTransactionForm] = React.useState(false);
     const [showAddSubscriptionForm, setShowAddSubscriptionForm] = React.useState(false);
@@ -96,23 +105,54 @@ const DashboardRoute = () => {
             loading: loadingSubscriptions || loadingTransactions,
         },
         {
-            title: formatBalance(0), // FIXME:
+            title: React.useMemo(() => {
+                const avg: number = avgBalance ?? 0;
+                const income: number =
+                    TransactionService.calculateReceivedEarnings(transactions) +
+                    SubscriptionService.calculateUpcomingEarnings(subscriptions, transactions);
+                const expenses: number =
+                    TransactionService.calculatePaidExpenses(transactions) +
+                    SubscriptionService.calculateUpcomingExpenses(subscriptions, transactions);
+                const plannedBalance: number = income - expenses;
+
+                /**
+                 * received income + upcoming income
+                 * -
+                 * already paid expenses + upcoming expenses
+                 *
+                 * Avg. of balance based on the past x months and current month expenses and income
+                 */
+                const estBalance = (avg * 0.4 + plannedBalance * 0.6) / 2;
+                // console.table({
+                //     avg: avg,
+                //     income: income,
+                //     expenses: expenses,
+                //     plannedBalance: plannedBalance,
+                //     ohne: (avg + plannedBalance) / 2,
+                //     mit: (avg * 0.4 + plannedBalance * 0.6) / 2,
+                // });
+                return formatBalance(estBalance);
+            }, [avgBalance, transactions, subscriptions]),
             subtitle: 'Balance (estimated)',
             info: `Estimated balance based on the past ${MONTH_BACKLOG} months`,
             icon: <BalanceIcon sx={StatsIconStyle} />,
-            loading: false,
+            loading: loading || loadingTransactions || loadingSubscriptions,
         },
         {
             title: React.useMemo(() => {
-                const balance =
-                    TransactionService.calculateReceivedEarnings(transactions) -
-                    TransactionService.calculatePaidExpenses(transactions);
-                return formatBalance(balance);
-            }, [transactions]),
+                const income: number =
+                    TransactionService.calculateReceivedEarnings(transactions) +
+                    SubscriptionService.calculateUpcomingEarnings(subscriptions, transactions);
+                const expenses: number =
+                    TransactionService.calculatePaidExpenses(transactions) +
+                    SubscriptionService.calculateUpcomingExpenses(subscriptions, transactions);
+
+                return formatBalance(income - expenses);
+            }, [transactions, subscriptions]),
             subtitle: 'Balance',
             info: 'Calculated balance after deduction of all expenses from the income',
             icon: <BalanceIcon sx={StatsIconStyle} />,
-            loading: loadingTransactions,
+            loading: loadingTransactions || loadingSubscriptions,
         },
     ];
 
@@ -146,14 +186,26 @@ const DashboardRoute = () => {
             .finally(() => setLoadingCategoryExpenses(false));
     };
 
+    const fetchAvgBalance = () => {
+        setLoading(true);
+        return BudgetService.getMonthlyBalanceAvg(MONTH_BACKLOG)
+            .then(setAvgBalance)
+            .catch(console.error)
+            .finally(() => setLoading(false));
+    };
+
     React.useEffect(() => {
         if (!storedTransactions.fetched || !storedTransactions.data || storedTransactions.data.length < 1) return;
         fetchCategoryExpenses();
     }, [storedTransactions]);
 
     React.useEffect(() => {
-        if (!session || !session.user) return setCategoryExpenses({ type: 'RESET' });
-        fetchCategoryExpenses();
+        if (!session || !session.user) {
+            setCategoryExpenses({ type: 'RESET' });
+        } else {
+            fetchCategoryExpenses();
+            fetchAvgBalance();
+        }
     }, []);
 
     return (

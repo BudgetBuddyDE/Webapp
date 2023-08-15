@@ -23,6 +23,8 @@ import type { ContextDispatch } from '@/type/context.type';
 import type { Filter } from '@/type/filter.type';
 
 export interface StoreContext {
+    loading: boolean;
+    setLoading: ContextDispatch<StoreContext['loading']>;
     showDrawer: boolean;
     setShowDrawer: ContextDispatch<StoreContext['showDrawer']>;
     showFilterDrawer: boolean;
@@ -44,6 +46,8 @@ export interface StoreContext {
     setBudget: React.Dispatch<DataReducerAction<Budget[]>>;
     budgetTransactions: DataReducerState<BudgetTransactions>;
     setBudgetTransactions: React.Dispatch<DataReducerAction<BudgetTransactions>>;
+    avgBalance: number | null;
+    setAvgBalance: ContextDispatch<StoreContext['avgBalance']>;
 }
 
 export const StoreContext = React.createContext({} as StoreContext);
@@ -51,8 +55,10 @@ export const StoreContext = React.createContext({} as StoreContext);
 export type StoreProviderProps = React.PropsWithChildren;
 
 export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
+    const [loading, setLoading] = React.useState(false);
     const [showDrawer, setShowDrawer] = React.useState(getSavedSidebarState());
     const [showFilterDrawer, setShowFilterDrawer] = React.useState(false);
+    const [avgBalance, setAvgBalance] = React.useState<StoreContext['avgBalance']>(null);
     const [filter, setFilter] = React.useState<Filter>(DEFAULT_FILTER_VALUE);
     const [categories, setCategories] = React.useReducer(
         DataReducer<Category[]>,
@@ -95,6 +101,8 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
     return (
         <StoreContext.Provider
             value={{
+                loading,
+                setLoading,
                 showDrawer,
                 setShowDrawer,
                 showFilterDrawer,
@@ -119,6 +127,8 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
                 setBudget,
                 budgetTransactions,
                 setBudgetTransactions,
+                avgBalance,
+                setAvgBalance,
             }}
             children={children}
         />
