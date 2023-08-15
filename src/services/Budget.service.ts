@@ -2,13 +2,7 @@ import { BaseBudget } from '@/models/BaseBudget.model';
 import { Budget } from '@/models/Budget.model';
 import { supabase } from '@/supabase';
 import type { ExportFormat, SupabaseData } from '@/type';
-import type {
-    BudgetProgressView,
-    ExportBudget,
-    MonthlyBalance,
-    MonthlyBalanceAverage,
-    BaseBudget as TBaseBudget,
-} from '@/type/budget.type';
+import type { BudgetProgressView, ExportBudget, MonthlyBalance, BaseBudget as TBaseBudget } from '@/type/budget.type';
 
 export class BudgetService {
     private static table = 'budget';
@@ -42,11 +36,13 @@ export class BudgetService {
         });
     }
 
-    static getMonthlyBalanceAvg(monthBacklog: number): Promise<MonthlyBalanceAverage> {
-        return new Promise(async (res) => {
-            const months = await this.getMonthlyBalance(monthBacklog);
-            const avgBalance = months.reduce((prev, cur) => prev + cur.sum, 0) / months.length;
-            res({ months: months, avg: avgBalance });
+    static getMonthlyBalanceAvg(monthBacklog: number): Promise<number> {
+        return new Promise(async (res, rej) => {
+            const response = await supabase.rpc('get_monthly_balance_avg', {
+                months: monthBacklog,
+            });
+            if (response.error) rej(response.error);
+            res(response.data);
         });
     }
 
