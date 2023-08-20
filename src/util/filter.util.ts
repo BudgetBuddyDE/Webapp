@@ -3,17 +3,38 @@ import { Subscription } from '@/models/Subscription.model';
 import { Transaction } from '@/models/Transaction.model';
 import type { Filter } from '@/type/filter.type';
 
-export function filterTransactions(keyword: string, filter: Filter, transactions: Transaction[]): Transaction[] {
-    if (transactions.length === 0) return [];
-    const lowercaseKeyword = keyword.toLowerCase();
+export function filterByKeyboard(
+    keyword: string | null,
+    items: Transaction[] | Subscription[]
+): Transaction[] | Subscription[] {
+    if (!keyword || keyword.length == 0) return items;
 
-    if (keyword.length > 0) {
-        transactions = transactions.filter(
+    const lowerKeyword = keyword.toLowerCase();
+    if (items[0] instanceof Transaction) {
+        return (items as Transaction[]).filter(
             (item) =>
-                item.receiver.toLowerCase().includes(lowercaseKeyword) ||
-                item.description?.toString().toLowerCase().includes(lowercaseKeyword)
+                item.receiver.toLowerCase().includes(lowerKeyword) ||
+                item.description?.toLowerCase().includes(lowerKeyword) ||
+                item.categories.name.toLocaleLowerCase().includes(lowerKeyword)
         );
     }
+
+    if (items[0] instanceof Subscription) {
+        return (items as Subscription[]).filter(
+            (item) =>
+                item.receiver.toLowerCase().includes(lowerKeyword) ||
+                item.description?.toLowerCase().includes(lowerKeyword) ||
+                item.categories.name.toLocaleLowerCase().includes(lowerKeyword)
+        );
+    }
+
+    return items;
+}
+
+export function filterTransactions(keyword: string, filter: Filter, transactions: Transaction[]): Transaction[] {
+    if (transactions.length === 0) return [];
+
+    transactions = filterByKeyboard(keyword, transactions) as Transaction[];
 
     if (filter.dateFrom != null) {
         transactions = transactions.filter(
@@ -50,15 +71,8 @@ export function filterTransactions(keyword: string, filter: Filter, transactions
 
 export function filterSubscriptions(keyword: string, filter: Filter, subscriptions: Subscription[]): Subscription[] {
     if (subscriptions.length === 0) return [];
-    const lowercaseKeyword = keyword.toLowerCase();
 
-    if (keyword.length > 0) {
-        subscriptions = subscriptions.filter(
-            (item) =>
-                item.receiver.toLowerCase().includes(lowercaseKeyword) ||
-                item.description?.toString().toLowerCase().includes(lowercaseKeyword)
-        );
-    }
+    subscriptions = filterByKeyboard(keyword, subscriptions) as Subscription[];
 
     if (filter.dateFrom != null) {
         subscriptions = subscriptions.filter(
