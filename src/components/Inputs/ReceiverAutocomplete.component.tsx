@@ -1,9 +1,16 @@
 import React from 'react';
-import { Autocomplete, type SxProps, TextField, type Theme, createFilterOptions } from '@mui/material';
+import {
+    Autocomplete,
+    type FilterOptionsState,
+    type SxProps,
+    TextField,
+    type Theme,
+    createFilterOptions,
+} from '@mui/material';
 import { StyledAutocompleteOption } from './StyledAutocompleteOption.component';
 
 export type AutocompleteOption = {
-    text: string;
+    label: string;
     value: string;
 };
 
@@ -18,6 +25,21 @@ export type TReceiverAutocompleteProps = {
 
 const filter = createFilterOptions<AutocompleteOption>();
 
+export function applyReceiverOptionsFilter(
+    options: AutocompleteOption[],
+    state: FilterOptionsState<AutocompleteOption>
+): AutocompleteOption[] {
+    if (state.inputValue.length < 1) return options;
+    const filtered = filter(options, state);
+    const matches = filtered.filter((option) => option.label.toLowerCase().includes(state.inputValue.toLowerCase()));
+    if (matches.length > 0) {
+        const completeMatch = matches.find((match) => match.label === state.inputValue);
+        return completeMatch
+            ? [completeMatch]
+            : [{ label: `Create "${state.inputValue}"`, value: state.inputValue }, ...matches];
+    } else return [{ label: `Create "${state.inputValue}"`, value: state.inputValue }];
+}
+
 /**
  * Docs:
  * - [Material UI reference](https://mui.com/material-ui/react-autocomplete/#creatable)
@@ -31,7 +53,7 @@ export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
     onValueChange,
 }) => {
     const [value, setValue] = React.useState<AutocompleteOption | null>(
-        defaultValue ? { text: defaultValue, value: defaultValue } : null
+        defaultValue ? { label: defaultValue, value: defaultValue } : null
     );
 
     React.useEffect(() => onValueChange(value?.value || ''), [value, onValueChange]);
@@ -45,30 +67,19 @@ export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
             onChange={(_event, newValue) => {
                 if (typeof newValue === 'string') {
                     setValue({
-                        text: newValue,
+                        label: newValue,
                         value: newValue,
                     });
                 } else if (newValue && newValue.value) {
                     setValue({
-                        text: newValue.value,
+                        label: newValue.value,
                         value: newValue.value,
                     });
                 } else {
                     setValue(newValue);
                 }
             }}
-            filterOptions={(options, params) => {
-                const filtered = filter(options, params);
-                const { inputValue } = params;
-                const isExisting = options.some((option) => inputValue === option.text);
-                if (inputValue !== '' && !isExisting) {
-                    filtered.push({
-                        value: inputValue,
-                        text: `Add "${inputValue}"`,
-                    });
-                }
-                return filtered;
-            }}
+            filterOptions={applyReceiverOptionsFilter}
             getOptionLabel={(option) => {
                 // Value selected with enter, right from the input
                 if (typeof option === 'string') {
@@ -79,16 +90,16 @@ export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
                     return option.value;
                 }
                 // Regular option
-                return option.text;
+                return option.label;
             }}
             renderOption={(props, option, { selected }) => (
                 <StyledAutocompleteOption {...props} selected={selected}>
-                    {option.text}
+                    {option.label}
                 </StyledAutocompleteOption>
             )}
             renderInput={(params) => <TextField {...params} label={label} />}
             isOptionEqualToValue={(option, value) => {
-                return option.value == value.value && option.text == value.text;
+                return option.value == value.value && option.label == value.label;
             }}
             selectOnFocus
         />

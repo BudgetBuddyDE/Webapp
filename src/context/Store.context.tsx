@@ -1,6 +1,7 @@
 import React from 'react';
 import { getSavedSidebarState, saveSidebarState } from '@/components/Core/Drawer';
 import { DEFAULT_FILTER_VALUE } from '@/components/Core/Drawer/FilterDrawer.component';
+import { type AutocompleteOption } from '@/components/Inputs/ReceiverAutocomplete.component';
 import { Budget } from '@/models/Budget.model';
 import { Category } from '@/models/Category.model';
 import { PaymentMethod } from '@/models/PaymentMethod.model';
@@ -39,7 +40,7 @@ export interface StoreContext {
     setPaymentMethods: React.Dispatch<DataReducerAction<PaymentMethod[]>>;
     transactions: DataReducerState<Transaction[]>;
     setTransactions: React.Dispatch<DataReducerAction<Transaction[]>>;
-    transactionReceiverSet: { text: string; value: string }[];
+    transactionReceiverSet: AutocompleteOption[];
     subscriptions: DataReducerState<Subscription[]>;
     setSubscriptions: React.Dispatch<DataReducerAction<Subscription[]>>;
     budget: DataReducerState<Budget[]>;
@@ -89,10 +90,13 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
 
     const transactionReceiverSet = React.useMemo(
         () =>
-            [...new Set((transactions.data ?? []).map((transaction) => transaction.receiver))].map((receiver) => ({
-                text: receiver,
-                value: receiver,
-            })),
+            [...new Set((transactions.data ?? []).map((transaction) => transaction.receiver))].map(
+                (receiver) =>
+                    ({
+                        label: receiver,
+                        value: receiver,
+                    } as AutocompleteOption)
+            ),
         [transactions.data]
     );
 

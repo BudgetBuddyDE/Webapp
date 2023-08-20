@@ -6,6 +6,7 @@ import {
     AlertTitle,
     Autocomplete,
     CircularProgress,
+    type FilterOptionsState,
     type SxProps,
     TextField,
     type Theme,
@@ -28,7 +29,22 @@ export type PaymentMethodAutocompleteProps = {
 };
 
 const filter = createFilterOptions<PaymentMethodInputOption>();
-const labelSeperator = '•';
+export const PaymentMethodLabelSeperator = '•';
+
+export function applyPaymentMethodOptionsFilter(
+    options: PaymentMethodInputOption[],
+    state: FilterOptionsState<PaymentMethodInputOption>
+): PaymentMethodInputOption[] {
+    if (state.inputValue.length < 1) return options;
+    const filtered = filter(options, state);
+    const matches = filtered.filter((option) => option.label.toLowerCase().includes(state.inputValue.toLowerCase()));
+    if (matches.length > 0) {
+        const completeMatch = matches.find((match) => match.label === state.inputValue);
+        return completeMatch
+            ? [completeMatch]
+            : [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }, ...matches];
+    } else return [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }];
+}
 
 export const PaymentMethodAutocomplete: React.FC<PaymentMethodAutocompleteProps> = ({
     defaultValue = undefined,
@@ -53,27 +69,20 @@ export const PaymentMethodAutocomplete: React.FC<PaymentMethodAutocompleteProps>
         <Autocomplete
             id={id + '-create-payment-method'}
             options={paymentMethods.map((item) => ({
-                label: `${item.name} ${labelSeperator} ${item.provider}`,
+                label: `${item.name} ${PaymentMethodLabelSeperator} ${item.provider}`,
                 value: item.id,
             }))}
             onChange={(event, value) => {
                 if (!value) return;
                 const paymentMethodExists = paymentMethods.some(
-                    (pm) => pm.name === value.label.split(labelSeperator)[0].trimEnd()
+                    (pm) => pm.name === value.label.split(PaymentMethodLabelSeperator)[0].trimEnd()
                 );
                 if (paymentMethodExists) return onChange(event, value);
                 navigate('/payment-methods', {
                     state: { create: true, paymentMethod: { name: value.label.split('"')[1] } },
                 });
             }}
-            filterOptions={(options, state) => {
-                if (state.inputValue.length < 1) return options;
-                const filtered = filter(options, state);
-                const match = filtered.some((option) =>
-                    option.label.toLowerCase().includes(state.inputValue.toLowerCase())
-                );
-                return match ? filtered : [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }];
-            }}
+            filterOptions={applyPaymentMethodOptionsFilter}
             renderOption={(props, option, { selected }) => (
                 <StyledAutocompleteOption {...props} selected={selected}>
                     {option.label}

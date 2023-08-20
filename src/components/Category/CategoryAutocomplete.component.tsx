@@ -6,6 +6,7 @@ import {
     AlertTitle,
     Autocomplete,
     CircularProgress,
+    type FilterOptionsState,
     type SxProps,
     TextField,
     type Theme,
@@ -28,6 +29,21 @@ export type CategoryAutocompleteProps = {
 };
 
 const filter = createFilterOptions<CategoryInputOption>();
+
+export function applyCategoryOptionsFilter(
+    options: CategoryInputOption[],
+    state: FilterOptionsState<CategoryInputOption>
+): CategoryInputOption[] {
+    if (state.inputValue.length < 1) return options;
+    const filtered = filter(options, state);
+    const matches = filtered.filter((option) => option.label.toLowerCase().includes(state.inputValue.toLowerCase()));
+    if (matches.length > 0) {
+        const completeMatch = matches.find((match) => match.label === state.inputValue);
+        return completeMatch
+            ? [completeMatch]
+            : [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }, ...matches];
+    } else return [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }];
+}
 
 export const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({
     defaultValue = undefined,
@@ -56,18 +72,9 @@ export const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({
                 if (!value) return;
                 const categoryNameExists = categories.some((category) => category.name === value.label);
                 if (categoryNameExists) return onChange(event, value);
-                navigate('/categories', {
-                    state: { create: true, category: { name: value.label.split('"')[1] } },
-                });
+                navigate('/categories', { state: { create: true, category: { name: value.label.split('"')[1] } } });
             }}
-            filterOptions={(options, state) => {
-                if (state.inputValue.length < 1) return options;
-                const filtered = filter(options, state);
-                const match = filtered.some((option) =>
-                    option.label.toLowerCase().includes(state.inputValue.toLowerCase())
-                );
-                return match ? filtered : [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }];
-            }}
+            filterOptions={applyCategoryOptionsFilter}
             renderOption={(props, option, { selected }) => (
                 <StyledAutocompleteOption {...props} selected={selected}>
                     {option.label}
