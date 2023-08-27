@@ -124,7 +124,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
                 transactionReceiverSet: transactionReceiverSet,
                 subscriptions: {
                     ...subscriptions,
-                    data: SubscriptionService.sortByExecutionDate(subscriptions.data ?? []),
+                    data: SubscriptionService.sortByExecutionDate(subscriptions.data ?? []) as Subscription[],
                 },
                 setSubscriptions,
                 budget,

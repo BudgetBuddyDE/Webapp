@@ -178,32 +178,36 @@ export class TransactionService {
         });
     }
 
-    static calculateReceivedEarnings(transactions: Transaction[]): number {
+    static calculateReceivedEarnings(transactions: (BaseTransaction | Transaction)[]): number {
         const now = new Date();
-        return transactions
+        const num = transactions
             .filter(({ amount, date }) => amount > 0 && date <= now && isSameMonth(date, now))
             .reduce((prev, cur) => prev + cur.amount, 0);
+        return Number(num.toFixed(2));
     }
 
-    static calculateUpcomingEarnings(transactions: Transaction[]): number {
+    static calculateUpcomingEarnings(transactions: (BaseTransaction | Transaction)[]): number {
         const now = new Date();
-        return transactions
+        const num = transactions
             .filter(({ date, amount }) => isSameMonth(date, now) && date > now && amount > 0)
             .reduce((prev, cur) => prev + cur.amount, 0);
+        return Number(num.toFixed(2));
     }
 
-    static calculatePaidExpenses(transactions: Transaction[]): number {
+    static calculatePaidExpenses(transactions: (BaseTransaction | Transaction)[]): number {
         const now = new Date();
-        return transactions
+        const num = transactions
             .filter(({ amount, date }) => amount <= 0 && date <= now && isSameMonth(date, now))
             .reduce((prev, cur) => prev + Math.abs(cur.amount), 0);
+        return Number(num.toFixed(2));
     }
 
-    static calculateUpcomingExpenses(transactions: Transaction[]): number {
+    static calculateUpcomingExpenses(transactions: (BaseTransaction | Transaction)[]): number {
         const now = new Date();
-        return transactions
+        const num = transactions
             .filter(({ date, amount }) => isSameMonth(date, now) && date > now && amount <= 0)
             .reduce((prev, cur) => prev + Math.abs(cur.amount), 0);
+        return Number(num.toFixed(2));
     }
 
     /**

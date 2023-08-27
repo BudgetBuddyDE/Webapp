@@ -1,4 +1,5 @@
 import { BaseSubscription } from '@/models/BaseSubscription.model';
+import { BaseTransaction } from '@/models/BaseTransaction.model';
 import { Subscription } from '@/models/Subscription.model';
 import { Transaction } from '@/models/Transaction.model';
 import { supabase } from '@/supabase';
@@ -103,25 +104,27 @@ export class SubscriptionService {
     /**
      * Get planned earnings for the current month
      */
-    static calculatePlannedEarnings(subscriptions: Subscription[]): number {
-        return subscriptions
+    static calculatePlannedEarnings(subscriptions: (BaseSubscription | Subscription)[]): number {
+        const num = subscriptions
             .filter(({ amount, paused }) => amount > 0 && !paused)
             .reduce((prev, cur) => prev + cur.amount, 0);
+        return Number(num.toFixed(2));
     }
 
     /**
      * Get all planned payments for the current month
      */
-    static calculatePlannedExpenses(subscriptions: Subscription[]): number {
-        return subscriptions
+    static calculatePlannedExpenses(subscriptions: (BaseSubscription | Subscription)[]): number {
+        const num = subscriptions
             .filter(({ amount, paused }) => amount <= 0 && !paused)
             .reduce((prev, cur) => prev + Math.abs(cur.amount), 0);
+        return Number(num.toFixed(2));
     }
 
-    /**
-     * // TODO: Add test
-     */
-    static calculateUpcomingEarnings(subscriptions: Subscription[], transactions?: Transaction[]) {
+    static calculateUpcomingEarnings(
+        subscriptions: (BaseSubscription | Subscription)[],
+        transactions?: (BaseTransaction | Transaction)[]
+    ) {
         const now = new Date();
         const processedSubscriptions = Math.abs(
             subscriptions
@@ -129,16 +132,19 @@ export class SubscriptionService {
                 .reduce((prev, cur) => prev + cur.amount, 0)
         );
 
-        return transactions
+        const total = transactions
             ? processedSubscriptions + TransactionService.calculateUpcomingEarnings(transactions)
             : processedSubscriptions;
+        return Number(total.toFixed(2));
     }
 
     /**
-     * // TODO: Add test
      * Get planned expenses for this month which aren't fullfilled meaning which will be executed during this month
      */
-    static calculateUpcomingExpenses(subscriptions: Subscription[], transactions?: Transaction[]): number {
+    static calculateUpcomingExpenses(
+        subscriptions: (BaseSubscription | Subscription)[],
+        transactions?: (BaseTransaction | Transaction)[]
+    ): number {
         const now = new Date();
         const processedSubscriptions = Math.abs(
             subscriptions
@@ -146,15 +152,16 @@ export class SubscriptionService {
                 .reduce((prev, cur) => prev + cur.amount, 0)
         );
 
-        return transactions
+        const total = transactions
             ? processedSubscriptions + TransactionService.calculateUpcomingExpenses(transactions)
             : processedSubscriptions;
+        return Number(total.toFixed(2));
     }
 
     /**
      * // TODO: Add test that verifies no duplicate categories
      */
-    static calculateMonthlyEarningsPerCategory(subscriptions: Subscription[]) {
+    static calculateMonthlyEarningsPerCategory(subscriptions: Subscription[]): CategoryOverview {
         const result: CategoryOverview = {};
         const earnings = subscriptions
             .filter(({ amount, paused }) => amount >= 0 && !paused)
@@ -203,7 +210,9 @@ export class SubscriptionService {
     /**
      * // TODO: Add test
      */
-    static sortByExecutionDate(subscriptions: Subscription[]) {
+    static sortByExecutionDate(
+        subscriptions: (BaseSubscription | Subscription)[]
+    ): (BaseSubscription | Subscription)[] {
         return subscriptions.sort(function (a, b) {
             const today = new Date();
             // It does work fine for dates
