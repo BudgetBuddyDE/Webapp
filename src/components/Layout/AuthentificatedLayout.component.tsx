@@ -12,35 +12,35 @@ import { FullPageLoading } from './FullPageLoading.component';
 export type AuthentificatedLayoutProps = React.PropsWithChildren<{}>;
 
 export const AuthentificatedLayout: React.FC<AuthentificatedLayoutProps> = ({ children }) => {
-    const { loading, session } = React.useContext(AuthContext);
+  const { loading, session } = React.useContext(AuthContext);
 
-    if (loading) return <FullPageLoading />;
-    if (!session || !session.user) return <Navigate to="/sign-in" />;
-    return (
-        <Box sx={{ display: 'flex' }}>
-            <Drawer />
-            <Main
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    flexGrow: 1,
-                    overflow: 'auto',
-                    height: '100vh',
-                    backgroundColor: (theme) => theme.palette.background.default,
-                }}
-            >
-                <Appbar />
+  if (loading) return <FullPageLoading />;
+  if (!session || !session.user) return <Navigate to="/sign-in" />;
+  return (
+    <Box sx={{ display: 'flex' }}>
+      <Drawer />
+      <Main
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          flexGrow: 1,
+          overflow: 'auto',
+          height: '100vh',
+          backgroundColor: (theme) => theme.palette.background.default,
+        }}
+      >
+        <Appbar />
 
-                <Container maxWidth="xl" sx={{ mt: 2, mb: 4 }}>
-                    {children}
-                    <Outlet />
-                    <FilterDrawer />
-                </Container>
+        <Container maxWidth="xl" sx={{ mt: 2, mb: 4 }}>
+          {children}
+          <Outlet />
+          <FilterDrawer />
+        </Container>
 
-                <Box sx={{ mt: 'auto' }}>
-                    <Footer />
-                </Box>
-            </Main>
+        <Box sx={{ mt: 'auto' }}>
+          <Footer />
         </Box>
-    );
+      </Main>
+    </Box>
+  );
 };
