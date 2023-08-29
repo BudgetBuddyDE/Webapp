@@ -15,6 +15,7 @@ import {
   Typography,
 } from '@mui/material';
 import { CategoryAutocomplete } from '../Category/CategoryAutocomplete.component';
+import { PaymentMethodAutocomplete } from '../PaymentMethod';
 import { type DialogProps, Transition } from './index';
 
 export type EditDialogActions = 'PAYMENT_METHOD' | 'CATEGORY';
@@ -90,12 +91,11 @@ export const EditDialog: React.FC<EditDialogProps> = ({
           </Select>
         </FormControl>
 
-        {
-          action === 'CATEGORY' ? (
-            <CategoryAutocomplete onChange={(_event, value) => setId(value ? Number(value.value) : null)} />
-          ) : null
-          /*<CreatePaymentMethodInput onChange={(event, value) => setId(value ? Number(value.value) : null)} />*/
-        }
+        {action === 'CATEGORY' ? (
+          <CategoryAutocomplete onChange={(_event, value) => setId(value ? Number(value.value) : null)} />
+        ) : (
+          <PaymentMethodAutocomplete onChange={(_event, value) => setId(value ? Number(value.value) : null)} />
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onCancel}>Cancel</Button>
