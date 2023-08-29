@@ -1,22 +1,34 @@
-import type { DialogProps as MuiDialogProps } from '@mui/material';
-import { ConfirmDeleteDialog } from './ConfirmDeleteDialog.component';
-import { EditDialog, EditDialogActions } from './EditDialog.component';
+import React from 'react';
+import { type DialogProps as MuiDialogProps, Slide } from '@mui/material';
+import { type TransitionProps } from '@mui/material/transitions';
+import { ConfirmDeleteDialog, type DeleteDialogProps } from './ConfirmDeleteDialog.component';
+import { EditDialog, type EditDialogProps } from './EditDialog.component';
 import { SelectActions } from './SelectActions.component';
 import type { SelectActionsProps } from './SelectActions.component';
 import { SelectAllCheckbox } from './SelectAllCheckbox.component';
 import { SelectSingleCheckbox } from './SelectSingleCheckbox.component';
 
-export type { EditDialogActions } from './EditDialog.component';
+export const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & {
+    children: React.ReactElement<any, any>;
+  },
+  ref: React.Ref<unknown>
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
 export type DialogType = 'EDIT' | 'DELETE';
-export type DialogProps = Pick<MuiDialogProps, 'open' | 'onClose' | 'maxWidth'> & {
+
+export type DialogProps = Pick<
+  MuiDialogProps,
+  'open' | 'onClose' | 'maxWidth' | 'TransitionComponent' | 'TransitionProps' | 'transitionDuration'
+> & {
   onCancel: () => void;
   onConfirm: () => void;
+  withTransition?: boolean;
 };
-export type DeleteDialogProps = DialogProps;
-export type EditDialogProps = Omit<DialogProps, 'onConfirm'> & {
-  onUpdate: (action: EditDialogActions, id: number) => void;
-};
-export type SelectMultipleHandler = {
+
+export interface ISelectMultipleHandler {
   onSelectAll: (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void;
   onSelectSingle: (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void;
   actionBar: Pick<SelectActionsProps, 'onEdit' | 'onDelete'>;
@@ -26,7 +38,7 @@ export type SelectMultipleHandler = {
     onDeleteConfirm?: DeleteDialogProps['onConfirm'];
     onDeleteCancel?: DeleteDialogProps['onCancel'];
   };
-};
+}
 
 export const SelectMultiple = {
   Actions: SelectActions,

@@ -19,7 +19,7 @@ import { PageHeader } from '@/components/Layout';
 import { CreatePaymentMethod } from '@/components/PaymentMethod/CreatePaymentMethodDrawer.component';
 import { EditPaymentMethodDrawer } from '@/components/PaymentMethod/EditPaymentmethodDrawer.component';
 import { RedirectChip } from '@/components/RedirectChip.component';
-import { SelectMultiple, type SelectMultipleHandler } from '@/components/SelectMultiple';
+import { type ISelectMultipleHandler, SelectMultiple } from '@/components/SelectMultiple';
 import { SnackbarContext } from '@/context';
 import { useFetchPaymentMethods } from '@/hook';
 import { PaymentMethod } from '@/models';
@@ -49,7 +49,7 @@ export interface PaymentMethodHandler {
   paymentMethod: {
     onDelete: (paymentMethod: PaymentMethod) => void;
   };
-  selectMultiple: SelectMultipleHandler;
+  selectMultiple: ISelectMultipleHandler;
 }
 
 const PaymentMethodsRoute = () => {

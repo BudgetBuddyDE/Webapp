@@ -19,7 +19,7 @@ import {
 import { SearchInput } from '@/components/Inputs';
 import { PageHeader } from '@/components/Layout';
 import { PaymentMethodChip } from '@/components/PaymentMethod';
-import { SelectMultiple, type SelectMultipleHandler } from '@/components/SelectMultiple';
+import { type ISelectMultipleHandler, SelectMultiple } from '@/components/SelectMultiple';
 import {
   CreateSubscriptionDrawer,
   EditSubscriptionDrawer,
@@ -64,7 +64,7 @@ interface SubscriptionsHandler {
     onShowCreateDrawer: (subscription: Subscription) => void;
     onHideCreateDrawer: () => void;
   };
-  selectMultiple: SelectMultipleHandler;
+  selectMultiple: ISelectMultipleHandler;
 }
 
 const SubscriptionsRoute = () => {

@@ -14,12 +14,24 @@ import {
   Select,
   Typography,
 } from '@mui/material';
-import type { EditDialogProps } from '.';
 import { CategoryAutocomplete } from '../Category/CategoryAutocomplete.component';
+import { type DialogProps, Transition } from './index';
 
 export type EditDialogActions = 'PAYMENT_METHOD' | 'CATEGORY';
 
-export const EditDialog: React.FC<EditDialogProps> = ({ open, onClose, maxWidth = 'xs', onCancel, onUpdate }) => {
+export type EditDialogProps = Omit<DialogProps, 'onConfirm'> & {
+  onUpdate: (action: EditDialogActions, id: number) => void;
+};
+
+export const EditDialog: React.FC<EditDialogProps> = ({
+  open,
+  onClose,
+  maxWidth = 'xs',
+  onCancel,
+  onUpdate,
+  withTransition = false,
+  ...transitionProps
+}) => {
   const [action, setAction] = React.useState<EditDialogActions | null>(null);
   const [id, setId] = React.useState<number | null>(null);
   const [error, setError] = React.useState<string | null>(null);
@@ -33,8 +45,23 @@ export const EditDialog: React.FC<EditDialogProps> = ({ open, onClose, maxWidth 
   }, []);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth={maxWidth} PaperProps={{ elevation: 0 }}>
-      <DialogTitle id="alert-dialog-title">Attention</DialogTitle>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth={maxWidth}
+      PaperProps={{ elevation: 0 }}
+      {...transitionProps}
+      TransitionComponent={
+        withTransition
+          ? !transitionProps.TransitionComponent
+            ? Transition
+            : transitionProps.TransitionComponent
+          : undefined
+      }
+    >
+      <DialogTitle variant="h2" textAlign="center">
+        Attention
+      </DialogTitle>
       <DialogContent>
         {error && (
           <Alert severity="error">
@@ -43,7 +70,9 @@ export const EditDialog: React.FC<EditDialogProps> = ({ open, onClose, maxWidth 
           </Alert>
         )}
 
-        <DialogContentText sx={{ mb: 1 }}>What field do you wanna change on these entries?</DialogContentText>
+        <DialogContentText sx={{ mb: 1 }} variant="inherit" textAlign="center">
+          What field do you wanna change on these entries?
+        </DialogContentText>
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel id="select-edit-action-label">Action</InputLabel>
           <Select

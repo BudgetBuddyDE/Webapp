@@ -18,7 +18,7 @@ import {
 import { SearchInput } from '@/components/Inputs';
 import { PageHeader } from '@/components/Layout';
 import { RedirectChip } from '@/components/RedirectChip.component';
-import { SelectMultiple, type SelectMultipleHandler } from '@/components/SelectMultiple';
+import { type ISelectMultipleHandler, SelectMultiple } from '@/components/SelectMultiple';
 import { SnackbarContext } from '@/context';
 import { useFetchCategories } from '@/hook';
 import { Category } from '@/models';
@@ -48,7 +48,7 @@ interface CategoriesRouteHandler {
   category: {
     onDelete: (category: Category) => void;
   };
-  selectMultiple: SelectMultipleHandler;
+  selectMultiple: ISelectMultipleHandler;
 }
 const CategoriesRoute = () => {
   const location = useLocation();

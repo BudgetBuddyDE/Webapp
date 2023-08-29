@@ -20,7 +20,7 @@ import {
 import { SearchInput } from '@/components/Inputs';
 import { PageHeader } from '@/components/Layout';
 import { PaymentMethodChip } from '@/components/PaymentMethod';
-import { SelectMultiple, type SelectMultipleHandler } from '@/components/SelectMultiple';
+import { type ISelectMultipleHandler, SelectMultiple } from '@/components/SelectMultiple';
 import { CreateTransactionDrawer, EditTransactionDrawer } from '@/components/Transaction';
 import { SnackbarContext, StoreContext } from '@/context';
 import { useFetchTransactions } from '@/hook';
@@ -51,7 +51,7 @@ interface TransactionHandler {
   onEditTransaction: (transaction: Transaction) => void;
   onTransactionDelete: (transaction: Transaction) => void;
   pagination: TablePaginationHandler;
-  selectMultiple: SelectMultipleHandler;
+  selectMultiple: ISelectMultipleHandler;
 }
 
 const TransactionsRoute = () => {

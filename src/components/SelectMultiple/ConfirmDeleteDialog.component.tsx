@@ -1,6 +1,8 @@
 import React from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import { DeleteDialogProps } from '.';
+import { type DialogProps, Transition } from './index';
+
+export type DeleteDialogProps = DialogProps & { count?: number };
 
 export const ConfirmDeleteDialog: React.FC<DeleteDialogProps> = ({
   open,
@@ -8,27 +10,36 @@ export const ConfirmDeleteDialog: React.FC<DeleteDialogProps> = ({
   maxWidth = 'xs',
   onCancel,
   onConfirm,
+  count,
+  withTransition = false,
+  ...transitionProps
 }) => {
   return (
-    <Dialog open={open} onClose={onClose} maxWidth={maxWidth} PaperProps={{ elevation: 0 }}>
-      <DialogTitle id="alert-dialog-title">Attention</DialogTitle>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth={maxWidth}
+      PaperProps={{ elevation: 0 }}
+      {...transitionProps}
+      TransitionComponent={
+        withTransition
+          ? !transitionProps.TransitionComponent
+            ? Transition
+            : transitionProps.TransitionComponent
+          : undefined
+      }
+    >
+      <DialogTitle variant="h2" textAlign="center">
+        Attention
+      </DialogTitle>
       <DialogContent>
-        <DialogContentText id="alert-dialog-description">
-          Are you sure you want to delete these saved entries irrevocably?
+        <DialogContentText variant="inherit" textAlign="center">
+          You are about to delete the selected {count && count} entries?
         </DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={onCancel}>Cancel</Button>
-        <Button
-          onClick={onConfirm}
-          // focusRipple={false}
-          // sx={{
-          //   ':focus': {
-          //     backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.2),
-          //   },
-          // }}
-          autoFocus
-        >
+        <Button onClick={onConfirm} color="error" variant="contained" autoFocus>
           Yes, delete
         </Button>
       </DialogActions>
