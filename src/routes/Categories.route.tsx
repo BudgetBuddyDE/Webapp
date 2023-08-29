@@ -1,31 +1,29 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AppConfig } from '@/app.config';
-import { Card } from '@/components/Base';
-import { ActionPaper } from '@/components/Base/ActionPaper.component';
-import { CreateCategoryDrawer } from '@/components/Category/CreateCategoryDrawer.component';
-import { EditCategoryDrawer } from '@/components/Category/EditCategoryDrawer.component';
-import { CircularProgress } from '@/components/Core/CircularProgress.component';
-import { AddFab } from '@/components/Core/FAB/AddFab.component';
-import { FabContainer } from '@/components/Core/FAB/FabContainer.component';
-import { Linkify } from '@/components/Core/Linkify.component';
-import { NoResults } from '@/components/Core/NoResults.component';
-import { usePagination } from '@/components/Core/Pagination';
+import { ActionPaper, Card } from '@/components/Base';
+import { CreateCategoryDrawer, EditCategoryDrawer } from '@/components/Category';
 import {
+  AddFab,
+  CircularProgress,
+  FabContainer,
   InitialTablePaginationState,
+  Linkify,
+  NoResults,
   TablePagination,
   type TablePaginationHandler,
-} from '@/components/Core/Pagination/TablePagination.component';
-import { TablePaginationReducer } from '@/components/Core/Pagination/TablePagination.reducer';
-import { SearchInput } from '@/components/Inputs/SearchInput.component';
-import { PageHeader } from '@/components/Layout/PageHeader.component';
+  TablePaginationReducer,
+  usePagination,
+} from '@/components/Core';
+import { SearchInput } from '@/components/Inputs';
+import { PageHeader } from '@/components/Layout';
 import { RedirectChip } from '@/components/RedirectChip.component';
 import { SelectMultiple, type SelectMultipleHandler } from '@/components/SelectMultiple';
-import { SnackbarContext } from '@/context/Snackbar.context';
-import { useFetchCategories } from '@/hook/useFetchCategories.hook';
-import { Category } from '@/models/Category.model';
+import { SnackbarContext } from '@/context';
+import { useFetchCategories } from '@/hook';
+import { Category } from '@/models';
 import { SelectMultipleReducer, generateInitialState } from '@/reducer/SelectMultuple.reducer';
-import { CategoryService } from '@/services/Category.service';
+import { CategoryService } from '@/services';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import { AddRounded as AddIcon, DeleteRounded as DeleteIcon, EditRounded as EditIcon } from '@mui/icons-material';
 import {

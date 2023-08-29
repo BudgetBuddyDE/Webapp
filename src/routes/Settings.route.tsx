@@ -1,12 +1,9 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Card } from '@/components/Base';
-import { StyledTab } from '@/components/Base/Tab/StyledTab.component';
-import { PageHeader } from '@/components/Layout/PageHeader.component';
-import { ProfileAvatar } from '@/components/Profile/ProfileAvatar.component';
-import { AboutInformation } from '@/components/Settings/AboutInformation.component';
-import { FeedbackTab } from '@/components/Settings/FeedbackTab.component';
-import { ProfileTab } from '@/components/Settings/ProfileTab.component';
+import { Card, StyledTab } from '@/components/Base';
+import { PageHeader } from '@/components/Layout';
+import { ProfileAvatar } from '@/components/Profile';
+import { AboutInformation, FeedbackTab, ProfileTab } from '@/components/Settings';
 import { AccountCircleRounded, FeedbackRounded } from '@mui/icons-material';
 import { Grid, Tabs } from '@mui/material';
 

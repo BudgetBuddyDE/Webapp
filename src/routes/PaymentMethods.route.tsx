@@ -1,29 +1,28 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AppConfig } from '@/app.config';
-import { Card } from '@/components/Base';
-import { ActionPaper } from '@/components/Base/ActionPaper.component';
-import { CircularProgress } from '@/components/Core/CircularProgress.component';
-import { AddFab } from '@/components/Core/FAB/AddFab.component';
-import { FabContainer } from '@/components/Core/FAB/FabContainer.component';
-import { Linkify } from '@/components/Core/Linkify.component';
-import { NoResults } from '@/components/Core/NoResults.component';
-import { usePagination } from '@/components/Core/Pagination';
+import { ActionPaper, Card } from '@/components/Base';
 import {
+  AddFab,
+  CircularProgress,
+  FabContainer,
   InitialTablePaginationState,
+  Linkify,
+  NoResults,
   TablePagination,
   type TablePaginationHandler,
-} from '@/components/Core/Pagination/TablePagination.component';
-import { TablePaginationReducer } from '@/components/Core/Pagination/TablePagination.reducer';
-import { SearchInput } from '@/components/Inputs/SearchInput.component';
-import { PageHeader } from '@/components/Layout/PageHeader.component';
+  TablePaginationReducer,
+  usePagination,
+} from '@/components/Core';
+import { SearchInput } from '@/components/Inputs';
+import { PageHeader } from '@/components/Layout';
 import { CreatePaymentMethod } from '@/components/PaymentMethod/CreatePaymentMethodDrawer.component';
 import { EditPaymentMethodDrawer } from '@/components/PaymentMethod/EditPaymentmethodDrawer.component';
 import { RedirectChip } from '@/components/RedirectChip.component';
 import { SelectMultiple, type SelectMultipleHandler } from '@/components/SelectMultiple';
-import { SnackbarContext } from '@/context/Snackbar.context';
-import { useFetchPaymentMethods } from '@/hook/useFetchPaymentMethods.hook';
-import { PaymentMethod } from '@/models/PaymentMethod.model';
+import { SnackbarContext } from '@/context';
+import { useFetchPaymentMethods } from '@/hook';
+import { PaymentMethod } from '@/models';
 import { SelectMultipleReducer, generateInitialState } from '@/reducer/SelectMultuple.reducer';
 import { PaymentMethodService } from '@/services/PaymentMethod.service';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';

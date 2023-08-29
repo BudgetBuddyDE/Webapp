@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ActionPaper } from '@/components/Base/ActionPaper.component';
-import { StackedIconButton } from '@/components/Core/StackedIconButton.component';
-import { AuthContext } from '@/context/Auth.context';
+import { ActionPaper } from '@/components/Base';
+import { StackedIconButton } from '@/components/Core';
+import { AuthContext } from '@/context';
 import '@/style/main.css';
 import { ExitToAppRounded, HomeRounded } from '@mui/icons-material';
 import { Grid, Typography } from '@mui/material';
@@ -33,6 +33,7 @@ const PageNotFoundRoute = () => {
             <StackedIconButton
               // @ts-ignore
               component={Link}
+              // @ts-ignore
               to="/dashboard"
               size="large"
               startIcon={<HomeRounded />}
@@ -46,6 +47,7 @@ const PageNotFoundRoute = () => {
           <StackedIconButton
             // @ts-ignore
             component={Link}
+            // @ts-ignore
             to="/sign-in"
             size="large"
             startIcon={<ExitToAppRounded />}

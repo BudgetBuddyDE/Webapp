@@ -1,11 +1,9 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/Base';
-import { AppLogo } from '@/components/Core/App/AppLogo.component';
-import { StackedIconButton } from '@/components/Core/StackedIconButton.component';
-import { AuthContext } from '@/context/Auth.context';
-import { SnackbarContext } from '@/context/Snackbar.context';
-import { AuthService } from '@/services/Auth.service';
+import { AppLogo, StackedIconButton } from '@/components/Core';
+import { AuthContext, SnackbarContext } from '@/context';
+import { AuthService } from '@/services';
 import { supabase } from '@/supabase';
 import {
   ExitToAppRounded,
@@ -141,6 +139,7 @@ const SignUpRoute = () => {
               <StackedIconButton
                 // @ts-ignore
                 component={Link}
+                // @ts-ignore
                 to="/dashboard"
                 size="large"
                 startIcon={<HomeRounded />}
@@ -154,6 +153,7 @@ const SignUpRoute = () => {
             <StackedIconButton
               // @ts-ignore
               component={Link}
+              // @ts-ignore
               to="/sign-in"
               size="large"
               startIcon={<ExitToAppRounded />}

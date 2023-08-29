@@ -2,12 +2,10 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppConfig } from '@/app.config';
 import { Card } from '@/components/Base';
-import { AppLogo } from '@/components/Core/App/AppLogo.component';
-import { StackedIconButton } from '@/components/Core/StackedIconButton.component';
-import { FailedLoginAttemptsDialog } from '@/components/Profile/FailedLoginAttemptsDialog.component';
-import { AuthContext } from '@/context/Auth.context';
-import { SnackbarContext } from '@/context/Snackbar.context';
-import { AuthService } from '@/services/Auth.service';
+import { AppLogo, StackedIconButton } from '@/components/Core';
+import { FailedLoginAttemptsDialog } from '@/components/Profile';
+import { AuthContext, SnackbarContext } from '@/context';
+import { AuthService } from '@/services';
 import { supabase } from '@/supabase';
 import {
   AppRegistrationRounded,
@@ -137,6 +135,7 @@ const SignInRoute = () => {
               <StackedIconButton
                 // @ts-ignore
                 component={Link}
+                // @ts-ignore
                 to="/dashboard"
                 size="large"
                 startIcon={<HomeRounded />}
@@ -150,6 +149,7 @@ const SignInRoute = () => {
             <StackedIconButton
               // @ts-ignore
               component={Link}
+              // @ts-ignore
               to="/request-reset"
               size="large"
               startIcon={<LockResetRounded />}
@@ -162,6 +162,7 @@ const SignInRoute = () => {
             <StackedIconButton
               // @ts-ignore
               component={Link}
+              // @ts-ignore
               to="/sign-up"
               size="large"
               startIcon={<AppRegistrationRounded />}

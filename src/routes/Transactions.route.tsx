@@ -1,37 +1,34 @@
 import { format } from 'date-fns';
 import React from 'react';
 import { AppConfig } from '@/app.config';
-import { Card } from '@/components/Base';
-import { ActionPaper } from '@/components/Base/ActionPaper.component';
-import { CategoryChip } from '@/components/Category/CategoryChip.component';
-import { CircularProgress } from '@/components/Core/CircularProgress.component';
-import { ShowFilterButton } from '@/components/Core/Drawer/FilterDrawer.component';
-import { AddFab } from '@/components/Core/FAB/AddFab.component';
-import { FabContainer } from '@/components/Core/FAB/FabContainer.component';
-import { OpenFilterFab } from '@/components/Core/FAB/OpenFilterFab.component';
-import { Linkify } from '@/components/Core/Linkify.component';
-import { NoResults } from '@/components/Core/NoResults.component';
-import { usePagination } from '@/components/Core/Pagination';
+import { ActionPaper, Card } from '@/components/Base';
+import { CategoryChip } from '@/components/Category';
 import {
+  AddFab,
+  CircularProgress,
+  FabContainer,
   InitialTablePaginationState,
+  Linkify,
+  NoResults,
+  OpenFilterFab,
+  ShowFilterButton,
   TablePagination,
-  TablePaginationHandler,
-} from '@/components/Core/Pagination/TablePagination.component';
-import { TablePaginationReducer } from '@/components/Core/Pagination/TablePagination.reducer';
-import { SearchInput } from '@/components/Inputs/SearchInput.component';
-import { PageHeader } from '@/components/Layout/PageHeader.component';
-import { PaymentMethodChip } from '@/components/PaymentMethod/PaymentMethodChip.component';
-import { SelectMultiple, SelectMultipleHandler } from '@/components/SelectMultiple';
-import { CreateTransactionDrawer } from '@/components/Transaction/CreateTransactionDrawer.component';
-import { EditTransactionDrawer } from '@/components/Transaction/EditTransactionsDrawer.component';
-import { SnackbarContext } from '@/context/Snackbar.context';
-import { StoreContext } from '@/context/Store.context';
-import { useFetchTransactions } from '@/hook/useFetchTransactions.hook';
-import { Transaction } from '@/models/Transaction.model';
-import { SelectMultipleReducer, generateInitialState } from '@/reducer/SelectMultuple.reducer';
-import { TransactionService } from '@/services/Transaction.service';
+  type TablePaginationHandler,
+  TablePaginationReducer,
+  usePagination,
+} from '@/components/Core';
+import { SearchInput } from '@/components/Inputs';
+import { PageHeader } from '@/components/Layout';
+import { PaymentMethodChip } from '@/components/PaymentMethod';
+import { SelectMultiple, type SelectMultipleHandler } from '@/components/SelectMultiple';
+import { CreateTransactionDrawer, EditTransactionDrawer } from '@/components/Transaction';
+import { SnackbarContext, StoreContext } from '@/context';
+import { useFetchTransactions } from '@/hook';
+import { Transaction } from '@/models';
+import { SelectMultipleReducer, generateInitialState } from '@/reducer';
+import { TransactionService } from '@/services';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
-import { filterTransactions } from '@/util/filter.util';
+import { filterTransactions } from '@/util';
 import { AddRounded as AddIcon, DeleteRounded as DeleteIcon, EditRounded as EditIcon } from '@mui/icons-material';
 import {
   Box,

@@ -1,25 +1,19 @@
 import React from 'react';
-import { Card } from '@/components/Base';
-import { ActionPaper } from '@/components/Base/ActionPaper.component';
-import { CategoryExpensesChartCard } from '@/components/Category/CategoryExpensesChartCard.component';
-import { Stats, StatsIconStyle, type StatsProps } from '@/components/Core/Cards/StatsCard.component';
-import { CircularProgress } from '@/components/Core/CircularProgress.component';
-import { NoResults } from '@/components/Core/NoResults.component';
-import { PageHeader } from '@/components/Layout/PageHeader.component';
+import { ActionPaper, Card } from '@/components/Base';
+import { CategoryExpensesChartCard } from '@/components/Category';
+import { CircularProgress, NoResults, Stats, StatsIconStyle, StatsProps } from '@/components/Core';
+import { PageHeader } from '@/components/Layout';
+import { Subscription as SubscriptionComponent } from '@/components/Subscription';
 import { CreateSubscriptionDrawer } from '@/components/Subscription/CreateSubscriptionDrawer.component';
-import { Subscription as SubscriptionComponent } from '@/components/Subscription/Subscription.component';
-import { CreateTransactionDrawer } from '@/components/Transaction/CreateTransactionDrawer.component';
-import { Transaction as TransactionComponent } from '@/components/Transaction/Transaction.component';
-import { AuthContext } from '@/context/Auth.context';
-import { StoreContext } from '@/context/Store.context';
-import { useFetchSubscriptions } from '@/hook/useFetchSubscriptions.hook';
-import { useFetchTransactions } from '@/hook/useFetchTransactions.hook';
-import { Subscription } from '@/models/Subscription.model';
-import { Transaction } from '@/models/Transaction.model';
+import { Transaction as TransactionComponent } from '@/components/Transaction';
+import { CreateTransactionDrawer } from '@/components/Transaction';
+import { AuthContext, StoreContext } from '@/context';
+import { useFetchSubscriptions, useFetchTransactions } from '@/hook';
+import { Subscription, Transaction } from '@/models';
 import { BudgetService } from '@/services/Budget.service';
 import { SubscriptionService } from '@/services/Subscription.service';
 import { TransactionService } from '@/services/Transaction.service';
-import { formatBalance } from '@/util/formatBalance.util';
+import { formatBalance } from '@/util';
 import {
   AddRounded as AddIcon,
   BalanceRounded as BalanceIcon,
