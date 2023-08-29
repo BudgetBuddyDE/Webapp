@@ -10,11 +10,13 @@ import { FabContainer } from '@/components/Core/FAB/FabContainer.component';
 import { OpenFilterFab } from '@/components/Core/FAB/OpenFilterFab.component';
 import { Linkify } from '@/components/Core/Linkify.component';
 import { NoResults } from '@/components/Core/NoResults.component';
+import { usePagination } from '@/components/Core/Pagination';
 import {
   InitialTablePaginationState,
   TablePagination,
   TablePaginationHandler,
-} from '@/components/Core/TablePagination.component';
+} from '@/components/Core/Pagination/TablePagination.component';
+import { TablePaginationReducer } from '@/components/Core/Pagination/TablePagination.reducer';
 import { SearchInput } from '@/components/Inputs/SearchInput.component';
 import { PageHeader } from '@/components/Layout/PageHeader.component';
 import { PaymentMethodChip } from '@/components/PaymentMethod/PaymentMethodChip.component';
@@ -29,7 +31,6 @@ import { StoreContext } from '@/context/Store.context';
 import { useFetchSubscriptions } from '@/hook/useFetchSubscriptions.hook';
 import { Subscription } from '@/models/Subscription.model';
 import { SelectMultipleReducer, generateInitialState } from '@/reducer/SelectMultuple.reducer';
-import { TablePaginationReducer } from '@/reducer/TablePagination.reducer';
 import { SubscriptionService } from '@/services/Subscription.service';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import { TCreateTransactionProps } from '@/type/transaction.type';
@@ -81,6 +82,10 @@ const SubscriptionsRoute = () => {
     generateInitialState()
   );
   const [keyword, setKeyword] = React.useState('');
+  const shownSubscriptions: Subscription[] = React.useMemo(() => {
+    return filterSubscriptions(keyword, filter, subscriptions);
+  }, [subscriptions, keyword, filter]);
+  const currentPageSubscriptions = usePagination(shownSubscriptions, tablePagination);
   const [showCreateTransactionForm, setShowCreateTransactionForm] = React.useState(false);
   const [createableTransaction, setCreateableTransaction] = React.useState<TCreateTransactionProps | null>(null);
   const [showAddForm, setShowAddForm] = React.useState(false);
@@ -226,15 +231,6 @@ const SubscriptionsRoute = () => {
       },
     },
   };
-
-  const shownSubscriptions: Subscription[] = React.useMemo(() => {
-    return filterSubscriptions(keyword, filter, subscriptions);
-  }, [subscriptions, keyword, filter]);
-
-  const currentPageSubscriptions: Subscription[] = React.useMemo(() => {
-    const { page, rowsPerPage } = tablePagination;
-    return shownSubscriptions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  }, [shownSubscriptions, tablePagination]);
 
   return (
     <Grid container spacing={3}>

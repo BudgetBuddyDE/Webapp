@@ -1,15 +1,14 @@
 import React from 'react';
-import { type TablePaginationState } from '@/reducer/TablePagination.reducer';
+import { type TablePaginationState } from '@/components/Core/Pagination/TablePagination.reducer';
 import { TablePagination as MuiTablePagination } from '@mui/material';
 import type { TablePaginationProps as MuiTablePaginationProps } from '@mui/material';
-import { ActionPaper } from '../Base/ActionPaper.component';
+import { ActionPaper } from '../../Base/ActionPaper.component';
 
-export type TablePaginationProps = {
-  count: MuiTablePaginationProps['count'];
-  page: MuiTablePaginationProps['page'];
+export type TablePaginationProps = Pick<
+  MuiTablePaginationProps,
+  'count' | 'page' | 'rowsPerPage' | 'labelRowsPerPage'
+> & {
   onPageChange: (newPage: number) => void;
-  rowsPerPage?: MuiTablePaginationProps['rowsPerPage'];
-  labelRowsPerPage?: MuiTablePaginationProps['labelRowsPerPage'];
   onRowsPerPageChange: (rowsPerPage: number) => void;
 };
 

@@ -11,11 +11,13 @@ import { FabContainer } from '@/components/Core/FAB/FabContainer.component';
 import { OpenFilterFab } from '@/components/Core/FAB/OpenFilterFab.component';
 import { Linkify } from '@/components/Core/Linkify.component';
 import { NoResults } from '@/components/Core/NoResults.component';
+import { usePagination } from '@/components/Core/Pagination';
 import {
   InitialTablePaginationState,
   TablePagination,
   TablePaginationHandler,
-} from '@/components/Core/TablePagination.component';
+} from '@/components/Core/Pagination/TablePagination.component';
+import { TablePaginationReducer } from '@/components/Core/Pagination/TablePagination.reducer';
 import { SearchInput } from '@/components/Inputs/SearchInput.component';
 import { PageHeader } from '@/components/Layout/PageHeader.component';
 import { PaymentMethodChip } from '@/components/PaymentMethod/PaymentMethodChip.component';
@@ -27,7 +29,6 @@ import { StoreContext } from '@/context/Store.context';
 import { useFetchTransactions } from '@/hook/useFetchTransactions.hook';
 import { Transaction } from '@/models/Transaction.model';
 import { SelectMultipleReducer, generateInitialState } from '@/reducer/SelectMultuple.reducer';
-import { TablePaginationReducer } from '@/reducer/TablePagination.reducer';
 import { TransactionService } from '@/services/Transaction.service';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import { filterTransactions } from '@/util/filter.util';
@@ -66,11 +67,16 @@ const TransactionsRoute = () => {
     fetched: areTransactionsFetched,
   } = useFetchTransactions();
   const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
+  const [keyword, setKeyword] = React.useState('');
+  const shownTransactions: Transaction[] = React.useMemo(() => {
+    if (!transactions) return [];
+    return filterTransactions(keyword, filter, transactions);
+  }, [transactions, keyword, filter]);
+  const currentPageTransactions = usePagination(shownTransactions, tablePagination);
   const [selectedTransactions, setSelectedTransactions] = React.useReducer(
     SelectMultipleReducer,
     generateInitialState()
   );
-  const [keyword, setKeyword] = React.useState('');
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [showEditForm, setShowEditForm] = React.useState(false);
   const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
@@ -183,16 +189,6 @@ const TransactionsRoute = () => {
       },
     },
   };
-
-  const shownTransactions: Transaction[] = React.useMemo(() => {
-    if (!transactions) return [];
-    return filterTransactions(keyword, filter, transactions);
-  }, [transactions, keyword, filter]);
-
-  const currentPageTransactions: Transaction[] = React.useMemo(() => {
-    const { page, rowsPerPage } = tablePagination;
-    return shownTransactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  }, [shownTransactions, tablePagination]);
 
   return (
     <Grid container spacing={3}>

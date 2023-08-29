@@ -8,11 +8,13 @@ import { AddFab } from '@/components/Core/FAB/AddFab.component';
 import { FabContainer } from '@/components/Core/FAB/FabContainer.component';
 import { Linkify } from '@/components/Core/Linkify.component';
 import { NoResults } from '@/components/Core/NoResults.component';
+import { usePagination } from '@/components/Core/Pagination';
 import {
   InitialTablePaginationState,
   TablePagination,
   type TablePaginationHandler,
-} from '@/components/Core/TablePagination.component';
+} from '@/components/Core/Pagination/TablePagination.component';
+import { TablePaginationReducer } from '@/components/Core/Pagination/TablePagination.reducer';
 import { SearchInput } from '@/components/Inputs/SearchInput.component';
 import { PageHeader } from '@/components/Layout/PageHeader.component';
 import { CreatePaymentMethod } from '@/components/PaymentMethod/CreatePaymentMethodDrawer.component';
@@ -23,7 +25,6 @@ import { SnackbarContext } from '@/context/Snackbar.context';
 import { useFetchPaymentMethods } from '@/hook/useFetchPaymentMethods.hook';
 import { PaymentMethod } from '@/models/PaymentMethod.model';
 import { SelectMultipleReducer, generateInitialState } from '@/reducer/SelectMultuple.reducer';
-import { TablePaginationReducer } from '@/reducer/TablePagination.reducer';
 import { PaymentMethodService } from '@/services/PaymentMethod.service';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import { AddRounded as AddIcon, DeleteRounded as DeleteIcon, EditRounded as EditIcon } from '@mui/icons-material';
@@ -68,6 +69,13 @@ const PaymentMethodsRoute = () => {
     fetched: arePaymentMethodsFetched,
   } = useFetchPaymentMethods();
   const [keyword, setKeyword] = React.useState('');
+  const shownPaymentMethods: PaymentMethod[] = React.useMemo(() => {
+    if (keyword === '') return paymentMethods;
+    return paymentMethods.filter(
+      (item) => item.name.toLowerCase().includes(keyword) || item.provider.toLowerCase().includes(keyword)
+    );
+  }, [keyword, paymentMethods]);
+  const currentPagePaymentMethods = usePagination(shownPaymentMethods, tablePagination);
   const [showAddForm, setShowAddForm] = React.useState(
     location.state !== null && (location.state as any).create !== undefined && (location.state as any).create === true
   );
@@ -155,18 +163,6 @@ const PaymentMethodsRoute = () => {
       },
     },
   };
-
-  const shownPaymentMethods: PaymentMethod[] = React.useMemo(() => {
-    if (keyword === '') return paymentMethods;
-    return paymentMethods.filter(
-      (item) => item.name.toLowerCase().includes(keyword) || item.provider.toLowerCase().includes(keyword)
-    );
-  }, [keyword, paymentMethods]);
-
-  const currentPagePaymentMethods: PaymentMethod[] = React.useMemo(() => {
-    const { page, rowsPerPage } = tablePagination;
-    return shownPaymentMethods.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  }, [shownPaymentMethods, tablePagination]);
 
   React.useEffect(() => {
     return () => handler.clearLocatioState();

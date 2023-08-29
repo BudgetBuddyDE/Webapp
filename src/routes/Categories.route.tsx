@@ -10,11 +10,13 @@ import { AddFab } from '@/components/Core/FAB/AddFab.component';
 import { FabContainer } from '@/components/Core/FAB/FabContainer.component';
 import { Linkify } from '@/components/Core/Linkify.component';
 import { NoResults } from '@/components/Core/NoResults.component';
+import { usePagination } from '@/components/Core/Pagination';
 import {
   InitialTablePaginationState,
   TablePagination,
   type TablePaginationHandler,
-} from '@/components/Core/TablePagination.component';
+} from '@/components/Core/Pagination/TablePagination.component';
+import { TablePaginationReducer } from '@/components/Core/Pagination/TablePagination.reducer';
 import { SearchInput } from '@/components/Inputs/SearchInput.component';
 import { PageHeader } from '@/components/Layout/PageHeader.component';
 import { RedirectChip } from '@/components/RedirectChip.component';
@@ -23,7 +25,6 @@ import { SnackbarContext } from '@/context/Snackbar.context';
 import { useFetchCategories } from '@/hook/useFetchCategories.hook';
 import { Category } from '@/models/Category.model';
 import { SelectMultipleReducer, generateInitialState } from '@/reducer/SelectMultuple.reducer';
-import { TablePaginationReducer } from '@/reducer/TablePagination.reducer';
 import { CategoryService } from '@/services/Category.service';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import { AddRounded as AddIcon, DeleteRounded as DeleteIcon, EditRounded as EditIcon } from '@mui/icons-material';
@@ -64,6 +65,11 @@ const CategoriesRoute = () => {
   const [tablePagination, setTablePagination] = React.useReducer(TablePaginationReducer, InitialTablePaginationState);
   const [selectedCategories, setSelectedCategories] = React.useReducer(SelectMultipleReducer, generateInitialState());
   const [keyword, setKeyword] = React.useState('');
+  const shownCategories: Category[] = React.useMemo(() => {
+    if (keyword === '') return categories;
+    return categories.filter((item) => item.name.toLowerCase().includes(keyword));
+  }, [keyword, categories]);
+  const currentPageCategories = usePagination(shownCategories, tablePagination);
   const [showAddForm, setShowAddForm] = React.useState(
     location.state !== null && (location.state as any).create !== undefined && (location.state as any).create === true
   );
@@ -150,16 +156,6 @@ const CategoriesRoute = () => {
       },
     },
   };
-
-  const shownCategories: Category[] = React.useMemo(() => {
-    if (keyword === '') return categories;
-    return categories.filter((item) => item.name.toLowerCase().includes(keyword));
-  }, [keyword, categories]);
-
-  const currentPageCategories: Category[] = React.useMemo(() => {
-    const { page, rowsPerPage } = tablePagination;
-    return shownCategories.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  }, [shownCategories, tablePagination]);
 
   React.useEffect(() => {
     return () => handler.clearLocationState();
