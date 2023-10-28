@@ -9,16 +9,16 @@ import { StoreProvider } from './context/Store.context.tsx';
 import { DefaultTheme } from './style/theme/default.theme.ts';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-    <React.StrictMode>
-        <ThemeProvider theme={DefaultTheme}>
-            <AuthProvider>
-                <CssBaseline />
-                <StoreProvider>
-                    <SnackbarProvider>
-                        <App />
-                    </SnackbarProvider>
-                </StoreProvider>
-            </AuthProvider>
-        </ThemeProvider>
-    </React.StrictMode>
+  <React.StrictMode>
+    <ThemeProvider theme={DefaultTheme}>
+      <AuthProvider>
+        <CssBaseline />
+        <StoreProvider>
+          <SnackbarProvider>
+            <App />
+          </SnackbarProvider>
+        </StoreProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  </React.StrictMode>
 );

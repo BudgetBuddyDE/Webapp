@@ -6,50 +6,50 @@ import type { PaymentMethodView } from './payment-method.type';
  * Object like it's stored in our database
  */
 export type TBaseTransaction = {
-    id: number;
-    category: number;
-    paymentMethod: number;
-    receiver: string;
-    description: Description;
-    amount: number;
-    date: string | Date;
-    created_by: uuid;
-    updated_at: string;
-    inserted_at: string;
+  id: number;
+  category: number;
+  paymentMethod: number;
+  receiver: string;
+  description: Description;
+  amount: number;
+  date: string | Date;
+  created_by: uuid;
+  updated_at: string;
+  inserted_at: string;
 };
 
 /**
  * `TBaseTransaction` with resolved foreign-keys
  */
 export type TTransaction = {
-    id: number;
-    categories: CategoryView;
-    paymentMethods: PaymentMethodView;
-    receiver: string;
-    description: Description;
-    amount: number;
-    date: string;
-    created_by: uuid;
-    updated_at: string;
-    inserted_at: string;
+  id: number;
+  categories: CategoryView;
+  paymentMethods: PaymentMethodView;
+  receiver: string;
+  description: Description;
+  amount: number;
+  date: string;
+  created_by: uuid;
+  updated_at: string;
+  inserted_at: string;
 };
 
 /**
  * Object that will be avaiable for export
  */
 export type TExportTransaction = {
-    id: number;
-    category: number;
-    categories: CategoryView;
-    paymentMethod: number;
-    paymentMethods: PaymentMethodView;
-    receiver: string;
-    description: Description;
-    amount: number;
-    date: string;
-    created_by: uuid;
-    updated_at: string;
-    inserted_at: string;
+  id: number;
+  category: number;
+  categories: CategoryView;
+  paymentMethod: number;
+  paymentMethods: PaymentMethodView;
+  receiver: string;
+  description: Description;
+  amount: number;
+  date: string;
+  created_by: uuid;
+  updated_at: string;
+  inserted_at: string;
 };
 
 /**

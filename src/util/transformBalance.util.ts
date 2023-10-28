@@ -5,5 +5,5 @@
  * @returns The number representing the balance value
  */
 export function transformBalance(balance: string): number {
-    return Number(balance.replace(',', '.'));
+  return Number(balance.replace(',', '.'));
 }

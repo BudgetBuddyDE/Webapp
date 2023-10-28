@@ -6,45 +6,45 @@ import { StyledLink } from '../Base/Link.component';
 import { ExportProfileData } from '../Profile/ExportProfileData.component';
 
 export const AboutInformation = () => {
-    return (
-        <Card>
-            <Card.Header>
-                <Box>
-                    <Card.Title>About</Card.Title>
-                    <Card.Subtitle>
-                        ReactJS bases web-app to keep track of your finances and manage your montly budget.
-                    </Card.Subtitle>
-                </Box>
-            </Card.Header>
-            <Card.Body>
-                <Stack spacing={2} direction="row" alignItems="center" sx={{ mt: 1 }}>
-                    <LanguageRounded />
-                    <StyledLink href="https://budget-buddy.de" target="_blank">
-                        Website
-                    </StyledLink>
-                </Stack>
+  return (
+    <Card>
+      <Card.Header>
+        <Box>
+          <Card.Title>About</Card.Title>
+          <Card.Subtitle>
+            ReactJS bases web-app to keep track of your finances and manage your montly budget.
+          </Card.Subtitle>
+        </Box>
+      </Card.Header>
+      <Card.Body>
+        <Stack spacing={2} direction="row" alignItems="center" sx={{ mt: 1 }}>
+          <LanguageRounded />
+          <StyledLink href="https://budget-buddy.de" target="_blank">
+            Website
+          </StyledLink>
+        </Stack>
 
-                <Stack spacing={2} direction="row" alignItems="center" sx={{ mt: 1 }}>
-                    <AlternateEmailRounded />
-                    <StyledLink href="mailto:contact@budget-buddy.de">Contact</StyledLink>
-                </Stack>
+        <Stack spacing={2} direction="row" alignItems="center" sx={{ mt: 1 }}>
+          <AlternateEmailRounded />
+          <StyledLink href="mailto:contact@budget-buddy.de">Contact</StyledLink>
+        </Stack>
 
-                <Stack spacing={2} direction="row" alignItems="center" sx={{ mt: 1 }}>
-                    <CodeRounded />
-                    <StyledLink href="https://github.com/BudgetBuddyDE/Webapp" target="_blank">
-                        Source Code
-                    </StyledLink>
-                </Stack>
+        <Stack spacing={2} direction="row" alignItems="center" sx={{ mt: 1 }}>
+          <CodeRounded />
+          <StyledLink href="https://github.com/BudgetBuddyDE/Webapp" target="_blank">
+            Source Code
+          </StyledLink>
+        </Stack>
 
-                <Stack spacing={2} direction="row" alignItems="center" sx={{ mt: 1 }}>
-                    <AppSettingsAltRounded />
-                    <Typography noWrap>Version v{AppConfig.appVersion}</Typography>
-                </Stack>
+        <Stack spacing={2} direction="row" alignItems="center" sx={{ mt: 1 }}>
+          <AppSettingsAltRounded />
+          <Typography noWrap>Version v{AppConfig.appVersion}</Typography>
+        </Stack>
 
-                <Divider sx={{ mt: 2, mb: 0 }} />
+        <Divider sx={{ mt: 2, mb: 0 }} />
 
-                <ExportProfileData />
-            </Card.Body>
-        </Card>
-    );
+        <ExportProfileData />
+      </Card.Body>
+    </Card>
+  );
 };
