@@ -21,6 +21,7 @@ import { SearchInput } from '@/components/Inputs';
 import { PageHeader } from '@/components/Layout';
 import { PaymentMethodChip } from '@/components/PaymentMethod';
 import { type ISelectMultipleHandler, SelectMultiple } from '@/components/SelectMultiple';
+import { TableActions } from '@/components/TableActions';
 import { CreateTransactionDrawer, EditTransactionDrawer } from '@/components/Transaction';
 import { SnackbarContext, StoreContext } from '@/context';
 import { useFetchTransactions } from '@/hook';
@@ -51,7 +52,6 @@ interface TransactionHandler {
   onEditTransaction: (transaction: Transaction) => void;
   onTransactionDelete: (transaction: Transaction) => void;
   pagination: TablePaginationHandler;
-  selectMultiple: ISelectMultipleHandler;
 }
 
 const TransactionsRoute = () => {
@@ -111,78 +111,85 @@ const TransactionsRoute = () => {
         setTablePagination({ type: 'CHANGE_ROWS_PER_PAGE', rowsPerPage: rowsPerPage });
       },
     },
-    selectMultiple: {
-      onSelectAll: (_event, _checked) => {
-        setSelectedTransactions({
-          type: 'SET_SELECTED',
-          selected:
-            selectedTransactions.selected.length > 0 &&
-            (selectedTransactions.selected.length < shownTransactions.length ||
-              shownTransactions.length === selectedTransactions.selected.length)
-              ? []
-              : shownTransactions.map(({ id }) => id),
-        });
+  };
+
+  const SelectMultipleHandler: ISelectMultipleHandler = {
+    onSelectAll(_event, _checked) {
+      setSelectedTransactions({
+        type: 'SET_SELECTED',
+        selected:
+          selectedTransactions.selected.length > 0 &&
+          (selectedTransactions.selected.length < shownTransactions.length ||
+            shownTransactions.length === selectedTransactions.selected.length)
+            ? []
+            : shownTransactions.map(({ id }) => id),
+      });
+    },
+    onSelectSingle(event, checked) {
+      setSelectedTransactions({ type: checked ? 'ADD_ITEM' : 'REMOVE_ITEM', item: Number(event.target.value) });
+    },
+    actionBar: {
+      onEdit() {
+        setSelectedTransactions({ type: 'OPEN_DIALOG', dialog: 'EDIT' });
       },
-      onSelectSingle: (event, checked) => {
-        const item = Number(event.target.value);
-        setSelectedTransactions(checked ? { type: 'ADD_ITEM', item: item } : { type: 'REMOVE_ITEM', item: item });
+      onDelete() {
+        setSelectedTransactions({ type: 'OPEN_DIALOG', dialog: 'DELETE' });
       },
-      actionBar: {
-        onEdit: () => {
-          setSelectedTransactions({ type: 'OPEN_DIALOG', dialog: 'EDIT' });
-        },
-        onDelete: () => {
-          setSelectedTransactions({ type: 'OPEN_DIALOG', dialog: 'DELETE' });
-        },
-      },
-      dialog: {
-        onEditConfirm: async (action, id) => {
-          try {
-            const result = await TransactionService.update(
-              selectedTransactions.selected,
-              action === 'CATEGORY' ? 'category' : 'paymentMethod',
-              id
-            );
-            if (result.length === 0) return showSnackbar({ message: 'No transactions were updated' });
-            await refreshTransactions();
-            setSelectedTransactions({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
-            showSnackbar({ message: 'Transactions updated' });
-          } catch (error) {
-            console.error(error);
-            showSnackbar({
-              message: "Couln't update the transactions",
-              action: (
-                // @ts-ignore
-                <Button onClick={() => handler.selectMultiple.dialog.onEditConfirm(action, id)}>Retry</Button>
-              ),
-            });
-            setSelectedTransactions({ type: 'CLOSE_DIALOG' });
-          }
-        },
-        onEditCancel: () => {
+    },
+    dialog: {
+      async onEditConfirm(action, id) {
+        try {
+          const result = await TransactionService.update(
+            selectedTransactions.selected,
+            action === 'CATEGORY' ? 'category' : 'paymentMethod',
+            id
+          );
+          if (result.length === 0) return showSnackbar({ message: 'No transactions were updated' });
+          await refreshTransactions();
+          setSelectedTransactions({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
+          showSnackbar({ message: 'Transactions updated' });
+        } catch (error) {
+          console.error(error);
+          showSnackbar({
+            message: "Couln't update the transactions",
+            action: (
+              <Button
+                onClick={() => {
+                  if (SelectMultipleHandler.dialog.onEditConfirm) {
+                    SelectMultipleHandler.dialog.onEditConfirm(action, id);
+                  }
+                }}
+              >
+                Retry
+              </Button>
+            ),
+          });
           setSelectedTransactions({ type: 'CLOSE_DIALOG' });
-        },
-        onDeleteCancel: () => {
+        }
+      },
+      onEditCancel() {
+        setSelectedTransactions({ type: 'CLOSE_DIALOG' });
+      },
+      async onDeleteConfirm() {
+        try {
+          if (selectedTransactions.selected.length === 0) throw new Error('No transactions were selected');
+          const result = await TransactionService.delete(selectedTransactions.selected);
+          if (result.length != selectedTransactions.selected.length)
+            throw new Error("Couldn't delete all selected transactions");
+          await refreshTransactions();
+          setSelectedTransactions({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
+          showSnackbar({ message: 'Transactions deleted' });
+        } catch (error) {
+          console.error(error);
+          showSnackbar({
+            message: "Couln't delete the transactions",
+            action: <Button onClick={SelectMultipleHandler.dialog.onDeleteConfirm}>Retry</Button>,
+          });
           setSelectedTransactions({ type: 'CLOSE_DIALOG' });
-        },
-        onDeleteConfirm: async () => {
-          try {
-            if (selectedTransactions.selected.length === 0) throw new Error('No transactions were selected');
-            const result = await TransactionService.delete(selectedTransactions.selected);
-            if (result.length != selectedTransactions.selected.length)
-              throw new Error("Couldn't delete all selected transactions");
-            await refreshTransactions();
-            setSelectedTransactions({ type: 'CLOSE_DIALOG_AFTER_DELETE' });
-            showSnackbar({ message: 'Transactions deleted' });
-          } catch (error) {
-            console.error(error);
-            showSnackbar({
-              message: "Couln't delete the transactions",
-              action: <Button onClick={handler.selectMultiple.dialog.onDeleteConfirm}>Retry</Button>,
-            });
-            setSelectedTransactions({ type: 'CLOSE_DIALOG' });
-          }
-        },
+        }
+      },
+      onDeleteCancel() {
+        setSelectedTransactions({ type: 'CLOSE_DIALOG' });
       },
     },
   };
@@ -215,37 +222,48 @@ const TransactionsRoute = () => {
           ) : shownTransactions.length > 0 ? (
             <React.Fragment>
               <Card.Body>
-                <SelectMultiple.Actions
-                  amount={selectedTransactions.selected.length}
-                  onEdit={handler.selectMultiple.actionBar.onEdit}
-                  onDelete={handler.selectMultiple.actionBar.onDelete}
-                />
-
                 <TableContainer>
-                  <Table sx={{ minWidth: 650 }} aria-label="Transaction Table">
-                    <TableHead>
-                      <TableRow>
-                        <SelectMultiple.SelectAllCheckbox
-                          onChange={handler.selectMultiple.onSelectAll}
-                          indeterminate={
-                            selectedTransactions.selected.length > 0 &&
-                            selectedTransactions.selected.length < shownTransactions.length
-                          }
-                          checked={
-                            selectedTransactions.selected.length === shownTransactions.length &&
-                            selectedTransactions.selected.length > 0
-                          }
-                          withTableCell
-                        />
-                        {['Date', 'Category', 'Receiver', 'Amount', 'Payment Method', 'Information', ''].map(
-                          (cell, index) => (
-                            <TableCell key={index} size={AppConfig.table.cellSize}>
-                              <Typography fontWeight="bolder">{cell}</Typography>
-                            </TableCell>
-                          )
-                        )}
-                      </TableRow>
-                    </TableHead>
+                  <Box id="table-actions-container"></Box>
+                  <Table sx={{ minWidth: 650 }} aria-label="Transaction Table" id="portal-test">
+                    <TableActions
+                      count={selectedTransactions.selected.length}
+                      destination={document.querySelector('#root #table-actions-container')}
+                      onEdit={SelectMultipleHandler.actionBar.onEdit}
+                      onDelete={SelectMultipleHandler.actionBar.onDelete}
+                      onChange={SelectMultipleHandler.onSelectAll}
+                      indeterminate={
+                        selectedTransactions.selected.length > 0 &&
+                        selectedTransactions.selected.length < shownTransactions.length
+                      }
+                      checked={
+                        selectedTransactions.selected.length === shownTransactions.length &&
+                        selectedTransactions.selected.length > 0
+                      }
+                    >
+                      <TableHead>
+                        <TableRow>
+                          <SelectMultiple.SelectAllCheckbox
+                            onChange={SelectMultipleHandler.onSelectAll}
+                            indeterminate={
+                              selectedTransactions.selected.length > 0 &&
+                              selectedTransactions.selected.length < shownTransactions.length
+                            }
+                            checked={
+                              selectedTransactions.selected.length === shownTransactions.length &&
+                              selectedTransactions.selected.length > 0
+                            }
+                            withTableCell
+                          />
+                          {['Date', 'Category', 'Receiver', 'Amount', 'Payment Method', 'Information', ''].map(
+                            (cell, index) => (
+                              <TableCell key={index} size={AppConfig.table.cellSize}>
+                                <Typography fontWeight="bolder">{cell}</Typography>
+                              </TableCell>
+                            )
+                          )}
+                        </TableRow>
+                      </TableHead>
+                    </TableActions>
                     <TableBody>
                       {currentPageTransactions.map((transaction) => (
                         <TableRow
@@ -258,7 +276,7 @@ const TransactionsRoute = () => {
                           <TableCell size={AppConfig.table.cellSize}>
                             <SelectMultiple.SelectSingleCheckbox
                               value={transaction.id}
-                              onChange={handler.selectMultiple.onSelectSingle}
+                              onChange={SelectMultipleHandler.onSelectSingle}
                               checked={selectedTransactions.selected.includes(transaction.id)}
                             />
                           </TableCell>
@@ -330,14 +348,14 @@ const TransactionsRoute = () => {
 
       <SelectMultiple.EditDialog
         open={selectedTransactions.dialog.show && selectedTransactions.dialog.type === 'EDIT'}
-        onCancel={handler.selectMultiple.dialog.onEditCancel!}
-        onUpdate={handler.selectMultiple.dialog.onEditConfirm!}
+        onCancel={SelectMultipleHandler.dialog.onEditCancel!}
+        onUpdate={SelectMultipleHandler.dialog.onEditConfirm!}
       />
 
       <SelectMultiple.ConfirmDeleteDialog
         open={selectedTransactions.dialog.show && selectedTransactions.dialog.type === 'DELETE'}
-        onCancel={handler.selectMultiple.dialog.onDeleteCancel!}
-        onConfirm={handler.selectMultiple.dialog.onDeleteConfirm!}
+        onCancel={SelectMultipleHandler.dialog.onDeleteCancel!}
+        onConfirm={SelectMultipleHandler.dialog.onDeleteConfirm!}
       />
 
       <CreateTransactionDrawer open={showAddForm} setOpen={(show) => setShowAddForm(show)} />
