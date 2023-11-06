@@ -1,12 +1,4 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { AppConfig } from '@/app.config';
-import { Card } from '@/components/Base';
-import { AppLogo, StackedIconButton } from '@/components/Core';
-import { FailedLoginAttemptsDialog } from '@/components/Profile';
-import { AuthContext, SnackbarContext } from '@/context';
-import { AuthService } from '@/services';
-import { supabase } from '@/supabase';
 import {
   AppRegistrationRounded,
   HomeRounded,
@@ -26,14 +18,20 @@ import {
   OutlinedInput,
   TextField,
 } from '@mui/material';
+import { AuthService, useAuthContext } from '@/core/Auth';
+import { useSnackbarContext } from '@/core/Snackbar';
+import { Card } from '@/components/Base';
+import { StackedIconButton } from '@/components/StackedIconButton.component';
+import { AppLogo } from '@/components/AppLogo.component';
+import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
+import { useNavigate } from 'react-router-dom';
 
-const SignInRoute = () => {
+const SignIn = () => {
   const navigate = useNavigate();
-  const { session, setSession } = React.useContext(AuthContext);
-  const { showSnackbar } = React.useContext(SnackbarContext);
+  const { session, setSession } = useAuthContext();
+  const { showSnackbar } = useSnackbarContext();
   const [form, setForm] = React.useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = React.useState(false);
-  const [failedLogins, setFailedLogins] = React.useState<number>(0);
 
   const formHandler = {
     inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -48,44 +46,49 @@ const SignInRoute = () => {
           if (!values.includes(field)) throw new Error('Provide an ' + field);
         });
 
-        const {
-          data: { session },
-          error,
-        } = await AuthService.signIn({
+        const [session, error] = await AuthService.signIn({
           email: form.email,
           password: form.password,
         });
         if (error) throw error;
+        if (!session) throw new Error('No session returned');
         setSession(session);
-        navigate('/dashboard', { replace: true });
-        showSnackbar({
-          message: 'Authentification successfull',
-          action: <Button onClick={async () => await supabase.auth.signOut()}>Sign out</Button>,
-        });
+        showSnackbar({ message: 'Authentification successfull' });
+        navigate('/');
       } catch (error) {
         console.error(error);
-        if (error instanceof Error && error.message === 'Invalid login credentials') {
-          setFailedLogins((prev) => (prev += 1));
-        }
-
-        showSnackbar({ message: error instanceof Error ? error.message : 'Authentification failed' });
+        showSnackbar({
+          message: error instanceof Error ? error.message : 'Authentification failed',
+        });
       }
     },
   };
 
   return (
-    <Box sx={{ width: { xs: '90%', md: '40%', lg: '25%' }, maxWidth: '480px', mx: 'auto' }}>
+    <Box
+      sx={{
+        width: { xs: '90%', md: '40%', lg: '25%' },
+        maxWidth: '480px',
+        mx: 'auto',
+      }}
+    >
       <Card sx={{ py: 3, px: 4 }}>
         <Box display="flex" flexDirection="column">
-          <AppLogo sx={{ mx: 'auto' }} />
+          <AppLogo
+            style={{
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              borderRadius: '5px',
+            }}
+            width={96}
+            height={96}
+          />
         </Box>
 
         <form onSubmit={formHandler.formSubmit}>
           <Box style={{ display: 'flex', flexDirection: 'column' }}>
             <TextField
-              sx={{
-                mt: 3,
-              }}
+              sx={{ mt: 3 }}
               variant="outlined"
               type="email"
               label="E-Mail"
@@ -93,12 +96,7 @@ const SignInRoute = () => {
               onChange={formHandler.inputChange}
             />
 
-            <FormControl
-              variant="outlined"
-              sx={{
-                mt: 3,
-              }}
-            >
+            <FormControl variant="outlined" sx={{ mt: 3 }}>
               <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
               <OutlinedInput
                 type={showPassword ? 'text' : 'password'}
@@ -110,7 +108,7 @@ const SignInRoute = () => {
                     <IconButton
                       aria-label="toggle password visibility"
                       onClick={() => setShowPassword((prev) => !prev)}
-                      onMouseDown={() => setShowPassword((prev) => !prev)}
+                      sx={{ mr: 0 }}
                       edge="end"
                     >
                       {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
@@ -121,7 +119,7 @@ const SignInRoute = () => {
             </FormControl>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-            <Button disabled={failedLogins === 3} type="submit" variant="contained" sx={{ mt: 3 }}>
+            <Button type="submit" variant="contained" sx={{ mt: 3 }}>
               Sign in
             </Button>
           </Box>
@@ -130,16 +128,13 @@ const SignInRoute = () => {
         <Divider sx={{ my: 3 }} />
 
         <Grid container spacing={1} justifyContent="center">
-          {session && session.user && (
+          {session && (
             <Grid item xs={6} md={6} lg={6} xl={4}>
               <StackedIconButton
-                // @ts-ignore
-                component={Link}
-                // @ts-ignore
-                to="/dashboard"
                 size="large"
                 startIcon={<HomeRounded />}
                 sx={{ width: '100%' }}
+                onClick={() => navigate('/')}
               >
                 Dashboard
               </StackedIconButton>
@@ -147,41 +142,31 @@ const SignInRoute = () => {
           )}
           <Grid item xs={6} md={6} lg={6} xl={4}>
             <StackedIconButton
-              // @ts-ignore
-              component={Link}
-              // @ts-ignore
-              to="/request-reset"
               size="large"
               startIcon={<LockResetRounded />}
               sx={{ width: '100%' }}
+              onClick={() => navigate('/request-reset')}
             >
               Reset password?
             </StackedIconButton>
           </Grid>
           <Grid item xs={6} md={6} lg={6} xl={4}>
             <StackedIconButton
-              // @ts-ignore
-              component={Link}
-              // @ts-ignore
-              to="/sign-up"
               size="large"
               startIcon={<AppRegistrationRounded />}
               sx={{ width: '100%' }}
+              onClick={() => {
+                console.log('test');
+                navigate('/sign-up');
+              }}
             >
               Sign up
             </StackedIconButton>
           </Grid>
         </Grid>
       </Card>
-
-      <FailedLoginAttemptsDialog
-        open={failedLogins === AppConfig.signInDialogAfterAttempts}
-        onClose={() => setFailedLogins(0)}
-        onCancel={() => setFailedLogins(0)}
-        onResetPassword={() => navigate('/request-reset')}
-      />
     </Box>
   );
 };
 
-export default SignInRoute;
+export default withUnauthentificatedLayout(SignIn);

@@ -1,16 +1,12 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Card } from '@/components/Base';
-import { AppLogo, StackedIconButton } from '@/components/Core';
-import { AuthContext, SnackbarContext } from '@/context';
-import { AuthService } from '@/services';
-import { supabase } from '@/supabase';
 import {
   ExitToAppRounded,
   HomeRounded,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
+  VisibilityRounded as VisibilityIcon,
+  VisibilityOffRounded as VisibilityOffIcon,
 } from '@mui/icons-material';
+import { AuthService, useAuthContext } from '@/core/Auth';
+import { useSnackbarContext } from '@/core/Snackbar';
 import {
   Box,
   Button,
@@ -23,11 +19,16 @@ import {
   OutlinedInput,
   TextField,
 } from '@mui/material';
+import { Card } from '@/components/Base';
+import { AppLogo } from '@/components/AppLogo.component';
+import { StackedIconButton } from '@/components/StackedIconButton.component';
+import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
+import { useNavigate } from 'react-router-dom';
 
-const SignUpRoute = () => {
+const SignUp = () => {
   const navigate = useNavigate();
-  const { session, setSession } = React.useContext(AuthContext);
-  const { showSnackbar } = React.useContext(SnackbarContext);
+  const { session, setSession } = useAuthContext();
+  const { showSnackbar } = useSnackbarContext();
   const [form, setForm] = React.useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = React.useState(false);
 
@@ -40,29 +41,24 @@ const SignUpRoute = () => {
 
       try {
         const values = Object.keys(form);
-        ['username', 'email', 'password'].forEach((field) => {
+        ['name', 'surname', 'email', 'password'].forEach((field) => {
           if (!values.includes(field)) throw new Error('Provide an ' + field);
         });
 
-        const {
-          data: { user, session },
-          error,
-        } = await AuthService.signUp({
+        const [user, error] = await AuthService.signUp({
+          name: form.name,
+          surname: form.surname,
           email: form.email,
           password: form.password,
-          metadata: { username: form.username, avatar: '' },
         });
-        if (error || !user) throw error;
+        if (error) throw error;
+        if (!user) throw new Error('No user returned');
         setSession(session);
-        navigate('/dashboard', { replace: true });
-        showSnackbar({
-          message: 'Registration successfull',
-          action: <Button onClick={async () => await supabase.auth.signOut()}>Sign out</Button>,
-        });
+        showSnackbar({ message: 'Registration successfull! Sign in now...' });
+        navigate('/sign-in');
       } catch (error) {
         console.error(error);
-        // @ts-ignore
-        showSnackbar({ message: error.message || 'Registration failed' });
+        showSnackbar({ message: (error as Error).message || 'Registration failed' });
       }
     },
   };
@@ -71,25 +67,44 @@ const SignUpRoute = () => {
     <Box sx={{ width: { xs: '90%', md: '40%', lg: '25%' }, maxWidth: '480px', mx: 'auto' }}>
       <Card sx={{ py: 3, px: 4 }}>
         <Box display="flex" flexDirection="column">
-          <AppLogo sx={{ mx: 'auto' }} />
+          <AppLogo
+            style={{
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              borderRadius: '5px',
+            }}
+            width={96}
+            height={96}
+          />
         </Box>
 
         <form onSubmit={formHandler.formSubmit}>
           <Box style={{ display: 'flex', flexDirection: 'column' }}>
-            <TextField
-              sx={{
-                mt: 3,
-              }}
-              variant="outlined"
-              label="Username"
-              name="username"
-              onChange={formHandler.inputChange}
-            />
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  sx={{ mt: 3 }}
+                  variant="outlined"
+                  label="Name"
+                  name="name"
+                  onChange={formHandler.inputChange}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  sx={{ mt: 3 }}
+                  variant="outlined"
+                  label="Surname"
+                  name="surname"
+                  onChange={formHandler.inputChange}
+                  fullWidth
+                />
+              </Grid>
+            </Grid>
 
             <TextField
-              sx={{
-                mt: 3,
-              }}
+              sx={{ mt: 3 }}
               variant="outlined"
               type="email"
               label="E-Mail"
@@ -97,12 +112,7 @@ const SignUpRoute = () => {
               onChange={formHandler.inputChange}
             />
 
-            <FormControl
-              variant="outlined"
-              sx={{
-                mt: 3,
-              }}
-            >
+            <FormControl variant="outlined" sx={{ mt: 3 }}>
               <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
               <OutlinedInput
                 type={showPassword ? 'text' : 'password'}
@@ -113,7 +123,7 @@ const SignUpRoute = () => {
                     <IconButton
                       aria-label="toggle password visibility"
                       onClick={() => setShowPassword((prev) => !prev)}
-                      onMouseDown={() => setShowPassword((prev) => !prev)}
+                      sx={{ mr: 0 }}
                       edge="end"
                     >
                       {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
@@ -134,13 +144,10 @@ const SignUpRoute = () => {
         <Divider sx={{ my: 3 }} />
 
         <Grid container spacing={1} justifyContent="center">
-          {session && session.user && (
+          {session && (
             <Grid item xs={6} md={6} lg={6} xl={4}>
               <StackedIconButton
-                // @ts-ignore
-                component={Link}
-                // @ts-ignore
-                to="/dashboard"
+                onClick={() => navigate('/')}
                 size="large"
                 startIcon={<HomeRounded />}
                 sx={{ width: '100%' }}
@@ -151,10 +158,7 @@ const SignUpRoute = () => {
           )}
           <Grid item xs={6} md={6} lg={6} xl={4}>
             <StackedIconButton
-              // @ts-ignore
-              component={Link}
-              // @ts-ignore
-              to="/sign-in"
+              onClick={() => navigate('/sign-in')}
               size="large"
               startIcon={<ExitToAppRounded />}
               sx={{ width: '100%' }}
@@ -168,4 +172,4 @@ const SignUpRoute = () => {
   );
 };
 
-export default SignUpRoute;
+export default withUnauthentificatedLayout(SignUp);

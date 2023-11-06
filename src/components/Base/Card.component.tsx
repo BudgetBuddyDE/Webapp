@@ -1,20 +1,20 @@
 import React from 'react';
-import { Box, Paper, Typography } from '@mui/material';
-import type { SxProps, Theme } from '@mui/material';
+import { Box, Paper, Typography, type SxProps, type Theme } from '@mui/material';
+import { ActionPaper } from './ActionPaper.component';
 
-export interface ICardProps extends React.PropsWithChildren {
+export type TCardProps = React.PropsWithChildren<{
   sx?: SxProps<Theme>;
-}
+}>;
 
-export interface ICardSectionProps extends React.PropsWithChildren {
+export type TCardSectionProps = React.PropsWithChildren<{
   sx?: SxProps<Theme>;
-}
+}>;
 
-const Card: React.FC<ICardProps> = ({ children, sx }) => {
+const Card: React.FC<TCardProps> = ({ children, sx }) => {
   return <Paper sx={{ p: 2, ...sx }}>{children}</Paper>;
 };
 
-const Header: React.FC<ICardSectionProps> = ({ children, sx }) => {
+const Header: React.FC<TCardSectionProps> = ({ children, sx }) => {
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap" sx={sx}>
       {children}
@@ -22,15 +22,15 @@ const Header: React.FC<ICardSectionProps> = ({ children, sx }) => {
   );
 };
 
-const HeaderActions: React.FC<ICardSectionProps> = ({ children, sx }) => {
+const HeaderActions: React.FC<TCardSectionProps> = ({ children, sx }) => {
   return (
     <Box display="flex" flexDirection="row" sx={sx}>
-      {children}
+      <ActionPaper>{children}</ActionPaper>
     </Box>
   );
 };
 
-const Title: React.FC<ICardSectionProps> = ({ children, sx }) => {
+const Title: React.FC<TCardSectionProps> = ({ children, sx }) => {
   return (
     <Typography variant="subtitle1" fontWeight="bold" sx={sx}>
       {children}
@@ -38,7 +38,7 @@ const Title: React.FC<ICardSectionProps> = ({ children, sx }) => {
   );
 };
 
-const Subtitle: React.FC<ICardSectionProps> = ({ children, sx }) => {
+const Subtitle: React.FC<TCardSectionProps> = ({ children, sx }) => {
   return (
     <Typography variant="subtitle2" sx={sx}>
       {children}
@@ -46,11 +46,11 @@ const Subtitle: React.FC<ICardSectionProps> = ({ children, sx }) => {
   );
 };
 
-const Body: React.FC<ICardSectionProps> = ({ children, sx }) => {
+const Body: React.FC<TCardSectionProps> = ({ children, sx }) => {
   return <Box sx={sx}>{children}</Box>;
 };
 
-const Footer: React.FC<ICardSectionProps> = ({ children, sx }) => {
+const Footer: React.FC<TCardSectionProps> = ({ children, sx }) => {
   return <Box sx={sx}>{children}</Box>;
 };
 
