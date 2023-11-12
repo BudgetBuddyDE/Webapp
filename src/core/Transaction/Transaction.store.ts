@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { TTransaction } from '@/types';
+import type { TTransaction, TUser } from '@/types';
 
 export interface IBaseStore<T> {
   data: T;
@@ -7,10 +7,18 @@ export interface IBaseStore<T> {
   clear: () => void;
 }
 
-export interface ITransactionStore extends IBaseStore<TTransaction[]> {}
+export interface ITransactionStore extends IBaseStore<TTransaction[]> {
+  fetchedBy: TUser['uuid'] | null;
+  fetchedAt: Date | null;
+  setFetchedData: (data: TTransaction[], fetchedBy: TUser['uuid'] | null) => void;
+}
 
 export const useTransactionStore = create<ITransactionStore>((set) => ({
   data: [],
+  fetchedBy: null,
+  fetchedAt: null,
   set: (data) => set({ data: data }),
-  clear: () => set({ data: [] }),
+  setFetchedData: (data, fetchedBy) =>
+    set({ data: data, fetchedBy: fetchedBy, fetchedAt: new Date() }),
+  clear: () => set({ data: [], fetchedBy: null, fetchedAt: null }),
 }));

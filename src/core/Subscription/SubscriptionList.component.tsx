@@ -44,7 +44,11 @@ export const SubscriptionList: React.FC<TSubscriptionList> = ({ data }) => {
                 title={subscription.receiver}
                 subtitle={
                   <Box>
-                    <Chip label={format(executionDate, 'dd.MM')} sx={{ mr: 1 }} {...chipProps} />
+                    <Chip
+                      label={'Next ' + format(executionDate, 'dd.MM')}
+                      sx={{ mr: 1 }}
+                      {...chipProps}
+                    />
                     <Chip label={subscription.category.name} {...chipProps} />
                   </Box>
                 }

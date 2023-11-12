@@ -33,7 +33,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   React.useLayoutEffect(() => {
-    console.log(process.env);
     retrieveCurrentSession();
   }, []);
 

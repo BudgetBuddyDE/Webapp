@@ -30,7 +30,7 @@ export const DrawerLinks = [
   },
   {
     text: 'Payment Methods',
-    path: '/paymentMethods',
+    path: '/payment-methods',
     icon: <PaymentsIcon />,
   },
   {

@@ -5,5 +5,10 @@ export type TBudget = {
   category: TCategory;
   name: string;
   description: TDescription;
+  budget: number;
   createdAt: TCreatedAt;
+};
+
+export type TBudgetProgress = TBudget & {
+  amount_spent: number;
 };

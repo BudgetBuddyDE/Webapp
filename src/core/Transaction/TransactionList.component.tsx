@@ -7,17 +7,14 @@ import { Card, ListWithIcon, NoResults } from '@/components/Base';
 
 export type TTransactionList = {
   data: TTransaction[];
+  onAddTransaction?: () => void;
 };
 
-export const TransactionList: React.FC<TTransactionList> = ({ data }) => {
+export const TransactionList: React.FC<TTransactionList> = ({ data, onAddTransaction }) => {
   const chipProps: ChipProps = {
     variant: 'outlined',
     size: 'small',
     sx: { mr: 1 },
-  };
-
-  const handleAddClick = () => {
-    console.log('test');
   };
 
   return (
@@ -27,11 +24,13 @@ export const TransactionList: React.FC<TTransactionList> = ({ data }) => {
           <Card.Title>Transactions</Card.Title>
           <Card.Subtitle>Your latest transactions</Card.Subtitle>
         </Box>
-        <Card.HeaderActions>
-          <IconButton color="primary" onClick={handleAddClick}>
-            <AddIcon />
-          </IconButton>
-        </Card.HeaderActions>
+        {onAddTransaction && (
+          <Card.HeaderActions>
+            <IconButton color="primary" onClick={onAddTransaction}>
+              <AddIcon />
+            </IconButton>
+          </Card.HeaderActions>
+        )}
       </Card.Header>
       <Card.Body>
         {data.length > 0 ? (

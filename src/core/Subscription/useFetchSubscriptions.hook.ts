@@ -1,25 +1,25 @@
 import React from 'react';
 import { useAuthContext } from '../Auth';
-import { useTransactionStore } from './Transaction.store';
-import { TransactionService } from './Transaction.service';
+import { useSubscriptionStore } from './Subscription.store';
+import { SubscriptionService } from './Subscription.service';
 
-export function useFetchTransactions() {
+export function useFetchSubscriptions() {
   const { session } = useAuthContext();
-  const { data, fetchedAt, fetchedBy, setFetchedData } = useTransactionStore();
+  const { data, fetchedAt, fetchedBy, setFetchedData } = useSubscriptionStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 
-  const fetchTransactions = React.useCallback(async () => {
+  const fetchSubscriptions = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       if (!session) return;
-      const [fetchedTransactions, error] = await TransactionService.getTransactionsByUuid(
+      const [fetchedSubscriptions, error] = await SubscriptionService.getSubscriptionsByUuid(
         session.uuid
       );
       if (error) return setError(error);
-      if (!fetchedTransactions) return setError(new Error('No transactions returned'));
-      setFetchedData(fetchedTransactions, session.uuid);
+      if (!fetchedSubscriptions) return setError(new Error('No subscriptions returned'));
+      setFetchedData(fetchedSubscriptions, session.uuid);
     } catch (error) {
       setError(error instanceof Error ? error : null);
     } finally {
@@ -29,7 +29,7 @@ export function useFetchTransactions() {
 
   React.useEffect(() => {
     if (!session || (fetchedBy === session.uuid && data)) return;
-    fetchTransactions();
+    fetchSubscriptions();
     return () => {
       setLoading(false);
       setError(null);
@@ -41,8 +41,8 @@ export function useFetchTransactions() {
     fetched: fetchedAt != null && fetchedBy != null,
     fetchedAt: fetchedAt,
     fetchedBy: fetchedBy,
-    transactions: data,
-    refresh: fetchTransactions,
+    subscriptions: data,
+    refresh: fetchSubscriptions,
     error,
   };
 }

@@ -1,5 +1,9 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import DashboardRoute from '@/routes/Dashboard.route';
+import TransactionsRoute from './routes/Transactions.route';
+import SubscriptionsRoute from './routes/Subscriptions.route';
+import PaymentMethodsRoute from './routes/PaymentMethods.route';
+import CategoriesRoute from './routes/Categories.route';
 import NotFoundPage from '@/routes/NotFound.route';
 import SignInRoute from './routes/SignIn.route';
 import SignUpRoute from './routes/SignUp.route';
@@ -9,6 +13,11 @@ const App = () => {
     <BrowserRouter>
       <Routes>
         <Route index element={<DashboardRoute />} />
+        <Route path="/transactions" element={<TransactionsRoute />} />
+        <Route path="/subscriptions" element={<SubscriptionsRoute />} />
+        <Route path="/budget" element={<h1>budget</h1>} />
+        <Route path="/payment-methods" element={<PaymentMethodsRoute />} />
+        <Route path="/categories" element={<CategoriesRoute />} />
         <Route path="/sign-in" element={<SignInRoute />} />
         <Route path="/sign-up" element={<SignUpRoute />} />
         <Route path="*" element={<NotFoundPage />} />
