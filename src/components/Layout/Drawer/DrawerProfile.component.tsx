@@ -29,6 +29,7 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
     navigate('/settings/profile');
   };
 
+  if (!session) return null;
   return (
     <Box sx={{ mt: 'auto', backgroundColor: theme.palette.action.focus }}>
       <Divider />
@@ -49,6 +50,7 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
             flexDirection: 'row',
             alignItems: 'center',
             borderRadius: theme.shape.borderRadius + 'px',
+            px: 0.5,
             ':hover': {
               backgroundColor: theme.palette.action.hover,
               cursor: 'Pointer',
@@ -56,13 +58,23 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
           }}
           onClick={handleClick}
         >
-          {session && <UserAvatar />}
+          <UserAvatar />
           <Box sx={{ ml: '.5rem' }}>
-            <Typography fontWeight="bold">{session && session.name}</Typography>
+            <Typography fontWeight="bold">
+              {session.name} {session.surname}
+            </Typography>
             <Chip label="Basic" variant="outlined" size="small" />
           </Box>
         </Box>
-        <LogoutButton onClick={handleSignOut} sx={{ ml: open ? 'auto' : '-.5rem' }} />
+        <LogoutButton
+          onClick={handleSignOut}
+          sx={{
+            ml: open ? 'auto' : '-.5rem',
+            ':hover': {
+              backgroundColor: (theme) => theme.palette.action.hover,
+            },
+          }}
+        />
       </Box>
     </Box>
   );
