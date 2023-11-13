@@ -40,6 +40,7 @@ export const SubscriptionList: React.FC<TSubscriptionList> = ({ data }) => {
             executionDate.setDate(subscription.executeAt);
             return (
               <ListWithIcon
+                key={subscription.id}
                 icon={<ReceiptIcon />}
                 title={subscription.receiver}
                 subtitle={

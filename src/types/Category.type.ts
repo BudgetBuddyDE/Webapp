@@ -8,3 +8,11 @@ export type TCategory = {
   description: TDescription;
   createdAt: TCreatedAt;
 };
+
+export type TCreateCategoryPayload = {
+  owner: TUser['uuid'];
+} & Pick<TCategory, 'name' | 'description'>;
+
+export type TUpdateCategoryPayload = Pick<TCategory, 'id' | 'name' | 'description'>;
+
+export type TDeleteCategoryPayload = Pick<TCategory, 'id'>;

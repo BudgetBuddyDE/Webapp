@@ -5,3 +5,5 @@ export * from './Card.component';
 export * from './List';
 export * from './NoResults.component';
 export * from './Image.component';
+export * from './Link.component';
+export * from './Linkify.component';

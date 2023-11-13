@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Paper, Typography, type SxProps, type Theme } from '@mui/material';
+import { Box, Paper, Typography, type SxProps, type Theme, type PaperProps } from '@mui/material';
 import { ActionPaper } from './ActionPaper.component';
 
 export type TCardProps = React.PropsWithChildren<{
@@ -22,10 +22,14 @@ const Header: React.FC<TCardSectionProps> = ({ children, sx }) => {
   );
 };
 
-const HeaderActions: React.FC<TCardSectionProps> = ({ children, sx }) => {
+const HeaderActions: React.FC<TCardSectionProps & { actionPaperProps?: PaperProps }> = ({
+  children,
+  sx,
+  actionPaperProps,
+}) => {
   return (
     <Box display="flex" flexDirection="row" sx={sx}>
-      <ActionPaper>{children}</ActionPaper>
+      <ActionPaper {...actionPaperProps}>{children}</ActionPaper>
     </Box>
   );
 };
