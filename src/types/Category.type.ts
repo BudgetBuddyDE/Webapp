@@ -13,6 +13,9 @@ export type TCreateCategoryPayload = {
   owner: TUser['uuid'];
 } & Pick<TCategory, 'name' | 'description'>;
 
-export type TUpdateCategoryPayload = Pick<TCategory, 'id' | 'name' | 'description'>;
+export type TUpdateCategoryPayload = { categoryId: TCategory['id'] } & Pick<
+  TCategory,
+  'name' | 'description'
+>;
 
-export type TDeleteCategoryPayload = Pick<TCategory, 'id'>;
+export type TDeleteCategoryPayload = { categoryId: TCategory['id'] };

@@ -4,7 +4,7 @@ import { CategoryService } from './Category.service';
 import { useCategoryStore } from './Category.store';
 
 export function useFetchCategories() {
-  const { session } = useAuthContext();
+  const { session, authOptions } = useAuthContext();
   const { data, fetchedAt, fetchedBy, setFetchedData } = useCategoryStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
@@ -14,7 +14,7 @@ export function useFetchCategories() {
     setError(null);
     try {
       if (!session) return;
-      const [fetchedCategories, error] = await CategoryService.getCategoriesByUuid(session.uuid);
+      const [fetchedCategories, error] = await CategoryService.getCategoriesByUuid(authOptions);
       if (error) return setError(error);
       if (!fetchedCategories) return setError(new Error('No categories returned'));
       setFetchedData(fetchedCategories, session.uuid);

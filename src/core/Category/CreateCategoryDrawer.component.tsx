@@ -6,7 +6,6 @@ import type { TCreateCategoryPayload } from '@/types';
 import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { CategoryService, useFetchCategories } from '.';
-import { prepareRequestHeaders } from '@/utils';
 
 export type TCreateCategoryDrawerProps = {
   open: boolean;
@@ -17,7 +16,7 @@ export const CreateCategoryDrawer: React.FC<TCreateCategoryDrawerProps> = ({
   open,
   onChangeOpen,
 }) => {
-  const { session } = useAuthContext();
+  const { session, authOptions } = useAuthContext();
   const { showSnackbar } = useSnackbarContext();
   const { refresh: refreshCategories } = useFetchCategories();
   const [drawerState, setDrawerState] = React.useReducer(
@@ -48,7 +47,7 @@ export const CreateCategoryDrawer: React.FC<TCreateCategoryDrawerProps> = ({
           description: form.description && form.description.length > 0 ? form.description : null,
         };
 
-        const [createdCategory, error] = await CategoryService.create(payload);
+        const [createdCategory, error] = await CategoryService.create(payload, authOptions);
         if (error) {
           setDrawerState({ type: 'ERROR', error: error });
           return;
@@ -58,9 +57,8 @@ export const CreateCategoryDrawer: React.FC<TCreateCategoryDrawerProps> = ({
           return;
         }
 
-        console.log(createdCategory);
         setDrawerState({ type: 'SUCCESS' });
-        // handler.onClose();
+        handler.onClose();
         refreshCategories(); // FIXME: Wrap inside startTransition
         showSnackbar({ message: `Created category ${payload.name}` });
       } catch (error) {

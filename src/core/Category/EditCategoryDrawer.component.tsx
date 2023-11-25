@@ -2,7 +2,11 @@ import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@
 import { TextField } from '@mui/material';
 import React from 'react';
 import { FormStyle } from '@/style/Form.style';
-import { type TCategory } from '@/types';
+import type { TUpdateCategoryPayload, TCategory, TDescription } from '@/types';
+import { useAuthContext } from '../Auth';
+import { useSnackbarContext } from '../Snackbar';
+import { CategoryService } from './Category.service';
+import { useFetchCategories } from '.';
 
 export type TEditCategoryDrawerProps = {
   open: boolean;
@@ -15,6 +19,9 @@ export const EditCategoryDrawer: React.FC<TEditCategoryDrawerProps> = ({
   onChangeOpen,
   category,
 }) => {
+  const { session, authOptions } = useAuthContext();
+  const { showSnackbar } = useSnackbarContext();
+  const { refresh: refreshCategories } = useFetchCategories();
   const [drawerState, setDrawerState] = React.useReducer(
     FormDrawerReducer,
     generateInitialFormDrawerState()
@@ -22,13 +29,47 @@ export const EditCategoryDrawer: React.FC<TEditCategoryDrawerProps> = ({
   const [form, setForm] = React.useState<Record<string, string | number | Date>>({});
 
   const handler = {
+    onClose() {
+      onChangeOpen(false);
+      setForm({});
+      setDrawerState({ type: 'RESET' });
+    },
     onInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
+    async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      console.log(form);
-      onChangeOpen(false);
+      if (!session || !category) return;
+      setDrawerState({ type: 'SUBMIT' });
+
+      try {
+        if (!form.name) throw new Error('No name provided');
+        const payload: TUpdateCategoryPayload = {
+          categoryId: category?.id,
+          name: form.name as string,
+          description: (form.description && (form.description as string).length > 0
+            ? form.description
+            : null) as TDescription,
+        };
+
+        const [createdCategory, error] = await CategoryService.update(payload, authOptions);
+        if (error) {
+          setDrawerState({ type: 'ERROR', error: error });
+          return;
+        }
+        if (!createdCategory) {
+          setDrawerState({ type: 'ERROR', error: new Error("Couldn't save the applied changes") });
+          return;
+        }
+
+        setDrawerState({ type: 'SUCCESS' });
+        handler.onClose();
+        refreshCategories(); // FIXME: Wrap inside startTransition
+        showSnackbar({ message: `Saved applied changes for ${payload.name}` });
+      } catch (error) {
+        console.error(error);
+        setDrawerState({ type: 'ERROR', error: error as Error });
+      }
     },
   };
 

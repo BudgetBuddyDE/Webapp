@@ -12,8 +12,15 @@ import { Table } from '@/components/Base/Table';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { ContentGrid } from '@/components/Layout';
 import { CircularProgress } from '@/components/Loading';
+import { useAuthContext } from '@/core/Auth';
 import { withAuthLayout } from '@/core/Auth/Layout';
-import { CreateCategoryDrawer, EditCategoryDrawer, useFetchCategories } from '@/core/Category';
+import {
+  CategoryService,
+  CreateCategoryDrawer,
+  EditCategoryDrawer,
+  useFetchCategories,
+} from '@/core/Category';
+import { useSnackbarContext } from '@/core/Snackbar';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import { TCategory } from '@/types';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
@@ -32,12 +39,19 @@ import React from 'react';
 interface CategoriesHandler {
   onSearch: (keyword: string) => void;
   onCategoryDelete: (category: TCategory) => void;
+  onConfirmCategoryDelete: () => void;
   onEditCategory: (category: TCategory) => void;
   pagination: PaginationHandler;
 }
 
 export const Categories = () => {
-  const { categories, loading: loadingCategories } = useFetchCategories();
+  const {
+    categories,
+    refresh: refreshCategories,
+    loading: loadingCategories,
+  } = useFetchCategories();
+  const { showSnackbar } = useSnackbarContext();
+  const { authOptions } = useAuthContext();
   const [tablePagination, setTablePagination] = React.useReducer(
     PaginationReducer,
     InitialPaginationState
@@ -62,6 +76,28 @@ export const Categories = () => {
       setShowEditCategoryDrawer(true);
       setEditcategory(category);
     },
+    async onConfirmCategoryDelete() {
+      try {
+        if (!deleteCategory) return;
+        const [deletedItem, error] = await CategoryService.delete(
+          { categoryId: deleteCategory.id },
+          authOptions
+        );
+        if (error) {
+          return showSnackbar({ message: error.message });
+        }
+        if (!deletedItem) {
+          return showSnackbar({ message: "Couldn't delete the category" });
+        }
+
+        setShowDeleteCategoryDialog(false);
+        setDeleteCategory(null);
+        refreshCategories(); // FIXME: Wrap inside startTransition
+        showSnackbar({ message: `Deleted category ${deletedItem.name}` });
+      } catch (error) {
+        console.error(error);
+      }
+    },
     onCategoryDelete(category) {
       setShowDeleteCategoryDialog(true);
       setDeleteCategory(category);
@@ -78,20 +114,6 @@ export const Categories = () => {
 
   return (
     <ContentGrid title={'Categories'}>
-      <Grid item xs={12} md={6} lg={4} order={{ xs: 1, md: 2 }}>
-        <Card>
-          <Card.Header>
-            <Box>
-              <Card.Title>Categories</Card.Title>
-              <Card.Subtitle>Manage your categories</Card.Subtitle>
-            </Box>
-          </Card.Header>
-          <Card.Body>
-            <ul>{!loadingCategories && categories.map((t) => <li key={t.id}>{t.name}</li>)}</ul>
-          </Card.Body>
-        </Card>
-      </Grid>
-
       <Grid item xs={12} md={12} lg={8} xl={6}>
         <Card sx={{ p: 0 }}>
           <Card.Header sx={{ p: 2, pb: 0 }}>
@@ -173,7 +195,7 @@ export const Categories = () => {
               </Card.Footer>
             </React.Fragment>
           ) : (
-            <NoResults />
+            <NoResults sx={{ m: 2 }} />
           )}
         </Card>
       </Grid>
@@ -202,7 +224,7 @@ export const Categories = () => {
           setShowDeleteCategoryDialog(false);
           setDeleteCategory(null);
         }}
-        onConfirm={() => {}}
+        onConfirm={() => handler.onConfirmCategoryDelete}
         withTransition
       />
     </ContentGrid>

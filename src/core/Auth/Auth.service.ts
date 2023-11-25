@@ -1,7 +1,7 @@
 import type { TApiResponse, TUser } from '@/types';
 
 export class AuthService {
-  private static host = process.env.REACT_APP_API_BASE + '/v1/auth';
+  private static host = '/api/v1/auth';
   private static options: Partial<RequestInit> = {
     method: 'POST',
     headers: {

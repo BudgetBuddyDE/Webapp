@@ -1,22 +1,18 @@
 import type { TApiResponse, TTransaction, TUser } from '@/types';
 import { isSameMonth } from 'date-fns';
+import { prepareRequestOptions } from '@/utils';
 
 export class TransactionService {
   private static host = process.env.REACT_APP_API_BASE + '/v1/transaction';
-  private static options: Partial<RequestInit> = {
-    credentials: 'include',
-  };
 
   static async getTransactionsByUuid(
-    uuid: TUser['uuid'],
-    options?: RequestInit
+    uuid: TUser['uuid']
   ): Promise<[TTransaction[] | null, Error | null]> {
     try {
       const query = new URLSearchParams();
       query.append('uuid', uuid);
       const response = await fetch(this.host + '?' + query.toString(), {
-        ...this.options,
-        ...options,
+        ...prepareRequestOptions(uuid),
       });
       const json = (await response.json()) as TApiResponse<TTransaction[]>;
       if (json.status != 200) return [null, new Error(json.message!)];

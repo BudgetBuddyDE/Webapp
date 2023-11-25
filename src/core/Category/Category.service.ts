@@ -1,22 +1,27 @@
-import type { TApiResponse, TCategory, TCreateCategoryPayload, TUser } from '@/types';
+import type {
+  TApiResponse,
+  TCategory,
+  TCreateCategoryPayload,
+  TDeleteCategoryPayload,
+  TUpdateCategoryPayload,
+  TUser,
+} from '@/types';
+import { prepareRequestOptions } from '@/utils';
 
 export class CategoryService {
-  private static host = process.env.REACT_APP_API_BASE + '/v1/category';
-  private static options: Partial<RequestInit> = {
-    credentials: 'include',
-  };
+  private static host = '/api/v1/category';
 
-  static async getCategoriesByUuid(
-    uuid: TUser['uuid'],
-    options?: RequestInit
-  ): Promise<[TCategory[] | null, Error | null]> {
+  static async getCategoriesByUuid({
+    uuid,
+    password,
+  }: Pick<TUser, 'uuid' | 'password'>): Promise<[TCategory[] | null, Error | null]> {
     try {
       const query = new URLSearchParams();
       query.append('uuid', uuid);
-      const response = await fetch(this.host + '?' + query.toString(), {
-        ...this.options,
-        ...options,
-      });
+      const response = await fetch(
+        this.host + '?' + query.toString(),
+        prepareRequestOptions({ uuid, password })
+      );
       const json = (await response.json()) as TApiResponse<TCategory[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
       return [json.data, null];
@@ -28,14 +33,51 @@ export class CategoryService {
 
   static async create(
     category: TCreateCategoryPayload,
-    options?: RequestInit
+    user: Pick<TUser, 'uuid' | 'password'>
   ): Promise<[TCategory | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
         method: 'POST',
         body: JSON.stringify(category),
-        ...this.options,
-        ...options,
+        ...prepareRequestOptions(user),
+      });
+      const json = (await response.json()) as TApiResponse<TCategory>;
+      if (json.status != 200) return [null, new Error(json.message!)];
+      return [json.data, null];
+    } catch (error) {
+      console.error(error);
+      return [null, error as Error];
+    }
+  }
+
+  static async update(
+    category: TUpdateCategoryPayload,
+    user: Pick<TUser, 'uuid' | 'password'>
+  ): Promise<[TCategory | null, Error | null]> {
+    try {
+      const response = await fetch(this.host, {
+        method: 'PUT',
+        body: JSON.stringify(category),
+        ...prepareRequestOptions(user),
+      });
+      const json = (await response.json()) as TApiResponse<TCategory>;
+      if (json.status != 200) return [null, new Error(json.message!)];
+      return [json.data, null];
+    } catch (error) {
+      console.error(error);
+      return [null, error as Error];
+    }
+  }
+
+  static async delete(
+    category: TDeleteCategoryPayload,
+    user: Pick<TUser, 'uuid' | 'password'>
+  ): Promise<[TCategory | null, Error | null]> {
+    try {
+      const response = await fetch(this.host, {
+        method: 'DELETE',
+        body: JSON.stringify(category),
+        ...prepareRequestOptions(user),
       });
       const json = (await response.json()) as TApiResponse<TCategory>;
       if (json.status != 200) return [null, new Error(json.message!)];
