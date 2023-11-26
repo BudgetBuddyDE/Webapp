@@ -4,9 +4,9 @@ import type {
   TCreateCategoryPayload,
   TDeleteCategoryPayload,
   TUpdateCategoryPayload,
-  TUser,
 } from '@/types';
 import { prepareRequestOptions } from '@/utils';
+import { IAuthContext } from '../Auth';
 
 export class CategoryService {
   private static host = '/api/v1/category';
@@ -14,7 +14,7 @@ export class CategoryService {
   static async getCategoriesByUuid({
     uuid,
     password,
-  }: Pick<TUser, 'uuid' | 'password'>): Promise<[TCategory[] | null, Error | null]> {
+  }: IAuthContext['authOptions']): Promise<[TCategory[] | null, Error | null]> {
     try {
       const query = new URLSearchParams();
       query.append('uuid', uuid);
@@ -33,7 +33,7 @@ export class CategoryService {
 
   static async create(
     category: TCreateCategoryPayload,
-    user: Pick<TUser, 'uuid' | 'password'>
+    user: IAuthContext['authOptions']
   ): Promise<[TCategory | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -52,7 +52,7 @@ export class CategoryService {
 
   static async update(
     category: TUpdateCategoryPayload,
-    user: Pick<TUser, 'uuid' | 'password'>
+    user: IAuthContext['authOptions']
   ): Promise<[TCategory | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -71,7 +71,7 @@ export class CategoryService {
 
   static async delete(
     category: TDeleteCategoryPayload,
-    user: Pick<TUser, 'uuid' | 'password'>
+    user: IAuthContext['authOptions']
   ): Promise<[TCategory | null, Error | null]> {
     try {
       const response = await fetch(this.host, {

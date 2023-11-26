@@ -58,11 +58,11 @@ export const Categories = () => {
   );
   const [showCreateCategoryDrawer, setShowCreateCategoryDrawer] = React.useState(false);
   const [showEditCategoryDrawer, setShowEditCategoryDrawer] = React.useState(false);
-  const [editCategory, setEditcategory] = React.useState<TCategory | null>(null);
+  const [editCategory, setEditCategory] = React.useState<TCategory | null>(null);
   const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] = React.useState(false);
   const [deleteCategory, setDeleteCategory] = React.useState<TCategory | null>(null);
   const [keyword, setKeyword] = React.useState('');
-  const displayedCategories = React.useMemo(() => {
+  const displayedCategories: TCategory[] = React.useMemo(() => {
     if (keyword.length == 0) return categories;
     return categories.filter(({ name }) => name.toLowerCase().includes(keyword.toLowerCase()));
   }, [categories, keyword, tablePagination]);
@@ -74,7 +74,7 @@ export const Categories = () => {
     },
     onEditCategory(category) {
       setShowEditCategoryDrawer(true);
-      setEditcategory(category);
+      setEditCategory(category);
     },
     async onConfirmCategoryDelete() {
       try {
@@ -209,7 +209,7 @@ export const Categories = () => {
         open={showEditCategoryDrawer}
         onChangeOpen={(isOpen) => {
           setShowEditCategoryDrawer(isOpen);
-          if (!isOpen) setEditcategory(null);
+          if (!isOpen) setEditCategory(null);
         }}
         category={editCategory}
       />

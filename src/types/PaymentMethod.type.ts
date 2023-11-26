@@ -8,3 +8,14 @@ export type TPaymentMethod = {
   description: TDescription;
   createdAt: TCreatedAt;
 };
+
+export type TCreatePaymentMethodPayload = {
+  owner: TUser['uuid'];
+} & Pick<TPaymentMethod, 'name' | 'address' | 'description'>;
+
+export type TUpdatePaymentMethodPayload = Pick<
+  TPaymentMethod,
+  'id' | 'name' | 'address' | 'description'
+>;
+
+export type TDeletePaymentMethodPayload = { paymentMethodId: TPaymentMethod['id'] };
