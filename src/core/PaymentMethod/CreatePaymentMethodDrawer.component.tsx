@@ -46,6 +46,7 @@ export const CreatePaymentMethodDrawer: React.FC<TCreatePaymentMethodProps> = ({
           owner: session.uuid,
           name: form.name,
           address: form.address,
+          provider: form.provider,
           description: form.description && form.description.length > 0 ? form.description : null,
         };
 
@@ -60,7 +61,7 @@ export const CreatePaymentMethodDrawer: React.FC<TCreatePaymentMethodProps> = ({
         }
 
         setDrawerState({ type: 'SUCCESS' });
-        handler.onClose();
+        this.onClose();
         refreshCategories(); // FIXME: Wrap inside startTransition
         showSnackbar({ message: `Created payment-method ${payload.name}` });
       } catch (error) {

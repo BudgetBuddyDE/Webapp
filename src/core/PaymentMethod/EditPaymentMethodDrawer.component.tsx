@@ -48,6 +48,7 @@ export const EditPaymentMethodDrawer: React.FC<TEditPaymentMethodProps> = ({
           id: paymentMethod?.id,
           name: form.name as string,
           address: form.address as string,
+          provider: form.provider as string,
           description: (form.description && (form.description as string).length > 0
             ? form.description
             : null) as TDescription,

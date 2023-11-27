@@ -4,7 +4,7 @@ import { BudgetService } from './Budget.service';
 import { useBudgetProgressStore } from './BudgetProgress.store';
 
 export function useFetchBudgetProgress() {
-  const { session } = useAuthContext();
+  const { session, authOptions } = useAuthContext();
   const { data, fetchedAt, fetchedBy, setFetchedData } = useBudgetProgressStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
@@ -14,7 +14,7 @@ export function useFetchBudgetProgress() {
     setError(null);
     try {
       if (!session) return;
-      const [fetchedBudget, error] = await BudgetService.getBudgetProgressByUuid(session.uuid);
+      const [fetchedBudget, error] = await BudgetService.getBudgetProgressByUuid(authOptions);
       if (error) return setError(error);
       if (!fetchedBudget) return setError(new Error('No budget-progress founbd'));
       setFetchedData(fetchedBudget, session.uuid);

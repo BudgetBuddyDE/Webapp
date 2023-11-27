@@ -1,27 +1,29 @@
-# React + TypeScript + Vite
+# Webapp
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Required data
 
-Currently, two official plugins are available:
+### Dashboard
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Stats
 
-## Expanding the ESLint configuration
+  - Earnings
+    - Received earnings this earnings
+  - Earnings (upcoming)
+    - Upcoming (unpaid) subscriptions + future transactions
+  - Expenses
+    - Received expenses this expenses
+  - Upcoming Expenses
+    - Upcoming (unpaid) subscriptions + future transactions
+  - Balance (estimated)
+    - Based on the past X months
+  - Balance
+    - Current months balance
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- Chart
+  - Spendings per category
 
-- Configure the top-level `parserOptions` property like this:
+### Categories
 
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+- Charts
+  - Einnahmen pro Kategorie
+  - Ausgaben pro Kategorie

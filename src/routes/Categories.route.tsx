@@ -16,6 +16,7 @@ import { useAuthContext } from '@/core/Auth';
 import { withAuthLayout } from '@/core/Auth/Layout';
 import {
   CategoryService,
+  CategorySpendingsChart,
   CreateCategoryDrawer,
   EditCategoryDrawer,
   useFetchCategories,
@@ -114,7 +115,7 @@ export const Categories = () => {
 
   return (
     <ContentGrid title={'Categories'}>
-      <Grid item xs={12} md={12} lg={8} xl={6}>
+      <Grid item xs={12} md={12} lg={8} xl={8}>
         <Card sx={{ p: 0 }}>
           <Card.Header sx={{ p: 2, pb: 0 }}>
             <Box>
@@ -199,6 +200,12 @@ export const Categories = () => {
           )}
         </Card>
       </Grid>
+
+      <Grid item xs={12} md={12} lg={8} xl={4}>
+        <CategorySpendingsChart />
+      </Grid>
+
+      <Grid item xs={12} md={12} lg={8} xl={6}></Grid>
 
       <CreateCategoryDrawer
         open={showCreateCategoryDrawer}

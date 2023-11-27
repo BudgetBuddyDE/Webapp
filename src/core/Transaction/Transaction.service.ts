@@ -1,20 +1,89 @@
-import type { TApiResponse, TTransaction, TUser } from '@/types';
+import type {
+  TApiResponse,
+  TCreateTransactionPayload,
+  TDeleteTransactionPayload,
+  TTransaction,
+  TUpdateTransactionPayload,
+} from '@/types';
 import { isSameMonth } from 'date-fns';
 import { prepareRequestOptions } from '@/utils';
+import { type IAuthContext } from '../Auth';
 
 export class TransactionService {
-  private static host = process.env.REACT_APP_API_BASE + '/v1/transaction';
+  private static host = '/api/v1/transaction';
 
-  static async getTransactionsByUuid(
-    uuid: TUser['uuid']
-  ): Promise<[TTransaction[] | null, Error | null]> {
+  static async getTransactionsByUuid({
+    uuid,
+    password,
+  }: IAuthContext['authOptions']): Promise<[TTransaction[] | null, Error | null]> {
     try {
       const query = new URLSearchParams();
       query.append('uuid', uuid);
       const response = await fetch(this.host + '?' + query.toString(), {
-        ...prepareRequestOptions(uuid),
+        ...prepareRequestOptions({ uuid, password }),
       });
       const json = (await response.json()) as TApiResponse<TTransaction[]>;
+      if (json.status != 200) return [null, new Error(json.message!)];
+      return [json.data, null];
+    } catch (error) {
+      console.error(error);
+      return [null, error as Error];
+    }
+  }
+
+  static getUniqueReceivers(transactions: TTransaction[]): string[] {
+    return [...new Set(transactions.map(({ receiver }) => receiver))];
+  }
+
+  static async create(
+    transaction: TCreateTransactionPayload,
+    user: IAuthContext['authOptions']
+  ): Promise<[TTransaction | null, Error | null]> {
+    try {
+      const response = await fetch(this.host, {
+        method: 'POST',
+        body: JSON.stringify(transaction),
+        ...prepareRequestOptions(user),
+      });
+      const json = (await response.json()) as TApiResponse<TTransaction>;
+      if (json.status != 200) return [null, new Error(json.message!)];
+      return [json.data, null];
+    } catch (error) {
+      console.error(error);
+      return [null, error as Error];
+    }
+  }
+
+  static async update(
+    transaction: TUpdateTransactionPayload,
+    user: IAuthContext['authOptions']
+  ): Promise<[TTransaction | null, Error | null]> {
+    try {
+      const response = await fetch(this.host, {
+        method: 'PUT',
+        body: JSON.stringify(transaction),
+        ...prepareRequestOptions(user),
+      });
+      const json = (await response.json()) as TApiResponse<TTransaction>;
+      if (json.status != 200) return [null, new Error(json.message!)];
+      return [json.data, null];
+    } catch (error) {
+      console.error(error);
+      return [null, error as Error];
+    }
+  }
+
+  static async delete(
+    transaction: TDeleteTransactionPayload,
+    user: IAuthContext['authOptions']
+  ): Promise<[TTransaction | null, Error | null]> {
+    try {
+      const response = await fetch(this.host, {
+        method: 'DELETE',
+        body: JSON.stringify(transaction),
+        ...prepareRequestOptions(user),
+      });
+      const json = (await response.json()) as TApiResponse<TTransaction>;
       if (json.status != 200) return [null, new Error(json.message!)];
       return [json.data, null];
     } catch (error) {

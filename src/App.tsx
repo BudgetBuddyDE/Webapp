@@ -7,6 +7,7 @@ import CategoriesRoute from './routes/Categories.route';
 import NotFoundPage from '@/routes/NotFound.route';
 import SignInRoute from './routes/SignIn.route';
 import SignUpRoute from './routes/SignUp.route';
+import BudgetRoute from './routes/Budget.route';
 
 const App = () => {
   return (
@@ -15,7 +16,7 @@ const App = () => {
         <Route index element={<DashboardRoute />} />
         <Route path="/transactions" element={<TransactionsRoute />} />
         <Route path="/subscriptions" element={<SubscriptionsRoute />} />
-        <Route path="/budget" element={<h1>budget</h1>} />
+        <Route path="/budgets" element={<BudgetRoute />} />
         <Route path="/payment-methods" element={<PaymentMethodsRoute />} />
         <Route path="/categories" element={<CategoriesRoute />} />
         <Route path="/sign-in" element={<SignInRoute />} />

@@ -12,3 +12,17 @@ export type TSubscription = {
   transferAmount: number;
   createdAt: TCreatedAt;
 };
+
+export type TCreateSubscriptionPayload = {
+  owner: TSubscription['owner']['uuid'];
+  categoryId: TSubscription['category']['id'];
+  paymentMethodId: TSubscription['paymentMethod']['id'];
+} & Pick<TSubscription, 'paused' | 'executeAt' | 'receiver' | 'description' | 'transferAmount'>;
+
+export type TUpdateSubscriptionPayload = {
+  subscriptionId: TSubscription['id'];
+  categoryId: TSubscription['category']['id'];
+  paymentMethodId: TSubscription['paymentMethod']['id'];
+} & Pick<TSubscription, 'paused' | 'executeAt' | 'receiver' | 'description' | 'transferAmount'>;
+
+export type TDeleteSubscriptionPayload = { subscriptionId: TSubscription['id'] };

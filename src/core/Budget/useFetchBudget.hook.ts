@@ -4,7 +4,7 @@ import { useBudgetStore } from './Budget.store';
 import { BudgetService } from './Budget.service';
 
 export function useFetchBudget() {
-  const { session } = useAuthContext();
+  const { session, authOptions } = useAuthContext();
   const { data, fetchedAt, fetchedBy, setFetchedData } = useBudgetStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
@@ -14,7 +14,7 @@ export function useFetchBudget() {
     setError(null);
     try {
       if (!session) return;
-      const [fetchedBudget, error] = await BudgetService.getBudgetsByUuid(session.uuid);
+      const [fetchedBudget, error] = await BudgetService.getBudgetsByUuid(authOptions);
       if (error) return setError(error);
       if (!fetchedBudget) return setError(new Error('No budgets returned'));
       setFetchedData(fetchedBudget, session.uuid);

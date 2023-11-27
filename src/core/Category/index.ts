@@ -4,3 +4,7 @@ export * from './useFetchCategories.hook';
 export * from './SpendingsChart.component';
 export * from './CreateCategoryDrawer.component';
 export * from './EditCategoryDrawer.component';
+export * from './Autocomplete';
+export * from './CreateCategoryAlert.component';
+export * from './getCategoryFromList.util';
+export * from './SpendingsChart.component';

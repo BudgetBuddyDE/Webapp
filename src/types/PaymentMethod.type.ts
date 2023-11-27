@@ -5,17 +5,18 @@ export type TPaymentMethod = {
   owner: TUser;
   name: string;
   address: string;
+  provider: string;
   description: TDescription;
   createdAt: TCreatedAt;
 };
 
 export type TCreatePaymentMethodPayload = {
   owner: TUser['uuid'];
-} & Pick<TPaymentMethod, 'name' | 'address' | 'description'>;
+} & Pick<TPaymentMethod, 'name' | 'address' | 'provider' | 'description'>;
 
 export type TUpdatePaymentMethodPayload = Pick<
   TPaymentMethod,
-  'id' | 'name' | 'address' | 'description'
+  'id' | 'name' | 'address' | 'provider' | 'description'
 >;
 
 export type TDeletePaymentMethodPayload = { paymentMethodId: TPaymentMethod['id'] };

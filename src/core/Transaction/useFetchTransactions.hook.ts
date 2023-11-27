@@ -4,7 +4,7 @@ import { useTransactionStore } from './Transaction.store';
 import { TransactionService } from './Transaction.service';
 
 export function useFetchTransactions() {
-  const { session } = useAuthContext();
+  const { session, authOptions } = useAuthContext();
   const { data, fetchedAt, fetchedBy, setFetchedData } = useTransactionStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
@@ -15,7 +15,7 @@ export function useFetchTransactions() {
     try {
       if (!session) return;
       const [fetchedTransactions, error] = await TransactionService.getTransactionsByUuid(
-        session.uuid
+        authOptions
       );
       if (error) return setError(error);
       if (!fetchedTransactions) return setError(new Error('No transactions returned'));

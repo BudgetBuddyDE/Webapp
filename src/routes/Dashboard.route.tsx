@@ -1,15 +1,15 @@
-import { Card } from '@/components/Base';
 import { DashboardStatsWrapper } from '@/components/DashboardStatsWrapper.component';
 import { ContentGrid } from '@/components/Layout';
 import { CircularProgress } from '@/components/Loading';
 import { withAuthLayout } from '@/core/Auth/Layout';
 import { BudgetProgressWrapper, useFetchBudgetProgress } from '@/core/Budget';
+import { CategorySpendingsChart } from '@/core/Category';
 import { SubscriptionList } from '@/core/Subscription';
 import { useFetchSubscriptions } from '@/core/Subscription';
 import { TransactionList, useFetchTransactions } from '@/core/Transaction';
 import { CreateTransactionDrawer } from '@/core/Transaction/CreateTransactionDrawer.component';
 import { TSubscription, TTransaction } from '@/types';
-import { Box, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import { useMemo, useState } from 'react';
 
 export const Dashboard = () => {
@@ -24,6 +24,7 @@ export const Dashboard = () => {
 
   const upcomingSubscriptions: TSubscription[] = useMemo(() => {
     // FIXME: Write function to sort by next upcoming subscriptions
+    // FIXME: Don't show paused subscriptions
     return subscriptions.slice(0, 6);
   }, [subscriptions]);
 
@@ -40,15 +41,7 @@ export const Dashboard = () => {
       </Grid>
 
       <Grid item xs={12} md={6} lg={4} order={{ xs: 1, md: 2 }}>
-        <Card>
-          <Card.Header>
-            <Box>
-              <Card.Title></Card.Title>
-              <Card.Subtitle></Card.Subtitle>
-            </Box>
-          </Card.Header>
-          <Card.Body>{/* FIXME: */}</Card.Body>
-        </Card>
+        <CategorySpendingsChart />
       </Grid>
 
       <Grid item xs={12} md={6} lg={4} order={{ xs: 2, md: 3 }}>

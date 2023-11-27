@@ -36,10 +36,10 @@ import { Table } from '@/components/Base/Table';
 import { AppConfig } from '@/App.config';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 
-interface PaymentMethodsHandler {
+interface IPaymentMethodsHandler {
   onSearch: (keyword: string) => void;
   onPaymentMethodDelete: (paymentMethod: TPaymentMethod) => void;
-  onConfirmCategoryDelete: () => void;
+  onConfirmTransactionDelete: () => void;
   onEditPaymentMethod: (paymentMethod: TPaymentMethod) => void;
   pagination: PaginationHandler;
 }
@@ -68,15 +68,15 @@ export const PaymentMethods = () => {
   }, [paymentMethods, keyword, tablePagination]);
   const currentPagePaymentMethod = usePagination(displayedPaymentMethods, tablePagination);
 
-  const handler: PaymentMethodsHandler = {
+  const handler: IPaymentMethodsHandler = {
     onSearch(keyword) {
       setKeyword(keyword.toLowerCase());
     },
-    onEditPaymentMethod(category) {
+    onEditPaymentMethod(paymentMethod) {
       setShowEditPaymentMethodDrawer(true);
-      this.onEditPaymentMethod(category);
+      setEditPaymentMethod(paymentMethod);
     },
-    async onConfirmCategoryDelete() {
+    async onConfirmTransactionDelete() {
       try {
         if (!deletePaymentMethod) return;
         const [deletedItem, error] = await PaymentMethodService.delete(
@@ -111,9 +111,10 @@ export const PaymentMethods = () => {
       },
     },
   };
+
   return (
     <ContentGrid title={'Payment-Methods'}>
-      <Grid item xs={12} md={12} lg={8} xl={7}>
+      <Grid item xs={12} md={12} lg={10} xl={10}>
         <Card sx={{ p: 0 }}>
           <Card.Header sx={{ p: 2, pb: 0 }}>
             <Box>
@@ -159,6 +160,10 @@ export const PaymentMethods = () => {
                       >
                         <TableCell size={AppConfig.table.cellSize}>
                           <Typography>{paymentMethod.name}</Typography>
+                        </TableCell>
+                        <TableCell size={AppConfig.table.cellSize}>
+                          {/* TODO: Format when is IBAN */}
+                          <Typography>{paymentMethod.address}</Typography>
                         </TableCell>
                         <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                           <Linkify>{paymentMethod.description ?? 'No Description'}</Linkify>
@@ -223,7 +228,7 @@ export const PaymentMethods = () => {
           setShowDeletePaymentMethodDialog(false);
           setDeletePaymentMethod(null);
         }}
-        onConfirm={() => handler.onConfirmCategoryDelete}
+        onConfirm={() => handler.onConfirmTransactionDelete}
         withTransition
       />
     </ContentGrid>

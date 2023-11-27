@@ -4,7 +4,7 @@ import { useSubscriptionStore } from './Subscription.store';
 import { SubscriptionService } from './Subscription.service';
 
 export function useFetchSubscriptions() {
-  const { session } = useAuthContext();
+  const { session, authOptions } = useAuthContext();
   const { data, fetchedAt, fetchedBy, setFetchedData } = useSubscriptionStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
@@ -15,7 +15,7 @@ export function useFetchSubscriptions() {
     try {
       if (!session) return;
       const [fetchedSubscriptions, error] = await SubscriptionService.getSubscriptionsByUuid(
-        session.uuid
+        authOptions
       );
       if (error) return setError(error);
       if (!fetchedSubscriptions) return setError(new Error('No subscriptions returned'));
