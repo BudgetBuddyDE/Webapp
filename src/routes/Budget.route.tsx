@@ -1,26 +1,10 @@
-import { AppConfig } from '@/App.config';
-import { ActionPaper, Card, Linkify, NoResults } from '@/components/Base';
-import { Pagination, type PaginationHandler } from '@/components/Base/Pagination';
-import { Table } from '@/components/Base/Table';
-import { DeleteDialog } from '@/components/DeleteDialog.component';
+import { type PaginationHandler } from '@/components/Base/Pagination';
 import { ContentGrid } from '@/components/Layout';
-import { CircularProgress } from '@/components/Loading';
 import { withAuthLayout } from '@/core/Auth/Layout';
-import { CreateCategoryDrawer, EditCategoryDrawer } from '@/core/Category';
-import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
+import { CategorySpendingsChart } from '@/core/Category';
+import { CategoryIncomeChart } from '@/core/Category/Chart/IncomeChart.component';
 import { TCategory } from '@/types';
-import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
-import {
-  Box,
-  Grid,
-  IconButton,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Typography,
-} from '@mui/material';
-import React from 'react';
+import { Grid, Typography } from '@mui/material';
 
 interface BudgetsHandler {
   onSearch: (keyword: string) => void;
@@ -38,7 +22,27 @@ export const ChartContentTypes = [
 ];
 
 export const Budgets = () => {
-  return <ContentGrid title={'Budget'}></ContentGrid>;
+  return (
+    <ContentGrid title={'Budget'}>
+      <Grid item xs={12} md={12} lg={8} xl={4}>
+        <Typography></Typography>
+      </Grid>
+
+      <Grid container item xs={12} md={12} lg={8} xl={8}>
+        <Grid item xs={12} md={12} lg={12} xl={12}>
+          das
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={6} xl={6}>
+          <CategorySpendingsChart withList />
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={6} xl={6}>
+          <CategoryIncomeChart withList />
+        </Grid>
+      </Grid>
+    </ContentGrid>
+  );
 };
 
 export default withAuthLayout(Budgets);

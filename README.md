@@ -21,9 +21,3 @@
 
 - Chart
   - Spendings per category
-
-### Categories
-
-- Charts
-  - Einnahmen pro Kategorie
-  - Ausgaben pro Kategorie

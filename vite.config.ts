@@ -10,9 +10,9 @@ dns.setDefaultResultOrder('verbatim');
 export default defineConfig({
   // https://github.com/vitejs/vite/issues/1973#issuecomment-787571499
   define: {
-    'process.env': {
-      REACT_APP_API_BASE: 'http://localhost:8080',
-    },
+    // 'process.env': {
+    //   REACT_APP_API_BASE: 'http://localhost:8080',
+    // },
   },
   server: {
     open: true,
@@ -20,7 +20,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: process.env.BACKEND_HOST || 'http://localhost:8080',
         // changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

@@ -8,7 +8,7 @@ export type TAuthLayout = React.PropsWithChildren;
 
 export const AuthLayout: React.FC<TAuthLayout> = ({ children }) => {
   return (
-    <Box sx={{ display: 'flex', backgroundColor: 'red' }}>
+    <Box sx={{ display: 'flex' }}>
       <Drawer />
       <Main
         sx={{

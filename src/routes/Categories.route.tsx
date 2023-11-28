@@ -21,9 +21,10 @@ import {
   EditCategoryDrawer,
   useFetchCategories,
 } from '@/core/Category';
+import { CategoryIncomeChart } from '@/core/Category/Chart/IncomeChart.component';
 import { useSnackbarContext } from '@/core/Snackbar';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
-import { TCategory } from '@/types';
+import type { TCategory } from '@/types';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
 import {
   Box,
@@ -201,8 +202,14 @@ export const Categories = () => {
         </Card>
       </Grid>
 
-      <Grid item xs={12} md={12} lg={8} xl={4}>
-        <CategorySpendingsChart />
+      <Grid container item xs={12} md={12} lg={4} xl={4} spacing={3} sx={{ height: 'max-content' }}>
+        <Grid item xs={12} md={12}>
+          <CategorySpendingsChart />
+        </Grid>
+
+        <Grid item xs={12} md={12}>
+          <CategoryIncomeChart />
+        </Grid>
       </Grid>
 
       <Grid item xs={12} md={12} lg={8} xl={6}></Grid>
