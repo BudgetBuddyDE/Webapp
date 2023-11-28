@@ -6,7 +6,7 @@ import React from 'react';
 export type TListWithIconProps = {
   icon?: JSX.Element;
   title: string;
-  subtitle: string | string[] | JSX.Element;
+  subtitle?: string | string[] | JSX.Element;
   amount?: string | number;
 };
 
@@ -24,7 +24,8 @@ export const ListWithIcon: React.FC<TListWithIconProps> = ({ icon, title, subtit
       <Box>
         <Typography fontWeight="bold">{title}</Typography>
         {typeof subtitle === 'string' && <Typography>{subtitle}</Typography>}
-        {Array.isArray(subtitle) &&
+        {subtitle &&
+          Array.isArray(subtitle) &&
           typeof subtitle[0] === 'string' &&
           subtitle.map((label) => (
             <Chip
@@ -35,7 +36,7 @@ export const ListWithIcon: React.FC<TListWithIconProps> = ({ icon, title, subtit
               size="small"
             />
           ))}
-        {typeof subtitle === 'object' && subtitle}
+        {subtitle && typeof subtitle === 'object' && subtitle}
       </Box>
       {amount && (
         <Box sx={{ ml: 'auto' }}>
