@@ -10,6 +10,7 @@ import type {
 import { format, isSameMonth } from 'date-fns';
 import { prepareRequestOptions } from '@/utils';
 import { type IAuthContext } from '../Auth';
+import { TDashboardStats } from '@/components/DashboardStatsWrapper.component';
 
 export class TransactionService {
   private static host = '/api/v1/transaction';
@@ -50,6 +51,22 @@ export class TransactionService {
       const json = (await response.json()) as TApiResponse<TDailyTransaction[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
       return [json.data ? json.data.map((e) => ({ ...e, date: new Date(e.date) })) : null, null];
+    } catch (error) {
+      console.error(error);
+      return [null, error as Error];
+    }
+  }
+
+  static async getDashboardStats(
+    user: IAuthContext['authOptions']
+  ): Promise<[TDashboardStats | null, Error | null]> {
+    try {
+      const response = await fetch(this.host + '/stats', {
+        ...prepareRequestOptions(user),
+      });
+      const json = (await response.json()) as TApiResponse<TDashboardStats>;
+      if (json.status != 200) return [null, new Error(json.message!)];
+      return [json.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
