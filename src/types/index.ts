@@ -16,3 +16,4 @@ export * from './PaymentMethod.type';
 export * from './Transaction.type';
 export * from './Subscription.type';
 export * from './Budget.type';
+export * from './DailyTransaction.type';

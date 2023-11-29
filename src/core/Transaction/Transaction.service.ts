@@ -1,11 +1,13 @@
 import type {
+  EDailyTransactionType,
   TApiResponse,
   TCreateTransactionPayload,
+  TDailyTransaction,
   TDeleteTransactionPayload,
   TTransaction,
   TUpdateTransactionPayload,
 } from '@/types';
-import { isSameMonth } from 'date-fns';
+import { format, isSameMonth } from 'date-fns';
 import { prepareRequestOptions } from '@/utils';
 import { type IAuthContext } from '../Auth';
 
@@ -25,6 +27,29 @@ export class TransactionService {
       const json = (await response.json()) as TApiResponse<TTransaction[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
       return [json.data, null];
+    } catch (error) {
+      console.error(error);
+      return [null, error as Error];
+    }
+  }
+
+  static async getDailyTransactions(
+    startDate: Date,
+    endDate: Date,
+    requestedData: EDailyTransactionType,
+    user: IAuthContext['authOptions']
+  ): Promise<[TDailyTransaction[] | null, Error | null]> {
+    try {
+      const query = new URLSearchParams();
+      query.append('startDate', format(startDate, 'yyyy-MM-dd'));
+      query.append('endDate', format(endDate, 'yyyy-MM-dd'));
+      query.append('requestedData', requestedData.toString());
+      const response = await fetch(this.host + '/daily?' + query.toString(), {
+        ...prepareRequestOptions(user),
+      });
+      const json = (await response.json()) as TApiResponse<TDailyTransaction[]>;
+      if (json.status != 200) return [null, new Error(json.message!)];
+      return [json.data ? json.data.map((e) => ({ ...e, date: new Date(e.date) })) : null, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];

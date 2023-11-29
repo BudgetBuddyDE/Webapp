@@ -1,6 +1,7 @@
 import { DashboardStatsWrapper } from '@/components/DashboardStatsWrapper.component';
 import { ContentGrid } from '@/components/Layout';
 import { CircularProgress } from '@/components/Loading';
+import { useAuthContext } from '@/core/Auth';
 import { withAuthLayout } from '@/core/Auth/Layout';
 import { BudgetProgressWrapper, useFetchBudgetProgress } from '@/core/Budget';
 import { CategorySpendingsChart } from '@/core/Category';
@@ -13,6 +14,7 @@ import { Grid } from '@mui/material';
 import { useMemo, useState } from 'react';
 
 export const Dashboard = () => {
+  const { session } = useAuthContext();
   const { transactions, loading: loadingTransactions } = useFetchTransactions();
   const { subscriptions, loading: loadingSubscriptions } = useFetchSubscriptions();
   const { budgetProgress, loading: loadingBudgetProgress } = useFetchBudgetProgress();
@@ -29,7 +31,7 @@ export const Dashboard = () => {
   }, [subscriptions]);
 
   return (
-    <ContentGrid title={'Welcome, Thorben!'}>
+    <ContentGrid title={`Welcome, ${session?.name}!`}>
       <DashboardStatsWrapper />
 
       <Grid item xs={12} md={6} lg={4} order={{ xs: 3, md: 1 }}>

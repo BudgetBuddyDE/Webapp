@@ -4,11 +4,11 @@ import React from 'react';
 import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { BudgetService, useFetchBudget, useFetchBudgetProgress } from '.';
-import { CategoryAutocomplete } from '../Category';
-import { TCreateBudgetPayload } from '@/types';
+import { CategoryAutocomplete, getCategoryFromList, useFetchCategories } from '../Category';
+import type { TBudget, TBudgetProgress, TUpdateBudgetPayload } from '@/types';
 import { transformBalance } from '@/utils';
 
-interface ICreateBudgetDrawerHandler {
+interface IEditBudgetDrawerHandler {
   onClose: () => void;
   onAutocompleteChange: (
     event: React.SyntheticEvent<Element, Event>,
@@ -19,14 +19,20 @@ interface ICreateBudgetDrawerHandler {
   onFormSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export type TCreateBudgetDrawerProps = {
+export type TEditBudgetDrawerProps = {
   open: boolean;
   onChangeOpen: (isOpen: boolean) => void;
+  budget: TBudget | TBudgetProgress | null;
 };
 
-export const CreateBudgetDrawer: React.FC<TCreateBudgetDrawerProps> = ({ open, onChangeOpen }) => {
+export const EditBudgetDrawer: React.FC<TEditBudgetDrawerProps> = ({
+  open,
+  onChangeOpen,
+  budget,
+}) => {
   const { session, authOptions } = useAuthContext();
   const { showSnackbar } = useSnackbarContext();
+  const { categories } = useFetchCategories();
   const { refresh: refreshBudgets } = useFetchBudget();
   const { refresh: refreshBudgetProgress } = useFetchBudgetProgress();
   const [drawerState, setDrawerState] = React.useReducer(
@@ -35,7 +41,7 @@ export const CreateBudgetDrawer: React.FC<TCreateBudgetDrawerProps> = ({ open, o
   );
   const [form, setForm] = React.useState<Record<string, string | number>>({});
 
-  const handler: ICreateBudgetDrawerHandler = {
+  const handler: IEditBudgetDrawerHandler = {
     onClose() {
       onChangeOpen(false);
       setForm({});
@@ -49,7 +55,7 @@ export const CreateBudgetDrawer: React.FC<TCreateBudgetDrawerProps> = ({ open, o
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      if (!session) return;
+      if (!session || !budget) return;
       setDrawerState({ type: 'SUBMIT' });
 
       try {
@@ -57,18 +63,18 @@ export const CreateBudgetDrawer: React.FC<TCreateBudgetDrawerProps> = ({ open, o
         if (!form.amount) throw new Error('Provide an amount');
         if (Number(form.amount) <= 0) throw new Error('Your need to be higher than 0');
 
-        const payload: TCreateBudgetPayload = {
-          owner: session.uuid,
+        const payload: TUpdateBudgetPayload = {
+          budgetId: budget.id,
           categoryId: Number(form.category),
           budget: transformBalance(String(form.amount)),
         };
 
-        const [createdBudget, error] = await BudgetService.create(payload, authOptions);
+        const [updatedBudget, error] = await BudgetService.update(payload, authOptions);
         if (error) {
           setDrawerState({ type: 'ERROR', error: error });
           return;
         }
-        if (!createdBudget) {
+        if (!updatedBudget) {
           setDrawerState({ type: 'ERROR', error: new Error(`Couldn't save the budget`) });
           return;
         }
@@ -77,13 +83,21 @@ export const CreateBudgetDrawer: React.FC<TCreateBudgetDrawerProps> = ({ open, o
         handler.onClose();
         refreshBudgets(); // FIXME: Wrap inside startTransition
         refreshBudgetProgress(); // FIXME: Wrap inside startTransition
-        showSnackbar({ message: `Budget for ${createdBudget.category.name} we're saved` });
+        showSnackbar({ message: `Budget for ${updatedBudget.category.name} we're saved` });
       } catch (error) {
         console.error(error);
         setDrawerState({ type: 'ERROR', error: error as Error });
       }
     },
   };
+
+  React.useEffect(() => {
+    if (!budget) return;
+    setForm({
+      category: budget.category.id,
+      amount: budget.budget,
+    });
+  }, [budget]);
 
   return (
     <FormDrawer
@@ -98,6 +112,7 @@ export const CreateBudgetDrawer: React.FC<TCreateBudgetDrawerProps> = ({ open, o
         onChange={(event, value) =>
           handler.onAutocompleteChange(event, 'category', Number(value?.value))
         }
+        defaultValue={budget ? getCategoryFromList(budget.category.id, categories) : undefined}
         sx={{ mb: 2 }}
       />
 
@@ -109,7 +124,8 @@ export const CreateBudgetDrawer: React.FC<TCreateBudgetDrawerProps> = ({ open, o
           name="amount"
           inputProps={{ inputMode: 'numeric' }}
           onChange={handler.onInputChange}
-          value={form.transferAmount}
+          value={form.amount}
+          defaultValue={form.amount}
           startAdornment={<InputAdornment position="start">€</InputAdornment>}
         />
       </FormControl>
