@@ -1,8 +1,9 @@
 import React from 'react';
 import { Box, Container } from '@mui/material';
-import { AppBar, FabContainer, Footer, OpenFilterDrawerFab } from '@/components/Layout';
+import { AppBar, Footer } from '@/components/Layout';
 import { Drawer } from '@/components/Layout/Drawer';
 import { Main } from '@/components/Base';
+import { FilterDrawer } from '@/core/Filter';
 
 export type TAuthLayout = React.PropsWithChildren;
 
@@ -30,6 +31,8 @@ export const AuthLayout: React.FC<TAuthLayout> = ({ children }) => {
           <Footer />
         </Box>
       </Main>
+
+      <FilterDrawer />
     </Box>
   );
 };

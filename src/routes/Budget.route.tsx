@@ -1,4 +1,4 @@
-import { AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
+import { ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
 import { withAuthLayout } from '@/core/Auth/Layout';
 import { BudgetList } from '@/core/Budget';
 import { CategorySpendingsChart } from '@/core/Category';

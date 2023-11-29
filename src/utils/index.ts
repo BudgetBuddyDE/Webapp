@@ -4,3 +4,5 @@ export * from './prepareRequestOptions.util';
 export * from './transformBalance.util';
 export * from './determineNextExecution.util';
 export * from './determineNextExecutionDate.util';
+export * from './getFirstDayOfMonth.util';
+export * from './getLastDayOfMonth.util';

@@ -1,15 +1,15 @@
-import React from 'react';
-import { StoreContext } from '@/context/Store.context';
 import { TuneRounded as TuneIcon } from '@mui/icons-material';
 import { Fab } from '@mui/material';
+import { useFilterStore } from '@/core/Filter/Filter.store';
 
 export const OpenFilterDrawerFab = () => {
-  // const { setShowFilterDrawer } = React.useContext(StoreContext);
+  const { toggleVisibility } = useFilterStore();
   return (
     <Fab
       color="primary"
       size="medium"
-      aria-label="open-filter-drawer" /*onClick={() => setShowFilterDrawer(true)}*/
+      aria-label="open-filter-drawer"
+      onClick={() => toggleVisibility()}
     >
       <TuneIcon />
     </Fab>
