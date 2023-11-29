@@ -10,7 +10,7 @@ import {
 import { SearchInput } from '@/components/Base/Search';
 import { Table } from '@/components/Base/Table';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
-import { ContentGrid } from '@/components/Layout';
+import { AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
 import { CircularProgress } from '@/components/Loading';
 import { useAuthContext } from '@/core/Auth';
 import { withAuthLayout } from '@/core/Auth/Layout';
@@ -241,6 +241,11 @@ export const Categories = () => {
         onConfirm={() => handler.onConfirmCategoryDelete}
         withTransition
       />
+
+      <FabContainer>
+        <OpenFilterDrawerFab />
+        <AddFab onClick={() => setShowCreateCategoryDrawer(true)} />
+      </FabContainer>
     </ContentGrid>
   );
 };

@@ -7,7 +7,7 @@ import {
   usePagination,
   Pagination,
 } from '@/components/Base/Pagination';
-import { ContentGrid } from '@/components/Layout';
+import { AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
 import { useAuthContext } from '@/core/Auth';
 import { withAuthLayout } from '@/core/Auth/Layout';
 import {
@@ -231,6 +231,11 @@ export const PaymentMethods = () => {
         onConfirm={() => handler.onConfirmTransactionDelete}
         withTransition
       />
+
+      <FabContainer>
+        <OpenFilterDrawerFab />
+        <AddFab onClick={() => setShowCreatePaymentMethodDrawer(true)} />
+      </FabContainer>
     </ContentGrid>
   );
 };

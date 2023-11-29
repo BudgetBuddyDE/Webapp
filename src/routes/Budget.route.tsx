@@ -1,4 +1,4 @@
-import { ContentGrid } from '@/components/Layout';
+import { AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
 import { withAuthLayout } from '@/core/Auth/Layout';
 import { BudgetList } from '@/core/Budget';
 import { CategorySpendingsChart } from '@/core/Category';
@@ -26,13 +26,17 @@ export const Budgets = () => {
         </Grid>
 
         <Grid item xs={12} md={12} lg={6} xl={6}>
-          <CategorySpendingsChart withList />
+          <CategorySpendingsChart />
         </Grid>
 
         <Grid item xs={12} md={12} lg={6} xl={6}>
-          <CategoryIncomeChart withList />
+          <CategoryIncomeChart />
         </Grid>
       </Grid>
+
+      <FabContainer>
+        <OpenFilterDrawerFab />
+      </FabContainer>
     </ContentGrid>
   );
 };

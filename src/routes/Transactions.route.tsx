@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActionPaper, Card, Linkify, NoResults } from '@/components/Base';
-import { ContentGrid } from '@/components/Layout';
+import { AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
 import { useAuthContext } from '@/core/Auth';
 import { withAuthLayout } from '@/core/Auth/Layout';
 import { useSnackbarContext } from '@/core/Snackbar';
@@ -261,6 +261,11 @@ export const Transactions = () => {
         onConfirm={handler.onConfirmTransactionDelete}
         withTransition
       />
+
+      <FabContainer>
+        <OpenFilterDrawerFab />
+        <AddFab onClick={() => setShowCreateTransactionDrawer(true)} />
+      </FabContainer>
     </ContentGrid>
   );
 };

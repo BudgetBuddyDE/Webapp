@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Container } from '@mui/material';
-import { AppBar, Footer } from '@/components/Layout';
+import { AppBar, FabContainer, Footer, OpenFilterDrawerFab } from '@/components/Layout';
 import { Drawer } from '@/components/Layout/Drawer';
 import { Main } from '@/components/Base';
 

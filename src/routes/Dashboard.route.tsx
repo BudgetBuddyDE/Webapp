@@ -1,5 +1,5 @@
 import { DashboardStatsWrapper } from '@/components/DashboardStatsWrapper.component';
-import { ContentGrid } from '@/components/Layout';
+import { ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
 import { CircularProgress } from '@/components/Loading';
 import { useAuthContext } from '@/core/Auth';
 import { withAuthLayout } from '@/core/Auth/Layout';
@@ -69,6 +69,10 @@ export const Dashboard = () => {
         open={showTransactionDrawer}
         onChangeOpen={(isOpen) => setShowTransactionDrawer(isOpen)}
       />
+
+      <FabContainer>
+        <OpenFilterDrawerFab />
+      </FabContainer>
     </ContentGrid>
   );
 };

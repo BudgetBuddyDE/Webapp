@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActionPaper, Card, Linkify, NoResults } from '@/components/Base';
 import { SearchInput } from '@/components/Base/Search';
-import { ContentGrid } from '@/components/Layout';
+import { AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
 import { CircularProgress } from '@/components/Loading';
 import { withAuthLayout } from '@/core/Auth/Layout';
 import {
@@ -31,15 +31,9 @@ import {
   usePagination,
   Pagination,
 } from '@/components/Base/Pagination';
-import {
-  TCreateTransactionPayload,
-  TSubscription,
-  TTransaction,
-  TUpdateSubscriptionPayload,
-} from '@/types';
+import { TSubscription, TTransaction, TUpdateSubscriptionPayload } from '@/types';
 import { Table } from '@/components/Base/Table';
 import { AppConfig } from '@/App.config';
-import { format } from 'date-fns';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { determineNextExecution, determineNextExecutionDate } from '@/utils';
@@ -351,6 +345,11 @@ export const Subscriptions = () => {
         onConfirm={() => handler.onConfirmSubscriptionDelete}
         withTransition
       />
+
+      <FabContainer>
+        <OpenFilterDrawerFab />
+        <AddFab onClick={() => setShowCreateSubscriptionDrawer(true)} />
+      </FabContainer>
     </ContentGrid>
   );
 };
