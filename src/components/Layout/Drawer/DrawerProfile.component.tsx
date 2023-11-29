@@ -2,7 +2,7 @@ import React from 'react';
 import { LogoutRounded as LogoutIcon } from '@mui/icons-material';
 import { Box, Button, type ButtonProps, useTheme, Divider, Typography, Chip } from '@mui/material';
 import { useDrawerStore } from './Drawer.store';
-import { useWindowDimensions } from '@/hooks';
+import { useScreenSize, useWindowDimensions } from '@/hooks';
 import { AuthService, useAuthContext } from '@/core/Auth';
 import { UserAvatar } from '@/core/User';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,7 @@ export type TDrawerProfileProps = {};
 export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const screenSize = useScreenSize();
   const { open, toggle } = useDrawerStore();
   const { breakpoint } = useWindowDimensions();
   const { session, setSession } = useAuthContext();
@@ -45,7 +46,7 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
         <Box
           sx={{
             transition: '100ms',
-            display: open ? 'flex' : 'none',
+            display: screenSize === 'small' ? (open ? 'none' : 'flex') : open ? 'flex' : 'none',
             flexGrow: 1,
             flexDirection: 'row',
             alignItems: 'center',
