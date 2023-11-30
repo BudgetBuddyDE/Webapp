@@ -38,6 +38,10 @@ import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { determineNextExecution, determineNextExecutionDate } from '@/utils';
 import { CreateTransactionDrawer } from '@/core/Transaction';
+import { filterSubscriptions } from '@/utils/filter.util';
+import { ToggleFilterDrawerButton, useFilterStore } from '@/core/Filter';
+import { CategoryChip } from '@/core/Category';
+import { PaymentMethodChip } from '@/core/PaymentMethod';
 
 interface ISubscriptionsHandler {
   onSearch: (keyword: string) => void;
@@ -55,6 +59,7 @@ interface ISubscriptionsHandler {
 export const Subscriptions = () => {
   const { showSnackbar } = useSnackbarContext();
   const { authOptions } = useAuthContext();
+  const { filters } = useFilterStore();
   const {
     subscriptions,
     loading: loadingSubscriptions,
@@ -75,14 +80,8 @@ export const Subscriptions = () => {
   );
   const [keyword, setKeyword] = React.useState('');
   const displayedSubscriptions: TSubscription[] = React.useMemo(() => {
-    if (keyword.length == 0) return subscriptions;
-    // FIXME: Sort by executionDate
-    return subscriptions.filter(
-      ({ receiver, description }) =>
-        receiver.toLowerCase().includes(keyword.toLowerCase()) ||
-        (description != null && description.toLowerCase().includes(keyword.toLowerCase()))
-    );
-  }, [subscriptions, keyword, tablePagination]);
+    return filterSubscriptions(keyword, filters, subscriptions);
+  }, [subscriptions, keyword, filters, tablePagination]);
   const currentPageSubscriptions = usePagination(displayedSubscriptions, tablePagination);
 
   const handler: ISubscriptionsHandler = {
@@ -195,6 +194,7 @@ export const Subscriptions = () => {
                 sx: { display: 'flex', flexDirection: 'row', width: { xs: '100%' } },
               }}
             >
+              <ToggleFilterDrawerButton />
               <SearchInput onSearch={handler.onSearch} />
 
               <IconButton color="primary" onClick={() => setShowCreateSubscriptionDrawer(true)}>
@@ -244,7 +244,7 @@ export const Subscriptions = () => {
                           </Typography>
                         </TableCell>
                         <TableCell size={AppConfig.table.cellSize}>
-                          <Typography>{subscription.category.name}</Typography>
+                          <CategoryChip category={subscription.category} />
                         </TableCell>
                         <TableCell size={AppConfig.table.cellSize}>
                           <Linkify>{subscription.receiver}</Linkify>
@@ -258,7 +258,7 @@ export const Subscriptions = () => {
                           </Typography>
                         </TableCell>
                         <TableCell size={AppConfig.table.cellSize}>
-                          <Typography>{subscription.paymentMethod.name}</Typography>
+                          <PaymentMethodChip paymentMethod={subscription.paymentMethod} />
                         </TableCell>
                         <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                           <Linkify>{subscription.description ?? 'No information'}</Linkify>

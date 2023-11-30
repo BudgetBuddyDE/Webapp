@@ -6,3 +6,4 @@ export * from './EditPaymentMethodDrawer.component';
 export * from './Autocomplete';
 export * from './CreatePaymentMethodAlert.component';
 export * from './getPaymentMethodFromList.util';
+export * from './Chip.component';

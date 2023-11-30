@@ -36,6 +36,10 @@ import { Table } from '@/components/Base/Table';
 import { AppConfig } from '@/App.config';
 import { format } from 'date-fns';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
+import { ToggleFilterDrawerButton, useFilterStore } from '@/core/Filter';
+import { filterTransactions } from '@/utils/filter.util';
+import { CategoryChip } from '@/core/Category';
+import { PaymentMethodChip } from '@/core/PaymentMethod';
 
 interface ITransactionsHandler {
   onSearch: (keyword: string) => void;
@@ -48,6 +52,7 @@ interface ITransactionsHandler {
 export const Transactions = () => {
   const { showSnackbar } = useSnackbarContext();
   const { authOptions } = useAuthContext();
+  const { filters } = useFilterStore();
   const {
     transactions,
     loading: loadingTransactions,
@@ -64,13 +69,8 @@ export const Transactions = () => {
   const [deleteTransaction, setDeleteTransaction] = React.useState<TTransaction | null>(null);
   const [keyword, setKeyword] = React.useState('');
   const displayedTransactions: TTransaction[] = React.useMemo(() => {
-    if (keyword.length == 0) return transactions;
-    return transactions.filter(
-      ({ receiver, description }) =>
-        receiver.toLowerCase().includes(keyword.toLowerCase()) ||
-        (description != null && description.toLowerCase().includes(keyword.toLowerCase()))
-    );
-  }, [transactions, keyword, tablePagination]);
+    return filterTransactions(keyword, filters, transactions);
+  }, [transactions, keyword, filters, tablePagination]);
   const currentPageTransactions = usePagination(displayedTransactions, tablePagination);
 
   const handler: ITransactionsHandler = {
@@ -83,8 +83,7 @@ export const Transactions = () => {
     },
     async onConfirmTransactionDelete() {
       try {
-        console.log('blöd');
-        if (!deleteTransaction) return console.log('blöd');
+        if (!deleteTransaction) return;
         const [deletedItem, error] = await TransactionService.delete(
           { transactionId: deleteTransaction.id },
           authOptions
@@ -134,6 +133,7 @@ export const Transactions = () => {
                 sx: { display: 'flex', flexDirection: 'row', width: { xs: '100%' } },
               }}
             >
+              <ToggleFilterDrawerButton />
               <SearchInput onSearch={handler.onSearch} />
 
               <IconButton color="primary" onClick={() => setShowCreateTransactionDrawer(true)}>
@@ -179,7 +179,7 @@ export const Transactions = () => {
                           )}`}</Typography>
                         </TableCell>
                         <TableCell size={AppConfig.table.cellSize}>
-                          <Typography>{transaction.category.name}</Typography>
+                          <CategoryChip category={transaction.category} />
                         </TableCell>
                         <TableCell size={AppConfig.table.cellSize}>
                           <Linkify>{transaction.receiver}</Linkify>
@@ -193,7 +193,7 @@ export const Transactions = () => {
                           </Typography>
                         </TableCell>
                         <TableCell size={AppConfig.table.cellSize}>
-                          <Typography>{transaction.paymentMethod.name}</Typography>
+                          <PaymentMethodChip paymentMethod={transaction.paymentMethod} />
                         </TableCell>
                         <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                           <Linkify>{transaction.description ?? 'No information'}</Linkify>

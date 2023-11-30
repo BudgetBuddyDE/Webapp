@@ -7,3 +7,4 @@ export * from './EditCategoryDrawer.component';
 export * from './Autocomplete';
 export * from './CreateCategoryAlert.component';
 export * from './getCategoryFromList.util';
+export * from './Chip.component';
