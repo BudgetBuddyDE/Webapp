@@ -19,7 +19,7 @@ export interface PaginationHandler {
   onRowsPerPageChange: TPaginationProps['onRowsPerPageChange'];
 }
 
-export const RowsPerPageOptions = [10, 25, 50, 100];
+export const RowsPerPageOptions = [10, 15, 25, 50];
 
 export const InitialPaginationState: TPaginationState = {
   page: 0,
