@@ -63,7 +63,7 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
       setForm({ executeAt: new Date() });
       setDrawerState({ type: 'RESET' });
     },
-    onDateChange(value: string | number | Date | null, keyboardInputValue?: string | undefined) {
+    onDateChange(value: string | number | Date | null, _keyboardInputValue?: string | undefined) {
       if (!value) return;
       setForm((prev) => ({ ...prev, executeAt: value }));
     },

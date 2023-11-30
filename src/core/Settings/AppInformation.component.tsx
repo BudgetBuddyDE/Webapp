@@ -6,7 +6,7 @@ import {
   CodeRounded,
   LanguageRounded,
 } from '@mui/icons-material';
-import { Box, Divider, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 
 export const AppInformation = () => {
   return (

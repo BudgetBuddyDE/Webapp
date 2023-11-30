@@ -21,12 +21,7 @@ import {
   getPaymentMethodFromList,
   useFetchPaymentMethods,
 } from '../PaymentMethod';
-import type {
-  TCreateSubscriptionPayload,
-  TDescription,
-  TSubscription,
-  TUpdateSubscriptionPayload,
-} from '@/types';
+import type { TDescription, TSubscription, TUpdateSubscriptionPayload } from '@/types';
 import { determineNextExecutionDate, transformBalance } from '@/utils';
 import { SubscriptionService, useFetchSubscriptions } from '.';
 import { TransactionService, useFetchTransactions } from '../Transaction';
@@ -76,7 +71,7 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
       setForm({ executeAt: new Date() });
       setDrawerState({ type: 'RESET' });
     },
-    onDateChange(value: string | number | Date | null, keyboardInputValue?: string | undefined) {
+    onDateChange(value: string | number | Date | null, _keyboardInputValue?: string | undefined) {
       if (!value) return;
       setForm((prev) => ({ ...prev, executeAt: value }));
     },
