@@ -8,6 +8,7 @@ import NotFoundPage from '@/routes/NotFound.route';
 import SignInRoute from './routes/SignIn.route';
 import SignUpRoute from './routes/SignUp.route';
 import BudgetRoute from './routes/Budget.route';
+import SettingsRoute from './routes/Settings.route';
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
         <Route path="/budgets" element={<BudgetRoute />} />
         <Route path="/payment-methods" element={<PaymentMethodsRoute />} />
         <Route path="/categories" element={<CategoriesRoute />} />
+        <Route path="/settings/profile" element={<SettingsRoute />} />
         <Route path="/sign-in" element={<SignInRoute />} />
         <Route path="/sign-up" element={<SignUpRoute />} />
         <Route path="*" element={<NotFoundPage />} />

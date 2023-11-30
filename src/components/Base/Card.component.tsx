@@ -1,22 +1,29 @@
 import React from 'react';
-import { Box, Paper, Typography, type SxProps, type Theme, type PaperProps } from '@mui/material';
+import { Box, Paper, Typography, type PaperProps } from '@mui/material';
 import { ActionPaper } from './ActionPaper.component';
 
-export type TCardProps = React.PropsWithChildren<{
-  sx?: SxProps<Theme>;
-}>;
+export type TCardProps = React.PropsWithChildren<PaperProps>;
 
-export type TCardSectionProps = React.PropsWithChildren<{
-  sx?: SxProps<Theme>;
-}>;
+export type TCardSectionProps = React.PropsWithChildren<PaperProps>;
 
-const Card: React.FC<TCardProps> = ({ children, sx }) => {
-  return <Paper sx={{ p: 2, ...sx }}>{children}</Paper>;
+const Card: React.FC<TCardProps> = ({ children, sx, ...props }) => {
+  return (
+    <Paper {...props} sx={{ p: 2, ...sx }}>
+      {children}
+    </Paper>
+  );
 };
 
-const Header: React.FC<TCardSectionProps> = ({ children, sx }) => {
+const Header: React.FC<TCardSectionProps> = ({ children, sx, ...props }) => {
   return (
-    <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap" sx={sx}>
+    <Box
+      {...props}
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      flexWrap="wrap"
+      sx={sx}
+    >
       {children}
     </Box>
   );
@@ -50,12 +57,20 @@ const Subtitle: React.FC<TCardSectionProps> = ({ children, sx }) => {
   );
 };
 
-const Body: React.FC<TCardSectionProps> = ({ children, sx }) => {
-  return <Box sx={sx}>{children}</Box>;
+const Body: React.FC<TCardSectionProps> = ({ children, sx, ...props }) => {
+  return (
+    <Box {...props} sx={sx}>
+      {children}
+    </Box>
+  );
 };
 
-const Footer: React.FC<TCardSectionProps> = ({ children, sx }) => {
-  return <Box sx={sx}>{children}</Box>;
+const Footer: React.FC<TCardSectionProps> = ({ children, sx, ...props }) => {
+  return (
+    <Box {...props} sx={sx}>
+      {children}
+    </Box>
+  );
 };
 
 export default Object.assign(Card, {

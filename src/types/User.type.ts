@@ -8,3 +8,5 @@ export type TUser = {
   password: string;
   createdAt: TCreatedAt;
 };
+
+export type TUpdateUserPayload = Pick<TUser, 'uuid' | 'email' | 'name' | 'surname'>;
