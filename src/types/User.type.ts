@@ -1,7 +1,9 @@
 import type { TCreatedAt } from '.';
+import type { TRole } from './Role.type';
 
 export type TUser = {
   uuid: string;
+  role: TRole;
   email: string;
   name: string;
   surname: string;

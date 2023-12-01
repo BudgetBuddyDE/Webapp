@@ -41,6 +41,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setLoading(false);
   };
 
+  React.useEffect(() => console.log(session), [session]);
+
   React.useLayoutEffect(() => {
     retrieveCurrentSession();
   }, []);

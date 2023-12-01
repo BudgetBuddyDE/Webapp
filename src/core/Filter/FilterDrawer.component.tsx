@@ -97,8 +97,6 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = ({}) => {
     },
   };
 
-  React.useEffect(() => console.log(unappliedFilters), [unappliedFilters]);
-
   React.useEffect(() => {
     setUnappliedFilters(filters);
   }, [filters]);

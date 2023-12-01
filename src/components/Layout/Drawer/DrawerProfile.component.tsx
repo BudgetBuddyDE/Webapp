@@ -64,7 +64,7 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
             <Typography fontWeight="bold">
               {session.name} {session.surname}
             </Typography>
-            <Chip label="Basic" variant="outlined" size="small" />
+            <Chip label={session.role.name} variant="outlined" size="small" />
           </Box>
         </Box>
         <LogoutButton
