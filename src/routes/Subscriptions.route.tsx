@@ -94,6 +94,7 @@ export const Subscriptions = () => {
     },
     async onConfirmSubscriptionDelete() {
       try {
+        console.log(deleteSubscription);
         if (!deleteSubscription) return;
         const [deletedItem, error] = await SubscriptionService.delete(
           { subscriptionId: deleteSubscription.id },
@@ -342,7 +343,7 @@ export const Subscriptions = () => {
           setShowDeleteSubscriptionDialog(false);
           setDeleteSubscription(null);
         }}
-        onConfirm={() => handler.onConfirmSubscriptionDelete}
+        onConfirm={() => handler.onConfirmSubscriptionDelete()}
         withTransition
       />
 
