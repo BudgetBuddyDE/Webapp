@@ -78,16 +78,16 @@ export class TransactionService {
   }
 
   static async create(
-    transaction: TCreateTransactionPayload,
+    transaction: TCreateTransactionPayload[],
     user: IAuthContext['authOptions']
-  ): Promise<[TTransaction | null, Error | null]> {
+  ): Promise<[TTransaction[] | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
         method: 'POST',
         body: JSON.stringify(transaction),
         ...prepareRequestOptions(user),
       });
-      const json = (await response.json()) as TApiResponse<TTransaction>;
+      const json = (await response.json()) as TApiResponse<TTransaction[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
       return [json.data, null];
     } catch (error) {

@@ -111,13 +111,13 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
             : null) as TDescription,
         };
 
-        const [createdTransaction, error] = await TransactionService.create(payload, authOptions);
+        const [createdTransaction, error] = await TransactionService.create([payload], authOptions);
         if (error) {
           setDrawerState({ type: 'ERROR', error: error });
           return;
         }
-        if (!createdTransaction) {
-          setDrawerState({ type: 'ERROR', error: new Error("Couldn't create the payment-method") });
+        if (!createdTransaction || createdTransaction.length === 0) {
+          setDrawerState({ type: 'ERROR', error: new Error("Couldn't create the transaction") });
           return;
         }
 
