@@ -122,7 +122,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
         }
 
         setDrawerState({ type: 'SUCCESS' });
-        this.onClose();
+        handler.onClose();
         refreshTransactions(); // FIXME: Wrap inside startTransition
         showSnackbar({ message: `Saved the applied changes` });
       } catch (error) {
