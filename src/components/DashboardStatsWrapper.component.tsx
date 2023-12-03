@@ -7,11 +7,11 @@ import {
   RemoveRounded,
   ScheduleSendRounded,
 } from '@mui/icons-material';
-import { IBaseStore, TransactionService, useFetchTransactions } from '@/core/Transaction';
+import { IBaseStore, TransactionService, useTransactionStore } from '@/core/Transaction';
 import { TUser } from '@/types';
 import { create } from 'zustand';
 import { useAuthContext } from '@/core/Auth';
-import { useFetchSubscriptions } from '@/core/Subscription';
+import { useSubscriptionStore } from '@/core/Subscription';
 import { formatBalance } from '@/utils';
 
 export type TDashboardStats = {
@@ -59,8 +59,6 @@ export type TDashboardStatsWrapperProps = {};
 
 export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () => {
   const { session, authOptions } = useAuthContext();
-  const { loading: loadingTransactions, transactions } = useFetchTransactions();
-  const { loading: loadingSubscriptions, subscriptions } = useFetchSubscriptions();
   const { data: fetchedStats, setFetchedData, fetchedBy } = useDashboardStatsStore();
   const [loading, setLoading] = React.useState(false);
 
@@ -111,11 +109,19 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
   }, [authOptions]);
 
   React.useEffect(() => {
+    useTransactionStore.subscribe((curr, prev) => {
+      if (prev.data.length !== curr.data.length) fetchData();
+    });
+
+    useSubscriptionStore.subscribe((curr, prev) => {
+      if (prev.data.length !== curr.data.length) fetchData();
+    });
+  }, []);
+
+  React.useEffect(() => {
     if (!session || (fetchedBy === session.uuid && fetchedStats)) return;
-    if (loadingTransactions || loadingSubscriptions) return;
-    if (!transactions || !subscriptions) return;
     fetchData();
-  }, [session, transactions, subscriptions]);
+  }, [session]);
 
   return (
     <Grid container item xs={12} md={12} columns={10} spacing={3}>
