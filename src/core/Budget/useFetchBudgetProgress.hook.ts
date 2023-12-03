@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuthContext } from '../Auth';
 import { BudgetService } from './Budget.service';
 import { useBudgetProgressStore } from './BudgetProgress.store';
+import { useTransactionStore } from '../Transaction';
 
 export function useFetchBudgetProgress() {
   const { session, authOptions } = useAuthContext();
@@ -9,7 +10,7 @@ export function useFetchBudgetProgress() {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 
-  const fetchBudget = React.useCallback(async () => {
+  const fetchBudgetProgress = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -26,8 +27,16 @@ export function useFetchBudgetProgress() {
   }, []);
 
   React.useEffect(() => {
+    useTransactionStore.subscribe((state, prevState) => {
+      if (prevState.data.length !== state.data.length) {
+        fetchBudgetProgress();
+      }
+    });
+  }, []);
+
+  React.useEffect(() => {
     if (!session || (fetchedBy === session.uuid && data)) return;
-    fetchBudget();
+    fetchBudgetProgress();
     return () => {
       setLoading(false);
       setError(null);
@@ -40,7 +49,7 @@ export function useFetchBudgetProgress() {
     fetchedAt: fetchedAt,
     fetchedBy: fetchedBy,
     budgetProgress: data,
-    refresh: fetchBudget,
+    refresh: fetchBudgetProgress,
     error,
   };
 }
