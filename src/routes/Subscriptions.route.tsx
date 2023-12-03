@@ -33,7 +33,7 @@ import {
 } from '@/components/Base/Pagination';
 import { TSubscription, TTransaction, TUpdateSubscriptionPayload } from '@/types';
 import { Table } from '@/components/Base/Table';
-import { AppConfig } from '@/App.config';
+import { AppConfig } from '@/app.config';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { determineNextExecution, determineNextExecutionDate } from '@/utils';

@@ -11,7 +11,7 @@ export class AuthService {
   };
 
   static async signUp(
-    user: Omit<TUser, 'uuid' | 'createdAt'>
+    user: Omit<TUser, 'uuid' | 'role' | 'createdAt'>
   ): Promise<[TUser | null, Error | null]> {
     try {
       const response = await fetch(this.host + '/register', {

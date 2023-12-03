@@ -8,7 +8,7 @@ import {
   type TypographyProps,
 } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { AppConfig } from '@/App.config';
+import { AppConfig } from '@/app.config';
 
 export type TBrandProps = {
   boxStyle?: BoxProps['sx'];

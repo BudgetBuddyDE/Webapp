@@ -1,4 +1,4 @@
-import { AppConfig } from '@/App.config';
+import { AppConfig } from '@/app.config';
 import { Card, StyledLink } from '@/components/Base';
 import {
   AlternateEmailRounded,

@@ -5,7 +5,7 @@ import '@/style/global.css';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { AuthProvider } from '@/core/Auth';
 import { SnackbarProvider } from './core/Snackbar';
-import { AppConfig } from './App.config.ts';
+import { AppConfig } from './app.config.ts';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

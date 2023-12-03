@@ -33,7 +33,7 @@ import { SearchInput } from '@/components/Base/Search';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
 import { CircularProgress } from '@/components/Loading';
 import { Table } from '@/components/Base/Table';
-import { AppConfig } from '@/App.config';
+import { AppConfig } from '@/app.config';
 import { format } from 'date-fns';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import { ToggleFilterDrawerButton, useFilterStore } from '@/core/Filter';

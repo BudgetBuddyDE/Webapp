@@ -1,4 +1,4 @@
-import { AppConfig } from '@/App.config';
+import { AppConfig } from '@/app.config';
 import { ActionPaper, Card, Linkify, NoResults } from '@/components/Base';
 import {
   InitialPaginationState,
