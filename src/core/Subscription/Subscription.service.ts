@@ -132,14 +132,15 @@ export class SubscriptionService {
   }
 
   static sortByExecutionDate(subscriptions: TSubscription[]): TSubscription[] {
+    const today = new Date().getDate();
     return subscriptions.sort((a, b) => {
-      const today = new Date();
-      return (
-        // @ts-expect-error
-        Math.abs(today - determineNextExecutionDate(a.execute_at)) -
-        // @ts-expect-error
-        Math.abs(today - determineNextExecutionDate(b.execute_at))
-      );
+      if (a.executeAt <= today && b.executeAt > today) {
+        return 1; // Move already paid subscriptions to the end
+      } else if (a.executeAt > today && b.executeAt <= today) {
+        return -1; // Keep unpaid subscriptions at the beginning
+      } else {
+        return a.executeAt - b.executeAt; // Sort by executeAt for the rest
+      }
     });
   }
 }

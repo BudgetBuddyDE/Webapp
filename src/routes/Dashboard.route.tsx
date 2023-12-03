@@ -25,9 +25,7 @@ export const Dashboard = () => {
   }, [transactions]);
 
   const upcomingSubscriptions: TSubscription[] = useMemo(() => {
-    // FIXME: Write function to sort by next upcoming subscriptions
-    // FIXME: Don't show paused subscriptions
-    return subscriptions.slice(0, 6);
+    return subscriptions.filter(({ paused }) => !paused).slice(0, 6);
   }, [subscriptions]);
 
   return (
