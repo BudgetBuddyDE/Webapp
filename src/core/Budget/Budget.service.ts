@@ -6,11 +6,12 @@ import type {
   TDeleteBudgetPayload,
   TUpdateBudgetPayload,
 } from '@/types';
-import { prepareRequestOptions } from '@/utils';
+import { isRunningInProdEnv, prepareRequestOptions } from '@/utils';
 import { type IAuthContext } from '../Auth';
 
 export class BudgetService {
-  private static host = '/api/v1/budget';
+  private static host =
+    (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/budget';
 
   static async getBudgetsByUuid({
     uuid,

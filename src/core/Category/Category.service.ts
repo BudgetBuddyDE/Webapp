@@ -5,11 +5,12 @@ import type {
   TDeleteCategoryPayload,
   TUpdateCategoryPayload,
 } from '@/types';
-import { prepareRequestOptions } from '@/utils';
+import { isRunningInProdEnv, prepareRequestOptions } from '@/utils';
 import { IAuthContext } from '../Auth';
 
 export class CategoryService {
-  private static host = '/api/v1/category';
+  private static host =
+    (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/category';
 
   static async getCategoriesByUuid({
     uuid,

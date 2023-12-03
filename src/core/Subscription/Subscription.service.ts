@@ -6,11 +6,12 @@ import type {
   TSubscription,
   TUpdateSubscriptionPayload,
 } from '@/types';
-import { determineNextExecutionDate, prepareRequestOptions } from '@/utils';
+import { determineNextExecutionDate, isRunningInProdEnv, prepareRequestOptions } from '@/utils';
 import { IAuthContext } from '../Auth';
 
 export class SubscriptionService {
-  private static host = '/api/v1/subscription';
+  private static host =
+    (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/subscription';
 
   static async getSubscriptionsByUuid({
     uuid,

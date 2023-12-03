@@ -1,9 +1,10 @@
 import { IAuthContext } from '@/core/Auth';
 import type { TApiResponse, TUpdateUserPayload, TUser } from '@/types';
-import { prepareRequestOptions } from '@/utils';
+import { isRunningInProdEnv, prepareRequestOptions } from '@/utils';
 
 export class UserService {
-  private static host = '/api/v1/user';
+  private static host =
+    (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/user';
 
   static async update(
     user: TUpdateUserPayload,

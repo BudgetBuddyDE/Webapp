@@ -8,12 +8,13 @@ import type {
   TUpdateTransactionPayload,
 } from '@/types';
 import { format, isSameMonth } from 'date-fns';
-import { prepareRequestOptions } from '@/utils';
+import { isRunningInProdEnv, prepareRequestOptions } from '@/utils';
 import { type IAuthContext } from '../Auth';
 import { TDashboardStats } from '@/components/DashboardStatsWrapper.component';
 
 export class TransactionService {
-  private static host = '/api/v1/transaction';
+  private static host =
+    (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/transaction';
 
   static async getTransactionsByUuid({
     uuid,

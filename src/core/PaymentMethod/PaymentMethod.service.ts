@@ -6,11 +6,12 @@ import type {
   TUpdatePaymentMethodPayload,
   TUser,
 } from '@/types';
-import { prepareRequestOptions } from '@/utils';
+import { isRunningInProdEnv, prepareRequestOptions } from '@/utils';
 import { IAuthContext } from '../Auth';
 
 export class PaymentMethodService {
-  private static host = '/api/v1/payment-method';
+  private static host =
+    (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/payment-method';
 
   static async getPaymentMethodsByUuid(
     uuid: TUser['uuid'],

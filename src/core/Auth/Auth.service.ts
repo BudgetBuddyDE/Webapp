@@ -1,7 +1,9 @@
 import type { TApiResponse, TUser } from '@/types';
+import { isRunningInProdEnv } from '@/utils';
 
 export class AuthService {
-  private static host = '/api/v1/auth';
+  private static host =
+    (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/auth';
   private static options: Partial<RequestInit> = {
     method: 'POST',
     headers: {
