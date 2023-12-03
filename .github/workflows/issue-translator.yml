@@ -1,0 +1,30 @@
+name: 'translator'
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+  discussion:
+    types: [created]
+  discussion_comment:
+    types: [created]
+  pull_request_target:
+    types: [opened]
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  translate:
+    permissions:
+      issues: write
+      discussions: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: lizheming/github-translate-action@1.1.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+        with:
+          IS_MODIFY_TITLE: true
+          APPEND_TRANSLATION: true
