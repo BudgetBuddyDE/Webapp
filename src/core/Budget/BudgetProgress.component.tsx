@@ -1,4 +1,4 @@
-import { Card, NoResults } from '@/components/Base';
+import { Card, NoResults, type TCardProps } from '@/components/Base';
 import { Icon } from '@/components/Icon.component';
 import { type TBudgetProgress } from '@/types';
 import { formatBalance } from '@/utils';
@@ -49,11 +49,15 @@ export const BudgetProgress: React.FC<TBudgetProgressProps> = ({
 
 export type TBudgetProgressWrapperProps = {
   data: TBudgetProgress[];
+  cardProps?: TCardProps;
 };
 
-export const BudgetProgressWrapper: React.FC<TBudgetProgressWrapperProps> = ({ data }) => {
+export const BudgetProgressWrapper: React.FC<TBudgetProgressWrapperProps> = ({
+  data,
+  cardProps,
+}) => {
   return (
-    <Card>
+    <Card {...cardProps}>
       <Card.Header>
         <Box>
           <Card.Title>Progress</Card.Title>

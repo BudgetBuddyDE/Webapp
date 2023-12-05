@@ -3,7 +3,6 @@ import { ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Lay
 import { CircularProgress } from '@/components/Loading';
 import { useAuthContext } from '@/core/Auth';
 import { withAuthLayout } from '@/core/Auth/Layout';
-import { BudgetProgressWrapper, useFetchBudgetProgress } from '@/core/Budget';
 import { CategorySpendingsChart } from '@/core/Category';
 import { SubscriptionList } from '@/core/Subscription';
 import { useFetchSubscriptions } from '@/core/Subscription';
@@ -17,7 +16,6 @@ export const Dashboard = () => {
   const { session } = useAuthContext();
   const { transactions, loading: loadingTransactions } = useFetchTransactions();
   const { subscriptions, loading: loadingSubscriptions } = useFetchSubscriptions();
-  const { budgetProgress, loading: loadingBudgetProgress } = useFetchBudgetProgress();
   const [showTransactionDrawer, setShowTransactionDrawer] = useState(false);
 
   const latestTransactions: TTransaction[] = useMemo(() => {
@@ -52,14 +50,6 @@ export const Dashboard = () => {
             data={latestTransactions}
             onAddTransaction={() => setShowTransactionDrawer(true)}
           />
-        )}
-      </Grid>
-
-      <Grid item xs={12} md={6} lg={6} order={{ xs: 2, md: 3 }}>
-        {loadingBudgetProgress ? (
-          <CircularProgress />
-        ) : (
-          <BudgetProgressWrapper data={budgetProgress} />
         )}
       </Grid>
 

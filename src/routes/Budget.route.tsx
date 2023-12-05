@@ -1,10 +1,11 @@
 import { ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
 import { withAuthLayout } from '@/core/Auth/Layout';
-import { BudgetList } from '@/core/Budget';
+import { BudgetList, BudgetProgressWrapper, useFetchBudgetProgress } from '@/core/Budget';
 import { CategorySpendingsChart } from '@/core/Category';
 import { CategoryIncomeChart } from '@/core/Category/Chart/IncomeChart.component';
 import { Grid } from '@mui/material';
 import { DailyTransactionChart } from '@/core/Transaction';
+import { CircularProgress } from '@/components/Loading';
 
 export const DATE_RANGE_INPUT_FORMAT = 'dd.MM';
 export type TChartContentType = 'INCOME' | 'SPENDINGS';
@@ -14,6 +15,7 @@ export const ChartContentTypes = [
 ];
 
 export const Budgets = () => {
+  const { budgetProgress, loading: loadingBudgetProgress } = useFetchBudgetProgress();
   return (
     <ContentGrid title={'Budget'}>
       <Grid item xs={12} md={12} lg={5} xl={5}>
@@ -23,6 +25,12 @@ export const Budgets = () => {
       <Grid container item xs={12} md={12} lg={7} xl={7} spacing={3}>
         <Grid item xs={12} md={12} lg={12} xl={12}>
           <BudgetList />
+
+          {loadingBudgetProgress ? (
+            <CircularProgress />
+          ) : (
+            <BudgetProgressWrapper data={budgetProgress} cardProps={{ sx: { mt: 2 } }} />
+          )}
         </Grid>
 
         <Grid item xs={12} md={12} lg={6} xl={6}>
