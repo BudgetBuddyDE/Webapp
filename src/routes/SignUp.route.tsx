@@ -10,12 +10,15 @@ import { useSnackbarContext } from '@/core/Snackbar';
 import {
   Box,
   Button,
+  Checkbox,
   Divider,
   FormControl,
+  FormControlLabel,
   Grid,
   IconButton,
   InputAdornment,
   InputLabel,
+  Link,
   OutlinedInput,
   TextField,
 } from '@mui/material';
@@ -24,6 +27,7 @@ import { AppLogo } from '@/components/AppLogo.component';
 import { StackedIconButton } from '@/components/StackedIconButton.component';
 import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
 import { useNavigate } from 'react-router-dom';
+import { AppConfig } from '@/app.config';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -89,6 +93,7 @@ const SignUp = () => {
                   name="name"
                   onChange={formHandler.inputChange}
                   fullWidth
+                  required
                 />
               </Grid>
               <Grid item xs={12} md={6}>
@@ -99,6 +104,7 @@ const SignUp = () => {
                   name="surname"
                   onChange={formHandler.inputChange}
                   fullWidth
+                  required
                 />
               </Grid>
             </Grid>
@@ -110,9 +116,10 @@ const SignUp = () => {
               label="E-Mail"
               name="email"
               onChange={formHandler.inputChange}
+              required
             />
 
-            <FormControl variant="outlined" sx={{ mt: 3 }}>
+            <FormControl variant="outlined" required sx={{ mt: 3 }}>
               <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
               <OutlinedInput
                 type={showPassword ? 'text' : 'password'}
@@ -133,6 +140,20 @@ const SignUp = () => {
                 label="Password"
               />
             </FormControl>
+
+            <FormControlLabel
+              required
+              control={<Checkbox />}
+              label={
+                <React.Fragment>
+                  I accept the{' '}
+                  <Link href={AppConfig.website + '/tos'} target="_blank">
+                    Terms of Service
+                  </Link>
+                </React.Fragment>
+              }
+              sx={{ mt: 1 }}
+            />
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
             <Button type="submit" variant="contained" sx={{ mt: 3 }}>

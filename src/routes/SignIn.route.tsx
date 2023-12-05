@@ -94,9 +94,10 @@ const SignIn = () => {
               label="E-Mail"
               name="email"
               onChange={formHandler.inputChange}
+              required
             />
 
-            <FormControl variant="outlined" sx={{ mt: 3 }}>
+            <FormControl variant="outlined" required sx={{ mt: 3 }}>
               <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
               <OutlinedInput
                 type={showPassword ? 'text' : 'password'}
