@@ -18,6 +18,7 @@ import { UserAvatar } from '@/core/User';
 import { DrawerHamburger } from './Drawer/DrawerHamburger.component';
 import { AuthService, useAuthContext } from '@/core/Auth';
 import { useNavigate } from 'react-router-dom';
+import { AppConfig } from '@/app.config';
 
 export const AppBar = () => {
   const navigate = useNavigate();
@@ -25,15 +26,15 @@ export const AppBar = () => {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
   const MenuLinks = [
-    { label: 'Website', href: 'https://budget-buddy.de' },
-    { label: 'GitHub', href: 'https://github.com/BudgetBuddyDE' },
+    { label: 'Website', href: AppConfig.website },
+    { label: 'GitHub', href: AppConfig.repository },
   ];
 
   const ProfileMenu = [
     {
       icon: <SettingsIcon />,
       label: 'Settings',
-      onClick: () => navigate('/settings'),
+      onClick: () => navigate('/settings/profile'),
     },
     {
       icon: <LogoutIcon />,
