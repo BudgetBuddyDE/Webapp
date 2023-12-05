@@ -4,7 +4,7 @@ import { CircularProgress } from '@/components/Loading';
 import { useAuthContext } from '@/core/Auth';
 import { withAuthLayout } from '@/core/Auth/Layout';
 import { CategorySpendingsChart } from '@/core/Category';
-import { SubscriptionList } from '@/core/Subscription';
+import { CreateSubscriptionDrawer, SubscriptionList } from '@/core/Subscription';
 import { useFetchSubscriptions } from '@/core/Subscription';
 import { TransactionList, useFetchTransactions } from '@/core/Transaction';
 import { CreateTransactionDrawer } from '@/core/Transaction/CreateTransactionDrawer.component';
@@ -17,6 +17,7 @@ export const Dashboard = () => {
   const { transactions, loading: loadingTransactions } = useFetchTransactions();
   const { subscriptions, loading: loadingSubscriptions } = useFetchSubscriptions();
   const [showTransactionDrawer, setShowTransactionDrawer] = useState(false);
+  const [showSubscriptionDrawer, setShowSubscriptionDrawer] = useState(false);
 
   const latestTransactions: TTransaction[] = useMemo(() => {
     return transactions.slice(0, 6);
@@ -34,7 +35,10 @@ export const Dashboard = () => {
         {loadingSubscriptions ? (
           <CircularProgress />
         ) : (
-          <SubscriptionList data={upcomingSubscriptions} />
+          <SubscriptionList
+            data={upcomingSubscriptions}
+            onAddSubscription={() => setShowSubscriptionDrawer(true)}
+          />
         )}
       </Grid>
 
@@ -56,6 +60,11 @@ export const Dashboard = () => {
       <CreateTransactionDrawer
         open={showTransactionDrawer}
         onChangeOpen={(isOpen) => setShowTransactionDrawer(isOpen)}
+      />
+
+      <CreateSubscriptionDrawer
+        open={showSubscriptionDrawer}
+        onChangeOpen={(isOpen) => setShowSubscriptionDrawer(isOpen)}
       />
 
       <FabContainer>

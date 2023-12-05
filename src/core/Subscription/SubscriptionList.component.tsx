@@ -7,17 +7,14 @@ import { Card, ListWithIcon, NoResults } from '@/components/Base';
 
 export type TSubscriptionList = {
   data: TSubscription[];
+  onAddSubscription?: () => void;
 };
 
-export const SubscriptionList: React.FC<TSubscriptionList> = ({ data }) => {
+export const SubscriptionList: React.FC<TSubscriptionList> = ({ data, onAddSubscription }) => {
   const chipProps: ChipProps = {
     variant: 'outlined',
     size: 'small',
     sx: { mr: 1 },
-  };
-
-  const handleAddClick = () => {
-    console.log('test');
   };
 
   return (
@@ -27,11 +24,13 @@ export const SubscriptionList: React.FC<TSubscriptionList> = ({ data }) => {
           <Card.Title>Subscriptions</Card.Title>
           <Card.Subtitle>Your upcoming payments</Card.Subtitle>
         </Box>
-        <Card.HeaderActions>
-          <IconButton color="primary" onClick={handleAddClick}>
-            <AddIcon />
-          </IconButton>
-        </Card.HeaderActions>
+        {onAddSubscription && (
+          <Card.HeaderActions>
+            <IconButton color="primary" onClick={onAddSubscription}>
+              <AddIcon />
+            </IconButton>
+          </Card.HeaderActions>
+        )}
       </Card.Header>
       <Card.Body>
         {data.length > 0 ? (
