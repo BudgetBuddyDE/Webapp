@@ -54,7 +54,7 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
     generateInitialFormDrawerState()
   );
   const [form, setForm] = React.useState<Record<string, string | number | Date>>({
-    date: new Date(),
+    executeAt: new Date(),
   });
 
   const handler: ICreateSubscriptionDrawerHandler = {
@@ -82,11 +82,11 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
       setDrawerState({ type: 'SUBMIT' });
       const values = Object.keys(form);
       const missingValues = [
-        'processedAt',
+        'executeAt',
         'category',
         'paymentMethod',
         'receiver',
-        'amount',
+        'transferAmount',
       ].filter((value) => !values.includes(value));
       try {
         if (missingValues.length > 0) {
