@@ -1,31 +1,24 @@
-import { type TableCellProps, type Theme } from '@mui/material';
-import BlueTheme from '@/style/theme/theme';
+import type { TableCellProps } from '@mui/material';
 import { version } from '../package.json';
 
-export type TAppConfig = {
-  appName: string;
-  version: typeof version;
-  website: string;
-  repository: string;
-  theme: Theme;
-  auth: {
-    cookieName: string;
-  };
-  table: {
-    cellSize: TableCellProps['size'];
-  };
-};
-
-export const AppConfig: TAppConfig = {
-  appName: 'Budget-Buddy',
-  version: version,
+export const AppConfig: AppConfig = {
+  appName: 'BudgetBuddy',
+  appVersion: version,
   website: 'https://budget-buddy.de',
-  repository: 'https://github.com/BudgetBuddyDE/webapp',
-  theme: BlueTheme,
-  auth: {
-    cookieName: 'budget-buddy.auth',
-  },
+  repository: 'https://github.com/BudgetBuddyDE/Webapp',
   table: {
     cellSize: 'medium',
   },
+  signInDialogAfterAttempts: 3,
+};
+
+export type AppConfig = {
+  appName: string;
+  appVersion: string;
+  website: string;
+  repository: string;
+  table: {
+    cellSize: TableCellProps['size'];
+  };
+  signInDialogAfterAttempts: number;
 };
