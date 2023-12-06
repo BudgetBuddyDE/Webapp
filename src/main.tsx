@@ -1,24 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import '@/style/global_override.css';
-import { CssBaseline, ThemeProvider } from '@mui/material';
 import App from './App.tsx';
-import { AuthProvider } from './context/Auth.context.tsx';
-import { SnackbarProvider } from './context/Snackbar.context.tsx';
-import { StoreProvider } from './context/Store.context.tsx';
-import { DefaultTheme } from './style/theme/default.theme.ts';
+import '@/style/global.css';
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import { AuthProvider } from '@/core/Auth';
+import { SnackbarProvider } from './core/Snackbar';
+import { AppConfig } from './app.config.ts';
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ThemeProvider theme={DefaultTheme}>
+    <ThemeProvider theme={AppConfig.theme}>
       <AuthProvider>
-        <CssBaseline />
-        <StoreProvider>
-          <SnackbarProvider>
-            <App />
-          </SnackbarProvider>
-        </StoreProvider>
+        <SnackbarProvider>
+          <App />
+        </SnackbarProvider>
       </AuthProvider>
+      <CssBaseline />
     </ThemeProvider>
   </React.StrictMode>
 );
