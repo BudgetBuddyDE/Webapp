@@ -11,7 +11,6 @@ export function useFetchPaymentMethods() {
 
   // TODO: Think about bedouncing the fetching (don't miss state-updates during debounce)
   const fetchCategories = React.useCallback(async () => {
-    setLoading(true);
     setError(null);
     try {
       if (!session) return;
@@ -31,7 +30,8 @@ export function useFetchPaymentMethods() {
 
   React.useEffect(() => {
     if (!session || (fetchedBy === session.uuid && data)) return;
-    fetchCategories();
+    setLoading(true);
+    fetchCategories().finally(() => setLoading(false));
     return () => {
       setLoading(false);
       setError(null);

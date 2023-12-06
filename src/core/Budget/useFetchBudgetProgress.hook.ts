@@ -11,7 +11,6 @@ export function useFetchBudgetProgress() {
   const [error, setError] = React.useState<Error | null>(null);
 
   const fetchBudgetProgress = React.useCallback(async () => {
-    setLoading(true);
     setError(null);
     try {
       if (!session) return;
@@ -21,8 +20,6 @@ export function useFetchBudgetProgress() {
       setFetchedData(fetchedBudget, session.uuid);
     } catch (error) {
       setError(error instanceof Error ? error : null);
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -36,7 +33,8 @@ export function useFetchBudgetProgress() {
 
   React.useEffect(() => {
     if (!session || (fetchedBy === session.uuid && data)) return;
-    fetchBudgetProgress();
+    setLoading(true);
+    fetchBudgetProgress().finally(() => setLoading(false));
     return () => {
       setLoading(false);
       setError(null);

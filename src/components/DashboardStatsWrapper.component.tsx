@@ -94,7 +94,6 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
 
   const fetchData = React.useCallback(async () => {
     if (!session) return;
-    setLoading(true);
     try {
       const [stats, error] = await TransactionService.getDashboardStats(authOptions);
       if (error) throw error;
@@ -103,8 +102,6 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
       setFetchedData(stats, session.uuid);
     } catch (error) {
       console.error(error);
-    } finally {
-      setLoading(false);
     }
   }, [authOptions]);
 
@@ -120,7 +117,11 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
 
   React.useEffect(() => {
     if (!session || (fetchedBy === session.uuid && fetchedStats)) return;
-    fetchData();
+    setLoading(true);
+    fetchData().finally(() => setLoading(false));
+    return () => {
+      setLoading(false);
+    };
   }, [session]);
 
   return (

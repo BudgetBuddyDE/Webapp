@@ -10,7 +10,6 @@ export function useFetchTransactions() {
   const [error, setError] = React.useState<Error | null>(null);
 
   const fetchTransactions = React.useCallback(async () => {
-    setLoading(true);
     setError(null);
     try {
       if (!session) return;
@@ -22,14 +21,13 @@ export function useFetchTransactions() {
       setFetchedData(fetchedTransactions, session.uuid);
     } catch (error) {
       setError(error instanceof Error ? error : null);
-    } finally {
-      setLoading(false);
     }
   }, []);
 
   React.useEffect(() => {
     if (!session || (fetchedBy === session.uuid && data)) return;
-    fetchTransactions();
+    setLoading(true);
+    fetchTransactions().finally(() => setLoading(false));
     return () => {
       setLoading(false);
       setError(null);

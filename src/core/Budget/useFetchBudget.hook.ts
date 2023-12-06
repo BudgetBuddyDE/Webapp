@@ -10,7 +10,6 @@ export function useFetchBudget() {
   const [error, setError] = React.useState<Error | null>(null);
 
   const fetchBudget = React.useCallback(async () => {
-    setLoading(true);
     setError(null);
     try {
       if (!session) return;
@@ -20,14 +19,13 @@ export function useFetchBudget() {
       setFetchedData(fetchedBudget, session.uuid);
     } catch (error) {
       setError(error instanceof Error ? error : null);
-    } finally {
-      setLoading(false);
     }
   }, []);
 
   React.useEffect(() => {
     if (!session || (fetchedBy === session.uuid && data)) return;
-    fetchBudget();
+    setLoading(true);
+    fetchBudget().finally(() => setLoading(false));
     return () => {
       setLoading(false);
       setError(null);

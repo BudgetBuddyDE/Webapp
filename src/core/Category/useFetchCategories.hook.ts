@@ -10,7 +10,6 @@ export function useFetchCategories() {
   const [error, setError] = React.useState<Error | null>(null);
 
   const fetchCategories = React.useCallback(async () => {
-    setLoading(true);
     setError(null);
     try {
       if (!session) return;
@@ -20,14 +19,13 @@ export function useFetchCategories() {
       setFetchedData(fetchedCategories, session.uuid);
     } catch (error) {
       setError(error instanceof Error ? error : null);
-    } finally {
-      setLoading(false);
     }
   }, []);
 
   React.useEffect(() => {
     if (!session || (fetchedBy === session.uuid && data)) return;
-    fetchCategories();
+    setLoading(true);
+    fetchCategories().finally(() => setLoading(false));
     return () => {
       setLoading(false);
       setError(null);

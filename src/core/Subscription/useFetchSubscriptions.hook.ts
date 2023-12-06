@@ -10,7 +10,6 @@ export function useFetchSubscriptions() {
   const [error, setError] = React.useState<Error | null>(null);
 
   const fetchSubscriptions = React.useCallback(async () => {
-    setLoading(true);
     setError(null);
     try {
       if (!session) return;
@@ -22,14 +21,13 @@ export function useFetchSubscriptions() {
       setFetchedData(fetchedSubscriptions, session.uuid);
     } catch (error) {
       setError(error instanceof Error ? error : null);
-    } finally {
-      setLoading(false);
     }
   }, []);
 
   React.useEffect(() => {
     if (!session || (fetchedBy === session.uuid && data)) return;
-    fetchSubscriptions();
+    setLoading(true);
+    fetchSubscriptions().finally(() => setLoading(false));
     return () => {
       setLoading(false);
       setError(null);
