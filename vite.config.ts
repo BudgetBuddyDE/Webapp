@@ -1,10 +1,10 @@
 import { defineConfig, type CommonServerOptions } from 'vite';
 import path from 'path';
 import react from '@vitejs/plugin-react-swc';
-import dns from 'dns';
+// import dns from 'dns';
 
 // Due to https://stackoverflow.com/a/75191787
-dns.setDefaultResultOrder('verbatim');
+// dns.setDefaultResultOrder('verbatim');
 
 const production = process.env.NODE_ENV === 'production';
 
