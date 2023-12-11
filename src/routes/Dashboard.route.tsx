@@ -10,7 +10,7 @@ import { TransactionList, useFetchTransactions } from '@/core/Transaction';
 import { CreateTransactionDrawer } from '@/core/Transaction/CreateTransactionDrawer.component';
 import { TSubscription, TTransaction } from '@/types';
 import { Grid } from '@mui/material';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 export const Dashboard = () => {
   const { session } = useAuthContext();
@@ -26,6 +26,20 @@ export const Dashboard = () => {
   const upcomingSubscriptions: TSubscription[] = useMemo(() => {
     return subscriptions.filter(({ paused }) => !paused).slice(0, 6);
   }, [subscriptions]);
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const response = await fetch('https://test.backend.budget-buddy.de/test');
+        const json = await response.json();
+        console.log(json);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    getData();
+  }, []);
 
   return (
     <ContentGrid title={`Welcome, ${session?.name}!`}>
