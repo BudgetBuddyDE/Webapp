@@ -30,7 +30,11 @@ export const Dashboard = () => {
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await fetch('https://test.backend.budget-buddy.de/test');
+        const response = await fetch('https://test.backend.budget-buddy.de/test', {
+          headers: {
+            Authorization: 'Bearer DEMO_TOKEN',
+          },
+        });
         const json = await response.json();
         console.log(json);
       } catch (err) {
