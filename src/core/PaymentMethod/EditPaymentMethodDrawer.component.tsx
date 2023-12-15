@@ -44,6 +44,7 @@ export const EditPaymentMethodDrawer: React.FC<TEditPaymentMethodProps> = ({
       try {
         if (!form.name) throw new Error('No name provided');
         if (!form.address) throw new Error('No address provided');
+        if (!form.provider) throw new Error('No provider provided');
         const payload: TUpdatePaymentMethodPayload = {
           id: paymentMethod?.id,
           name: form.name as string,
@@ -84,6 +85,7 @@ export const EditPaymentMethodDrawer: React.FC<TEditPaymentMethodProps> = ({
         ? {
             name: paymentMethod.name,
             address: paymentMethod.address,
+            provider: paymentMethod.provider,
             description: paymentMethod.description ?? '',
           }
         : {}
@@ -103,25 +105,22 @@ export const EditPaymentMethodDrawer: React.FC<TEditPaymentMethodProps> = ({
       }}
       closeOnBackdropClick
     >
-      <TextField
-        id="payment-method-name"
-        variant="outlined"
-        label="Name"
-        name="name"
-        sx={FormStyle}
-        onChange={handler.onInputChange}
-        value={form.name}
-      />
-
-      <TextField
-        id="payment-method-address"
-        variant="outlined"
-        label="Address"
-        name="address"
-        sx={FormStyle}
-        onChange={handler.onInputChange}
-        value={form.name}
-      />
+      {(['name', 'address', 'provider'] as Partial<keyof TUpdatePaymentMethodPayload>[]).map(
+        (name) => {
+          return (
+            <TextField
+              key={'payment-method-' + name}
+              id={'payment-method-' + name}
+              variant="outlined"
+              label={name.charAt(0).toUpperCase() + name.slice(1)}
+              name={name}
+              sx={FormStyle}
+              onChange={handler.onInputChange}
+              value={form[name]}
+            />
+          );
+        }
+      )}
 
       <TextField
         id="payment-method-description"
