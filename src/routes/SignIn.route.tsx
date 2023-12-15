@@ -86,39 +86,43 @@ const SignIn = () => {
         </Box>
 
         <form onSubmit={formHandler.formSubmit}>
-          <Box style={{ display: 'flex', flexDirection: 'column' }}>
-            <TextField
-              sx={{ mt: 3 }}
-              variant="outlined"
-              type="email"
-              label="E-Mail"
-              name="email"
-              onChange={formHandler.inputChange}
-              required
-            />
-
-            <FormControl variant="outlined" required sx={{ mt: 3 }}>
-              <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-              <OutlinedInput
-                type={showPassword ? 'text' : 'password'}
-                name="password"
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={12} md={12}>
+              <TextField
+                variant="outlined"
+                type="email"
+                label="E-Mail"
+                name="email"
                 onChange={formHandler.inputChange}
-                label="Password"
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      sx={{ mr: 0 }}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                    </IconButton>
-                  </InputAdornment>
-                }
+                fullWidth
+                required
               />
-            </FormControl>
-          </Box>
+            </Grid>
+
+            <Grid item xs={12} md={12}>
+              <FormControl variant="outlined" fullWidth required>
+                <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+                <OutlinedInput
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  onChange={formHandler.inputChange}
+                  label="Password"
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        sx={{ mr: 0 }}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+              </FormControl>
+            </Grid>
+          </Grid>
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
             <Button type="submit" variant="contained" sx={{ mt: 3 }}>
               Sign in

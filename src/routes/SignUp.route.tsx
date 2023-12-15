@@ -83,78 +83,80 @@ const SignUp = () => {
         </Box>
 
         <form onSubmit={formHandler.formSubmit}>
-          <Box style={{ display: 'flex', flexDirection: 'column' }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  sx={{ mt: 3 }}
-                  variant="outlined"
-                  label="Name"
-                  name="name"
-                  onChange={formHandler.inputChange}
-                  fullWidth
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  sx={{ mt: 3 }}
-                  variant="outlined"
-                  label="Surname"
-                  name="surname"
-                  onChange={formHandler.inputChange}
-                  fullWidth
-                  required
-                />
-              </Grid>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                variant="outlined"
+                label="Name"
+                name="name"
+                onChange={formHandler.inputChange}
+                fullWidth
+                required
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                variant="outlined"
+                label="Surname"
+                name="surname"
+                onChange={formHandler.inputChange}
+                fullWidth
+                required
+              />
             </Grid>
 
-            <TextField
-              sx={{ mt: 3 }}
-              variant="outlined"
-              type="email"
-              label="E-Mail"
-              name="email"
-              onChange={formHandler.inputChange}
-              required
-            />
-
-            <FormControl variant="outlined" required sx={{ mt: 3 }}>
-              <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-              <OutlinedInput
-                type={showPassword ? 'text' : 'password'}
-                name="password"
+            <Grid item xs={12} md={12}>
+              <TextField
+                variant="outlined"
+                type="email"
+                label="E-Mail"
+                name="email"
                 onChange={formHandler.inputChange}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      sx={{ mr: 0 }}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                    </IconButton>
-                  </InputAdornment>
-                }
-                label="Password"
+                fullWidth
+                required
               />
-            </FormControl>
+            </Grid>
 
-            <FormControlLabel
-              required
-              control={<Checkbox />}
-              label={
-                <React.Fragment>
-                  I accept the{' '}
-                  <Link href={AppConfig.website + '/tos'} target="_blank">
-                    Terms of Service
-                  </Link>
-                </React.Fragment>
-              }
-              sx={{ mt: 1 }}
-            />
-          </Box>
+            <Grid item xs={12} md={12}>
+              <FormControl variant="outlined" fullWidth required>
+                <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+                <OutlinedInput
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  onChange={formHandler.inputChange}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        sx={{ mr: 0 }}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  label="Password"
+                />
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} md={12}>
+              <FormControlLabel
+                required
+                control={<Checkbox />}
+                label={
+                  <React.Fragment>
+                    I accept the{' '}
+                    <Link href={AppConfig.website + '/tos'} target="_blank">
+                      Terms of Service
+                    </Link>
+                  </React.Fragment>
+                }
+                sx={{ mt: 1 }}
+              />
+            </Grid>
+          </Grid>
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
             <Button type="submit" variant="contained" sx={{ mt: 3 }}>
               Sign up
