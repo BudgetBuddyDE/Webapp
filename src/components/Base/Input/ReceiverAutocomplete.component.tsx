@@ -6,7 +6,6 @@ import {
   TextField,
   type Theme,
   createFilterOptions,
-  type AutocompleteProps,
 } from '@mui/material';
 import { StyledAutocompleteOption } from './StyledAutocompleteOption.component';
 
