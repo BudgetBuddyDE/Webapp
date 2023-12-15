@@ -15,6 +15,7 @@ import { CircularProgress } from '@/components/Loading';
 import { useAuthContext } from '@/core/Auth';
 import { withAuthLayout } from '@/core/Auth/Layout';
 import {
+  CategoryChip,
   CategoryService,
   CategorySpendingsChart,
   CreateCategoryDrawer,
@@ -161,7 +162,7 @@ export const Categories = () => {
                         }}
                       >
                         <TableCell size={AppConfig.table.cellSize}>
-                          <Typography>{category.name}</Typography>
+                          <CategoryChip category={category} />
                         </TableCell>
                         <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                           <Linkify>{category.description ?? 'No Description'}</Linkify>

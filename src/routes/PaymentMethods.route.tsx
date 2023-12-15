@@ -13,6 +13,7 @@ import { withAuthLayout } from '@/core/Auth/Layout';
 import {
   CreatePaymentMethodDrawer,
   EditPaymentMethodDrawer,
+  PaymentMethodChip,
   PaymentMethodService,
   useFetchPaymentMethods,
 } from '@/core/PaymentMethod';
@@ -159,7 +160,7 @@ export const PaymentMethods = () => {
                         }}
                       >
                         <TableCell size={AppConfig.table.cellSize}>
-                          <Typography>{paymentMethod.name}</Typography>
+                          <PaymentMethodChip paymentMethod={paymentMethod} />
                         </TableCell>
                         <TableCell size={AppConfig.table.cellSize}>
                           {/* TODO: Format when is IBAN */}
