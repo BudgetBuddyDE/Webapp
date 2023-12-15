@@ -13,6 +13,7 @@ import { withAuthLayout } from '@/core/Auth/Layout';
 import {
   CreatePaymentMethodDrawer,
   EditPaymentMethodDrawer,
+  PaymentMethodChip,
   PaymentMethodService,
   useFetchPaymentMethods,
 } from '@/core/PaymentMethod';
@@ -142,7 +143,7 @@ export const PaymentMethods = () => {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      {['Name', 'Address', 'Description', ''].map((cell, index) => (
+                      {['Name', 'Address', 'Provider', 'Description', ''].map((cell, index) => (
                         <TableCell key={index} size={AppConfig.table.cellSize}>
                           <Typography fontWeight="bolder">{cell}</Typography>
                         </TableCell>
@@ -159,11 +160,14 @@ export const PaymentMethods = () => {
                         }}
                       >
                         <TableCell size={AppConfig.table.cellSize}>
-                          <Typography>{paymentMethod.name}</Typography>
+                          <PaymentMethodChip paymentMethod={paymentMethod} />
                         </TableCell>
                         <TableCell size={AppConfig.table.cellSize}>
                           {/* TODO: Format when is IBAN */}
                           <Typography>{paymentMethod.address}</Typography>
+                        </TableCell>
+                        <TableCell size={AppConfig.table.cellSize}>
+                          <Typography>{paymentMethod.provider}</Typography>
                         </TableCell>
                         <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                           <Linkify>{paymentMethod.description ?? 'No Description'}</Linkify>

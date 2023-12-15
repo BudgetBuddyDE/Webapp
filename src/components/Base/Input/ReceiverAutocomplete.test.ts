@@ -1,16 +1,16 @@
 import {
-  type AutocompleteOption,
+  type TAutocompleteOption,
   applyReceiverOptionsFilter,
 } from './ReceiverAutocomplete.component';
 
 describe('Validate if correct items are returned by filter', () => {
   const filterOptionsState = (keyword: string) => ({
     inputValue: keyword,
-    getOptionLabel(option: AutocompleteOption) {
+    getOptionLabel(option: TAutocompleteOption) {
       return option.label;
     },
   });
-  const options: AutocompleteOption[] = [
+  const options: TAutocompleteOption[] = [
     { label: 'Landlord', value: 'Landlord' },
     { label: 'McDonalds', value: 'McDonalds' },
     { label: 'State Office', value: 'State Office' },

@@ -143,7 +143,7 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
             inputFormat="dd.MM.yy"
             value={form.executeAt}
             onChange={handler.onDateChange}
-            renderInput={(params) => <TextField sx={FormStyle} {...params} />}
+            renderInput={(params) => <TextField sx={FormStyle} {...params} required />}
           />
         ) : (
           <DesktopDatePicker
@@ -151,7 +151,7 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
             inputFormat="dd.MM.yy"
             value={form.executeAt}
             onChange={handler.onDateChange}
-            renderInput={(params) => <TextField sx={FormStyle} {...params} />}
+            renderInput={(params) => <TextField sx={FormStyle} {...params} required />}
           />
         )}
       </LocalizationProvider>
@@ -169,6 +169,7 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
             handler.onAutocompleteChange(event, 'category', Number(value?.value))
           }
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+          required
         />
 
         <PaymentMethodAutocomplete
@@ -176,6 +177,7 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
             handler.onAutocompleteChange(event, 'paymentMethod', Number(value?.value))
           }
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+          required
         />
       </Box>
 
@@ -188,9 +190,10 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
           value: receiver,
         }))}
         onValueChange={(value) => handler.onReceiverChange(String(value))}
+        required
       />
 
-      <FormControl fullWidth sx={{ mb: 2 }}>
+      <FormControl fullWidth required sx={{ mb: 2 }}>
         <InputLabel htmlFor="amount">Amount</InputLabel>
         <OutlinedInput
           id="transferAmount"

@@ -99,9 +99,10 @@ export const CreateBudgetDrawer: React.FC<TCreateBudgetDrawerProps> = ({ open, o
           handler.onAutocompleteChange(event, 'category', Number(value?.value))
         }
         sx={{ mb: 2 }}
+        required
       />
 
-      <FormControl fullWidth sx={{ mb: 2 }}>
+      <FormControl fullWidth required sx={{ mb: 2 }}>
         <InputLabel htmlFor="amount">Amount</InputLabel>
         <OutlinedInput
           id="amount"

@@ -98,6 +98,7 @@ export const EditCategoryDrawer: React.FC<TEditCategoryDrawerProps> = ({
         sx={FormStyle}
         onChange={handler.onInputChange}
         value={form.name}
+        required
       />
 
       <TextField

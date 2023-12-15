@@ -29,6 +29,7 @@ export type PaymentMethodAutocompleteProps = {
     value: TPaymentMethodInputOption | null
   ) => void;
   sx?: SxProps<Theme>;
+  required?: boolean;
 };
 
 const filter = createFilterOptions<TPaymentMethodInputOption>();
@@ -55,6 +56,7 @@ export const PaymentMethodAutocomplete: React.FC<PaymentMethodAutocompleteProps>
   defaultValue = undefined,
   onChange,
   sx,
+  required = false,
 }) => {
   const id = React.useId();
   const navigate = useNavigate();
@@ -107,6 +109,7 @@ export const PaymentMethodAutocomplete: React.FC<PaymentMethodAutocompleteProps>
               </React.Fragment>
             ),
           }}
+          required={required}
         />
       )}
       disabled={loadingPaymentMethods}

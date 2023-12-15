@@ -28,6 +28,7 @@ export type TCategoryAutocompleteProps = {
     value: TCategoryInputOption | null
   ) => void;
   sx?: SxProps<Theme>;
+  required?: boolean;
 };
 
 const filter = createFilterOptions<TCategoryInputOption>();
@@ -53,6 +54,7 @@ export const CategoryAutocomplete: React.FC<TCategoryAutocompleteProps> = ({
   defaultValue = undefined,
   onChange,
   sx,
+  required = false,
 }) => {
   const id = React.useId();
   const navigate = useNavigate();
@@ -100,6 +102,7 @@ export const CategoryAutocomplete: React.FC<TCategoryAutocompleteProps> = ({
               </React.Fragment>
             ),
           }}
+          required={required}
         />
       )}
       disabled={loadingCategories}

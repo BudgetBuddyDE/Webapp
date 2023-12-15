@@ -84,6 +84,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                 label="UUID"
                 defaultValue={session.uuid}
                 sx={{ mt: 2 }}
+                required
               />
             </Grid>
             <Grid item xs={6} md={6}>
@@ -97,6 +98,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                 sx={{ mt: 2 }}
                 fullWidth
                 disabled={!enableInputs}
+                required
               />
             </Grid>
             <Grid item xs={6} md={6}>
@@ -110,6 +112,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                 sx={{ mt: 2 }}
                 fullWidth
                 disabled={!enableInputs}
+                required
               />
             </Grid>
             <Grid item xs={12} md={12}>
@@ -122,6 +125,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                 defaultValue={session.email}
                 sx={{ mt: 2 }}
                 disabled={!enableInputs}
+                required
               />
             </Grid>
           </Grid>
