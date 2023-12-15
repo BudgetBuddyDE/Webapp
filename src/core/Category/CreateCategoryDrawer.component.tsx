@@ -85,6 +85,7 @@ export const CreateCategoryDrawer: React.FC<TCreateCategoryDrawerProps> = ({
         sx={FormStyle}
         onChange={handler.onInputChange}
         value={form.name}
+        required
       />
 
       <TextField

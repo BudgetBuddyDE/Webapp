@@ -114,9 +114,10 @@ export const EditBudgetDrawer: React.FC<TEditBudgetDrawerProps> = ({
         }
         defaultValue={budget ? getCategoryFromList(budget.category.id, categories) : undefined}
         sx={{ mb: 2 }}
+        required
       />
 
-      <FormControl fullWidth sx={{ mb: 2 }}>
+      <FormControl fullWidth required sx={{ mb: 2 }}>
         <InputLabel htmlFor="amount">Amount</InputLabel>
         <OutlinedInput
           id="amount"

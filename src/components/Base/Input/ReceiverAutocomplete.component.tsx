@@ -6,10 +6,11 @@ import {
   TextField,
   type Theme,
   createFilterOptions,
+  type AutocompleteProps,
 } from '@mui/material';
 import { StyledAutocompleteOption } from './StyledAutocompleteOption.component';
 
-export type AutocompleteOption = {
+export type TAutocompleteOption = {
   label: string;
   value: string;
 };
@@ -18,17 +19,18 @@ export type TReceiverAutocompleteProps = {
   sx?: SxProps<Theme>;
   id?: string;
   label: string;
-  options: AutocompleteOption[];
+  options: TAutocompleteOption[];
   defaultValue?: string;
   onValueChange: (value: string | number) => void;
+  required?: boolean;
 };
 
-const filter = createFilterOptions<AutocompleteOption>();
+const filter = createFilterOptions<TAutocompleteOption>();
 
 export function applyReceiverOptionsFilter(
-  options: AutocompleteOption[],
-  state: FilterOptionsState<AutocompleteOption>
-): AutocompleteOption[] {
+  options: TAutocompleteOption[],
+  state: FilterOptionsState<TAutocompleteOption>
+): TAutocompleteOption[] {
   if (state.inputValue.length < 1) return options;
   const filtered = filter(options, state);
   const matches = filtered.filter((option) =>
@@ -53,8 +55,9 @@ export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
   options,
   defaultValue = null,
   onValueChange,
+  required = false,
 }) => {
-  const [value, setValue] = React.useState<AutocompleteOption | null>(
+  const [value, setValue] = React.useState<TAutocompleteOption | null>(
     defaultValue ? { label: defaultValue, value: defaultValue } : null
   );
 
@@ -99,7 +102,7 @@ export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
           {option.label}
         </StyledAutocompleteOption>
       )}
-      renderInput={(params) => <TextField {...params} label={label} />}
+      renderInput={(params) => <TextField {...params} label={label} required={required} />}
       isOptionEqualToValue={(option, value) => {
         return option.value == value.value && option.label == value.label;
       }}

@@ -162,7 +162,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
             inputFormat="dd.MM.yy"
             value={form.processedAt}
             onChange={handler.onDateChange}
-            renderInput={(params) => <TextField sx={FormStyle} {...params} />}
+            renderInput={(params) => <TextField sx={FormStyle} {...params} required />}
           />
         ) : (
           <DesktopDatePicker
@@ -170,7 +170,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
             inputFormat="dd.MM.yy"
             value={form.processedAt}
             onChange={handler.onDateChange}
-            renderInput={(params) => <TextField sx={FormStyle} {...params} />}
+            renderInput={(params) => <TextField sx={FormStyle} {...params} required />}
           />
         )}
       </LocalizationProvider>
@@ -191,6 +191,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
             transaction ? getCategoryFromList(transaction.category.id, categories) : undefined
           }
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+          required
         />
 
         <PaymentMethodAutocomplete
@@ -203,6 +204,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
               : undefined
           }
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+          required
         />
       </Box>
 
@@ -216,9 +218,10 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
         }))}
         defaultValue={transaction?.receiver}
         onValueChange={(value) => handler.onReceiverChange(String(value))}
+        required
       />
 
-      <FormControl fullWidth sx={{ mb: 2 }}>
+      <FormControl fullWidth required sx={{ mb: 2 }}>
         <InputLabel htmlFor="amount">Amount</InputLabel>
         <OutlinedInput
           id="transferAmount"

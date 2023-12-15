@@ -117,6 +117,7 @@ export const EditPaymentMethodDrawer: React.FC<TEditPaymentMethodProps> = ({
               sx={FormStyle}
               onChange={handler.onInputChange}
               value={form[name]}
+              required
             />
           );
         }

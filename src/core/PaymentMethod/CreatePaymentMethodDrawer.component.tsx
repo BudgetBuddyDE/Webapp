@@ -93,6 +93,7 @@ export const CreatePaymentMethodDrawer: React.FC<TCreatePaymentMethodProps> = ({
               sx={FormStyle}
               onChange={handler.onInputChange}
               value={form[name]}
+              required
             />
           );
         }
