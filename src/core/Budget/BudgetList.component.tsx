@@ -5,11 +5,10 @@ import React from 'react';
 import { useFetchBudget } from './useFetchBudget.hook';
 import { CircularProgress } from '@/components/Loading';
 import { CategoryBudget, TCategoryBudgetProps } from './CategoryBudget.component';
-import { BudgetService, EditBudgetDrawer, useFetchBudgetProgress } from '.';
+import { BudgetService, CreateBudgetDrawer, EditBudgetDrawer, useFetchBudgetProgress } from '.';
 import { useSnackbarContext } from '../Snackbar';
 import { useAuthContext } from '../Auth';
 import { TBudget } from '@/types';
-import { CreateCategoryDrawer } from '../Category';
 
 export type TBudgetListProps = {};
 
@@ -93,10 +92,7 @@ export const BudgetList: React.FC<TBudgetListProps> = () => {
         </Card.Body>
       </Card>
 
-      <CreateCategoryDrawer
-        open={showCreateBudgetDrawer}
-        onChangeOpen={setShowCreateBudgetDrawer}
-      />
+      <CreateBudgetDrawer open={showCreateBudgetDrawer} onChangeOpen={setShowCreateBudgetDrawer} />
 
       <EditBudgetDrawer
         open={showEditBudgetDrawer}
