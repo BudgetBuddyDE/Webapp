@@ -1,3 +1,3 @@
-import type { TUser } from '.';
+import type { TUser } from './User.type';
 
 export type TSession = TUser;

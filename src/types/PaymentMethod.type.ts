@@ -1,22 +1,41 @@
-import type { TCreatedAt, TDescription, TUser } from '.';
+import { z } from 'zod';
+import { ZUser } from './User.type';
+import { ZCreatedAt, ZDescription } from './Base.type';
 
-export type TPaymentMethod = {
-  id: number;
-  owner: TUser;
-  name: string;
-  address: string;
-  provider: string;
-  description: TDescription;
-  createdAt: TCreatedAt;
-};
+const ZName = z.string().max(100, { message: 'Name is too long' });
+const ZAddress = z.string().max(100, { message: 'Address is too long' });
+const ZProvider = z.string().max(100, { message: 'Provider is too long' });
 
-export type TCreatePaymentMethodPayload = {
-  owner: TUser['uuid'];
-} & Pick<TPaymentMethod, 'name' | 'address' | 'provider' | 'description'>;
+export const ZPaymentMethod = z.object({
+  id: z.number(),
+  owner: ZUser,
+  name: ZName,
+  address: ZAddress,
+  provider: ZProvider,
+  description: ZDescription,
+  createdAt: ZCreatedAt,
+});
+export type TPaymentMethod = z.infer<typeof ZPaymentMethod>;
 
-export type TUpdatePaymentMethodPayload = Pick<
-  TPaymentMethod,
-  'id' | 'name' | 'address' | 'provider' | 'description'
->;
+export const ZCreatePaymentMethodPayload = z.object({
+  owner: z.string().uuid(),
+  name: ZName,
+  address: ZAddress,
+  provider: ZProvider,
+  description: ZDescription,
+});
+export type TCreatePaymentMethodPayload = z.infer<typeof ZCreatePaymentMethodPayload>;
 
-export type TDeletePaymentMethodPayload = { paymentMethodId: TPaymentMethod['id'] };
+export const ZUpdatePaymentMethodPayload = z.object({
+  id: z.number(),
+  name: ZName,
+  address: ZAddress,
+  provider: ZProvider,
+  description: ZDescription,
+});
+export type TUpdatePaymentMethodPayload = z.infer<typeof ZUpdatePaymentMethodPayload>;
+
+export const ZDeletePaymentMethodPayload = z.object({
+  paymentMethodId: z.number(),
+});
+export type TDeletePaymentMethodPayload = z.infer<typeof ZDeletePaymentMethodPayload>;

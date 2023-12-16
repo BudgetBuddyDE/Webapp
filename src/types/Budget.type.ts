@@ -1,25 +1,39 @@
-import type { TCategory, TCreatedAt, TUser } from '.';
+import { z } from 'zod';
+import { ZCategory } from './Category.type';
+import { ZUser } from './User.type';
+import { ZCreatedAt } from './Base.type';
 
-export type TBudget = {
-  id: number;
-  category: TCategory;
-  owner: TUser;
-  budget: number;
-  createdAt: TCreatedAt;
-};
+const ZBudgetAmount = z.number().min(0, { message: 'Budget must be positive' });
 
-export type TCreateBudgetPayload = {
-  owner: TBudget['owner']['uuid'];
-  categoryId: TBudget['category']['id'];
-} & Pick<TBudget, 'budget'>;
+export const ZBudget = z.object({
+  id: z.number(),
+  category: ZCategory,
+  owner: ZUser,
+  budget: ZBudgetAmount,
+  createdAt: ZCreatedAt,
+});
+export type TBudget = z.infer<typeof ZBudget>;
 
-export type TUpdateBudgetPayload = {
-  budgetId: TBudget['id'];
-  categoryId: TBudget['category']['id'];
-} & Pick<TBudget, 'budget'>;
+export const ZCreateBudgetPayload = z.object({
+  owner: z.string().uuid(),
+  categoryId: z.number(),
+  budget: ZBudgetAmount,
+});
+export type TCreateBudgetPayload = z.infer<typeof ZCreateBudgetPayload>;
 
-export type TDeleteBudgetPayload = { budgetId: TBudget['id'] };
+export const ZUpdateBudgetPayload = z.object({
+  budgetId: z.number(),
+  categoryId: z.number(),
+  budget: ZBudgetAmount,
+});
+export type TUpdateBudgetPayload = z.infer<typeof ZUpdateBudgetPayload>;
 
-export type TBudgetProgress = TBudget & {
-  amount_spent: number;
-};
+export const ZDeleteBudgetPayload = z.object({
+  budgetId: z.number(),
+});
+export type TDeleteBudgetPayload = z.infer<typeof ZDeleteBudgetPayload>;
+
+export const ZBudgetProgress = ZBudget.extend({
+  amount_spent: z.number(),
+});
+export type TBudgetProgress = z.infer<typeof ZBudgetProgress>;

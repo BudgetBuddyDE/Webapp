@@ -1,11 +1,13 @@
-import type {
-  EDailyTransactionType,
-  TApiResponse,
-  TCreateTransactionPayload,
-  TDailyTransaction,
-  TDeleteTransactionPayload,
-  TTransaction,
-  TUpdateTransactionPayload,
+import { z } from 'zod';
+import {
+  ZTransaction,
+  type EDailyTransactionType,
+  type TApiResponse,
+  type TCreateTransactionPayload,
+  type TDailyTransaction,
+  type TDeleteTransactionPayload,
+  type TTransaction,
+  type TUpdateTransactionPayload,
 } from '@/types';
 import { format, isSameMonth } from 'date-fns';
 import { isRunningInProdEnv, prepareRequestOptions } from '@/utils';
@@ -28,6 +30,7 @@ export class TransactionService {
       });
       const json = (await response.json()) as TApiResponse<TTransaction[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
+      console.log(z.array(ZTransaction).safeParse(json.data));
       return [json.data, null];
     } catch (error) {
       console.error(error);

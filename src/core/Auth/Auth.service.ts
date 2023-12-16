@@ -1,4 +1,4 @@
-import type { TApiResponse, TUser } from '@/types';
+import { type TApiResponse, type TUser } from '@/types';
 import { isRunningInProdEnv } from '@/utils';
 
 export class AuthService {
