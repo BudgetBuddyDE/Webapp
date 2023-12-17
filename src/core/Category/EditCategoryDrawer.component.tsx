@@ -2,7 +2,7 @@ import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@
 import { TextField } from '@mui/material';
 import React from 'react';
 import { FormStyle } from '@/style/Form.style';
-import { type TCategory, type TDescription, type TUpdateCategoryPayload } from '@/types';
+import { ZUpdateCategoryPayload, type TCategory, type TUpdateCategoryPayload } from '@/types';
 import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { CategoryService } from './Category.service';
@@ -43,14 +43,12 @@ export const EditCategoryDrawer: React.FC<TEditCategoryDrawerProps> = ({
       setDrawerState({ type: 'SUBMIT' });
 
       try {
-        if (!form.name) throw new Error('No name provided');
-        const payload: TUpdateCategoryPayload = {
-          categoryId: category?.id,
-          name: form.name as string,
-          description: (form.description && (form.description as string).length > 0
-            ? form.description
-            : null) as TDescription,
-        };
+        const parsedForm = ZUpdateCategoryPayload.safeParse({
+          ...form,
+          categoryId: category.id,
+        });
+        if (!parsedForm.success) throw new Error(parsedForm.error.message);
+        const payload: TUpdateCategoryPayload = parsedForm.data;
 
         const [createdCategory, error] = await CategoryService.update(payload, authOptions);
         if (error) {

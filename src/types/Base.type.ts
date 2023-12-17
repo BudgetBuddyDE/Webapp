@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
-export const ZDescription = z.string().nullable().default(null);
+export const ZDescription = z
+  .string()
+  .nullable()
+  .transform((val) => (typeof val === 'string' && val.length == 0 ? null : val))
+  .default(null);
 export type TDescription = z.infer<typeof ZDescription>;
 
 export const ZCreatedAt = z
