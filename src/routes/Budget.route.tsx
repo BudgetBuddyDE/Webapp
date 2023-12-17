@@ -1,4 +1,4 @@
-import { ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
+import { ContentGrid } from '@/components/Layout';
 import { withAuthLayout } from '@/core/Auth/Layout';
 import { BudgetList, BudgetProgressWrapper, useFetchBudgetProgress } from '@/core/Budget';
 import { CategorySpendingsChart } from '@/core/Category';
@@ -41,10 +41,6 @@ export const Budgets = () => {
           <CategoryIncomeChart />
         </Grid>
       </Grid>
-
-      <FabContainer>
-        <OpenFilterDrawerFab />
-      </FabContainer>
     </ContentGrid>
   );
 };
