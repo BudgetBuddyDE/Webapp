@@ -8,6 +8,7 @@ import {
   type TDeleteTransactionPayload,
   type TTransaction,
   type TUpdateTransactionPayload,
+  ZDailyTransaction,
 } from '@/types';
 import { format, isSameMonth } from 'date-fns';
 import { isRunningInProdEnv, prepareRequestOptions } from '@/utils';
@@ -30,8 +31,10 @@ export class TransactionService {
       });
       const json = (await response.json()) as TApiResponse<TTransaction[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      console.log(z.array(ZTransaction).safeParse(json.data));
-      return [json.data, null];
+
+      const parsingResult = z.array(ZTransaction).safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -54,7 +57,10 @@ export class TransactionService {
       });
       const json = (await response.json()) as TApiResponse<TDailyTransaction[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data ? json.data.map((e) => ({ ...e, date: new Date(e.date) })) : null, null];
+
+      const parsingResult = z.array(ZDailyTransaction).safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -93,7 +99,10 @@ export class TransactionService {
       });
       const json = (await response.json()) as TApiResponse<TTransaction[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = z.array(ZTransaction).safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -112,7 +121,10 @@ export class TransactionService {
       });
       const json = (await response.json()) as TApiResponse<TTransaction>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZTransaction.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -131,7 +143,10 @@ export class TransactionService {
       });
       const json = (await response.json()) as TApiResponse<TTransaction>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZTransaction.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];

@@ -4,6 +4,11 @@ import { ZCategory } from './Category.type';
 import { ZPaymentMethod } from './PaymentMethod.type';
 import { ZCreatedAt, ZDescription } from './Base.type';
 
+const ZTransferAmount = z
+  .number()
+  .or(z.string())
+  .transform((val) => Number(val));
+
 export const ZTransaction = z.object({
   id: z.number(),
   owner: ZUser,
@@ -12,7 +17,7 @@ export const ZTransaction = z.object({
   processedAt: ZCreatedAt,
   receiver: z.string(),
   description: ZDescription,
-  transferAmount: z.number(),
+  transferAmount: ZTransferAmount,
   createdAt: ZCreatedAt,
 });
 export type TTransaction = z.infer<typeof ZTransaction>;
@@ -24,7 +29,7 @@ export const ZCreateTransactionPayload = z.object({
   processedAt: ZCreatedAt,
   receiver: z.string(),
   description: ZDescription,
-  transferAmount: z.number(),
+  transferAmount: ZTransferAmount,
 });
 export type TCreateTransactionPayload = z.infer<typeof ZCreateTransactionPayload>;
 
@@ -35,7 +40,7 @@ export const ZUpdateTransactionPayload = z.object({
   processedAt: ZCreatedAt,
   receiver: z.string(),
   description: ZDescription,
-  transferAmount: z.number(),
+  transferAmount: ZTransferAmount,
 });
 export type TUpdateTransactionPayload = z.infer<typeof ZUpdateTransactionPayload>;
 

@@ -1,9 +1,6 @@
 import { z } from 'zod';
 
-export const ZDescription = z
-  .string()
-  .nullable()
-  .transform((val) => (val === '' ? null : val));
+export const ZDescription = z.string().nullable().default(null);
 export type TDescription = z.infer<typeof ZDescription>;
 
 export const ZCreatedAt = z
@@ -11,6 +8,9 @@ export const ZCreatedAt = z
   .or(z.number())
   .transform((val) => new Date(val));
 export type TCreatedAt = z.infer<typeof ZCreatedAt>;
+
+export const ZDate = ZCreatedAt;
+export type TDate = z.infer<typeof ZDate>;
 
 export interface IFetchDataHook<T> {
   loading: boolean;
