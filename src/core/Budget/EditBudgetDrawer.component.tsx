@@ -5,14 +5,19 @@ import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { BudgetService, useFetchBudget, useFetchBudgetProgress } from '.';
 import { CategoryAutocomplete, getCategoryFromList, useFetchCategories } from '../Category';
-import type { TBudget, TBudgetProgress, TUpdateBudgetPayload } from '@/types';
+import {
+  ZUpdateBudgetPayload,
+  type TBudget,
+  type TBudgetProgress,
+  type TUpdateBudgetPayload,
+} from '@/types';
 import { transformBalance } from '@/utils';
 
 interface IEditBudgetDrawerHandler {
   onClose: () => void;
   onAutocompleteChange: (
     event: React.SyntheticEvent<Element, Event>,
-    key: 'category',
+    key: 'categoryId',
     value: string | number
   ) => void;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -59,15 +64,13 @@ export const EditBudgetDrawer: React.FC<TEditBudgetDrawerProps> = ({
       setDrawerState({ type: 'SUBMIT' });
 
       try {
-        if (!form.category) throw new Error('Select an category');
-        if (!form.amount) throw new Error('Provide an amount');
-        if (Number(form.amount) <= 0) throw new Error('Your need to be higher than 0');
-
-        const payload: TUpdateBudgetPayload = {
+        const parsedForm = ZUpdateBudgetPayload.safeParse({
+          ...form,
           budgetId: budget.id,
-          categoryId: Number(form.category),
-          budget: transformBalance(String(form.amount)),
-        };
+          budget: transformBalance(String(form.budget)),
+        });
+        if (!parsedForm.success) throw new Error(parsedForm.error.message);
+        const payload: TUpdateBudgetPayload = parsedForm.data;
 
         const [updatedBudget, error] = await BudgetService.update(payload, authOptions);
         if (error) {
@@ -94,8 +97,8 @@ export const EditBudgetDrawer: React.FC<TEditBudgetDrawerProps> = ({
   React.useEffect(() => {
     if (!budget) return;
     setForm({
-      category: budget.category.id,
-      amount: budget.budget,
+      categoryId: budget.category.id,
+      budget: budget.budget,
     });
   }, [budget]);
 
@@ -110,7 +113,7 @@ export const EditBudgetDrawer: React.FC<TEditBudgetDrawerProps> = ({
     >
       <CategoryAutocomplete
         onChange={(event, value) =>
-          handler.onAutocompleteChange(event, 'category', Number(value?.value))
+          handler.onAutocompleteChange(event, 'categoryId', Number(value?.value))
         }
         defaultValue={budget ? getCategoryFromList(budget.category.id, categories) : undefined}
         sx={{ mb: 2 }}
@@ -118,15 +121,15 @@ export const EditBudgetDrawer: React.FC<TEditBudgetDrawerProps> = ({
       />
 
       <FormControl fullWidth required sx={{ mb: 2 }}>
-        <InputLabel htmlFor="amount">Amount</InputLabel>
+        <InputLabel htmlFor="budget">Amount</InputLabel>
         <OutlinedInput
-          id="amount"
+          id="budget"
           label="Amount"
-          name="amount"
+          name="budget"
           inputProps={{ inputMode: 'numeric' }}
           onChange={handler.onInputChange}
-          value={form.amount}
-          defaultValue={form.amount}
+          value={form.budget}
+          defaultValue={form.budget}
           startAdornment={<InputAdornment position="start">€</InputAdornment>}
         />
       </FormControl>

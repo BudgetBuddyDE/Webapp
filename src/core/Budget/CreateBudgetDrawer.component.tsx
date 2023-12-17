@@ -5,14 +5,14 @@ import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { BudgetService, useFetchBudget, useFetchBudgetProgress } from '.';
 import { CategoryAutocomplete } from '../Category';
-import { TCreateBudgetPayload } from '@/types';
+import { TCreateBudgetPayload, ZCreateBudgetPayload } from '@/types';
 import { transformBalance } from '@/utils';
 
 interface ICreateBudgetDrawerHandler {
   onClose: () => void;
   onAutocompleteChange: (
     event: React.SyntheticEvent<Element, Event>,
-    key: 'category',
+    key: 'categoryId',
     value: string | number
   ) => void;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -53,15 +53,13 @@ export const CreateBudgetDrawer: React.FC<TCreateBudgetDrawerProps> = ({ open, o
       setDrawerState({ type: 'SUBMIT' });
 
       try {
-        if (!form.category) throw new Error('Select an category');
-        if (!form.amount) throw new Error('Provide an amount');
-        if (Number(form.amount) <= 0) throw new Error('Your need to be higher than 0');
-
-        const payload: TCreateBudgetPayload = {
+        const parsedForm = ZCreateBudgetPayload.safeParse({
+          ...form,
           owner: session.uuid,
-          categoryId: Number(form.category),
-          budget: transformBalance(String(form.amount)),
-        };
+          budget: transformBalance(String(form.budget)),
+        });
+        if (!parsedForm.success) throw new Error(parsedForm.error.message);
+        const payload: TCreateBudgetPayload = parsedForm.data;
 
         const [createdBudget, error] = await BudgetService.create(payload, authOptions);
         if (error) {
@@ -96,21 +94,21 @@ export const CreateBudgetDrawer: React.FC<TCreateBudgetDrawerProps> = ({ open, o
     >
       <CategoryAutocomplete
         onChange={(event, value) =>
-          handler.onAutocompleteChange(event, 'category', Number(value?.value))
+          handler.onAutocompleteChange(event, 'categoryId', Number(value?.value))
         }
         sx={{ mb: 2 }}
         required
       />
 
       <FormControl fullWidth required sx={{ mb: 2 }}>
-        <InputLabel htmlFor="amount">Amount</InputLabel>
+        <InputLabel htmlFor="budget">Amount</InputLabel>
         <OutlinedInput
-          id="amount"
+          id="budget"
           label="Amount"
-          name="amount"
+          name="budget"
           inputProps={{ inputMode: 'numeric' }}
           onChange={handler.onInputChange}
-          value={form.transferAmount}
+          value={form.budget}
           startAdornment={<InputAdornment position="start">€</InputAdornment>}
         />
       </FormControl>
