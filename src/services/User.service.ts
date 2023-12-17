@@ -1,5 +1,5 @@
 import { IAuthContext } from '@/core/Auth';
-import type { TApiResponse, TUpdateUserPayload, TUser } from '@/types';
+import { type TApiResponse, type TUpdateUserPayload, ZUser, type TUser } from '@/types';
 import { isRunningInProdEnv, prepareRequestOptions } from '@/utils';
 
 export class UserService {
@@ -18,7 +18,10 @@ export class UserService {
       });
       const json = (await response.json()) as TApiResponse<TUser>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZUser.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];

@@ -2,7 +2,7 @@ import { Card } from '@/components/Base';
 import { Box, Button, Grid, TextField } from '@mui/material';
 import React from 'react';
 import { useAuthContext } from '../Auth';
-import { TUpdateUserPayload } from '@/types';
+import { type TUpdateUserPayload, ZUpdateUserPayload } from '@/types';
 import { useSnackbarContext } from '../Snackbar';
 import { UserService } from '@/services';
 
@@ -37,12 +37,15 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
       event.preventDefault();
       if (!session) return;
       try {
-        const payload: TUpdateUserPayload = {
+        const parsedForm = ZUpdateUserPayload.safeParse({
           uuid: session.uuid,
           email: form.email ?? session.email,
           name: form.name ?? session.name,
           surname: form.surname ?? session.surname,
-        };
+        });
+        if (!parsedForm.success) throw new Error(parsedForm.error.message);
+        const payload: TUpdateUserPayload = parsedForm.data;
+
         const [updatedUser, error] = await UserService.update(payload, authOptions);
         if (error) throw error;
         if (!updatedUser) throw new Error("Couldn't save the applied changes");
