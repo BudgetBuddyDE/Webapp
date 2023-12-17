@@ -21,7 +21,11 @@ import {
   getPaymentMethodFromList,
   useFetchPaymentMethods,
 } from '../PaymentMethod';
-import type { TDescription, TSubscription, TUpdateSubscriptionPayload } from '@/types';
+import {
+  ZUpdateSubscriptionPayload,
+  type TSubscription,
+  type TUpdateSubscriptionPayload,
+} from '@/types';
 import { determineNextExecutionDate, transformBalance } from '@/utils';
 import { SubscriptionService, useFetchSubscriptions } from '.';
 import { TransactionService, useFetchTransactions } from '../Transaction';
@@ -31,7 +35,7 @@ interface IEditSubscriptionDrawerHandler {
   onDateChange: (date: Date | null) => void;
   onAutocompleteChange: (
     event: React.SyntheticEvent<Element, Event>,
-    key: 'category' | 'paymentMethod',
+    key: 'categoryId' | 'paymentMethodId',
     value: string | number
   ) => void;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -88,31 +92,17 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
       event.preventDefault();
       if (!session || !subscription) return;
       setDrawerState({ type: 'SUBMIT' });
-      const values = Object.keys(form);
-      const missingValues = [
-        'executeAt',
-        'category',
-        'paymentMethod',
-        'receiver',
-        'transferAmount',
-      ].filter((value) => !values.includes(value));
-      try {
-        if (missingValues.length > 0) {
-          throw new Error('Provide an ' + missingValues.join(', ') + '!');
-        }
 
-        const payload: TUpdateSubscriptionPayload = {
+      try {
+        const parsedForm = ZUpdateSubscriptionPayload.safeParse({
+          ...form,
           subscriptionId: subscription.id,
           paused: subscription.paused,
-          executeAt: (form.executeAt as Date).getDate(),
-          receiver: form.receiver as string,
-          categoryId: form.category as number,
-          paymentMethodId: form.paymentMethod as number,
-          transferAmount: transformBalance(form.transferAmount.toString()),
-          description: (form.description && (form.description as string).length > 0
-            ? form.description
-            : null) as TDescription,
-        };
+          transferAmount: transformBalance(String(form.transferAmount)),
+          description: form.description,
+        });
+        if (!parsedForm.success) throw new Error(parsedForm.error.message);
+        const payload: TUpdateSubscriptionPayload = parsedForm.data;
 
         const [updatedSubscription, error] = await SubscriptionService.update(payload, authOptions);
         if (error) {
@@ -145,8 +135,8 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
     setForm({
       executeAt: determineNextExecutionDate(executeAt),
       receiver: receiver,
-      category: category.id,
-      paymentMethod: paymentMethod.id,
+      categoryId: category.id,
+      paymentMethodId: paymentMethod.id,
       transferAmount: transferAmount,
       description: description ?? '',
     });
@@ -191,7 +181,7 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
       >
         <CategoryAutocomplete
           onChange={(event, value) =>
-            handler.onAutocompleteChange(event, 'category', Number(value?.value))
+            handler.onAutocompleteChange(event, 'categoryId', Number(value?.value))
           }
           defaultValue={
             subscription ? getCategoryFromList(subscription.category.id, categories) : undefined
@@ -202,7 +192,7 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
 
         <PaymentMethodAutocomplete
           onChange={(event, value) =>
-            handler.onAutocompleteChange(event, 'paymentMethod', Number(value?.value))
+            handler.onAutocompleteChange(event, 'paymentMethodId', Number(value?.value))
           }
           defaultValue={
             subscription

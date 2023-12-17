@@ -5,9 +5,23 @@ import { ZPaymentMethod } from './PaymentMethod.type';
 import { ZCreatedAt, ZDescription } from './Base.type';
 
 const ZExecuteAt = z
-  .number()
-  .min(0, { message: 'Execution-Day must be greater than 0' })
-  .max(31, { message: 'Execution-Day must be less than 32' });
+  .union([z.number(), z.date()])
+  .refine((value) => {
+    if (typeof value === 'number') {
+      return value >= 0 && value <= 31;
+    } else if (value instanceof Date) {
+      return value.getDate() >= 1 && value.getDate() <= 31;
+    }
+    return false;
+  }, 'Execution-Day must be a number between 0 and 31 or a valid date')
+  .transform((value) => {
+    if (typeof value === 'number') {
+      return value;
+    } else if (value instanceof Date) {
+      return value.getDate();
+    }
+    return value;
+  });
 
 export const ZSubscription = z.object({
   id: z.number(),
@@ -23,7 +37,7 @@ export const ZSubscription = z.object({
 });
 export type TSubscription = z.infer<typeof ZSubscription>;
 
-export const ZCreateSUbcriptionPayload = z.object({
+export const ZCreateSubcriptionPayload = z.object({
   owner: z.string().uuid(),
   categoryId: z.number(),
   paymentMethodId: z.number(),
@@ -33,7 +47,7 @@ export const ZCreateSUbcriptionPayload = z.object({
   description: ZDescription,
   transferAmount: z.number(),
 });
-export type TCreateSubscriptionPayload = z.infer<typeof ZCreateSUbcriptionPayload>;
+export type TCreateSubscriptionPayload = z.infer<typeof ZCreateSubcriptionPayload>;
 
 export const ZUpdateSubscriptionPayload = z.object({
   subscriptionId: z.number(),
