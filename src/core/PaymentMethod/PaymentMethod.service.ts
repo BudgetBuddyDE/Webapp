@@ -1,10 +1,12 @@
-import type {
-  TApiResponse,
-  TCreatePaymentMethodPayload,
-  TDeletePaymentMethodPayload,
-  TPaymentMethod,
-  TUpdatePaymentMethodPayload,
-  TUser,
+import { z } from 'zod';
+import {
+  ZPaymentMethod,
+  type TApiResponse,
+  type TCreatePaymentMethodPayload,
+  type TDeletePaymentMethodPayload,
+  type TPaymentMethod,
+  type TUpdatePaymentMethodPayload,
+  type TUser,
 } from '@/types';
 import { isRunningInProdEnv, prepareRequestOptions } from '@/utils';
 import { IAuthContext } from '../Auth';
@@ -25,7 +27,10 @@ export class PaymentMethodService {
       });
       const json = (await response.json()) as TApiResponse<TPaymentMethod[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = z.array(ZPaymentMethod).safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -44,7 +49,10 @@ export class PaymentMethodService {
       });
       const json = (await response.json()) as TApiResponse<TPaymentMethod>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZPaymentMethod.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -63,7 +71,10 @@ export class PaymentMethodService {
       });
       const json = (await response.json()) as TApiResponse<TPaymentMethod>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZPaymentMethod.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -82,7 +93,10 @@ export class PaymentMethodService {
       });
       const json = (await response.json()) as TApiResponse<TPaymentMethod>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZPaymentMethod.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];

@@ -2,7 +2,11 @@ import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@
 import { TextField } from '@mui/material';
 import React from 'react';
 import { FormStyle } from '@/style/Form.style';
-import type { TDescription, TPaymentMethod, TUpdatePaymentMethodPayload } from '@/types';
+import {
+  ZUpdatePaymentMethodPayload,
+  type TPaymentMethod,
+  type TUpdatePaymentMethodPayload,
+} from '@/types';
 import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { useFetchPaymentMethods, PaymentMethodService } from '.';
@@ -42,18 +46,12 @@ export const EditPaymentMethodDrawer: React.FC<TEditPaymentMethodProps> = ({
       setDrawerState({ type: 'SUBMIT' });
 
       try {
-        if (!form.name) throw new Error('No name provided');
-        if (!form.address) throw new Error('No address provided');
-        if (!form.provider) throw new Error('No provider provided');
-        const payload: TUpdatePaymentMethodPayload = {
-          id: paymentMethod?.id,
-          name: form.name as string,
-          address: form.address as string,
-          provider: form.provider as string,
-          description: (form.description && (form.description as string).length > 0
-            ? form.description
-            : null) as TDescription,
-        };
+        const parsedForm = ZUpdatePaymentMethodPayload.safeParse({
+          ...form,
+          id: paymentMethod.id,
+        });
+        if (!parsedForm.success) throw new Error(parsedForm.error.message);
+        const payload: TUpdatePaymentMethodPayload = parsedForm.data;
 
         const [createdPaymentMethod, error] = await PaymentMethodService.update(
           payload,
@@ -80,16 +78,13 @@ export const EditPaymentMethodDrawer: React.FC<TEditPaymentMethodProps> = ({
   };
 
   React.useEffect(() => {
-    setForm(
-      paymentMethod
-        ? {
-            name: paymentMethod.name,
-            address: paymentMethod.address,
-            provider: paymentMethod.provider,
-            description: paymentMethod.description ?? '',
-          }
-        : {}
-    );
+    if (!paymentMethod) return;
+    setForm({
+      name: paymentMethod.name,
+      address: paymentMethod.address,
+      provider: paymentMethod.provider,
+      description: paymentMethod.description ?? '',
+    });
   }, [paymentMethod]);
 
   return (

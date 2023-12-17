@@ -2,7 +2,7 @@ import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@
 import { TextField } from '@mui/material';
 import React from 'react';
 import { FormStyle } from '@/style/Form.style';
-import type { TCreatePaymentMethodPayload } from '@/types';
+import { ZCreatePaymentMethodPayload, type TCreatePaymentMethodPayload } from '@/types';
 import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { PaymentMethodService, useFetchPaymentMethods } from '.';
@@ -40,16 +40,12 @@ export const CreatePaymentMethodDrawer: React.FC<TCreatePaymentMethodProps> = ({
       setDrawerState({ type: 'SUBMIT' });
 
       try {
-        if (!form.name) throw new Error('No name provided');
-        if (!form.address) throw new Error('No address provided');
-        if (!form.provider) throw new Error('No provider provided');
-        const payload: TCreatePaymentMethodPayload = {
+        const parsedForm = ZCreatePaymentMethodPayload.safeParse({
+          ...form,
           owner: session.uuid,
-          name: form.name,
-          address: form.address,
-          provider: form.provider,
-          description: form.description && form.description.length > 0 ? form.description : null,
-        };
+        });
+        if (!parsedForm.success) throw new Error(parsedForm.error.message);
+        const payload: TCreatePaymentMethodPayload = parsedForm.data;
 
         const [createdCategory, error] = await PaymentMethodService.create(payload, authOptions);
         if (error) {
