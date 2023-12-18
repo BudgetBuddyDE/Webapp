@@ -39,25 +39,28 @@ export const BarChart: React.FC<TBarChartProps> = ({
   const xMax = width;
   const yMax = height - VERTICAL_MARGIN;
 
-  const xScale = React.useMemo(
-    () =>
-      scaleBand<string>({
-        range: [0, xMax],
-        round: true,
-        domain: data.map(getLabel),
-        padding: 0.4,
-      }),
-    [xMax, data]
-  );
-  const yScale = React.useMemo(
-    () =>
-      scaleLinear<number>({
-        range: [yMax, 0],
-        round: true,
-        domain: [0, Math.max(...data.map(getValue))],
-      }),
-    [yMax, data]
-  );
+  /**
+   * Scale used for the x-axis for displaying the dates and providing the position of the bars/groups.
+   */
+  const xScale = React.useMemo(() => {
+    return scaleBand<string>({
+      range: [0, xMax],
+      round: true,
+      domain: data.map(getLabel),
+      padding: 0.4,
+    });
+  }, [xMax, data]);
+
+  /**
+   * Scale used for the y-axis for displaying the values and providing the height of the bars.
+   */
+  const yScale = React.useMemo(() => {
+    return scaleLinear<number>({
+      range: [yMax - 15, 0],
+      round: true,
+      domain: [0, Math.max(...data.map(getValue))],
+    });
+  }, [yMax, data]);
 
   const handler: {
     bar: {
@@ -67,21 +70,19 @@ export const BarChart: React.FC<TBarChartProps> = ({
   } = {
     bar: {
       onMouseEnter(bar) {
-        if (events) {
-          setSelectedBar(bar);
-          if (onEvent) onEvent(bar);
-        }
+        if (!events) return;
+        setSelectedBar(bar);
+        if (onEvent) onEvent(bar);
       },
       onMouseLeave() {
-        if (events) {
-          setSelectedBar(null);
-          if (onEvent) onEvent(null);
-        }
+        if (!events) setSelectedBar(null);
+        if (onEvent) onEvent(null);
       },
     },
   };
 
-  return width < 10 ? null : (
+  if (width < 10) return null;
+  return (
     <svg width={width} height={height}>
       <Group top={VERTICAL_MARGIN / 2}>
         {data.map((d) => {
@@ -106,9 +107,6 @@ export const BarChart: React.FC<TBarChartProps> = ({
               width={barWidth}
               height={barHeight}
               fill={fillColor}
-              // onClick={() => {
-              //   if (events) alert(`clicked: ${JSON.stringify(Object.values(d))}`);
-              // }}
               onMouseEnter={() => handler.bar.onMouseEnter(d)}
               onMouseLeave={() => handler.bar.onMouseLeave()}
             />

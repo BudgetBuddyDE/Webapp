@@ -201,36 +201,6 @@ export const DailyTransactionChart: React.FC<TDailyTransactionChart> = () => {
         ) : (
           <NoResults sx={{ mt: 2 }} text="Nothing was returned" />
         )}
-
-        {/* <Divider sx={{ mt: 2 }} /> */}
-
-        {/* {loadingBudgetTransactions ? (
-              <CircularProgress />
-            ) : chart === 'INCOME' ? (
-              budgetTransactions && budgetTransactions.income.grouped.length > 0 ? (
-                budgetTransactions.income.grouped.map(({ category, sum }) => (
-                  <Transaction
-                    key={category.id}
-                    title={category.name}
-                    subtitle={category.description || 'No description'}
-                    amount={sum}
-                  />
-                ))
-              ) : (
-                <NoResults sx={{ mt: 2 }} text="No results for the timespan" />
-              )
-            ) : budgetTransactions && budgetTransactions.spendings.grouped.length > 0 ? (
-              budgetTransactions.spendings.grouped.map(({ category, sum }) => (
-                <Transaction
-                  key={category.id}
-                  title={category.name}
-                  subtitle={category.description || 'No description'}
-                  amount={Math.abs(sum)}
-                />
-              ))
-            ) : (
-              <NoResults sx={{ mt: 2 }} text="No results for the timespan" />
-            )} */}
       </Card.Body>
     </Card>
   );
