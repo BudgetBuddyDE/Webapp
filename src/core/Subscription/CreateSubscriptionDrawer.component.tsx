@@ -17,7 +17,7 @@ import { useSnackbarContext } from '../Snackbar';
 import { CategoryAutocomplete } from '../Category';
 import { ReceiverAutocomplete } from '@/components/Base';
 import { PaymentMethodAutocomplete } from '../PaymentMethod';
-import type { TCreateSubscriptionPayload, TDescription } from '@/types';
+import { ZCreateSubcriptionPayload, type TCreateSubscriptionPayload } from '@/types';
 import { transformBalance } from '@/utils';
 import { SubscriptionService, useFetchSubscriptions } from '.';
 import { TransactionService, useFetchTransactions } from '../Transaction';
@@ -27,7 +27,7 @@ interface ICreateSubscriptionDrawerHandler {
   onDateChange: (date: Date | null) => void;
   onAutocompleteChange: (
     event: React.SyntheticEvent<Element, Event>,
-    key: 'category' | 'paymentMethod',
+    key: 'categoryId' | 'paymentMethodId',
     value: string | number
   ) => void;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -80,31 +80,16 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
       event.preventDefault();
       if (!session) return;
       setDrawerState({ type: 'SUBMIT' });
-      const values = Object.keys(form);
-      const missingValues = [
-        'executeAt',
-        'category',
-        'paymentMethod',
-        'receiver',
-        'transferAmount',
-      ].filter((value) => !values.includes(value));
-      try {
-        if (missingValues.length > 0) {
-          throw new Error('Provide an ' + missingValues.join(', ') + '!');
-        }
 
-        const payload: TCreateSubscriptionPayload = {
-          owner: session.uuid,
+      try {
+        const parsedForm = ZCreateSubcriptionPayload.safeParse({
+          ...form,
           paused: false,
-          executeAt: (form.executeAt as Date).getDate(),
-          receiver: form.receiver as string,
-          categoryId: form.category as number,
-          paymentMethodId: form.paymentMethod as number,
-          transferAmount: transformBalance(form.transferAmount.toString()),
-          description: (form.description && (form.description as string).length > 0
-            ? form.description
-            : null) as TDescription,
-        };
+          owner: session.uuid,
+          transferAmount: transformBalance(String(form.transferAmount)),
+        });
+        if (!parsedForm.success) throw new Error(parsedForm.error.message);
+        const payload: TCreateSubscriptionPayload = parsedForm.data;
 
         const [createdSubscription, error] = await SubscriptionService.create(payload, authOptions);
         if (error) {
@@ -166,7 +151,7 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
       >
         <CategoryAutocomplete
           onChange={(event, value) =>
-            handler.onAutocompleteChange(event, 'category', Number(value?.value))
+            handler.onAutocompleteChange(event, 'categoryId', Number(value?.value))
           }
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
           required
@@ -174,7 +159,7 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
 
         <PaymentMethodAutocomplete
           onChange={(event, value) =>
-            handler.onAutocompleteChange(event, 'paymentMethod', Number(value?.value))
+            handler.onAutocompleteChange(event, 'paymentMethodId', Number(value?.value))
           }
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
           required

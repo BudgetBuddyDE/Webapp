@@ -25,6 +25,7 @@ import { StackedIconButton } from '@/components/StackedIconButton.component';
 import { AppLogo } from '@/components/AppLogo.component';
 import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
 import { useNavigate } from 'react-router-dom';
+import { type TSignInPayload, ZSignInPayload } from '@/types';
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -41,15 +42,11 @@ const SignIn = () => {
       event.preventDefault();
 
       try {
-        const values = Object.keys(form);
-        ['email', 'password'].forEach((field) => {
-          if (!values.includes(field)) throw new Error('Provide an ' + field);
-        });
+        const parsedForm = ZSignInPayload.safeParse(form);
+        if (!parsedForm.success) throw new Error(parsedForm.error.message);
+        const payload: TSignInPayload = parsedForm.data;
 
-        const [session, error] = await AuthService.signIn({
-          email: form.email,
-          password: form.password,
-        });
+        const [session, error] = await AuthService.signIn(payload);
         if (error) throw error;
         if (!session) throw new Error('No session returned');
         setSession(session);

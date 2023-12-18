@@ -1,27 +1,50 @@
-import type { TCategory, TCreatedAt, TDescription, TPaymentMethod, TUser } from '.';
+import { z } from 'zod';
+import { ZUser } from './User.type';
+import { ZCategory } from './Category.type';
+import { ZPaymentMethod } from './PaymentMethod.type';
+import { ZCreatedAt, ZDescription } from './Base.type';
 
-export type TTransaction = {
-  id: number;
-  owner: TUser;
-  category: TCategory;
-  paymentMethod: TPaymentMethod;
-  processedAt: TCreatedAt;
-  receiver: string;
-  description: TDescription;
-  transferAmount: number;
-  createdAt: TCreatedAt;
-};
+const ZTransferAmount = z
+  .number()
+  .or(z.string())
+  .transform((val) => Number(val));
 
-export type TCreateTransactionPayload = {
-  owner: TTransaction['owner']['uuid'];
-  categoryId: TTransaction['category']['id'];
-  paymentMethodId: TTransaction['paymentMethod']['id'];
-} & Pick<TTransaction, 'processedAt' | 'receiver' | 'description' | 'transferAmount'>;
+export const ZTransaction = z.object({
+  id: z.number(),
+  owner: ZUser,
+  category: ZCategory,
+  paymentMethod: ZPaymentMethod,
+  processedAt: ZCreatedAt,
+  receiver: z.string(),
+  description: ZDescription,
+  transferAmount: ZTransferAmount,
+  createdAt: ZCreatedAt,
+});
+export type TTransaction = z.infer<typeof ZTransaction>;
 
-export type TUpdateTransactionPayload = {
-  transactionId: TTransaction['id'];
-  categoryId: TTransaction['category']['id'];
-  paymentMethodId: TTransaction['paymentMethod']['id'];
-} & Pick<TTransaction, 'processedAt' | 'receiver' | 'description' | 'transferAmount'>;
+export const ZCreateTransactionPayload = z.object({
+  owner: z.string().uuid(),
+  categoryId: z.number(),
+  paymentMethodId: z.number(),
+  processedAt: ZCreatedAt,
+  receiver: z.string(),
+  description: ZDescription,
+  transferAmount: ZTransferAmount,
+});
+export type TCreateTransactionPayload = z.infer<typeof ZCreateTransactionPayload>;
 
-export type TDeleteTransactionPayload = { transactionId: TTransaction['id'] };
+export const ZUpdateTransactionPayload = z.object({
+  transactionId: z.number(),
+  categoryId: z.number(),
+  paymentMethodId: z.number(),
+  processedAt: ZCreatedAt,
+  receiver: z.string(),
+  description: ZDescription,
+  transferAmount: ZTransferAmount,
+});
+export type TUpdateTransactionPayload = z.infer<typeof ZUpdateTransactionPayload>;
+
+export const ZDeleteTransactionPayload = z.object({
+  transactionId: z.number(),
+});
+export type TDeleteTransactionPayload = z.infer<typeof ZDeleteTransactionPayload>;

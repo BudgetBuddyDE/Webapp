@@ -1,10 +1,13 @@
-import type {
-  TApiResponse,
-  TBudget,
-  TBudgetProgress,
-  TCreateBudgetPayload,
-  TDeleteBudgetPayload,
-  TUpdateBudgetPayload,
+import { z } from 'zod';
+import {
+  ZBudget,
+  type TApiResponse,
+  type TBudget,
+  type TBudgetProgress,
+  type TCreateBudgetPayload,
+  type TDeleteBudgetPayload,
+  type TUpdateBudgetPayload,
+  ZBudgetProgress,
 } from '@/types';
 import { isRunningInProdEnv, prepareRequestOptions } from '@/utils';
 import { type IAuthContext } from '../Auth';
@@ -25,7 +28,10 @@ export class BudgetService {
       });
       const json = (await response.json()) as TApiResponse<TBudget[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = z.array(ZBudget).safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -44,7 +50,10 @@ export class BudgetService {
       });
       const json = (await response.json()) as TApiResponse<TBudgetProgress[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = z.array(ZBudgetProgress).safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -63,7 +72,10 @@ export class BudgetService {
       });
       const json = (await response.json()) as TApiResponse<TBudget>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZBudget.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -82,7 +94,10 @@ export class BudgetService {
       });
       const json = (await response.json()) as TApiResponse<TBudget>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZBudget.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -101,7 +116,10 @@ export class BudgetService {
       });
       const json = (await response.json()) as TApiResponse<TBudget>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZBudget.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];

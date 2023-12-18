@@ -22,7 +22,7 @@ import {
   getPaymentMethodFromList,
   useFetchPaymentMethods,
 } from '../PaymentMethod';
-import { TCreateTransactionPayload, TDescription, TTransaction } from '@/types';
+import { TCreateTransactionPayload, type TTransaction, ZCreateTransactionPayload } from '@/types';
 import { transformBalance } from '@/utils';
 
 interface ICreateTransactionDrawerHandler {
@@ -30,7 +30,7 @@ interface ICreateTransactionDrawerHandler {
   onDateChange: (date: Date | null) => void;
   onAutocompleteChange: (
     event: React.SyntheticEvent<Element, Event>,
-    key: 'category' | 'paymentMethod',
+    key: 'categoryId' | 'paymentMethodId',
     value: string | number
   ) => void;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -86,30 +86,16 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
       event.preventDefault();
       if (!session) return;
       setDrawerState({ type: 'SUBMIT' });
-      const values = Object.keys(form);
-      const missingValues = [
-        'processedAt',
-        'category',
-        'paymentMethod',
-        'receiver',
-        'transferAmount',
-      ].filter((value) => !values.includes(value));
-      try {
-        if (missingValues.length > 0) {
-          throw new Error('Provide an ' + missingValues.join(', ') + '!');
-        }
 
-        const payload: TCreateTransactionPayload = {
+      try {
+        const transferAmount = transformBalance(String(form.transferAmount));
+        const parsedForm = ZCreateTransactionPayload.safeParse({
+          ...form,
+          transferAmount,
           owner: session.uuid,
-          processedAt: form.processedAt as Date,
-          receiver: form.receiver as string,
-          categoryId: form.category as number,
-          paymentMethodId: form.paymentMethod as number,
-          transferAmount: transformBalance(form.transferAmount.toString()),
-          description: (form.description && (form.description as string).length > 0
-            ? form.description
-            : null) as TDescription,
-        };
+        });
+        if (!parsedForm.success) throw new Error(parsedForm.error.message);
+        const payload: TCreateTransactionPayload = parsedForm.data;
 
         const [createdTransaction, error] = await TransactionService.create([payload], authOptions);
         if (error) {
@@ -139,8 +125,8 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
     setForm({
       processedAt: processedAt,
       receiver: receiver,
-      category: category.id,
-      paymentMethod: paymentMethod.id,
+      categoryId: category.id,
+      paymentMethodId: paymentMethod.id,
       transferAmount: transferAmount,
       description: description ?? '',
     });
@@ -185,7 +171,7 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
       >
         <CategoryAutocomplete
           onChange={(event, value) =>
-            handler.onAutocompleteChange(event, 'category', Number(value?.value))
+            handler.onAutocompleteChange(event, 'categoryId', Number(value?.value))
           }
           defaultValue={
             transaction ? getCategoryFromList(transaction.category.id, categories) : undefined
@@ -196,7 +182,7 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
 
         <PaymentMethodAutocomplete
           onChange={(event, value) =>
-            handler.onAutocompleteChange(event, 'paymentMethod', Number(value?.value))
+            handler.onAutocompleteChange(event, 'paymentMethodId', Number(value?.value))
           }
           defaultValue={
             transaction

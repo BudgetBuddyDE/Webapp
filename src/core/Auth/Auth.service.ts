@@ -1,4 +1,4 @@
-import type { TApiResponse, TUser } from '@/types';
+import { ZUser, type TApiResponse, type TUser } from '@/types';
 import { isRunningInProdEnv } from '@/utils';
 
 export class AuthService {
@@ -22,7 +22,10 @@ export class AuthService {
       });
       const json = (await response.json()) as TApiResponse<TUser>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZUser.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -39,7 +42,10 @@ export class AuthService {
       });
       const json = (await response.json()) as TApiResponse<TUser>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZUser.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -55,7 +61,10 @@ export class AuthService {
       });
       const json = (await response.json()) as TApiResponse<TUser>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZUser.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];

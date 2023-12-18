@@ -1,9 +1,11 @@
-import type {
-  TApiResponse,
-  TCategory,
-  TCreateCategoryPayload,
-  TDeleteCategoryPayload,
-  TUpdateCategoryPayload,
+import { z } from 'zod';
+import {
+  ZCategory,
+  type TApiResponse,
+  type TCategory,
+  type TCreateCategoryPayload,
+  type TDeleteCategoryPayload,
+  type TUpdateCategoryPayload,
 } from '@/types';
 import { isRunningInProdEnv, prepareRequestOptions } from '@/utils';
 import { IAuthContext } from '../Auth';
@@ -25,7 +27,10 @@ export class CategoryService {
       );
       const json = (await response.json()) as TApiResponse<TCategory[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = z.array(ZCategory).safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -44,7 +49,10 @@ export class CategoryService {
       });
       const json = (await response.json()) as TApiResponse<TCategory>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZCategory.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -63,7 +71,10 @@ export class CategoryService {
       });
       const json = (await response.json()) as TApiResponse<TCategory>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZCategory.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -82,7 +93,10 @@ export class CategoryService {
       });
       const json = (await response.json()) as TApiResponse<TCategory>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZCategory.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];

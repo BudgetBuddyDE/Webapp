@@ -2,7 +2,7 @@ import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@
 import { TextField } from '@mui/material';
 import React from 'react';
 import { FormStyle } from '@/style/Form.style';
-import type { TCreateCategoryPayload } from '@/types';
+import { ZCreateCategoryPayload, type TCreateCategoryPayload } from '@/types';
 import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { CategoryService, useFetchCategories } from '.';
@@ -40,12 +40,12 @@ export const CreateCategoryDrawer: React.FC<TCreateCategoryDrawerProps> = ({
       setDrawerState({ type: 'SUBMIT' });
 
       try {
-        if (!form.name) throw new Error('No name provided');
-        const payload: TCreateCategoryPayload = {
+        const parsedForm = ZCreateCategoryPayload.safeParse({
+          ...form,
           owner: session.uuid,
-          name: form.name,
-          description: form.description && form.description.length > 0 ? form.description : null,
-        };
+        });
+        if (!parsedForm.success) throw new Error(parsedForm.error.message);
+        const payload: TCreateCategoryPayload = parsedForm.data;
 
         const [createdCategory, error] = await CategoryService.create(payload, authOptions);
         if (error) {

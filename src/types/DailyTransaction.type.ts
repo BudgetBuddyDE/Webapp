@@ -1,10 +1,14 @@
+import { z } from 'zod';
+import { ZDate } from './Base.type';
+
 export enum EDailyTransactionType {
   INCOME = 'INCOME',
   SPENDINGS = 'SPENDINGS',
   BALANCE = 'BALANCE',
 }
 
-export type TDailyTransaction = {
-  date: Date | number;
-  amount: number;
-};
+export const ZDailyTransaction = z.object({
+  date: ZDate,
+  amount: z.number(),
+});
+export type TDailyTransaction = z.infer<typeof ZDailyTransaction>;

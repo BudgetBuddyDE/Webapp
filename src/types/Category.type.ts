@@ -1,21 +1,33 @@
-import type { TCreatedAt, TDescription } from '.';
-import type { TUser } from './User.type';
+import { z } from 'zod';
+import { ZUser } from './User.type';
+import { ZCreatedAt, ZDescription } from './Base.type';
 
-export type TCategory = {
-  id: number;
-  owner: TUser;
-  name: string;
-  description: TDescription;
-  createdAt: TCreatedAt;
-};
+const ZName = z.string().max(100, { message: 'Name is too long' });
 
-export type TCreateCategoryPayload = {
-  owner: TUser['uuid'];
-} & Pick<TCategory, 'name' | 'description'>;
+export const ZCategory = z.object({
+  id: z.number(),
+  owner: ZUser,
+  name: ZName,
+  description: ZDescription,
+  createdAt: ZCreatedAt,
+});
+export type TCategory = z.infer<typeof ZCategory>;
 
-export type TUpdateCategoryPayload = { categoryId: TCategory['id'] } & Pick<
-  TCategory,
-  'name' | 'description'
->;
+export const ZCreateCategoryPayload = z.object({
+  owner: z.string().uuid(),
+  name: ZName,
+  description: ZDescription,
+});
+export type TCreateCategoryPayload = z.infer<typeof ZCreateCategoryPayload>;
 
-export type TDeleteCategoryPayload = { categoryId: TCategory['id'] };
+export const ZUpdateCategoryPayload = z.object({
+  categoryId: z.number(),
+  name: ZName,
+  description: ZDescription,
+});
+export type TUpdateCategoryPayload = z.infer<typeof ZUpdateCategoryPayload>;
+
+export const ZDeleteCategoryPayload = z.object({
+  categoryId: z.number(),
+});
+export type TDeleteCategoryPayload = z.infer<typeof ZDeleteCategoryPayload>;

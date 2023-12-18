@@ -22,15 +22,19 @@ import {
   getPaymentMethodFromList,
   useFetchPaymentMethods,
 } from '../PaymentMethod';
-import type { TDescription, TTransaction, TUpdateTransactionPayload } from '@/types';
-import { transformBalance } from '@/utils';
+import {
+  ZUpdateTransactionPayload,
+  type TTransaction,
+  type TUpdateTransactionPayload,
+} from '@/types';
+import { transformBalance } from '@/utils/transformBalance.util';
 
 interface IEditTransactionDrawerHandler {
   onClose: () => void;
   onDateChange: (date: Date | null) => void;
   onAutocompleteChange: (
     event: React.SyntheticEvent<Element, Event>,
-    key: 'category' | 'paymentMethod',
+    key: 'categoryId' | 'paymentMethodId',
     value: string | number
   ) => void;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -86,30 +90,17 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
       event.preventDefault();
       if (!session || !transaction) return;
       setDrawerState({ type: 'SUBMIT' });
-      const values = Object.keys(form);
-      const missingValues = [
-        'processedAt',
-        'category',
-        'paymentMethod',
-        'receiver',
-        'transferAmount',
-      ].filter((value) => !values.includes(value));
-      try {
-        if (missingValues.length > 0) {
-          throw new Error('Provide an ' + missingValues.join(', ') + '!');
-        }
 
-        const payload: TUpdateTransactionPayload = {
+      try {
+        const parsedForm = ZUpdateTransactionPayload.safeParse({
+          ...form,
           transactionId: transaction.id,
-          processedAt: form.processedAt as Date,
-          receiver: form.receiver as string,
-          categoryId: form.category as number,
-          paymentMethodId: form.paymentMethod as number,
-          transferAmount: transformBalance(form.transferAmount.toString()),
-          description: (form.description && (form.description as string).length > 0
-            ? form.description
-            : null) as TDescription,
-        };
+          transferAmount: transformBalance(String(form.transferAmount)),
+        });
+        if (!parsedForm.success) throw new Error(parsedForm.error.message);
+        const payload: TUpdateTransactionPayload = parsedForm.data;
+
+        console.log(payload);
 
         const [updatedTransaction, error] = await TransactionService.update(payload, authOptions);
         if (error) {
@@ -139,8 +130,8 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
     setForm({
       processedAt: processedAt,
       receiver: receiver,
-      category: category.id,
-      paymentMethod: paymentMethod.id,
+      categoryId: category.id,
+      paymentMethodId: paymentMethod.id,
       transferAmount: transferAmount,
       description: description ?? '',
     });
@@ -185,7 +176,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
       >
         <CategoryAutocomplete
           onChange={(event, value) =>
-            handler.onAutocompleteChange(event, 'category', Number(value?.value))
+            handler.onAutocompleteChange(event, 'categoryId', Number(value?.value))
           }
           defaultValue={
             transaction ? getCategoryFromList(transaction.category.id, categories) : undefined
@@ -196,7 +187,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
 
         <PaymentMethodAutocomplete
           onChange={(event, value) =>
-            handler.onAutocompleteChange(event, 'paymentMethod', Number(value?.value))
+            handler.onAutocompleteChange(event, 'paymentMethodId', Number(value?.value))
           }
           defaultValue={
             transaction

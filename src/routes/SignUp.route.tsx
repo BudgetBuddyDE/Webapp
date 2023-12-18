@@ -28,6 +28,7 @@ import { StackedIconButton } from '@/components/StackedIconButton.component';
 import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
 import { useNavigate } from 'react-router-dom';
 import { AppConfig } from '@/app.config';
+import { type TSignUpPayload, ZSignUpPayload } from '@/types';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -44,17 +45,11 @@ const SignUp = () => {
       event.preventDefault();
 
       try {
-        const values = Object.keys(form);
-        ['name', 'surname', 'email', 'password'].forEach((field) => {
-          if (!values.includes(field)) throw new Error('Provide an ' + field);
-        });
+        const parsedForm = ZSignUpPayload.safeParse(form);
+        if (!parsedForm.success) throw new Error(parsedForm.error.message);
+        const payload: TSignUpPayload = parsedForm.data;
 
-        const [user, error] = await AuthService.signUp({
-          name: form.name,
-          surname: form.surname,
-          email: form.email,
-          password: form.password,
-        });
+        const [user, error] = await AuthService.signUp(payload);
         if (error) throw error;
         if (!user) throw new Error('No user returned');
         setSession(session);

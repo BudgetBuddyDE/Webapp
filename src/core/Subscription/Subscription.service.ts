@@ -1,10 +1,12 @@
-import type {
-  TApiResponse,
-  TCreateSubscriptionPayload,
-  TCreateTransactionPayload,
-  TDeleteSubscriptionPayload,
-  TSubscription,
-  TUpdateSubscriptionPayload,
+import { z } from 'zod';
+import {
+  ZSubscription,
+  type TApiResponse,
+  type TCreateSubscriptionPayload,
+  type TCreateTransactionPayload,
+  type TDeleteSubscriptionPayload,
+  type TSubscription,
+  type TUpdateSubscriptionPayload,
 } from '@/types';
 import { determineNextExecutionDate, isRunningInProdEnv, prepareRequestOptions } from '@/utils';
 import { IAuthContext } from '../Auth';
@@ -25,7 +27,10 @@ export class SubscriptionService {
       });
       const json = (await response.json()) as TApiResponse<TSubscription[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = z.array(ZSubscription).safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -44,7 +49,10 @@ export class SubscriptionService {
       });
       const json = (await response.json()) as TApiResponse<TSubscription>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZSubscription.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -63,7 +71,10 @@ export class SubscriptionService {
       });
       const json = (await response.json()) as TApiResponse<TSubscription>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZSubscription.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
@@ -82,7 +93,10 @@ export class SubscriptionService {
       });
       const json = (await response.json()) as TApiResponse<TSubscription>;
       if (json.status != 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZSubscription.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];
