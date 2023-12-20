@@ -14,6 +14,7 @@ export const BudgetProgress: React.FC<TBudgetProgressProps> = ({
   budget,
 }) => {
   const progress: number = React.useMemo(() => {
+    if (amount_spent >= budget) return 100;
     return (amount_spent * 100) / budget;
   }, [budget, amount_spent]);
 
@@ -35,7 +36,7 @@ export const BudgetProgress: React.FC<TBudgetProgressProps> = ({
             borderRadius: (theme) => Math.round(theme.shape.borderRadius / 3) + 'px',
           }}
           variant="determinate"
-          color={amount_spent <= budget ? 'primary' : 'error'}
+          color={progress < 100 ? 'primary' : 'warning'}
           value={progress}
         />
       </Box>
