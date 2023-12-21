@@ -1,4 +1,4 @@
-import { ZUser, type TApiResponse, type TUser } from '@/types';
+import { ZUser, type TApiResponse, type TUser, TSignUpPayload, TSignInPayload } from '@/types';
 import { isRunningInProdEnv } from '@/utils';
 
 export class AuthService {
@@ -12,9 +12,7 @@ export class AuthService {
     credentials: 'include',
   };
 
-  static async signUp(
-    user: Omit<TUser, 'uuid' | 'role' | 'createdAt'>
-  ): Promise<[TUser | null, Error | null]> {
+  static async signUp(user: TSignUpPayload): Promise<[TUser | null, Error | null]> {
     try {
       const response = await fetch(this.host + '/register', {
         ...this.options,
@@ -32,9 +30,7 @@ export class AuthService {
     }
   }
 
-  static async signIn(
-    user: Pick<TUser, 'email' | 'password'>
-  ): Promise<[TUser | null, Error | null]> {
+  static async signIn(user: TSignInPayload): Promise<[TUser | null, Error | null]> {
     try {
       const response = await fetch(this.host + '/login', {
         ...this.options,

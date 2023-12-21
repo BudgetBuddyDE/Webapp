@@ -4,6 +4,7 @@ import { ZCreatedAt } from './index';
 
 export const ZUser = z.object({
   uuid: z.string().uuid(),
+  isVerified: z.boolean().default(false),
   role: ZRole,
   email: z.string().email(),
   name: z.string(),

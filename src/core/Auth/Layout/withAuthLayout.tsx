@@ -1,7 +1,9 @@
+import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { FullPageLoader } from '@/components/Loading';
 import { useAuthContext } from '../Auth.context';
 import { AuthLayout } from './Auth.layout';
+import { NotVerified } from './NotVerified.component';
 
 /**
  * **IMPORTANT**
@@ -15,9 +17,7 @@ export function withAuthLayout<P extends object>(Component: React.ComponentType<
     if (loading) return <FullPageLoader />;
     if (!session) return <Navigate to="/sign-in" />;
     return (
-      <AuthLayout>
-        <Component {...props} />
-      </AuthLayout>
+      <AuthLayout>{session.isVerified ? <Component {...props} /> : <NotVerified />}</AuthLayout>
     );
   };
 }
