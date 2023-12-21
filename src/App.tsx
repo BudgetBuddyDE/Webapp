@@ -8,6 +8,7 @@ import NotFoundPage from '@/routes/NotFound.route';
 import SignInRoute from './routes/SignIn.route';
 import SignUpRoute from './routes/SignUp.route';
 import BudgetRoute from './routes/Budget.route';
+import VerifyMailRoute from './routes/VerifyMail.route';
 import SettingsRoute from './routes/Settings.route';
 
 const App = () => {
@@ -23,6 +24,7 @@ const App = () => {
         <Route path="/settings/profile" element={<SettingsRoute />} />
         <Route path="/sign-in" element={<SignInRoute />} />
         <Route path="/sign-up" element={<SignUpRoute />} />
+        <Route path="/verify-email" element={<VerifyMailRoute />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
