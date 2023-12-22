@@ -8,7 +8,8 @@ import {
   type TSubscription,
   type TUpdateSubscriptionPayload,
 } from '@/types';
-import { determineNextExecutionDate, isRunningInProdEnv, prepareRequestOptions } from '@/utils';
+import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
+import { determineNextExecutionDate, prepareRequestOptions } from '@/utils';
 import { IAuthContext } from '../Auth';
 
 export class SubscriptionService {

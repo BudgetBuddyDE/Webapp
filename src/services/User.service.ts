@@ -1,6 +1,7 @@
 import { IAuthContext } from '@/core/Auth';
 import { type TApiResponse, type TUpdateUserPayload, ZUser, type TUser } from '@/types';
-import { isRunningInProdEnv, prepareRequestOptions } from '@/utils';
+import { prepareRequestOptions } from '@/utils';
+import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 
 export class UserService {
   private static host =

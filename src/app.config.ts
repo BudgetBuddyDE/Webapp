@@ -3,6 +3,7 @@ import BlueTheme from '@/style/theme/theme';
 import { version } from '../package.json';
 
 export type TAppConfig = {
+  production: boolean;
   appName: string;
   version: typeof version;
   website: string;
@@ -17,6 +18,7 @@ export type TAppConfig = {
 };
 
 export const AppConfig: TAppConfig = {
+  production: process.env.NODE_ENV === 'production',
   appName: 'Budget-Buddy',
   version: version,
   website: 'https://budget-buddy.de',

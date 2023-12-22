@@ -11,7 +11,8 @@ import {
   ZDailyTransaction,
 } from '@/types';
 import { format, isSameMonth } from 'date-fns';
-import { isRunningInProdEnv, prepareRequestOptions } from '@/utils';
+import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
+import { prepareRequestOptions } from '@/utils';
 import { type IAuthContext } from '../Auth';
 import { TDashboardStats } from '@/components/DashboardStatsWrapper.component';
 

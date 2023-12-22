@@ -17,11 +17,9 @@ describe('getCategoryFromList', () => {
     expect(result).toEqual({ label: 'Category 2', value: 2 });
   });
 
-  it('should fallback to the first category if no match is found', () => {
+  it('should fallback to undefined if no match is found', () => {
     const categoryId = 99; // An invalid categoryId for the test case
     const result = getCategoryFromList(categoryId, categories);
-
-    // Check if the result has the expected value (fallback to the first category)
-    expect(result).toEqual({ label: 'Category 1', value: 1 });
+    expect(result).toEqual(undefined);
   });
 });

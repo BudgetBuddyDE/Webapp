@@ -1,4 +1,6 @@
-module.exports = {
+import { type Config } from 'jest';
+
+const JestConfig: Config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
@@ -10,4 +12,11 @@ module.exports = {
   testRegex: '\\.(test|spec)\\.(ts|tsx)?$',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   silent: true,
+  globals: {
+    'process.env': {
+      NODE_ENV: 'test',
+    },
+  },
 };
+
+module.exports = JestConfig;
