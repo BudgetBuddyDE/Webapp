@@ -16,15 +16,16 @@ export class SubscriptionService {
   private static host =
     (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/subscription';
 
-  static async getSubscriptionsByUuid({
-    uuid,
-    password,
-  }: IAuthContext['authOptions']): Promise<[TSubscription[] | null, Error | null]> {
+  static async getSubscriptionsByUuid(
+    { uuid, password }: IAuthContext['authOptions'],
+    requestOptions?: RequestInit
+  ): Promise<[TSubscription[] | null, Error | null]> {
     try {
       const query = new URLSearchParams();
       query.append('uuid', uuid);
       const response = await fetch(this.host + '?' + query.toString(), {
         ...prepareRequestOptions({ uuid, password }),
+        ...requestOptions,
       });
       const json = (await response.json()) as TApiResponse<TSubscription[]>;
       if (json.status != 200) return [null, new Error(json.message!)];

@@ -22,10 +22,9 @@ export class CategoryService {
     try {
       const query = new URLSearchParams();
       query.append('uuid', uuid);
-      const response = await fetch(
-        this.host + '?' + query.toString(),
-        prepareRequestOptions({ uuid, password })
-      );
+      const response = await fetch(this.host + '?' + query.toString(), {
+        ...prepareRequestOptions({ uuid, password }),
+      });
       const json = (await response.json()) as TApiResponse<TCategory[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
 
