@@ -16,15 +16,25 @@ import { prepareRequestOptions } from '@/utils';
 import { type IAuthContext } from '../Auth';
 import { TDashboardStats } from '@/components/DashboardStatsWrapper.component';
 
+/**
+ * Service for managing transactions.
+ */
 export class TransactionService {
   private static host =
     (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/transaction';
 
+  /**
+   * Retrieves transactions by UUID.
+   * @param authOptions - The authentication options containing the UUID and password.
+   * @param requestOptions - Optional request options for the fetch request.
+   * @returns A promise that resolves to an array of transactions or an error.
+   */
   static async getTransactionsByUuid({
     uuid,
     password,
   }: IAuthContext['authOptions']): Promise<[TTransaction[] | null, Error | null]> {
     try {
+      console.log('fetching transactions');
       const query = new URLSearchParams();
       query.append('uuid', uuid);
       const response = await fetch(this.host + '?' + query.toString(), {
@@ -42,6 +52,14 @@ export class TransactionService {
     }
   }
 
+  /**
+   * Retrieves daily transactions within a specified date range.
+   * @param startDate The start date of the range.
+   * @param endDate The end date of the range.
+   * @param requestedData The type of data to be retrieved.
+   * @param user The user's authentication options.
+   * @returns A promise that resolves to an array of daily transactions or an error.
+   */
   static async getDailyTransactions(
     startDate: Date,
     endDate: Date,
@@ -68,12 +86,19 @@ export class TransactionService {
     }
   }
 
+  /**
+   * Retrieves the dashboard statistics for a user.
+   * @param user - The authentication options for the user.
+   * @returns A promise that resolves to an array containing the dashboard statistics or an error.
+   */
   static async getDashboardStats(
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
+    requestOptions?: RequestInit
   ): Promise<[TDashboardStats | null, Error | null]> {
     try {
       const response = await fetch(this.host + '/stats', {
         ...prepareRequestOptions(user),
+        ...requestOptions,
       });
       const json = (await response.json()) as TApiResponse<TDashboardStats>;
       if (json.status != 200) return [null, new Error(json.message!)];
@@ -84,10 +109,20 @@ export class TransactionService {
     }
   }
 
+  /**
+   * Retrieves the unique receivers of a set of transactions.
+   * @param transactions - The transactions to retrieve the unique receivers from.
+   * @returns An array containing the unique receivers.
+   */
   static getUniqueReceivers(transactions: TTransaction[]): string[] {
     return [...new Set(transactions.map(({ receiver }) => receiver))];
   }
 
+  /**
+   * Retrieves the unique senders of a set of transactions.
+   * @param transactions - The transactions to retrieve the unique senders from.
+   * @returns An array containing the unique senders.
+   */
   static async create(
     transaction: TCreateTransactionPayload[],
     user: IAuthContext['authOptions']
@@ -110,6 +145,12 @@ export class TransactionService {
     }
   }
 
+  /**
+   * Updates a transaction.
+   * @param transaction - The updated transaction payload.
+   * @param user - The user authentication options.
+   * @returns A promise that resolves to a tuple containing the updated transaction or null, and an error or null.
+   */
   static async update(
     transaction: TUpdateTransactionPayload,
     user: IAuthContext['authOptions']
@@ -132,6 +173,12 @@ export class TransactionService {
     }
   }
 
+  /**
+   * Deletes a transaction.
+   * @param transaction - The transaction to be deleted.
+   * @param user - The user's authentication options.
+   * @returns A promise that resolves to an array containing the deleted transaction or null, and an error or null.
+   */
   static async delete(
     transaction: TDeleteTransactionPayload,
     user: IAuthContext['authOptions']
@@ -154,6 +201,13 @@ export class TransactionService {
     }
   }
 
+  /**
+   * Calculates the total received earnings from a list of transactions.
+   * Only transactions with a positive transfer amount and processed within the current month are considered.
+   * @deprecated Use the getDashboardStats method instead.
+   * @param transactions - The list of transactions to calculate the earnings from.
+   * @returns The total received earnings.
+   */
   static calculateReceivedEarnings(transactions: TTransaction[]): number {
     const now = new Date();
     const num = transactions
@@ -165,6 +219,13 @@ export class TransactionService {
     return Number(num.toFixed(2));
   }
 
+  /**
+   * Calculates the total upcoming earnings from a list of transactions.
+   * Only transactions that are in the current month, have a future processed date, and have a positive transfer amount are considered.
+   * @deprecated Use the getDashboardStats method instead.
+   * @param transactions - The list of transactions to calculate the upcoming earnings from.
+   * @returns The total upcoming earnings.
+   */
   static calculateUpcomingEarnings(transactions: TTransaction[]): number {
     const now = new Date();
     const num = transactions
