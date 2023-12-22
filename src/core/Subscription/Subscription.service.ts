@@ -8,22 +8,24 @@ import {
   type TSubscription,
   type TUpdateSubscriptionPayload,
 } from '@/types';
-import { determineNextExecutionDate, isRunningInProdEnv, prepareRequestOptions } from '@/utils';
+import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
+import { determineNextExecutionDate, prepareRequestOptions } from '@/utils';
 import { IAuthContext } from '../Auth';
 
 export class SubscriptionService {
   private static host =
     (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/subscription';
 
-  static async getSubscriptionsByUuid({
-    uuid,
-    password,
-  }: IAuthContext['authOptions']): Promise<[TSubscription[] | null, Error | null]> {
+  static async getSubscriptionsByUuid(
+    { uuid, password }: IAuthContext['authOptions'],
+    requestOptions?: RequestInit
+  ): Promise<[TSubscription[] | null, Error | null]> {
     try {
       const query = new URLSearchParams();
       query.append('uuid', uuid);
       const response = await fetch(this.host + '?' + query.toString(), {
         ...prepareRequestOptions({ uuid, password }),
+        ...requestOptions,
       });
       const json = (await response.json()) as TApiResponse<TSubscription[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
@@ -156,5 +158,16 @@ export class SubscriptionService {
         return a.executeAt - b.executeAt; // Sort by executeAt for the rest
       }
     });
+  }
+
+  static getPlannedBalanceByType(
+    subscriptions: TSubscription[],
+    type: 'INCOME' | 'SPENDINGS' = 'INCOME'
+  ): TSubscription[] {
+    return this.sortByExecutionDate(
+      subscriptions.filter(({ transferAmount }) =>
+        type === 'INCOME' ? transferAmount > 0 : transferAmount < 0
+      )
+    );
   }
 }

@@ -70,7 +70,7 @@ export const BudgetList: React.FC<TBudgetListProps> = () => {
           <Card.HeaderActions>
             <ActionPaper>
               <Tooltip title="Set Budget">
-                <IconButton onClick={() => setShowCreateBudgetDrawer(true)}>
+                <IconButton color="primary" onClick={() => setShowCreateBudgetDrawer(true)}>
                   <AddRounded />
                 </IconButton>
               </Tooltip>

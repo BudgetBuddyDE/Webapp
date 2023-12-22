@@ -9,7 +9,8 @@ import {
   type TUpdateBudgetPayload,
   ZBudgetProgress,
 } from '@/types';
-import { isRunningInProdEnv, prepareRequestOptions } from '@/utils';
+import { prepareRequestOptions } from '@/utils';
+import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { type IAuthContext } from '../Auth';
 
 export class BudgetService {

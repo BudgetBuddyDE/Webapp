@@ -1,5 +1,5 @@
 import { ZUser, type TApiResponse, type TUser, TSignUpPayload, TSignInPayload } from '@/types';
-import { isRunningInProdEnv } from '@/utils';
+import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 
 export class AuthService {
   private static host =

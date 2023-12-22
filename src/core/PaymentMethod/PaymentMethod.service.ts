@@ -8,7 +8,8 @@ import {
   type TUpdatePaymentMethodPayload,
   type TUser,
 } from '@/types';
-import { isRunningInProdEnv, prepareRequestOptions } from '@/utils';
+import { prepareRequestOptions } from '@/utils';
+import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { IAuthContext } from '../Auth';
 
 export class PaymentMethodService {

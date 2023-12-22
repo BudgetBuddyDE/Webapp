@@ -1,6 +1,11 @@
 import { ContentGrid } from '@/components/Layout';
 import { withAuthLayout } from '@/core/Auth/Layout';
-import { BudgetList, BudgetProgressWrapper, useFetchBudgetProgress } from '@/core/Budget';
+import {
+  BudgetList,
+  BudgetProgressWrapper,
+  StatsWrapper,
+  useFetchBudgetProgress,
+} from '@/core/Budget';
 import { CategorySpendingsChart } from '@/core/Category';
 import { CategoryIncomeChart } from '@/core/Category/Chart/IncomeChart.component';
 import { Grid } from '@mui/material';
@@ -23,6 +28,8 @@ export const Budgets = () => {
       </Grid>
 
       <Grid container item xs={12} md={12} lg={7} xl={7} spacing={3}>
+        <StatsWrapper />
+
         <Grid item xs={12} md={12} lg={12} xl={12}>
           <BudgetList />
 

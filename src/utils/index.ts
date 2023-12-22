@@ -6,4 +6,3 @@ export * from './determineNextExecution.util';
 export * from './determineNextExecutionDate.util';
 export * from './getFirstDayOfMonth.util';
 export * from './getLastDayOfMonth.util';
-export * from './isRunningInProdEnv.util';

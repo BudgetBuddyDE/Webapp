@@ -1,4 +1,4 @@
-import { addMonths } from 'date-fns';
+import { addMonths, isSameDay } from 'date-fns';
 import { determineNextExecutionDate } from './determineNextExecutionDate.util';
 
 describe('determineNextExecutionDate', () => {
@@ -23,17 +23,15 @@ describe('determineNextExecutionDate', () => {
     const now = new Date();
     const executeAt = now.getDate();
     const result = determineNextExecutionDate(executeAt);
-    const expected = new Date(now.getFullYear(), now.getMonth(), executeAt);
-    expect(result).toEqual(expected);
+    const expected = addMonths(now, 1);
+    expect(isSameDay(result, expected)).toBeTruthy();
   });
 
   it('should return the correct next execution date when executeAt is at the end of the month', () => {
-    const now = new Date(2023, 10, 31); // October 31, 2023
+    const now = new Date("2023-10-31"); // October 31, 2023
     const executeAt = now.getDate(); // a date in the next month
-    const result = determineNextExecutionDate(executeAt);
-    const expected = new Date(2023, 11, executeAt); // November 31, 2023
-    expect(result).toEqual(expected);
+    const result = determineNextExecutionDate(executeAt, now);
+    const expected = new Date("2023-11-30"); // November 30, 2023
+    expect(isSameDay(result, expected)).toBeTruthy();
   });
 });
-
-// Stelle sicher, dass die addMonths-Funktion korrekt implementiert ist.
