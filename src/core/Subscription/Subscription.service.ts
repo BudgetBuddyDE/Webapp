@@ -159,4 +159,15 @@ export class SubscriptionService {
       }
     });
   }
+
+  static getPlannedBalanceByType(
+    subscriptions: TSubscription[],
+    type: 'INCOME' | 'SPENDINGS' = 'INCOME'
+  ): TSubscription[] {
+    return this.sortByExecutionDate(
+      subscriptions.filter(({ transferAmount }) =>
+        type === 'INCOME' ? transferAmount > 0 : transferAmount < 0
+      )
+    );
+  }
 }
