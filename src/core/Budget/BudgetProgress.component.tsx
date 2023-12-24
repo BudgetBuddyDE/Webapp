@@ -27,21 +27,23 @@ export const BudgetProgress: React.FC<TBudgetProgressProps> = ({
         mt: 1,
       }}
     >
-      <Icon icon={<AddRounded />} sx={{ mr: 1 }} />
-      <Box sx={{ flex: 1, mr: 1 }}>
-        <Typography fontWeight="bold">{category.name}</Typography>
-        <LinearProgress
-          sx={{
-            height: '.75rem',
-            borderRadius: (theme) => Math.round(theme.shape.borderRadius / 3) + 'px',
-          }}
-          variant="determinate"
-          color={progress < 100 ? 'primary' : 'warning'}
-          value={progress}
-        />
+      <Box sx={{ display: 'flex', flex: 1, mr: 1 }}>
+        <Icon icon={<AddRounded />} sx={{ mr: 1 }} />
+        <Box sx={{ flex: 1 }}>
+          <Typography fontWeight="bold">{category.name}</Typography>
+          <LinearProgress
+            sx={{
+              height: '.75rem',
+              borderRadius: (theme) => Math.round(theme.shape.borderRadius / 3) + 'px',
+            }}
+            variant="determinate"
+            color={progress < 100 ? 'primary' : 'warning'}
+            value={progress}
+          />
+        </Box>
       </Box>
 
-      <Box sx={{ ml: 'auto', width: '10%', textAlign: 'center' }}>
+      <Box sx={{ ml: 'auto', textAlign: 'center' }}>
         <Typography fontWeight="bold">{formatBalance(amount_spent)}</Typography>
       </Box>
     </Box>
