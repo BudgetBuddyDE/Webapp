@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  ExitToAppRounded,
-  HomeRounded,
-  VisibilityRounded as VisibilityIcon,
-  VisibilityOffRounded as VisibilityOffIcon,
-} from '@mui/icons-material';
+import { ExitToAppRounded, HomeRounded } from '@mui/icons-material';
 import { AuthService, useAuthContext } from '@/core/Auth';
 import { useSnackbarContext } from '@/core/Snackbar';
 import {
@@ -12,17 +7,12 @@ import {
   Button,
   Checkbox,
   Divider,
-  FormControl,
   FormControlLabel,
   Grid,
-  IconButton,
-  InputAdornment,
-  InputLabel,
   Link,
-  OutlinedInput,
   TextField,
 } from '@mui/material';
-import { Card } from '@/components/Base';
+import { Card, PasswordInput } from '@/components/Base';
 import { AppLogo } from '@/components/AppLogo.component';
 import { StackedIconButton } from '@/components/StackedIconButton.component';
 import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
@@ -35,7 +25,6 @@ const SignUp = () => {
   const { session, setSession } = useAuthContext();
   const { showSnackbar } = useSnackbarContext();
   const [form, setForm] = React.useState<Record<string, string>>({});
-  const [showPassword, setShowPassword] = React.useState(false);
 
   const formHandler = {
     inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -113,27 +102,7 @@ const SignUp = () => {
             </Grid>
 
             <Grid item xs={12} md={12}>
-              <FormControl variant="outlined" fullWidth required>
-                <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-                <OutlinedInput
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  onChange={formHandler.inputChange}
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={() => setShowPassword((prev) => !prev)}
-                        sx={{ mr: 0 }}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                  label="Password"
-                />
-              </FormControl>
+              <PasswordInput outlinedInputProps={{ onChange: formHandler.inputChange }} />
             </Grid>
 
             <Grid item xs={12} md={12}>

@@ -1,26 +1,9 @@
 import React from 'react';
-import {
-  AppRegistrationRounded,
-  HomeRounded,
-  LockResetRounded,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-} from '@mui/icons-material';
-import {
-  Box,
-  Button,
-  Divider,
-  FormControl,
-  Grid,
-  IconButton,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
-  TextField,
-} from '@mui/material';
+import { AppRegistrationRounded, HomeRounded } from '@mui/icons-material';
+import { Box, Button, Divider, Grid, Link, TextField } from '@mui/material';
 import { AuthService, useAuthContext } from '@/core/Auth';
 import { useSnackbarContext } from '@/core/Snackbar';
-import { Card } from '@/components/Base';
+import { Card, PasswordInput } from '@/components/Base';
 import { StackedIconButton } from '@/components/StackedIconButton.component';
 import { AppLogo } from '@/components/AppLogo.component';
 import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
@@ -32,7 +15,6 @@ const SignIn = () => {
   const { session, setSession } = useAuthContext();
   const { showSnackbar } = useSnackbarContext();
   const [form, setForm] = React.useState<Record<string, string>>({});
-  const [showPassword, setShowPassword] = React.useState(false);
 
   const formHandler = {
     inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -60,6 +42,12 @@ const SignIn = () => {
       }
     },
   };
+
+  React.useEffect(() => {
+    return () => {
+      setForm({});
+    };
+  }, []);
 
   return (
     <Box
@@ -91,33 +79,24 @@ const SignIn = () => {
                 label="E-Mail"
                 name="email"
                 onChange={formHandler.inputChange}
+                defaultValue={form.email || ''}
                 fullWidth
                 required
               />
             </Grid>
 
             <Grid item xs={12} md={12}>
-              <FormControl variant="outlined" fullWidth required>
-                <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-                <OutlinedInput
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  onChange={formHandler.inputChange}
-                  label="Password"
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={() => setShowPassword((prev) => !prev)}
-                        sx={{ mr: 0 }}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                />
-              </FormControl>
+              <PasswordInput outlinedInputProps={{ onChange: formHandler.inputChange }} />
+
+              <Link
+                tabIndex={-1}
+                variant="caption"
+                href="/request-password-reset"
+                sx={{ textDecoration: 'none', mt: 0.5 }}
+                component={Button}
+              >
+                Forgot password?
+              </Link>
             </Grid>
           </Grid>
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -142,16 +121,6 @@ const SignIn = () => {
               </StackedIconButton>
             </Grid>
           )}
-          <Grid item xs={6} md={6} lg={6} xl={4}>
-            <StackedIconButton
-              size="large"
-              startIcon={<LockResetRounded />}
-              sx={{ width: '100%' }}
-              onClick={() => navigate('/request-reset')}
-            >
-              Reset password?
-            </StackedIconButton>
-          </Grid>
           <Grid item xs={6} md={6} lg={6} xl={4}>
             <StackedIconButton
               size="large"

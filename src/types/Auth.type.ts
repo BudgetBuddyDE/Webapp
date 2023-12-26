@@ -1,10 +1,11 @@
 import { z } from 'zod';
-import type { TUser } from './User.type';
+import { ZUser, type TUser } from './User.type';
+import { ZCreatedAt, ZEmail } from './Base.type';
 
 export type TSession = TUser;
 
 export const ZSignUpPayload = z.object({
-  email: z.string().email(),
+  email: ZEmail,
   password: z.string(),
   name: z.string(),
   surname: z.string(),
@@ -12,7 +13,7 @@ export const ZSignUpPayload = z.object({
 export type TSignUpPayload = z.infer<typeof ZSignUpPayload>;
 
 export const ZSignInPayload = z.object({
-  email: z.string().email(),
+  email: ZEmail,
   password: z.string(),
 });
 export type TSignInPayload = z.infer<typeof ZSignInPayload>;
@@ -31,3 +32,12 @@ export const VerifyMailReturnCodeToMessage: Record<EVerifyMailReturnCode, string
   [EVerifyMailReturnCode.INVALID_EMAIL]: "This email isn't bound to your user account!",
   [EVerifyMailReturnCode.NOT_FOUND]: 'User not found!',
 };
+
+export const ZPasswordReset = z.object({
+  id: z.number(),
+  owner: ZUser,
+  otp: z.string().uuid(),
+  used: z.boolean(),
+  createdAt: ZCreatedAt,
+});
+export type TPasswordReset = z.infer<typeof ZPasswordReset>;
