@@ -1,4 +1,12 @@
-import { ZUser, type TApiResponse, type TUser, TSignUpPayload, TSignInPayload } from '@/types';
+import {
+  ZUser,
+  type TApiResponse,
+  type TUser,
+  type TSignUpPayload,
+  type TSignInPayload,
+  type TPasswordReset,
+  ZPasswordReset,
+} from '@/types';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 
 export class AuthService {
@@ -85,6 +93,61 @@ export class AuthService {
     } finally {
       if (cb) cb(success, error);
       return [success, error];
+    }
+  }
+
+  static async requestPasswordReset(email: string): Promise<[TPasswordReset | null, Error | null]> {
+    try {
+      const query = new URLSearchParams({ email });
+      const response = await fetch(this.host + '/password/request-reset?' + query.toString(), {
+        ...this.options,
+      });
+      const json = (await response.json()) as TApiResponse<TPasswordReset>;
+      if (json.status != 200) return [null, new Error(json.message!)];
+
+      const parsingResult = ZPasswordReset.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
+    } catch (error) {
+      console.error(error);
+      return [null, error as Error];
+    }
+  }
+
+  static async validatePasswordResetOtp(otp: string): Promise<[Boolean | null, Error | null]> {
+    try {
+      const query = new URLSearchParams({ otp });
+      const response = await fetch(this.host + '/password/validate-otp?' + query.toString(), {
+        ...this.options,
+      });
+      const json = (await response.json()) as TApiResponse<boolean>;
+      if (json.status != 200) return [null, new Error(json.message!)];
+
+      return [json.data, null];
+    } catch (error) {
+      console.error(error);
+      return [null, error as Error];
+    }
+  }
+
+  static async saveNewPassword(
+    otp: string,
+    newPassword: string
+  ): Promise<[TUser | null, Error | null]> {
+    try {
+      const query = new URLSearchParams({ otp, newPassword });
+      const response = await fetch(this.host + '/password/reset?' + query.toString(), {
+        ...this.options,
+      });
+      const json = (await response.json()) as TApiResponse<boolean>;
+      if (json.status != 200) return [null, new Error(json.message!)];
+
+      const parsingResult = ZUser.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
+    } catch (error) {
+      console.error(error);
+      return [null, error as Error];
     }
   }
 }

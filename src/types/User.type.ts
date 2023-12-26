@@ -1,12 +1,12 @@
 import { z } from 'zod';
 import { ZRole } from './Role.type';
-import { ZCreatedAt } from './index';
+import { ZCreatedAt, ZEmail } from './index';
 
 export const ZUser = z.object({
   uuid: z.string().uuid(),
   isVerified: z.boolean().default(false),
   role: ZRole,
-  email: z.string().email(),
+  email: ZEmail,
   name: z.string(),
   surname: z.string(),
   password: z.string(),
@@ -16,7 +16,7 @@ export type TUser = z.infer<typeof ZUser>;
 
 export const ZUpdateUserPayload = z.object({
   uuid: z.string().uuid(),
-  email: z.string().email(),
+  email: ZEmail,
   name: z.string(),
   surname: z.string(),
 });

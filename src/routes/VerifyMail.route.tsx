@@ -1,9 +1,10 @@
 import React from 'react';
 import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
 import { VerifyMailReturnCodeToMessage, ZVerifyMailReturnCode } from '@/types';
-import { ActionPaper } from '@/components/Base';
+import { Card } from '@/components/Base';
 import { Button, Link, Typography } from '@mui/material';
 import { LoginRounded } from '@mui/icons-material';
+import { AppLogo } from '@/components/AppLogo.component';
 
 const VerifyMail = () => {
   const searchParams = React.useMemo(
@@ -20,7 +21,7 @@ const VerifyMail = () => {
   }, [searchParams]);
 
   return (
-    <ActionPaper
+    <Card
       sx={{
         width: { xs: '90%', md: '40%', lg: '25%' },
         maxWidth: '480px',
@@ -30,13 +31,28 @@ const VerifyMail = () => {
         textAlign: 'center',
       }}
     >
-      <Typography variant="h2">Verify Email</Typography>
-      <Typography sx={{ my: 1 }}>{message}</Typography>
+      <Card.Header>
+        <AppLogo
+          style={{
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            borderRadius: '5px',
+          }}
+          width={96}
+          height={96}
+        />
+      </Card.Header>
+      <Card.Body>
+        <Typography variant="h2" sx={{ mt: 1 }}>
+          Verify Email
+        </Typography>
+        <Typography sx={{ my: 1 }}>{message}</Typography>
 
-      <Button LinkComponent={Link} href="/sign-in" startIcon={<LoginRounded />}>
-        Login
-      </Button>
-    </ActionPaper>
+        <Button LinkComponent={Link} href="/sign-in" startIcon={<LoginRounded />}>
+          Login
+        </Button>
+      </Card.Body>
+    </Card>
   );
 };
 

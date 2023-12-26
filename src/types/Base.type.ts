@@ -16,6 +16,14 @@ export type TCreatedAt = z.infer<typeof ZCreatedAt>;
 export const ZDate = ZCreatedAt;
 export type TDate = z.infer<typeof ZDate>;
 
+export const ZEmail = z
+  .string()
+  .min(1, { message: 'This field has to be filled.' })
+  .email('This is not a valid email.');
+
+export type TEmail = z.infer<typeof ZEmail>;
+
+// FIXME: Implement this
 export interface IFetchDataHook<T> {
   loading: boolean;
   fetched: boolean;
