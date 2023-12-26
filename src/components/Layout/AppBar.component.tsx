@@ -16,13 +16,12 @@ import {
 import { Brand } from '../Brand.component';
 import { UserAvatar } from '@/core/User';
 import { DrawerHamburger } from './Drawer/DrawerHamburger.component';
-import { AuthService, useAuthContext } from '@/core/Auth';
+import { AuthService } from '@/core/Auth';
 import { useNavigate } from 'react-router-dom';
 import { AppConfig } from '@/app.config';
 
 export const AppBar = () => {
   const navigate = useNavigate();
-  const { setSession } = useAuthContext();
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
   const MenuLinks = [
@@ -41,7 +40,9 @@ export const AppBar = () => {
       label: 'Logout',
       onClick: async () => {
         await AuthService.signOut((success) => {
-          if (success) setSession(null);
+          if (success) {
+            window.location.reload();
+          }
         });
       },
     },
