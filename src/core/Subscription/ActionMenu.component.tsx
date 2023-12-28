@@ -6,7 +6,7 @@ import {
   PlayArrowRounded,
 } from '@mui/icons-material';
 import { IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
-import type { TSubscription } from '@/types';
+import type { TSubscription } from '@budgetbuddyde/types';
 
 export type TSubscriptionActionMenuProps = {
   subscription: TSubscription;

@@ -7,7 +7,7 @@ import {
   type TDeleteSubscriptionPayload,
   type TSubscription,
   type TUpdateSubscriptionPayload,
-} from '@/types';
+} from '@budgetbuddyde/types';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { determineNextExecutionDate, prepareRequestOptions } from '@/utils';
 import { IAuthContext } from '../Auth';

@@ -6,7 +6,7 @@ import {
   type TCreateCategoryPayload,
   type TDeleteCategoryPayload,
   type TUpdateCategoryPayload,
-} from '@/types';
+} from '@budgetbuddyde/types';
 import { prepareRequestOptions } from '@/utils';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { IAuthContext } from '../Auth';

@@ -8,7 +8,7 @@ import { StackedIconButton } from '@/components/StackedIconButton.component';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbarContext } from '@/core/Snackbar';
 import React from 'react';
-import { ZEmail } from '@/types';
+import { ZEmail } from '@budgetbuddyde/types';
 
 const RequestPasswordReset = () => {
   const navigate = useNavigate();

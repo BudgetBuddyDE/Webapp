@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { TBudgetProgress, TUser } from '@/types';
+import type { TBudgetProgress, TUser } from '@budgetbuddyde/types';
 import { IBaseStore } from '../Transaction';
 
 export interface IBudgetProgressStore extends IBaseStore<TBudgetProgress[]> {

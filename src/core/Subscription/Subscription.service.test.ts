@@ -1,4 +1,4 @@
-import { TSubscription } from '@/types';
+import { TSubscription } from '@budgetbuddyde/types';
 import { SubscriptionService } from './Subscription.service';
 
 describe('getPlannedBalanceByType', () => {

@@ -1,5 +1,10 @@
 import { IAuthContext } from '@/core/Auth';
-import { type TApiResponse, type TUpdateUserPayload, ZUser, type TUser } from '@/types';
+import {
+  type TApiResponse,
+  type TUpdateUserPayload,
+  ZUser,
+  type TUser,
+} from '@budgetbuddyde/types';
 import { prepareRequestOptions } from '@/utils';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 

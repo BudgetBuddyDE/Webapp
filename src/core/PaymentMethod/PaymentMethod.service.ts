@@ -7,7 +7,7 @@ import {
   type TPaymentMethod,
   type TUpdatePaymentMethodPayload,
   type TUser,
-} from '@/types';
+} from '@budgetbuddyde/types';
 import { prepareRequestOptions } from '@/utils';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { IAuthContext } from '../Auth';

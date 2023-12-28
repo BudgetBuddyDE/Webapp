@@ -8,7 +8,7 @@ import {
   type TDeleteBudgetPayload,
   type TUpdateBudgetPayload,
   ZBudgetProgress,
-} from '@/types';
+} from '@budgetbuddyde/types';
 import { prepareRequestOptions } from '@/utils';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { type IAuthContext } from '../Auth';

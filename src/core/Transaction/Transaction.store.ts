@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { TTransaction, TUser } from '@/types';
+import type { TTransaction, TUser } from '@budgetbuddyde/types';
 
 export interface IBaseStore<T> {
   data: T;

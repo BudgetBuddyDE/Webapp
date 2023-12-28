@@ -1,6 +1,6 @@
 import { Card, NoResults, type TCardProps } from '@/components/Base';
 import { Icon } from '@/components/Icon.component';
-import { type TBudgetProgress } from '@/types';
+import { type TBudgetProgress } from '@budgetbuddyde/types';
 import { formatBalance } from '@/utils';
 import { AddRounded } from '@mui/icons-material';
 import { Box, LinearProgress, Typography } from '@mui/material';

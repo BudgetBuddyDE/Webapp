@@ -10,7 +10,7 @@ import {
   type TBudget,
   type TBudgetProgress,
   type TUpdateBudgetPayload,
-} from '@/types';
+} from '@budgetbuddyde/types';
 import { transformBalance } from '@/utils';
 
 interface IEditBudgetDrawerHandler {

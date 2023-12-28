@@ -2,7 +2,11 @@ import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@
 import { TextField } from '@mui/material';
 import React from 'react';
 import { FormStyle } from '@/style/Form.style';
-import { ZUpdateCategoryPayload, type TCategory, type TUpdateCategoryPayload } from '@/types';
+import {
+  ZUpdateCategoryPayload,
+  type TCategory,
+  type TUpdateCategoryPayload,
+} from '@budgetbuddyde/types';
 import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { CategoryService } from './Category.service';

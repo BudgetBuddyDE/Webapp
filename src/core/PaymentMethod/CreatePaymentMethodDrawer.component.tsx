@@ -2,7 +2,10 @@ import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@
 import { TextField } from '@mui/material';
 import React from 'react';
 import { FormStyle } from '@/style/Form.style';
-import { ZCreatePaymentMethodPayload, type TCreatePaymentMethodPayload } from '@/types';
+import {
+  ZCreatePaymentMethodPayload,
+  type TCreatePaymentMethodPayload,
+} from '@budgetbuddyde/types';
 import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { PaymentMethodService, useFetchPaymentMethods } from '.';

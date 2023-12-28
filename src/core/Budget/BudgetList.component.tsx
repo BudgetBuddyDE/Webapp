@@ -8,7 +8,7 @@ import { CategoryBudget, TCategoryBudgetProps } from './CategoryBudget.component
 import { BudgetService, CreateBudgetDrawer, EditBudgetDrawer, useFetchBudgetProgress } from '.';
 import { useSnackbarContext } from '../Snackbar';
 import { useAuthContext } from '../Auth';
-import { TBudget } from '@/types';
+import { TBudget } from '@budgetbuddyde/types';
 
 export type TBudgetListProps = {};
 

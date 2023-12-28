@@ -1,4 +1,4 @@
-import { TCategory, TPaymentMethod } from '@/types';
+import { TCategory, TPaymentMethod } from '@budgetbuddyde/types';
 import { getFirstDayOfMonth, getLastDayOfMonth } from '@/utils';
 import { subMonths } from 'date-fns';
 import { create } from 'zustand';

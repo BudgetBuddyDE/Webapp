@@ -27,7 +27,7 @@ import {
   PaginationReducer,
   usePagination,
 } from '@/components/Base/Pagination';
-import { TTransaction } from '@/types';
+import { TTransaction } from '@budgetbuddyde/types';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { SearchInput } from '@/components/Base/Search';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';

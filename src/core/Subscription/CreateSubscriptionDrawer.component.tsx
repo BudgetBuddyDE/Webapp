@@ -17,7 +17,7 @@ import { useSnackbarContext } from '../Snackbar';
 import { CategoryAutocomplete } from '../Category';
 import { ReceiverAutocomplete } from '@/components/Base';
 import { PaymentMethodAutocomplete } from '../PaymentMethod';
-import { ZCreateSubcriptionPayload, type TCreateSubscriptionPayload } from '@/types';
+import { ZCreateSubcriptionPayload, type TCreateSubscriptionPayload } from '@budgetbuddyde/types';
 import { transformBalance } from '@/utils';
 import { SubscriptionService, useFetchSubscriptions } from '.';
 import { TransactionService, useFetchTransactions } from '../Transaction';

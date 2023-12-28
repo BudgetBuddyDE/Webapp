@@ -1,4 +1,4 @@
-import type { TCategory } from '@/types';
+import type { TCategory } from '@budgetbuddyde/types';
 
 export function getCategoryFromList(
   categoryId: number,

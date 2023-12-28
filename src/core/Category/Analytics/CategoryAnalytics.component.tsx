@@ -4,7 +4,7 @@ import { Card, NewBarChart, StyledAutocompleteOption, TBarChartData } from '@/co
 import { ArrowRightRounded } from '@mui/icons-material';
 import { Autocomplete, TextField, Button, Box, Skeleton, Paper, Typography } from '@mui/material';
 import { useFetchCategories } from '..';
-import { TCategory } from '@/types';
+import { TCategory } from '@budgetbuddyde/types';
 import { ParentSize } from '@visx/responsive';
 import { useFetchTransactions } from '@/core/Transaction';
 import { format, isBefore, isSameMonth, isSameYear } from 'date-fns';

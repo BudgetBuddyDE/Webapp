@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { TSubscription, TUser } from '@/types';
+import type { TSubscription, TUser } from '@budgetbuddyde/types';
 import { type IBaseStore } from '../Transaction';
 import { SubscriptionService } from '.';
 

@@ -8,7 +8,7 @@ import { StackedIconButton } from '@/components/StackedIconButton.component';
 import { AppLogo } from '@/components/AppLogo.component';
 import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
 import { useNavigate } from 'react-router-dom';
-import { type TSignInPayload, ZSignInPayload } from '@/types';
+import { type TSignInPayload, ZSignInPayload } from '@budgetbuddyde/types';
 
 const SignIn = () => {
   const navigate = useNavigate();

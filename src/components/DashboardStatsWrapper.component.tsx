@@ -8,7 +8,7 @@ import {
   ScheduleSendRounded,
 } from '@mui/icons-material';
 import { IBaseStore, TransactionService, useTransactionStore } from '@/core/Transaction';
-import { TUser } from '@/types';
+import { TUser } from '@budgetbuddyde/types';
 import { create } from 'zustand';
 import { useAuthContext } from '@/core/Auth';
 import { useSubscriptionStore } from '@/core/Subscription';

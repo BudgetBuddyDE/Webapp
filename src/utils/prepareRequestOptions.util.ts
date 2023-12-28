@@ -1,4 +1,4 @@
-import type { TUser } from '@/types';
+import type { TUser } from '@budgetbuddyde/types';
 
 export function prepareRequestOptions({
   uuid,

@@ -1,5 +1,5 @@
 import { TFilters } from '@/core/Filter';
-import { TSubscription, TTransaction } from '@/types';
+import { TSubscription, TTransaction } from '@budgetbuddyde/types';
 import { isSameDay } from 'date-fns';
 
 export function filterByKeyboard(

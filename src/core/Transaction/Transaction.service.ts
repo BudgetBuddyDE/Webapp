@@ -9,7 +9,7 @@ import {
   type TTransaction,
   type TUpdateTransactionPayload,
   ZDailyTransaction,
-} from '@/types';
+} from '@budgetbuddyde/types';
 import { format, isSameMonth } from 'date-fns';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { prepareRequestOptions } from '@/utils';

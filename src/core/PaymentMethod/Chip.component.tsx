@@ -1,6 +1,6 @@
 import React from 'react';
 import { Chip, type ChipProps } from '@mui/material';
-import type { TPaymentMethod } from '@/types';
+import type { TPaymentMethod } from '@budgetbuddyde/types';
 import { useFilterStore } from '../Filter';
 
 export type TPaymentMethodChipProps = ChipProps & { paymentMethod: TPaymentMethod };
