@@ -179,7 +179,7 @@ export const DailyTransactionChart: React.FC<TDailyTransactionChart> = () => {
                     : format(selectedTransaction.date, 'dd.MM.yy')}
                 </Typography>
                 <Typography variant="subtitle1">
-                  {formatBalance(selectedTransaction.amount)}
+                  {formatBalance(Math.abs(selectedTransaction.amount))}
                 </Typography>
               </Box>
             )}

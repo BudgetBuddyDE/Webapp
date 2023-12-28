@@ -15,11 +15,13 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
   const screenSize = useScreenSize();
   const { open, toggle } = useDrawerStore();
   const { breakpoint } = useWindowDimensions();
-  const { session, setSession } = useAuthContext();
+  const { session } = useAuthContext();
 
   const handleSignOut = async () => {
     await AuthService.signOut((success) => {
-      if (success) setSession(null);
+      if (success) {
+        window.location.reload();
+      }
     });
   };
 
