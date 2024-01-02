@@ -2,7 +2,7 @@ import React from 'react';
 import { format } from 'date-fns';
 import { Box, Chip, IconButton, type ChipProps } from '@mui/material';
 import { AddRounded as AddIcon, ReceiptRounded as ReceiptIcon } from '@mui/icons-material';
-import type { TSubscription } from '@/types';
+import type { TSubscription } from '@budgetbuddyde/types';
 import { Card, ListWithIcon, NoResults } from '@/components/Base';
 
 export type TSubscriptionList = {

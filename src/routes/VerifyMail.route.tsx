@@ -1,6 +1,6 @@
 import React from 'react';
 import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
-import { VerifyMailReturnCodeToMessage, ZVerifyMailReturnCode } from '@/types';
+import { VerifyMailReturnCodeToMessage, ZVerifyMailReturnCode } from '@budgetbuddyde/types';
 import { Card } from '@/components/Base';
 import { Button, Link, Typography } from '@mui/material';
 import { LoginRounded } from '@mui/icons-material';

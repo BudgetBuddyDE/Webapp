@@ -26,7 +26,7 @@ import {
   ZUpdateTransactionPayload,
   type TTransaction,
   type TUpdateTransactionPayload,
-} from '@/types';
+} from '@budgetbuddyde/types';
 import { transformBalance } from '@/utils/transformBalance.util';
 
 interface IEditTransactionDrawerHandler {

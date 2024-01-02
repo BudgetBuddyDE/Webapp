@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { TCategory, TUser } from '@/types';
+import type { TCategory, TUser } from '@budgetbuddyde/types';
 import { IBaseStore } from '../Transaction';
 
 export interface ICategoryStore extends IBaseStore<TCategory[]> {

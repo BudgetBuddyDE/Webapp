@@ -25,7 +25,7 @@ import {
   ZUpdateSubscriptionPayload,
   type TSubscription,
   type TUpdateSubscriptionPayload,
-} from '@/types';
+} from '@budgetbuddyde/types';
 import { determineNextExecutionDate, transformBalance } from '@/utils';
 import { SubscriptionService, useFetchSubscriptions } from '.';
 import { TransactionService, useFetchTransactions } from '../Transaction';

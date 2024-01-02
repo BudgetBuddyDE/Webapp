@@ -8,7 +8,7 @@ import { CreateSubscriptionDrawer, SubscriptionList } from '@/core/Subscription'
 import { useFetchSubscriptions } from '@/core/Subscription';
 import { TransactionList, useFetchTransactions } from '@/core/Transaction';
 import { CreateTransactionDrawer } from '@/core/Transaction/CreateTransactionDrawer.component';
-import { TSubscription, TTransaction } from '@/types';
+import { TSubscription, TTransaction } from '@budgetbuddyde/types';
 import { Grid } from '@mui/material';
 import { useMemo, useState } from 'react';
 

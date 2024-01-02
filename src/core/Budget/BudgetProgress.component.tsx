@@ -1,8 +1,8 @@
 import { Card, NoResults, type TCardProps } from '@/components/Base';
 import { Icon } from '@/components/Icon.component';
-import { type TBudgetProgress } from '@/types';
+import { type TBudgetProgress } from '@budgetbuddyde/types';
 import { formatBalance } from '@/utils';
-import { AddRounded } from '@mui/icons-material';
+import { SavingsRounded, StopRounded, WarningRounded } from '@mui/icons-material';
 import { Box, LinearProgress, Typography } from '@mui/material';
 import React from 'react';
 
@@ -13,10 +13,14 @@ export const BudgetProgress: React.FC<TBudgetProgressProps> = ({
   amount_spent,
   budget,
 }) => {
-  const progress: number = React.useMemo(() => {
+  const budgetProgress: number = React.useMemo(() => {
     if (amount_spent >= budget) return 100;
     return (amount_spent * 100) / budget;
   }, [budget, amount_spent]);
+
+  const hasBudgetExceeded: boolean = React.useMemo(() => {
+    return budgetProgress > 100;
+  }, [amount_spent, budget]);
 
   return (
     <Box
@@ -28,7 +32,19 @@ export const BudgetProgress: React.FC<TBudgetProgressProps> = ({
       }}
     >
       <Box sx={{ display: 'flex', flex: 1, mr: 1 }}>
-        <Icon icon={<AddRounded />} sx={{ mr: 1 }} />
+        <Icon
+          icon={
+            budgetProgress === 100 ? (
+              <WarningRounded />
+            ) : hasBudgetExceeded ? (
+              <StopRounded />
+            ) : (
+              <SavingsRounded />
+            )
+          }
+          iconColor={hasBudgetExceeded ? 'warning' : 'primary'}
+          sx={{ mr: 1 }}
+        />
         <Box sx={{ flex: 1 }}>
           <Typography fontWeight="bold">{category.name}</Typography>
           <LinearProgress
@@ -37,8 +53,8 @@ export const BudgetProgress: React.FC<TBudgetProgressProps> = ({
               borderRadius: (theme) => Math.round(theme.shape.borderRadius / 3) + 'px',
             }}
             variant="determinate"
-            color={progress < 100 ? 'primary' : 'warning'}
-            value={progress}
+            color={hasBudgetExceeded ? 'warning' : 'primary'}
+            value={budgetProgress}
           />
         </Box>
       </Box>

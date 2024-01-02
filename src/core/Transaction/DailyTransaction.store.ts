@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { EDailyTransactionType, TDailyTransaction, TUser } from '@/types';
+import type { EDailyTransactionType, TDailyTransaction, TUser } from '@budgetbuddyde/types';
 
 export interface IDailyTransactionStore {
   INCOME: TDailyTransaction[];

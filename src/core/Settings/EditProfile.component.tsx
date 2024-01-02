@@ -2,7 +2,7 @@ import { Card } from '@/components/Base';
 import { Box, Button, Grid, TextField } from '@mui/material';
 import React from 'react';
 import { useAuthContext } from '../Auth';
-import { type TUpdateUserPayload, ZUpdateUserPayload } from '@/types';
+import { type TUpdateUserPayload, ZUpdateUserPayload } from '@budgetbuddyde/types';
 import { useSnackbarContext } from '../Snackbar';
 import { UserService } from '@/services';
 

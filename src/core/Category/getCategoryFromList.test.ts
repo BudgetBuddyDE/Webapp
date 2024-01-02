@@ -1,4 +1,4 @@
-import type { TCategory } from '@/types';
+import type { TCategory } from '@budgetbuddyde/types';
 import { getCategoryFromList } from './getCategoryFromList.util';
 
 // Sample categories for testing

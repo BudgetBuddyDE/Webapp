@@ -1,10 +1,10 @@
 import React from 'react';
 import { debounce } from 'lodash';
-import { Card, NewBarChart, StyledAutocompleteOption, TBarChartData } from '@/components/Base';
+import { BarChart, Card, StyledAutocompleteOption, type TBarChartData } from '@/components/Base';
 import { ArrowRightRounded } from '@mui/icons-material';
 import { Autocomplete, TextField, Button, Box, Skeleton, Paper, Typography } from '@mui/material';
 import { useFetchCategories } from '..';
-import { TCategory } from '@/types';
+import { TCategory } from '@budgetbuddyde/types';
 import { ParentSize } from '@visx/responsive';
 import { useFetchTransactions } from '@/core/Transaction';
 import { format, isBefore, isSameMonth, isSameYear } from 'date-fns';
@@ -139,16 +139,10 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({
               loadingCategories || loadingTransactions || chartData.length === 0 ? (
                 <Skeleton variant="rounded" width={width} height={height} />
               ) : (
-                <NewBarChart
+                <BarChart
                   width={width}
                   height={height}
                   data={chartData.map(({ date, value }) => ({ label: date, value }))}
-                  margin={{
-                    top: 60,
-                    right: 0,
-                    bottom: 0,
-                    left: 12,
-                  }}
                   formatDate={(dateString) => {
                     const date = new Date(dateString);
                     return isSameYear(date, new Date())

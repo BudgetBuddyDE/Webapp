@@ -6,7 +6,7 @@ import {
   ZUpdatePaymentMethodPayload,
   type TPaymentMethod,
   type TUpdatePaymentMethodPayload,
-} from '@/types';
+} from '@budgetbuddyde/types';
 import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { useFetchPaymentMethods, PaymentMethodService } from '.';

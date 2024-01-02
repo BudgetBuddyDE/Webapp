@@ -26,7 +26,7 @@ import {
 import { CategoryIncomeChart } from '@/core/Category/Chart/IncomeChart.component';
 import { useSnackbarContext } from '@/core/Snackbar';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
-import type { TCategory } from '@/types';
+import type { TCategory } from '@budgetbuddyde/types';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
 import {
   Box,

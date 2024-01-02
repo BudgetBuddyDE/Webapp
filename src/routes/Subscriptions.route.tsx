@@ -31,7 +31,7 @@ import {
   usePagination,
   Pagination,
 } from '@/components/Base/Pagination';
-import { TSubscription, TTransaction, TUpdateSubscriptionPayload } from '@/types';
+import { TSubscription, TTransaction, TUpdateSubscriptionPayload } from '@budgetbuddyde/types';
 import { Table } from '@/components/Base/Table';
 import { AppConfig } from '@/app.config';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';

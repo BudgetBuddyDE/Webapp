@@ -1,4 +1,4 @@
-import type { TPaymentMethod } from '@/types';
+import type { TPaymentMethod } from '@budgetbuddyde/types';
 
 export function getPaymentMethodFromList(
   paymentMethodId: number,

@@ -5,7 +5,7 @@ import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { BudgetService, useFetchBudget, useFetchBudgetProgress } from '.';
 import { CategoryAutocomplete } from '../Category';
-import { TCreateBudgetPayload, ZCreateBudgetPayload } from '@/types';
+import { TCreateBudgetPayload, ZCreateBudgetPayload } from '@budgetbuddyde/types';
 import { transformBalance } from '@/utils';
 
 interface ICreateBudgetDrawerHandler {

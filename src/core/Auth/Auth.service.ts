@@ -6,7 +6,7 @@ import {
   type TSignInPayload,
   type TPasswordReset,
   ZPasswordReset,
-} from '@/types';
+} from '@budgetbuddyde/types';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 
 export class AuthService {

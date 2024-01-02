@@ -18,7 +18,7 @@ import {
   useFetchPaymentMethods,
 } from '@/core/PaymentMethod';
 import { useSnackbarContext } from '@/core/Snackbar';
-import type { TPaymentMethod } from '@/types';
+import type { TPaymentMethod } from '@budgetbuddyde/types';
 import {
   Box,
   Grid,

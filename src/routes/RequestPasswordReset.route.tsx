@@ -1,6 +1,6 @@
 import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
 import { Card } from '@/components/Base';
-import { Button, Divider, Grid, TextField, Typography } from '@mui/material';
+import { Button, CircularProgress, Divider, Grid, TextField, Typography } from '@mui/material';
 import { AppRegistrationRounded, HomeRounded, SendRounded } from '@mui/icons-material';
 import { AppLogo } from '@/components/AppLogo.component';
 import { AuthService, useAuthContext } from '@/core/Auth';
@@ -8,18 +8,20 @@ import { StackedIconButton } from '@/components/StackedIconButton.component';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbarContext } from '@/core/Snackbar';
 import React from 'react';
-import { ZEmail } from '@/types';
+import { ZEmail } from '@budgetbuddyde/types';
 
 const RequestPasswordReset = () => {
   const navigate = useNavigate();
   const { session } = useAuthContext();
   const { showSnackbar } = useSnackbarContext();
+  const [loading, setLoading] = React.useState(false);
   const [email, setEmail] = React.useState('');
 
   const handler = {
     onSubmit: async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       try {
+        setLoading(true);
         const emailValidationResult = ZEmail.safeParse(email);
         if (!emailValidationResult.success) {
           throw new Error(emailValidationResult.error.message);
@@ -39,6 +41,8 @@ const RequestPasswordReset = () => {
             </Button>
           ),
         });
+      } finally {
+        setLoading(false);
       }
     },
   };
@@ -81,9 +85,16 @@ const RequestPasswordReset = () => {
             required
             autoFocus
             onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
           />
 
-          <Button type="submit" variant="contained" sx={{ mt: 2 }} endIcon={<SendRounded />}>
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ mt: 2 }}
+            endIcon={loading ? <CircularProgress size={18} color="primary" /> : <SendRounded />}
+            disabled={loading}
+          >
             Request reset
           </Button>
         </form>

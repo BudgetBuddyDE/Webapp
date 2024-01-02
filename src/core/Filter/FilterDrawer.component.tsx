@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { DateRange, TDateRangeProps } from '@/components/Base';
 import { CreateCategoryAlert, useFetchCategories } from '../Category';
-import type { TCategory, TPaymentMethod } from '@/types';
+import type { TCategory, TPaymentMethod } from '@budgetbuddyde/types';
 import { CreatePaymentMethodAlert, useFetchPaymentMethods } from '../PaymentMethod';
 
 const ITEM_HEIGHT = 48;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TSession, TUser } from '@/types';
+import { TSession, TUser } from '@budgetbuddyde/types';
 import { AuthService } from './Auth.service';
 
 export interface IAuthContext {

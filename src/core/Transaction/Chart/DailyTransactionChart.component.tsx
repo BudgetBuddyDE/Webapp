@@ -1,19 +1,27 @@
 import React from 'react';
-import { ActionPaper, Card, NoResults } from '@/components/Base';
-import { Box, Paper, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { ActionPaper, Card } from '@/components/Base';
+import {
+  Box,
+  Paper,
+  Skeleton,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from '@mui/material';
 import { format, isSameDay, subDays } from 'date-fns';
-import { EDailyTransactionType, TDailyTransaction } from '@/types';
+import { EDailyTransactionType, TDailyTransaction } from '@budgetbuddyde/types';
 import { DATE_RANGE_INPUT_FORMAT } from '@/routes/Budget.route';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useScreenSize } from '@/hooks';
 import { ParentSize } from '@visx/responsive';
-import { BarChart, TBarChartData } from '@/components/Base/Charts/BarChart.component';
+import { BarChart, type TBarChartData } from '@/components/Base';
 import { useAuthContext } from '@/core/Auth';
 import { useDailyTransactionStore } from '../DailyTransaction.store';
 import { TransactionService } from '../Transaction.service';
-import { CircularProgress } from '@/components/Loading';
 import { formatBalance } from '@/utils';
+import { debounce } from 'lodash';
 
 export interface IDailyTransactionChartHandler {
   onStartDateChange: (startDate: Date | null) => void;
@@ -48,6 +56,13 @@ export const DailyTransactionChart: React.FC<TDailyTransactionChart> = () => {
 
     return [];
   }, [chartContent, INCOME, SPENDINGS]);
+
+  const chartData: TBarChartData[] = React.useMemo(() => {
+    return selectedData.map(({ date, amount }) => ({
+      label: date.toString(),
+      value: Math.abs(amount),
+    }));
+  }, [selectedData]);
 
   const handler: IDailyTransactionChartHandler = {
     onStartDateChange(startDate) {
@@ -167,40 +182,36 @@ export const DailyTransactionChart: React.FC<TDailyTransactionChart> = () => {
         </Box>
       </Card.Header>
       <Card.Body>
-        {loading ? (
-          <CircularProgress />
-        ) : selectedData.length > 0 ? (
-          <Paper elevation={0} sx={{ mt: '1rem' }}>
-            {selectedTransaction && (
-              <Box sx={{ ml: 2, mt: 1 }}>
-                <Typography variant="caption">
-                  {isSameDay(selectedTransaction.date, new Date())
-                    ? 'Today'
-                    : format(selectedTransaction.date, 'dd.MM.yy')}
-                </Typography>
-                <Typography variant="subtitle1">
-                  {formatBalance(Math.abs(selectedTransaction.amount))}
-                </Typography>
-              </Box>
-            )}
-            <ParentSize>
-              {({ width }) => (
+        <Paper elevation={0} sx={{ mt: '1rem' }}>
+          {!loading && selectedTransaction && (
+            <Box sx={{ ml: 2, mt: 1 }}>
+              <Typography variant="caption">
+                {isSameDay(selectedTransaction.date, new Date())
+                  ? 'Today'
+                  : format(selectedTransaction.date, 'dd.MM.yy')}
+              </Typography>
+              <Typography variant="subtitle1">
+                {formatBalance(Math.abs(selectedTransaction.amount))}
+              </Typography>
+            </Box>
+          )}
+
+          <ParentSize>
+            {({ width }) =>
+              loading || selectedData.length === 0 ? (
+                <Skeleton variant="rounded" width={width} height={width * 0.6} />
+              ) : (
                 <BarChart
                   width={width}
                   height={width * 0.6}
-                  data={selectedData.map(({ amount, date }) => ({
-                    label: date.toString(),
-                    value: Math.abs(amount),
-                  }))}
-                  onEvent={handler.onHoverAboveDailyTransaction}
-                  events
+                  data={chartData}
+                  formatDate={(dateString) => format(new Date(dateString), 'dd.MM')}
+                  onSelectBar={debounce((bar) => handler.onHoverAboveDailyTransaction(bar), 50)}
                 />
-              )}
-            </ParentSize>
-          </Paper>
-        ) : (
-          <NoResults sx={{ mt: 2 }} text="Nothing was returned" />
-        )}
+              )
+            }
+          </ParentSize>
+        </Paper>
       </Card.Body>
     </Card>
   );

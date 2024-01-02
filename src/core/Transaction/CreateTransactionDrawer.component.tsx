@@ -22,7 +22,11 @@ import {
   getPaymentMethodFromList,
   useFetchPaymentMethods,
 } from '../PaymentMethod';
-import { TCreateTransactionPayload, type TTransaction, ZCreateTransactionPayload } from '@/types';
+import {
+  TCreateTransactionPayload,
+  type TTransaction,
+  ZCreateTransactionPayload,
+} from '@budgetbuddyde/types';
 import { transformBalance } from '@/utils';
 
 interface ICreateTransactionDrawerHandler {

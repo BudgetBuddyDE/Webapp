@@ -1,117 +1,137 @@
-import React from 'react';
+import { useState, useMemo } from 'react';
 import { alpha, useTheme } from '@mui/material';
-import { Group } from '@visx/group';
-import { scaleBand, scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
-
+import { scaleBand, scaleLinear } from '@visx/scale';
+import { AxisBottom } from '@visx/axis';
+import { Group } from '@visx/group';
+import { format } from 'date-fns';
 export type TBarChartData = {
   label: string;
   value: number;
 };
 
 export type TBarChartProps = {
+  data: TBarChartData[];
   width: number;
   height: number;
-  events?: boolean;
-  onEvent?: (data: TBarChartData | null) => void;
-  data: TBarChartData[];
+  formatDate?: (dateString: string) => string;
+  onSelectBar?: (data: TBarChartData | null) => void;
 };
 
-export const VERTICAL_MARGIN = 18;
-
-function getLabel(d: TBarChartData) {
-  return d.label;
-}
-
-function getValue(d: TBarChartData) {
-  return d.value * 100;
-}
+const defaultDateFormatter = (dateString: string) => format(new Date(dateString), 'dd.MM.yyyy');
 
 export const BarChart: React.FC<TBarChartProps> = ({
+  data,
   width,
   height,
-  events = true,
-  onEvent,
-  data,
+  formatDate = defaultDateFormatter,
+  onSelectBar,
 }) => {
   const theme = useTheme();
-  const [selectedBar, setSelectedBar] = React.useState<TBarChartData | null>(null);
-  const xMax = width;
-  const yMax = height - VERTICAL_MARGIN;
+  const [selectedBar, setSelectedBar] = useState<TBarChartData | null>(null);
+
+  const VERTICAL_MARGIN = 60;
+
+  const helper = {
+    getDate(d: TBarChartData) {
+      return d.label;
+    },
+    getValue(d: TBarChartData) {
+      return d.value;
+    },
+    onMouseEnter(bar: TBarChartData) {
+      if (!onSelectBar) return;
+      setSelectedBar(bar);
+      onSelectBar(bar);
+    },
+    onMouseLeave() {
+      if (!onSelectBar) return;
+      setSelectedBar(null);
+      onSelectBar(null);
+    },
+  };
+
+  const innerWidth: number = useMemo(() => {
+    return width;
+  }, [width]);
+
+  const innerHeight: number = useMemo(() => {
+    return height - VERTICAL_MARGIN / 1.75;
+  }, [height]);
 
   /**
    * Scale used for the x-axis for displaying the dates and providing the position of the bars/groups.
    */
-  const xScale = React.useMemo(() => {
+  const xScale = useMemo(() => {
     return scaleBand<string>({
-      range: [0, xMax],
+      range: [0, innerWidth],
       round: true,
-      domain: data.map(getLabel),
-      padding: 0.4,
+      domain: data.map(helper.getDate),
+      padding: 0.2,
     });
-  }, [xMax, data]);
+  }, [data, innerWidth]);
 
   /**
    * Scale used for the y-axis for displaying the values and providing the height of the bars.
    */
-  const yScale = React.useMemo(() => {
+  const yScale = useMemo(() => {
     return scaleLinear<number>({
-      range: [yMax - 15, 0],
+      range: [innerHeight - innerHeight * 0.1, VERTICAL_MARGIN],
       round: true,
-      domain: [0, Math.max(...data.map(getValue))],
+      domain: [
+        Math.min(...data.map(helper.getValue)) - 1,
+        Math.max(...data.map(helper.getValue)) + 1,
+      ],
     });
-  }, [yMax, data]);
-
-  const handler: {
-    bar: {
-      onMouseEnter: (bar: TBarChartData) => void;
-      onMouseLeave: () => void;
-    };
-  } = {
-    bar: {
-      onMouseEnter(bar) {
-        if (!events) return;
-        setSelectedBar(bar);
-        if (onEvent) onEvent(bar);
-      },
-      onMouseLeave() {
-        if (!events) setSelectedBar(null);
-        if (onEvent) onEvent(null);
-      },
-    },
-  };
+  }, [data, innerHeight]);
 
   if (width < 10) return null;
   return (
-    <svg width={width} height={height}>
-      <Group top={VERTICAL_MARGIN / 2}>
+    <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`}>
+      <Group>
         {data.map((d) => {
-          const label = getLabel(d);
+          const xValue = helper.getDate(d);
           const barWidth = xScale.bandwidth();
-          const barHeight = yMax - (yScale(getValue(d)) ?? 0);
-          const barX = xScale(label);
-          const barY = yMax - barHeight;
-          const fillColor =
-            selectedBar !== null
-              ? selectedBar.label === label
-                ? theme.palette.primary.main
-                : alpha(theme.palette.primary.main, 0.4)
-              : theme.palette.primary.main;
-
+          const barHeight = innerHeight - (yScale(helper.getValue(d)) ?? 0);
+          const barX = xScale(xValue);
+          const barY = innerHeight - barHeight;
           return (
             <Bar
-              key={`bar-${label}`}
+              key={`bar-${xValue}`}
               x={barX}
               y={barY}
-              style={{ transition: 'all 500ms' }}
               width={barWidth}
               height={barHeight}
-              fill={fillColor}
-              onMouseEnter={() => handler.bar.onMouseEnter(d)}
-              onMouseLeave={() => handler.bar.onMouseLeave()}
+              fill={
+                selectedBar !== null && selectedBar.label === xValue
+                  ? alpha(theme.palette.primary.main, 0.8)
+                  : theme.palette.primary.main
+              }
+              rx={theme.shape.borderRadius * 0.5}
+              style={{ transition: 'all 0.2s ease-in-out' }}
+              onMouseEnter={() => helper.onMouseEnter(d)}
+              onMouseLeave={() => helper.onMouseLeave()}
             />
           );
         })}
+      </Group>
+
+      <Group>
+        <AxisBottom
+          top={innerHeight}
+          scale={xScale}
+          tickFormat={formatDate}
+          stroke={theme.palette.primary.main}
+          strokeWidth={2}
+          tickStroke={theme.palette.primary.main}
+          hideAxisLine
+          tickLabelProps={{
+            fill: theme.palette.primary.main,
+            fontSize: 13,
+            fontWeight: 'bolder',
+            textAnchor: 'middle',
+          }}
+        />
       </Group>
     </svg>
   );

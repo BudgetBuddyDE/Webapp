@@ -1,7 +1,7 @@
 import React from 'react';
 import { Delete as DeleteIcon, Edit as EditIcon, Label as LabelIcon } from '@mui/icons-material';
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
-import type { TBudget, TBudgetProgress, TDeleteBudgetPayload } from '@/types';
+import type { TBudget, TBudgetProgress, TDeleteBudgetPayload } from '@budgetbuddyde/types';
 import { Icon } from '@/components/Icon.component';
 import { ActionPaper } from '@/components/Base';
 import { formatBalance } from '@/utils';
