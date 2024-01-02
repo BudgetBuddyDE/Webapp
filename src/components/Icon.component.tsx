@@ -1,9 +1,11 @@
 import React from 'react';
 import { Box, type BoxProps, alpha, styled } from '@mui/material';
 
+export type TColorKeys = 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success';
+
 export const IconBackground = styled(Box)<{
-  backgroundColor?: React.CSSProperties['backgroundColor'];
-}>(({ theme, backgroundColor }) => ({
+  iconColor?: TColorKeys;
+}>(({ theme, iconColor }) => ({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
@@ -11,14 +13,17 @@ export const IconBackground = styled(Box)<{
   width: '40px',
   height: 'auto',
   aspectRatio: '1/1',
-  backgroundColor: alpha(backgroundColor || theme.palette.primary.main, 0.2),
-  color: backgroundColor || theme.palette.primary.main,
+  backgroundColor: alpha(
+    iconColor ? theme.palette[iconColor].main : theme.palette.primary.main,
+    0.2
+  ),
+  color: iconColor ? theme.palette[iconColor].main : theme.palette.primary.main,
   borderRadius: `${Number(theme.shape.borderRadius) * 0.75}px`,
 }));
 
 export type TIconProps = BoxProps & {
   icon: React.ReactNode | JSX.Element;
-  backgroundColor?: string;
+  iconColor?: TColorKeys;
 };
 
 export const Icon: React.FC<TIconProps> = (props) => {

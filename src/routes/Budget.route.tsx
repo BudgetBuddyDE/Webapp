@@ -21,6 +21,7 @@ export const ChartContentTypes = [
 
 export const Budgets = () => {
   const { budgetProgress, loading: loadingBudgetProgress } = useFetchBudgetProgress();
+
   return (
     <ContentGrid title={'Budget'}>
       <Grid item xs={12} md={12} lg={5} xl={5}>
