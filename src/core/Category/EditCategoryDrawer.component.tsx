@@ -12,6 +12,8 @@ import { useSnackbarContext } from '../Snackbar';
 import { CategoryService } from './Category.service';
 import { useFetchCategories } from '.';
 
+export type TEditCategoryDrawerPayload = TCategory;
+
 export type TEditCategoryDrawerProps = {
   open: boolean;
   onChangeOpen: (isOpen: boolean) => void;

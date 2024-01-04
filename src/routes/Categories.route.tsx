@@ -21,6 +21,7 @@ import {
   CategorySpendingsChart,
   CreateCategoryDrawer,
   EditCategoryDrawer,
+  TCreateCategoryDrawerPayload,
   useFetchCategories,
 } from '@/core/Category';
 import { CategoryIncomeChart } from '@/core/Category/Chart/IncomeChart.component';
@@ -38,10 +39,13 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
+import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-interface CategoriesHandler {
+interface ICategoriesHandler {
   onSearch: (keyword: string) => void;
+  onCreateCategory: (payload?: TCreateCategoryDrawerPayload) => void;
   onCategoryDelete: (category: TCategory) => void;
   onConfirmCategoryDelete: () => void;
   onEditCategory: (category: TCategory) => void;
@@ -49,6 +53,8 @@ interface CategoriesHandler {
 }
 
 export const Categories = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const {
     categories,
     refresh: refreshCategories,
@@ -60,7 +66,16 @@ export const Categories = () => {
     PaginationReducer,
     InitialPaginationState
   );
-  const [showCreateCategoryDrawer, setShowCreateCategoryDrawer] = React.useState(false);
+
+  const [showCreateDrawer, dispatchCreateDrawer] = React.useReducer(
+    useEntityDrawer<TCreateCategoryDrawerPayload>,
+    CreateEntityDrawerState<TCreateCategoryDrawerPayload>()
+  );
+  // const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
+  //   useEntityDrawer<TCreateCategoryDrawerPayload>,
+  //   CreateEntityDrawerState<TCreateCategoryDrawerPayload>()
+  // );
+
   const [showEditCategoryDrawer, setShowEditCategoryDrawer] = React.useState(false);
   const [editCategory, setEditCategory] = React.useState<TCategory | null>(null);
   const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] = React.useState(false);
@@ -72,9 +87,12 @@ export const Categories = () => {
   }, [categories, keyword, tablePagination]);
   const currentPageCategories = usePagination(displayedCategories, tablePagination);
 
-  const handler: CategoriesHandler = {
+  const handler: ICategoriesHandler = {
     onSearch(keyword) {
       setKeyword(keyword.toLowerCase());
+    },
+    onCreateCategory(payload) {
+      dispatchCreateDrawer({ type: 'open', payload });
     },
     onEditCategory(category) {
       setShowEditCategoryDrawer(true);
@@ -116,6 +134,18 @@ export const Categories = () => {
     },
   };
 
+  React.useEffect(() => {
+    if (!location.search) return;
+    const queryParams = new URLSearchParams(location.search);
+    if (!queryParams.has('create') || queryParams.size < 2) return;
+
+    const payload: TCreateCategoryDrawerPayload = {
+      name: queryParams.get('category') ?? '',
+      description: queryParams.get('description'),
+    };
+    handler.onCreateCategory(payload);
+  }, [location.search]);
+
   return (
     <ContentGrid title={'Categories'}>
       <Grid item xs={12} md={12} lg={8} xl={8}>
@@ -134,7 +164,7 @@ export const Categories = () => {
             >
               <SearchInput onSearch={handler.onSearch} />
 
-              <IconButton color="primary" onClick={() => setShowCreateCategoryDrawer(true)}>
+              <IconButton color="primary" onClick={() => handler.onCreateCategory()}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
             </Card.HeaderActions>
@@ -221,8 +251,11 @@ export const Categories = () => {
       <Grid item xs={12} md={12} lg={8} xl={6}></Grid>
 
       <CreateCategoryDrawer
-        open={showCreateCategoryDrawer}
-        onChangeOpen={(isOpen) => setShowCreateCategoryDrawer(isOpen)}
+        {...showCreateDrawer}
+        onClose={() => {
+          navigate(location.pathname, { replace: true });
+          dispatchCreateDrawer({ type: 'close' });
+        }}
       />
 
       <EditCategoryDrawer
@@ -250,7 +283,7 @@ export const Categories = () => {
 
       <FabContainer>
         <OpenFilterDrawerFab />
-        <AddFab onClick={() => setShowCreateCategoryDrawer(true)} />
+        <AddFab onClick={() => handler.onCreateCategory()} />
       </FabContainer>
     </ContentGrid>
   );

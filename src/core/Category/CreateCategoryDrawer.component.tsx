@@ -5,16 +5,20 @@ import { FormStyle } from '@/style/Form.style';
 import { ZCreateCategoryPayload, type TCreateCategoryPayload } from '@budgetbuddyde/types';
 import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
-import { CategoryService, useFetchCategories } from '.';
+import { CategoryService } from './Category.service';
+import { useFetchCategories } from './useFetchCategories.hook';
+import { TEntityDrawerState } from '@/hooks';
+
+export type TCreateCategoryDrawerPayload = Omit<TCreateCategoryPayload, 'owner'>;
 
 export type TCreateCategoryDrawerProps = {
-  open: boolean;
-  onChangeOpen: (isOpen: boolean) => void;
-};
+  onClose: () => void;
+} & TEntityDrawerState<TCreateCategoryDrawerPayload>;
 
 export const CreateCategoryDrawer: React.FC<TCreateCategoryDrawerProps> = ({
-  open,
-  onChangeOpen,
+  shown,
+  payload,
+  onClose,
 }) => {
   const { session, authOptions } = useAuthContext();
   const { showSnackbar } = useSnackbarContext();
@@ -27,7 +31,7 @@ export const CreateCategoryDrawer: React.FC<TCreateCategoryDrawerProps> = ({
 
   const handler = {
     onClose() {
-      onChangeOpen(false);
+      onClose();
       setForm({});
       setDrawerState({ type: 'RESET' });
     },
@@ -68,10 +72,21 @@ export const CreateCategoryDrawer: React.FC<TCreateCategoryDrawerProps> = ({
     },
   };
 
+  React.useLayoutEffect(() => {
+    if (!payload) return;
+    setForm({
+      name: payload.name,
+      description: payload.description ?? '',
+    });
+    return () => {
+      setForm({});
+    };
+  }, [payload]);
+
   return (
     <FormDrawer
       state={drawerState}
-      open={open}
+      open={shown}
       onSubmit={handler.onFormSubmit}
       heading="Create Category"
       onClose={handler.onClose}
@@ -97,6 +112,7 @@ export const CreateCategoryDrawer: React.FC<TCreateCategoryDrawerProps> = ({
         multiline
         rows={3}
         onChange={handler.onInputChange}
+        value={form.description}
       />
     </FormDrawer>
   );
