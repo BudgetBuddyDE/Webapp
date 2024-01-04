@@ -40,7 +40,7 @@ import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 interface IPaymentMethodsHandler {
   onSearch: (keyword: string) => void;
   onPaymentMethodDelete: (paymentMethod: TPaymentMethod) => void;
-  onConfirmTransactionDelete: () => void;
+  onConfirmPaymentMethodDelete: () => void;
   onEditPaymentMethod: (paymentMethod: TPaymentMethod) => void;
   pagination: PaginationHandler;
 }
@@ -77,7 +77,7 @@ export const PaymentMethods = () => {
       setShowEditPaymentMethodDrawer(true);
       setEditPaymentMethod(paymentMethod);
     },
-    async onConfirmTransactionDelete() {
+    async onConfirmPaymentMethodDelete() {
       try {
         if (!deletePaymentMethod) return;
         const [deletedItem, error] = await PaymentMethodService.delete(
@@ -232,7 +232,7 @@ export const PaymentMethods = () => {
           setShowDeletePaymentMethodDialog(false);
           setDeletePaymentMethod(null);
         }}
-        onConfirm={() => handler.onConfirmTransactionDelete}
+        onConfirm={handler.onConfirmPaymentMethodDelete}
         withTransition
       />
 

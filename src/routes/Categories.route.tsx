@@ -244,7 +244,7 @@ export const Categories = () => {
           setShowDeleteCategoryDialog(false);
           setDeleteCategory(null);
         }}
-        onConfirm={() => handler.onConfirmCategoryDelete}
+        onConfirm={handler.onConfirmCategoryDelete}
         withTransition
       />
 

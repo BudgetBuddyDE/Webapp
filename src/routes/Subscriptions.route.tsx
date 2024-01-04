@@ -343,7 +343,7 @@ export const Subscriptions = () => {
           setShowDeleteSubscriptionDialog(false);
           setDeleteSubscription(null);
         }}
-        onConfirm={() => handler.onConfirmSubscriptionDelete()}
+        onConfirm={handler.onConfirmSubscriptionDelete}
         withTransition
       />
 
