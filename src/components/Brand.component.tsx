@@ -14,26 +14,36 @@ export type TBrandProps = {
   boxStyle?: BoxProps['sx'];
   iconStyle?: IconProps['sx'];
   typographyStyle?: TypographyProps['sx'];
+  asLink?: boolean;
 };
 
-export const Brand: React.FC<TBrandProps> = ({ boxStyle, iconStyle, typographyStyle }) => {
+export const Brand: React.FC<TBrandProps> = ({
+  boxStyle,
+  iconStyle,
+  typographyStyle,
+  asLink = false,
+}) => {
+  const baseProps: TypographyProps = {
+    variant: 'h5',
+    noWrap: true,
+    sx: {
+      fontWeight: 700,
+      color: 'inherit',
+      textDecoration: 'none',
+      ...typographyStyle,
+    },
+  };
+
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', ...boxStyle }}>
       <SavingsIcon sx={{ mr: 1, ...iconStyle }} />
-      <Typography
-        variant="h5"
-        component={Link}
-        to="/"
-        noWrap
-        sx={{
-          fontWeight: 700,
-          color: 'inherit',
-          textDecoration: 'none',
-          ...typographyStyle,
-        }}
-      >
-        {AppConfig.appName}
-      </Typography>
+      {asLink ? (
+        <Typography component={Link} to="/" {...baseProps}>
+          {AppConfig.appName}
+        </Typography>
+      ) : (
+        <Typography {...baseProps}>{AppConfig.appName}</Typography>
+      )}
     </Box>
   );
 };

@@ -65,7 +65,7 @@ export const AppBar = () => {
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           {/* Desktop: Brand */}
-          <Brand boxStyle={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+          <Brand asLink boxStyle={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
 
           {/* Menu: Mobile */}
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -73,7 +73,7 @@ export const AppBar = () => {
           </Box>
 
           {/* Modile: Brand */}
-          <Brand boxStyle={{ display: { xs: 'flex', md: 'none' }, flexGrow: 1 }} />
+          <Brand asLink boxStyle={{ display: { xs: 'flex', md: 'none' }, flexGrow: 1 }} />
 
           {/* Menu: Desktop */}
           <Box sx={{ display: { xs: 'none', md: 'flex' }, marginLeft: 'auto', marginRight: 2 }}>
