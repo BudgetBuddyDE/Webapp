@@ -15,6 +15,7 @@ import {
 import { useFetchPaymentMethods } from '../useFetchPaymentMethods.hook';
 import { CreatePaymentMethodAlert } from '../CreatePaymentMethodAlert.component';
 import { StyledAutocompleteOption } from '@/components/Base';
+import { getNameFromLabel } from '@/core/Category';
 
 export type TPaymentMethodInputOption = {
   label: string;
@@ -85,9 +86,11 @@ export const PaymentMethodAutocomplete: React.FC<PaymentMethodAutocompleteProps>
           (pm) => pm.name === value.label.split(PaymentMethodLabelSeperator)[0].trimEnd()
         );
         if (paymentMethodExists) return onChange(event, value);
-        navigate('/payment-methods', {
-          state: { create: true, paymentMethod: { name: value.label.split('"')[1] } },
+        const queryParams = new URLSearchParams({
+          create: 'true',
+          paymentMethod: getNameFromLabel(value.label),
         });
+        navigate('/payment-methods?' + queryParams.toString(), { replace: true });
       }}
       filterOptions={applyPaymentMethodOptionsFilter}
       renderOption={(props, option, { selected }) => (

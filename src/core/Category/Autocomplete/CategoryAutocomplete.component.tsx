@@ -61,7 +61,7 @@ export function applyCategoryOptionsFilter(
  * @param label The label to extract the name from.
  * @returns The extracted name.
  */
-function getNameFromLabel(label: string): string {
+export function getNameFromLabel(label: string): string {
   const splitted = label.split('"');
   return splitted[1];
 }
