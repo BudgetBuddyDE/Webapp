@@ -8,16 +8,20 @@ import {
 } from '@budgetbuddyde/types';
 import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
-import { PaymentMethodService, useFetchPaymentMethods } from '.';
+import { PaymentMethodService } from './PaymentMethod.service';
+import { useFetchPaymentMethods } from './useFetchPaymentMethods.hook';
+import { type TEntityDrawerState } from '@/hooks';
+
+export type TCreatePaymentMethodDrawerPayload = Omit<TCreatePaymentMethodPayload, 'owner'>;
 
 export type TCreatePaymentMethodProps = {
-  open: boolean;
-  onChangeOpen: (isOpen: boolean) => void;
-};
+  onClose: () => void;
+} & TEntityDrawerState<TCreatePaymentMethodDrawerPayload>;
 
 export const CreatePaymentMethodDrawer: React.FC<TCreatePaymentMethodProps> = ({
-  open,
-  onChangeOpen,
+  shown,
+  payload,
+  onClose,
 }) => {
   const { session, authOptions } = useAuthContext();
   const { showSnackbar } = useSnackbarContext();
@@ -30,7 +34,7 @@ export const CreatePaymentMethodDrawer: React.FC<TCreatePaymentMethodProps> = ({
 
   const handler = {
     onClose() {
-      onChangeOpen(false);
+      onClose();
       setForm({});
       setDrawerState({ type: 'RESET' });
     },
@@ -71,10 +75,23 @@ export const CreatePaymentMethodDrawer: React.FC<TCreatePaymentMethodProps> = ({
     },
   };
 
+  React.useLayoutEffect(() => {
+    if (!payload) return;
+    setForm({
+      name: payload.name,
+      address: payload.address ?? '',
+      provider: payload.provider ?? '',
+      description: payload.description ?? '',
+    });
+    return () => {
+      setForm({});
+    };
+  }, [payload]);
+
   return (
     <FormDrawer
       state={drawerState}
-      open={open}
+      open={shown}
       onSubmit={handler.onFormSubmit}
       heading="Create Payment-Method"
       onClose={handler.onClose}
@@ -107,6 +124,7 @@ export const CreatePaymentMethodDrawer: React.FC<TCreatePaymentMethodProps> = ({
         multiline
         rows={3}
         onChange={handler.onInputChange}
+        value={form.description ?? ''}
       />
     </FormDrawer>
   );

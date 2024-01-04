@@ -33,6 +33,11 @@ export type TCategoryAutocompleteProps = {
 
 const filter = createFilterOptions<TCategoryInputOption>();
 
+/**
+ * Applies a filter to the category options.
+ *
+ * @param options The category options to filter.
+ */
 export function applyCategoryOptionsFilter(
   options: TCategoryInputOption[],
   state: FilterOptionsState<TCategoryInputOption>
@@ -48,6 +53,17 @@ export function applyCategoryOptionsFilter(
       ? [completeMatch]
       : [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }, ...matches];
   } else return [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }];
+}
+
+/**
+ * Retrieves the name from a label.
+ *
+ * @param label The label to extract the name from.
+ * @returns The extracted name.
+ */
+export function getNameFromLabel(label: string): string {
+  const splitted = label.split('"');
+  return splitted[1];
 }
 
 export const CategoryAutocomplete: React.FC<TCategoryAutocompleteProps> = ({
@@ -78,9 +94,11 @@ export const CategoryAutocomplete: React.FC<TCategoryAutocompleteProps> = ({
         if (!value) return;
         const categoryNameExists = categories.some((category) => category.name === value.label);
         if (categoryNameExists) return onChange(event, value);
-        navigate('/categories', {
-          state: { create: true, category: { name: value.label.split('"')[1] } },
+        const queryParams = new URLSearchParams({
+          create: 'true',
+          category: getNameFromLabel(value.label),
         });
+        navigate('/categories?' + queryParams.toString(), { replace: true });
       }}
       filterOptions={applyCategoryOptionsFilter}
       renderOption={(props, option, { selected }) => (

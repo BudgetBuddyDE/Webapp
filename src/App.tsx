@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import DashboardRoute from '@/routes/Dashboard.route';
 import TransactionsRoute from './routes/Transactions.route';
 import SubscriptionsRoute from './routes/Subscriptions.route';
@@ -18,6 +18,7 @@ const App = () => {
     <BrowserRouter>
       <Routes>
         <Route index element={<DashboardRoute />} />
+        <Route path="/dashboard" element={<Navigate to="/" />} />
         <Route path="/transactions" element={<TransactionsRoute />} />
         <Route path="/subscriptions" element={<SubscriptionsRoute />} />
         <Route path="/budgets" element={<BudgetRoute />} />

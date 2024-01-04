@@ -10,17 +10,18 @@ import {
 import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { useFetchPaymentMethods, PaymentMethodService } from '.';
+import { type TEntityDrawerState } from '@/hooks';
+
+export type TEditPaymentMethodDrawerPayload = TPaymentMethod;
 
 export type TEditPaymentMethodProps = {
-  open: boolean;
-  onChangeOpen: (isOpen: boolean) => void;
-  paymentMethod: TPaymentMethod | null;
-};
+  onClose: () => void;
+} & TEntityDrawerState<TEditPaymentMethodDrawerPayload>;
 
 export const EditPaymentMethodDrawer: React.FC<TEditPaymentMethodProps> = ({
-  open,
-  onChangeOpen,
-  paymentMethod,
+  shown,
+  payload: paymentMethod,
+  onClose,
 }) => {
   const { session, authOptions } = useAuthContext();
   const { showSnackbar } = useSnackbarContext();
@@ -33,7 +34,7 @@ export const EditPaymentMethodDrawer: React.FC<TEditPaymentMethodProps> = ({
 
   const handler = {
     onClose() {
-      onChangeOpen(false);
+      onClose();
       setForm({});
       setDrawerState({ type: 'RESET' });
     },
@@ -90,14 +91,10 @@ export const EditPaymentMethodDrawer: React.FC<TEditPaymentMethodProps> = ({
   return (
     <FormDrawer
       state={drawerState}
-      open={open}
+      open={shown}
       onSubmit={handler.onFormSubmit}
       heading="Edit Payment-Method"
-      onClose={() => {
-        onChangeOpen(false);
-        setForm({});
-        setDrawerState({ type: 'RESET' });
-      }}
+      onClose={handler.onClose}
       closeOnBackdropClick
     >
       {(['name', 'address', 'provider'] as Partial<keyof TUpdatePaymentMethodPayload>[]).map(
