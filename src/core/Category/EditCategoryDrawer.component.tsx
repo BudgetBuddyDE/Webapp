@@ -11,17 +11,18 @@ import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { CategoryService } from './Category.service';
 import { useFetchCategories } from '.';
+import { type TEntityDrawerState } from '@/hooks';
+
+export type TEditCategoryDrawerPayload = TCategory;
 
 export type TEditCategoryDrawerProps = {
-  open: boolean;
-  onChangeOpen: (isOpen: boolean) => void;
-  category: TCategory | null;
-};
+  onClose: () => void;
+} & TEntityDrawerState<TEditCategoryDrawerPayload>;
 
 export const EditCategoryDrawer: React.FC<TEditCategoryDrawerProps> = ({
-  open,
-  onChangeOpen,
-  category,
+  shown,
+  payload: drawerPayload,
+  onClose,
 }) => {
   const { session, authOptions } = useAuthContext();
   const { showSnackbar } = useSnackbarContext();
@@ -34,7 +35,7 @@ export const EditCategoryDrawer: React.FC<TEditCategoryDrawerProps> = ({
 
   const handler = {
     onClose() {
-      onChangeOpen(false);
+      onClose();
       setForm({});
       setDrawerState({ type: 'RESET' });
     },
@@ -43,13 +44,13 @@ export const EditCategoryDrawer: React.FC<TEditCategoryDrawerProps> = ({
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      if (!session || !category) return;
+      if (!session || !drawerPayload) return;
       setDrawerState({ type: 'SUBMIT' });
 
       try {
         const parsedForm = ZUpdateCategoryPayload.safeParse({
           ...form,
-          categoryId: category.id,
+          categoryId: drawerPayload.id,
         });
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
         const payload: TUpdateCategoryPayload = parsedForm.data;
@@ -76,17 +77,21 @@ export const EditCategoryDrawer: React.FC<TEditCategoryDrawerProps> = ({
   };
 
   React.useEffect(() => {
-    setForm(category ? { name: category.name, description: category.description ?? '' } : {});
-  }, [category]);
+    if (!drawerPayload) return;
+    setForm({
+      name: drawerPayload.name,
+      description: drawerPayload.description ?? '',
+    });
+  }, [drawerPayload]);
 
   return (
     <FormDrawer
       state={drawerState}
-      open={open}
+      open={shown}
       onSubmit={handler.onFormSubmit}
       heading="Edit Category"
       onClose={() => {
-        onChangeOpen(false);
+        onClose();
         setForm({});
         setDrawerState({ type: 'RESET' });
       }}

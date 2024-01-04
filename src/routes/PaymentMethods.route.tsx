@@ -15,6 +15,8 @@ import {
   EditPaymentMethodDrawer,
   PaymentMethodChip,
   PaymentMethodService,
+  type TCreatePaymentMethodDrawerPayload,
+  type TEditPaymentMethodDrawerPayload,
   useFetchPaymentMethods,
 } from '@/core/PaymentMethod';
 import { useSnackbarContext } from '@/core/Snackbar';
@@ -36,9 +38,12 @@ import { CircularProgress } from '@/components/Loading';
 import { Table } from '@/components/Base/Table';
 import { AppConfig } from '@/app.config';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
+import { useEntityDrawer, CreateEntityDrawerState } from '@/hooks';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface IPaymentMethodsHandler {
   onSearch: (keyword: string) => void;
+  onCreatePaymentMethod: (payload?: TCreatePaymentMethodDrawerPayload) => void;
   onPaymentMethodDelete: (paymentMethod: TPaymentMethod) => void;
   onConfirmPaymentMethodDelete: () => void;
   onEditPaymentMethod: (paymentMethod: TPaymentMethod) => void;
@@ -46,6 +51,8 @@ interface IPaymentMethodsHandler {
 }
 
 export const PaymentMethods = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const {
     paymentMethods,
     loading: loadingPaymentMethods,
@@ -57,9 +64,14 @@ export const PaymentMethods = () => {
     PaginationReducer,
     InitialPaginationState
   );
-  const [showCreatePaymentMethodDrawer, setShowCreatePaymentMethodDrawer] = React.useState(false);
-  const [showEditPaymentMethodDrawer, setShowEditPaymentMethodDrawer] = React.useState(false);
-  const [editPaymentMethod, setEditPaymentMethod] = React.useState<TPaymentMethod | null>(null);
+  const [showCreateDrawer, dispatchCreateDrawer] = React.useReducer(
+    useEntityDrawer<TCreatePaymentMethodDrawerPayload>,
+    CreateEntityDrawerState<TCreatePaymentMethodDrawerPayload>()
+  );
+  const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
+    useEntityDrawer<TEditPaymentMethodDrawerPayload>,
+    CreateEntityDrawerState<TEditPaymentMethodDrawerPayload>()
+  );
   const [showDeletePaymentMethodDialog, setShowDeletePaymentMethodDialog] = React.useState(false);
   const [deletePaymentMethod, setDeletePaymentMethod] = React.useState<TPaymentMethod | null>(null);
   const [keyword, setKeyword] = React.useState('');
@@ -73,9 +85,11 @@ export const PaymentMethods = () => {
     onSearch(keyword) {
       setKeyword(keyword.toLowerCase());
     },
+    onCreatePaymentMethod(payload?: TCreatePaymentMethodDrawerPayload) {
+      dispatchCreateDrawer({ type: 'open', payload });
+    },
     onEditPaymentMethod(paymentMethod) {
-      setShowEditPaymentMethodDrawer(true);
-      setEditPaymentMethod(paymentMethod);
+      dispatchEditDrawer({ type: 'open', payload: paymentMethod });
     },
     async onConfirmPaymentMethodDelete() {
       try {
@@ -113,6 +127,19 @@ export const PaymentMethods = () => {
     },
   };
 
+  React.useEffect(() => {
+    if (!location.search) return;
+    const queryParams = new URLSearchParams(location.search);
+    if (!queryParams.has('create') || queryParams.size < 2) return;
+    const payload: TCreatePaymentMethodDrawerPayload = {
+      name: queryParams.get('paymentMethod') ?? '',
+      address: queryParams.get('address') ?? '',
+      provider: queryParams.get('provider') ?? '',
+      description: queryParams.get('description'),
+    };
+    handler.onCreatePaymentMethod(payload);
+  }, [location.search]);
+
   return (
     <ContentGrid title={'Payment-Methods'}>
       <Grid item xs={12} md={12} lg={10} xl={10}>
@@ -126,12 +153,12 @@ export const PaymentMethods = () => {
             <Card.HeaderActions
               sx={{ mt: { xs: 1, md: 0 }, width: { xs: '100%', md: 'unset' } }}
               actionPaperProps={{
-                sx: { display: 'flex', flexDirection: 'category', width: { xs: '100%' } },
+                sx: { display: 'flex', flexDirection: 'row', width: { xs: '100%' } },
               }}
             >
               <SearchInput onSearch={handler.onSearch} />
 
-              <IconButton color="primary" onClick={() => setShowCreatePaymentMethodDrawer(true)}>
+              <IconButton color="primary" onClick={() => handler.onCreatePaymentMethod()}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
             </Card.HeaderActions>
@@ -209,17 +236,16 @@ export const PaymentMethods = () => {
       </Grid>
 
       <CreatePaymentMethodDrawer
-        open={showCreatePaymentMethodDrawer}
-        onChangeOpen={(isOpen) => setShowCreatePaymentMethodDrawer(isOpen)}
+        {...showCreateDrawer}
+        onClose={() => {
+          navigate(location.pathname, { replace: true });
+          dispatchCreateDrawer({ type: 'close' });
+        }}
       />
 
       <EditPaymentMethodDrawer
-        open={showEditPaymentMethodDrawer}
-        onChangeOpen={(isOpen) => {
-          setShowEditPaymentMethodDrawer(isOpen);
-          if (!isOpen) setEditPaymentMethod(null);
-        }}
-        paymentMethod={editPaymentMethod}
+        {...showEditDrawer}
+        onClose={() => dispatchEditDrawer({ type: 'close' })}
       />
 
       <DeleteDialog
@@ -238,7 +264,7 @@ export const PaymentMethods = () => {
 
       <FabContainer>
         <OpenFilterDrawerFab />
-        <AddFab onClick={() => setShowCreatePaymentMethodDrawer(true)} />
+        <AddFab onClick={() => handler.onCreatePaymentMethod()} />
       </FabContainer>
     </ContentGrid>
   );
