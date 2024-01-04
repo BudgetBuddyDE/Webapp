@@ -7,7 +7,7 @@ import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { CategoryService } from './Category.service';
 import { useFetchCategories } from './useFetchCategories.hook';
-import { TEntityDrawerState } from '@/hooks';
+import { type TEntityDrawerState } from '@/hooks';
 
 export type TCreateCategoryDrawerPayload = Omit<TCreateCategoryPayload, 'owner'>;
 

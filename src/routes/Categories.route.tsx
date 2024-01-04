@@ -21,7 +21,8 @@ import {
   CategorySpendingsChart,
   CreateCategoryDrawer,
   EditCategoryDrawer,
-  TCreateCategoryDrawerPayload,
+  type TCreateCategoryDrawerPayload,
+  type TEditCategoryDrawerPayload,
   useFetchCategories,
 } from '@/core/Category';
 import { CategoryIncomeChart } from '@/core/Category/Chart/IncomeChart.component';
@@ -66,18 +67,14 @@ export const Categories = () => {
     PaginationReducer,
     InitialPaginationState
   );
-
   const [showCreateDrawer, dispatchCreateDrawer] = React.useReducer(
     useEntityDrawer<TCreateCategoryDrawerPayload>,
     CreateEntityDrawerState<TCreateCategoryDrawerPayload>()
   );
-  // const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
-  //   useEntityDrawer<TCreateCategoryDrawerPayload>,
-  //   CreateEntityDrawerState<TCreateCategoryDrawerPayload>()
-  // );
-
-  const [showEditCategoryDrawer, setShowEditCategoryDrawer] = React.useState(false);
-  const [editCategory, setEditCategory] = React.useState<TCategory | null>(null);
+  const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
+    useEntityDrawer<TEditCategoryDrawerPayload>,
+    CreateEntityDrawerState<TEditCategoryDrawerPayload>()
+  );
   const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] = React.useState(false);
   const [deleteCategory, setDeleteCategory] = React.useState<TCategory | null>(null);
   const [keyword, setKeyword] = React.useState('');
@@ -95,8 +92,7 @@ export const Categories = () => {
       dispatchCreateDrawer({ type: 'open', payload });
     },
     onEditCategory(category) {
-      setShowEditCategoryDrawer(true);
-      setEditCategory(category);
+      dispatchEditDrawer({ type: 'open', payload: category });
     },
     async onConfirmCategoryDelete() {
       try {
@@ -259,12 +255,8 @@ export const Categories = () => {
       />
 
       <EditCategoryDrawer
-        open={showEditCategoryDrawer}
-        onChangeOpen={(isOpen) => {
-          setShowEditCategoryDrawer(isOpen);
-          if (!isOpen) setEditCategory(null);
-        }}
-        category={editCategory}
+        {...showEditDrawer}
+        onClose={() => dispatchEditDrawer({ type: 'close' })}
       />
 
       <DeleteDialog
