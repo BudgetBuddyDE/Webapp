@@ -14,7 +14,7 @@ export type TPaginationProps = Pick<
   onRowsPerPageChange: (rowsPerPage: number) => void;
 };
 
-export interface PaginationHandler {
+export interface IPaginationHandler {
   onPageChange: TPaginationProps['onPageChange'];
   onRowsPerPageChange: TPaginationProps['onRowsPerPageChange'];
 }
