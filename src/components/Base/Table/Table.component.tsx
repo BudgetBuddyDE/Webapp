@@ -18,6 +18,7 @@ import {
 } from '../Pagination';
 import { TableContainer } from './TableContainer.component';
 import { CircularProgress } from '@/components/Loading';
+import { type ISelectionHandler, SelectAll } from '../Select';
 
 export type TTableProps<T> = {
   title?: string;
@@ -28,7 +29,14 @@ export type TTableProps<T> = {
   renderRow: (row: T) => React.ReactNode;
   tableActions?: React.ReactNode;
   isLoading?: boolean;
-};
+} & (
+  | {
+      withSelection: true;
+      onSelectAll: ISelectionHandler<T>['onSelectAll'];
+      amountOfSelectedEntities: number;
+    }
+  | { withSelection?: false }
+);
 
 interface ITableHandler {
   pagination: IPaginationHandler;
@@ -43,8 +51,10 @@ export const Table = <T,>({
   renderRow,
   tableActions,
   isLoading = false,
+  ...props
 }: TTableProps<T>) => {
   const [state, dispatch] = React.useReducer(PaginationReducer, InitialPaginationState);
+  const [checked, setChecked] = React.useState(false);
   const currentPageData = usePagination(data, state);
 
   const handler: ITableHandler = {
@@ -57,6 +67,14 @@ export const Table = <T,>({
       },
     },
   };
+
+  React.useLayoutEffect(() => {
+    setChecked(false);
+    if (!props.withSelection) return;
+    if (props.amountOfSelectedEntities === data.length) {
+      setChecked(true);
+    }
+  }, [props, data]);
 
   return (
     <Card sx={{ p: 0 }}>
@@ -89,6 +107,23 @@ export const Table = <T,>({
           <TableContainer>
             <TableHead>
               <TableRow>
+                {props.withSelection && (
+                  <SelectAll
+                    checked={checked}
+                    indeterminate={
+                      props.amountOfSelectedEntities > 0 &&
+                      props.amountOfSelectedEntities < data.length
+                    }
+                    onChange={(_event, checked) => {
+                      const indeterminate =
+                        props.amountOfSelectedEntities > 0 &&
+                        props.amountOfSelectedEntities < data.length;
+                      props.onSelectAll(indeterminate ? false : checked);
+                    }}
+                    wrapWithTableCell
+                  />
+                )}
+
                 {headerCells.map((headerCell) =>
                   renderHeaderCell ? (
                     renderHeaderCell(headerCell)
