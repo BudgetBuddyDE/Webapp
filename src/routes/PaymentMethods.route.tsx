@@ -14,7 +14,7 @@ import {
 } from '@/core/PaymentMethod';
 import { useSnackbarContext } from '@/core/Snackbar';
 import type { TPaymentMethod } from '@budgetbuddyde/types';
-import { Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
+import { Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { SearchInput } from '@/components/Base/Search';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
@@ -23,6 +23,7 @@ import { AppConfig } from '@/app.config';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import { useEntityDrawer, CreateEntityDrawerState } from '@/hooks';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { type ISelectionHandler } from '@/components/Base/Select';
 
 interface IPaymentMethodsHandler {
   onSearch: (keyword: string) => void;
@@ -30,6 +31,7 @@ interface IPaymentMethodsHandler {
   onPaymentMethodDelete: (paymentMethod: TPaymentMethod) => void;
   onConfirmTransactionDelete: () => void;
   onEditPaymentMethod: (paymentMethod: TPaymentMethod) => void;
+  selection: ISelectionHandler<TPaymentMethod>;
 }
 
 export const PaymentMethods = () => {
@@ -51,7 +53,8 @@ export const PaymentMethods = () => {
     CreateEntityDrawerState<TEditPaymentMethodDrawerPayload>()
   );
   const [showDeletePaymentMethodDialog, setShowDeletePaymentMethodDialog] = React.useState(false);
-  const [deletePaymentMethod, setDeletePaymentMethod] = React.useState<TPaymentMethod | null>(null);
+  const [deletePaymentMethods, setDeletePaymentMethods] = React.useState<TPaymentMethod[]>([]);
+  const [selectedPaymentMethods, setSelectedPaymentMethods] = React.useState<TPaymentMethod[]>([]);
   const [keyword, setKeyword] = React.useState('');
   const displayedPaymentMethods: TPaymentMethod[] = React.useMemo(() => {
     if (keyword.length == 0) return paymentMethods;
@@ -70,9 +73,9 @@ export const PaymentMethods = () => {
     },
     async onConfirmTransactionDelete() {
       try {
-        if (!deletePaymentMethod) return;
+        if (deletePaymentMethods.length === 0) return;
         const [deletedItem, error] = await PaymentMethodService.delete(
-          { paymentMethodId: deletePaymentMethod.id },
+          deletePaymentMethods.map(({ id }) => ({ paymentMethodId: id })),
           authOptions
         );
         if (error) {
@@ -83,16 +86,34 @@ export const PaymentMethods = () => {
         }
 
         setShowDeletePaymentMethodDialog(false);
-        setDeletePaymentMethod(null);
+        setDeletePaymentMethods([]);
         refreshPaymentMethods(); // FIXME: Wrap inside startTransition
-        showSnackbar({ message: `Deleted payment-method ${deletedItem.name}` });
+        showSnackbar({ message: `Payment-method we're deleted` });
+        setSelectedPaymentMethods([]);
       } catch (error) {
         console.error(error);
       }
     },
     onPaymentMethodDelete(paymentMethod) {
       setShowDeletePaymentMethodDialog(true);
-      setDeletePaymentMethod(paymentMethod);
+      setDeletePaymentMethods([paymentMethod]);
+    },
+    selection: {
+      onSelectAll(shouldSelectAll) {
+        setSelectedPaymentMethods(shouldSelectAll ? displayedPaymentMethods : []);
+      },
+      onSelect(entity) {
+        if (this.isSelected(entity)) {
+          setSelectedPaymentMethods((prev) => prev.filter(({ id }) => id !== entity.id));
+        } else setSelectedPaymentMethods((prev) => [...prev, entity]);
+      },
+      isSelected(entity) {
+        return selectedPaymentMethods.find((elem) => elem.id === entity.id) !== undefined;
+      },
+      onDeleteMultiple() {
+        setShowDeletePaymentMethodDialog(true);
+        setDeletePaymentMethods(selectedPaymentMethods);
+      },
     },
   };
 
@@ -134,6 +155,12 @@ export const PaymentMethods = () => {
                 whiteSpace: 'nowrap',
               }}
             >
+              <TableCell>
+                <Checkbox
+                  checked={handler.selection.isSelected(paymentMethod)}
+                  onChange={() => handler.selection.onSelect(paymentMethod)}
+                />
+              </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
                 <PaymentMethodChip paymentMethod={paymentMethod} />
               </TableCell>
@@ -174,6 +201,12 @@ export const PaymentMethods = () => {
               </IconButton>
             </React.Fragment>
           }
+          withSelection
+          onSelectAll={handler.selection.onSelectAll}
+          amountOfSelectedEntities={selectedPaymentMethods.length}
+          onDelete={() => {
+            if (handler.selection.onDeleteMultiple) handler.selection.onDeleteMultiple();
+          }}
         />
       </Grid>
 
@@ -194,13 +227,13 @@ export const PaymentMethods = () => {
         open={showDeletePaymentMethodDialog}
         onClose={() => {
           setShowDeletePaymentMethodDialog(false);
-          setDeletePaymentMethod(null);
+          setDeletePaymentMethods([]);
         }}
         onCancel={() => {
           setShowDeletePaymentMethodDialog(false);
-          setDeletePaymentMethod(null);
+          setDeletePaymentMethods([]);
         }}
-        onConfirm={() => handler.onConfirmTransactionDelete}
+        onConfirm={() => handler.onConfirmTransactionDelete()}
         withTransition
       />
 

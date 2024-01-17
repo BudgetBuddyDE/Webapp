@@ -11,7 +11,7 @@ import {
   useFetchSubscriptions,
 } from '@/core/Subscription';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
-import { Box, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
+import { Box, Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
 import { useSnackbarContext } from '@/core/Snackbar';
 import { useAuthContext } from '@/core/Auth';
 import { TSubscription, TTransaction, TUpdateSubscriptionPayload } from '@budgetbuddyde/types';
@@ -25,6 +25,7 @@ import { filterSubscriptions } from '@/utils/filter.util';
 import { useFilterStore } from '@/core/Filter';
 import { CategoryChip } from '@/core/Category';
 import { PaymentMethodChip } from '@/core/PaymentMethod';
+import { type ISelectionHandler } from '@/components/Base/Select';
 
 interface ISubscriptionsHandler {
   onSearch: (keyword: string) => void;
@@ -36,6 +37,7 @@ interface ISubscriptionsHandler {
     onShowCreateDrawer: (subscription: TSubscription) => void;
     onHideCreateDrawer: () => void;
   };
+  selection: ISelectionHandler<TSubscription>;
 }
 
 export const Subscriptions = () => {
@@ -51,11 +53,12 @@ export const Subscriptions = () => {
   const [showEditSubscriptionDrawer, setShowEditSubscriptionDrawer] = React.useState(false);
   const [editSubscription, setEditSubscription] = React.useState<TSubscription | null>(null);
   const [showDeleteSubscriptionDialog, setShowDeleteSubscriptionDialog] = React.useState(false);
-  const [deleteSubscription, setDeleteSubscription] = React.useState<TSubscription | null>(null);
+  const [deleteSubscriptions, setDeleteSubscriptions] = React.useState<TSubscription[]>([]);
   const [showCreateTransactionDrawer, setShowCreateTransactionDrawer] = React.useState(false);
   const [createableTransaction, setCreateableTransaction] = React.useState<TTransaction | null>(
     null
   );
+  const [selectedSubscriptions, setSelectedSubscriptions] = React.useState<TSubscription[]>([]);
   const [keyword, setKeyword] = React.useState('');
   const displayedSubscriptions: TSubscription[] = React.useMemo(() => {
     return filterSubscriptions(keyword, filters, subscriptions);
@@ -71,10 +74,9 @@ export const Subscriptions = () => {
     },
     async onConfirmSubscriptionDelete() {
       try {
-        console.log(deleteSubscription);
-        if (!deleteSubscription) return;
+        if (deleteSubscriptions.length === 0) return;
         const [deletedItem, error] = await SubscriptionService.delete(
-          { subscriptionId: deleteSubscription.id },
+          deleteSubscriptions.map(({ id }) => ({ subscriptionId: id })),
           authOptions
         );
         if (error) {
@@ -85,16 +87,17 @@ export const Subscriptions = () => {
         }
 
         setShowDeleteSubscriptionDialog(false);
-        setDeleteSubscription(null);
+        setDeleteSubscriptions([]);
         refreshSubscriptions(); // FIXME: Wrap inside startTransition
         showSnackbar({ message: `Subscription deleted` });
+        setSelectedSubscriptions([]);
       } catch (error) {
         console.error(error);
       }
     },
     onSubscriptionDelete(subscription) {
       setShowDeleteSubscriptionDialog(true);
-      setDeleteSubscription(subscription);
+      setDeleteSubscriptions([subscription]);
     },
     async onToggleExecutionStatus(subscription) {
       try {
@@ -146,6 +149,23 @@ export const Subscriptions = () => {
         setCreateableTransaction(null);
       },
     },
+    selection: {
+      onSelectAll(shouldSelectAll) {
+        setSelectedSubscriptions(shouldSelectAll ? displayedSubscriptions : []);
+      },
+      onSelect(entity) {
+        if (this.isSelected(entity)) {
+          setSelectedSubscriptions((prev) => prev.filter(({ id }) => id !== entity.id));
+        } else setSelectedSubscriptions((prev) => [...prev, entity]);
+      },
+      isSelected(entity) {
+        return selectedSubscriptions.find((elem) => elem.id === entity.id) !== undefined;
+      },
+      onDeleteMultiple() {
+        setShowDeleteSubscriptionDialog(true);
+        setDeleteSubscriptions(selectedSubscriptions);
+      },
+    },
   };
 
   return (
@@ -181,6 +201,12 @@ export const Subscriptions = () => {
                 whiteSpace: 'nowrap',
               }}
             >
+              <TableCell>
+                <Checkbox
+                  checked={handler.selection.isSelected(subscription)}
+                  onChange={() => handler.selection.onSelect(subscription)}
+                />
+              </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
                 <Typography
                   fontWeight="bolder"
@@ -248,6 +274,12 @@ export const Subscriptions = () => {
               </IconButton>
             </React.Fragment>
           }
+          withSelection
+          onSelectAll={handler.selection.onSelectAll}
+          amountOfSelectedEntities={selectedSubscriptions.length}
+          onDelete={() => {
+            if (handler.selection.onDeleteMultiple) handler.selection.onDeleteMultiple();
+          }}
         />
       </Grid>
 
@@ -278,11 +310,11 @@ export const Subscriptions = () => {
         open={showDeleteSubscriptionDialog}
         onClose={() => {
           setShowDeleteSubscriptionDialog(false);
-          setDeleteSubscription(null);
+          setDeleteSubscriptions([]);
         }}
         onCancel={() => {
           setShowDeleteSubscriptionDialog(false);
-          setDeleteSubscription(null);
+          setDeleteSubscriptions([]);
         }}
         onConfirm={() => handler.onConfirmSubscriptionDelete()}
         withTransition

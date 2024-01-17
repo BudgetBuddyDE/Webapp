@@ -10,7 +10,7 @@ import {
   TransactionService,
   useFetchTransactions,
 } from '@/core/Transaction';
-import { Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
+import { Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
 import { TTransaction } from '@budgetbuddyde/types';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { SearchInput } from '@/components/Base/Search';
@@ -23,12 +23,14 @@ import { useFilterStore } from '@/core/Filter';
 import { filterTransactions } from '@/utils/filter.util';
 import { CategoryChip } from '@/core/Category';
 import { PaymentMethodChip } from '@/core/PaymentMethod';
+import { type ISelectionHandler } from '@/components/Base/Select';
 
 interface ITransactionsHandler {
   onSearch: (keyword: string) => void;
   onTransactionDelete: (transaction: TTransaction) => void;
   onConfirmTransactionDelete: () => void;
   onEditTransaction: (transaction: TTransaction) => void;
+  selection: ISelectionHandler<TTransaction>;
 }
 
 export const Transactions = () => {
@@ -44,7 +46,8 @@ export const Transactions = () => {
   const [showEditTransactionDrawer, setShowEditTransactionDrawer] = React.useState(false);
   const [editTransaction, setEditTransaction] = React.useState<TTransaction | null>(null);
   const [showDeleteTransactionDialog, setShowDeleteTransactionDialog] = React.useState(false);
-  const [deleteTransaction, setDeleteTransaction] = React.useState<TTransaction | null>(null);
+  const [deleteTransactions, setDeleteTransactions] = React.useState<TTransaction[]>([]);
+  const [selectedTransactions, setSelectedTransactions] = React.useState<TTransaction[]>([]);
   const [keyword, setKeyword] = React.useState('');
   const displayedTransactions: TTransaction[] = React.useMemo(() => {
     return filterTransactions(keyword, filters, transactions);
@@ -60,9 +63,9 @@ export const Transactions = () => {
     },
     async onConfirmTransactionDelete() {
       try {
-        if (!deleteTransaction) return;
+        if (deleteTransactions.length === 0) return;
         const [deletedItem, error] = await TransactionService.delete(
-          { transactionId: deleteTransaction.id },
+          deleteTransactions.map(({ id }) => ({ transactionId: id })),
           authOptions
         );
         if (error) {
@@ -73,20 +76,36 @@ export const Transactions = () => {
         }
 
         setShowDeleteTransactionDialog(false);
-        setDeleteTransaction(null);
+        setDeleteTransactions([]);
         refreshTransactions(); // FIXME: Wrap inside startTransition
         showSnackbar({ message: `Deleted the transaction` });
+        setSelectedTransactions([]);
       } catch (error) {
         console.error(error);
       }
     },
     onTransactionDelete(transaction) {
       setShowDeleteTransactionDialog(true);
-      setDeleteTransaction(transaction);
+      setDeleteTransactions([transaction]);
+    },
+    selection: {
+      onSelectAll(shouldSelectAll) {
+        setSelectedTransactions(shouldSelectAll ? displayedTransactions : []);
+      },
+      onSelect(entity) {
+        if (this.isSelected(entity)) {
+          setSelectedTransactions((prev) => prev.filter(({ id }) => id !== entity.id));
+        } else setSelectedTransactions((prev) => [...prev, entity]);
+      },
+      isSelected(entity) {
+        return selectedTransactions.find((elem) => elem.id === entity.id) !== undefined;
+      },
+      onDeleteMultiple() {
+        setShowDeleteTransactionDialog(true);
+        setDeleteTransactions(selectedTransactions);
+      },
     },
   };
-
-  React.useEffect(() => console.log(displayedTransactions), [displayedTransactions]);
 
   return (
     <ContentGrid title={'Transactions'}>
@@ -121,6 +140,12 @@ export const Transactions = () => {
                 whiteSpace: 'nowrap',
               }}
             >
+              <TableCell>
+                <Checkbox
+                  checked={handler.selection.isSelected(transaction)}
+                  onChange={() => handler.selection.onSelect(transaction)}
+                />
+              </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
                 <Typography fontWeight="bolder">{`${format(
                   new Date(transaction.processedAt),
@@ -174,6 +199,12 @@ export const Transactions = () => {
               </IconButton>
             </React.Fragment>
           }
+          withSelection
+          onSelectAll={handler.selection.onSelectAll}
+          amountOfSelectedEntities={selectedTransactions.length}
+          onDelete={() => {
+            if (handler.selection.onDeleteMultiple) handler.selection.onDeleteMultiple();
+          }}
         />
       </Grid>
 
@@ -195,11 +226,11 @@ export const Transactions = () => {
         open={showDeleteTransactionDialog}
         onClose={() => {
           setShowDeleteTransactionDialog(false);
-          setDeleteTransaction(null);
+          setDeleteTransactions([]);
         }}
         onCancel={() => {
           setShowDeleteTransactionDialog(false);
-          setDeleteTransaction(null);
+          setDeleteTransactions([]);
         }}
         onConfirm={handler.onConfirmTransactionDelete}
         withTransition

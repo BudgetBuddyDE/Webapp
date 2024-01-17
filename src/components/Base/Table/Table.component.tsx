@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Box,
+  Button,
   Skeleton,
   TableBody,
   TableCell,
@@ -19,6 +20,7 @@ import {
 import { TableContainer } from './TableContainer.component';
 import { CircularProgress } from '@/components/Loading';
 import { type ISelectionHandler, SelectAll } from '../Select';
+import { DeleteRounded } from '@mui/icons-material';
 
 export type TTableProps<T> = {
   title?: string;
@@ -33,6 +35,7 @@ export type TTableProps<T> = {
   | {
       withSelection: true;
       onSelectAll: ISelectionHandler<T>['onSelectAll'];
+      onDelete?: () => void;
       amountOfSelectedEntities: number;
     }
   | { withSelection?: false }
@@ -104,39 +107,57 @@ export const Table = <T,>({
         {isLoading ? (
           <CircularProgress />
         ) : currentPageData.length > 0 ? (
-          <TableContainer>
-            <TableHead>
-              <TableRow>
-                {props.withSelection && (
-                  <SelectAll
-                    checked={checked}
-                    indeterminate={
-                      props.amountOfSelectedEntities > 0 &&
-                      props.amountOfSelectedEntities < data.length
-                    }
-                    onChange={(_event, checked) => {
-                      const indeterminate =
-                        props.amountOfSelectedEntities > 0 &&
-                        props.amountOfSelectedEntities < data.length;
-                      props.onSelectAll(indeterminate ? false : checked);
+          <React.Fragment>
+            {props.withSelection && props.amountOfSelectedEntities > 0 && (
+              <Box sx={{ px: 2, pt: 1.5 }}>
+                {props.onDelete && (
+                  <Button
+                    startIcon={<DeleteRounded />}
+                    onClick={() => {
+                      if (props.onDelete) props.onDelete();
                     }}
-                    wrapWithTableCell
-                  />
+                    sx={{ mr: 1 }}
+                  >
+                    Delete
+                  </Button>
                 )}
+              </Box>
+            )}
 
-                {headerCells.map((headerCell) =>
-                  renderHeaderCell ? (
-                    renderHeaderCell(headerCell)
-                  ) : (
-                    <TableCell key={headerCell.replaceAll(' ', '_').toLowerCase()}>
-                      <Typography fontWeight={'bold'}>{headerCell}</Typography>
-                    </TableCell>
-                  )
-                )}
-              </TableRow>
-            </TableHead>
-            <TableBody>{currentPageData.map(renderRow)}</TableBody>
-          </TableContainer>
+            <TableContainer>
+              <TableHead>
+                <TableRow>
+                  {props.withSelection && (
+                    <SelectAll
+                      checked={checked}
+                      indeterminate={
+                        props.amountOfSelectedEntities > 0 &&
+                        props.amountOfSelectedEntities < data.length
+                      }
+                      onChange={(_event, checked) => {
+                        const indeterminate =
+                          props.amountOfSelectedEntities > 0 &&
+                          props.amountOfSelectedEntities < data.length;
+                        props.onSelectAll(indeterminate ? false : checked);
+                      }}
+                      wrapWithTableCell
+                    />
+                  )}
+
+                  {headerCells.map((headerCell) =>
+                    renderHeaderCell ? (
+                      renderHeaderCell(headerCell)
+                    ) : (
+                      <TableCell key={headerCell.replaceAll(' ', '_').toLowerCase()}>
+                        <Typography fontWeight={'bold'}>{headerCell}</Typography>
+                      </TableCell>
+                    )
+                  )}
+                </TableRow>
+              </TableHead>
+              <TableBody>{currentPageData.map(renderRow)}</TableBody>
+            </TableContainer>
+          </React.Fragment>
         ) : (
           <NoResults sx={{ mx: 2, mt: 2 }} />
         )}

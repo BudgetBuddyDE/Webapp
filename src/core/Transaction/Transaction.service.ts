@@ -9,6 +9,8 @@ import {
   type TTransaction,
   type TUpdateTransactionPayload,
   ZDailyTransaction,
+  type TDeleteTransactionResponsePayload,
+  ZDeleteTransactionResponsePayload,
 } from '@budgetbuddyde/types';
 import { format, isSameMonth } from 'date-fns';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
@@ -182,17 +184,17 @@ export class TransactionService {
   static async delete(
     transaction: TDeleteTransactionPayload,
     user: IAuthContext['authOptions']
-  ): Promise<[TTransaction | null, Error | null]> {
+  ): Promise<[TDeleteTransactionResponsePayload | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
         method: 'DELETE',
         body: JSON.stringify(transaction),
         ...prepareRequestOptions(user),
       });
-      const json = (await response.json()) as TApiResponse<TTransaction>;
+      const json = (await response.json()) as TApiResponse<TDeleteTransactionResponsePayload>;
       if (json.status != 200) return [null, new Error(json.message!)];
 
-      const parsingResult = ZTransaction.safeParse(json.data);
+      const parsingResult = ZDeleteTransactionResponsePayload.safeParse(json.data);
       if (!parsingResult.success) throw new Error(parsingResult.error.message);
       return [parsingResult.data, null];
     } catch (error) {

@@ -7,6 +7,8 @@ import {
   type TDeleteSubscriptionPayload,
   type TSubscription,
   type TUpdateSubscriptionPayload,
+  type TDeleteSubscriptionResponsePayload,
+  ZDeleteSubscriptionResponsePayload,
 } from '@budgetbuddyde/types';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { determineNextExecutionDate, prepareRequestOptions } from '@/utils';
@@ -86,17 +88,17 @@ export class SubscriptionService {
   static async delete(
     subscription: TDeleteSubscriptionPayload,
     user: IAuthContext['authOptions']
-  ): Promise<[TSubscription | null, Error | null]> {
+  ): Promise<[TDeleteSubscriptionResponsePayload | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
         method: 'DELETE',
         body: JSON.stringify(subscription),
         ...prepareRequestOptions(user),
       });
-      const json = (await response.json()) as TApiResponse<TSubscription>;
+      const json = (await response.json()) as TApiResponse<TDeleteSubscriptionResponsePayload>;
       if (json.status != 200) return [null, new Error(json.message!)];
 
-      const parsingResult = ZSubscription.safeParse(json.data);
+      const parsingResult = ZDeleteSubscriptionResponsePayload.safeParse(json.data);
       if (!parsingResult.success) throw new Error(parsingResult.error.message);
       return [parsingResult.data, null];
     } catch (error) {

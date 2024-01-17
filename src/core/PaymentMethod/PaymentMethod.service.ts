@@ -7,6 +7,8 @@ import {
   type TPaymentMethod,
   type TUpdatePaymentMethodPayload,
   type TUser,
+  type TDeletePaymentMethodResponsePayload,
+  ZDeletePaymentMethodResponsePayload,
 } from '@budgetbuddyde/types';
 import { prepareRequestOptions } from '@/utils';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
@@ -85,17 +87,17 @@ export class PaymentMethodService {
   static async delete(
     paymentMethod: TDeletePaymentMethodPayload,
     user: IAuthContext['authOptions']
-  ): Promise<[TPaymentMethod | null, Error | null]> {
+  ): Promise<[TDeletePaymentMethodResponsePayload | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
         method: 'DELETE',
         body: JSON.stringify(paymentMethod),
         ...prepareRequestOptions(user),
       });
-      const json = (await response.json()) as TApiResponse<TPaymentMethod>;
+      const json = (await response.json()) as TApiResponse<TDeletePaymentMethodResponsePayload>;
       if (json.status != 200) return [null, new Error(json.message!)];
 
-      const parsingResult = ZPaymentMethod.safeParse(json.data);
+      const parsingResult = ZDeletePaymentMethodResponsePayload.safeParse(json.data);
       if (!parsingResult.success) throw new Error(parsingResult.error.message);
       return [parsingResult.data, null];
     } catch (error) {

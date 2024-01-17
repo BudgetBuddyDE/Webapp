@@ -21,11 +21,12 @@ import { useSnackbarContext } from '@/core/Snackbar';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import type { TCategory } from '@budgetbuddyde/types';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
-import { Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
+import { Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
 import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { SearchInput } from '@/components/Base/Search';
+import { type ISelectionHandler } from '@/components/Base/Select';
 
 interface ICategoriesHandler {
   onSearch: (keyword: string) => void;
@@ -33,6 +34,7 @@ interface ICategoriesHandler {
   onCategoryDelete: (category: TCategory) => void;
   onConfirmCategoryDelete: () => void;
   onEditCategory: (category: TCategory) => void;
+  selection: ISelectionHandler<TCategory>;
 }
 
 export const Categories = () => {
@@ -54,7 +56,8 @@ export const Categories = () => {
     CreateEntityDrawerState<TEditCategoryDrawerPayload>()
   );
   const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] = React.useState(false);
-  const [deleteCategory, setDeleteCategory] = React.useState<TCategory | null>(null);
+  const [deleteCategories, setDeleteCategories] = React.useState<TCategory[]>([]);
+  const [selectedCategories, setSelectedCategories] = React.useState<TCategory[]>([]);
   const [keyword, setKeyword] = React.useState('');
   const displayedCategories: TCategory[] = React.useMemo(() => {
     if (keyword.length == 0) return categories;
@@ -73,9 +76,9 @@ export const Categories = () => {
     },
     async onConfirmCategoryDelete() {
       try {
-        if (!deleteCategory) return;
+        if (deleteCategories.length === 0) return;
         const [deletedItem, error] = await CategoryService.delete(
-          { categoryId: deleteCategory.id },
+          deleteCategories.map(({ id }) => ({ categoryId: id })),
           authOptions
         );
         if (error) {
@@ -86,16 +89,34 @@ export const Categories = () => {
         }
 
         setShowDeleteCategoryDialog(false);
-        setDeleteCategory(null);
+        setDeleteCategories([]);
         refreshCategories(); // FIXME: Wrap inside startTransition
-        showSnackbar({ message: `Deleted category ${deletedItem.name}` });
+        showSnackbar({ message: `Categories we're deleted` });
+        setSelectedCategories([]);
       } catch (error) {
         console.error(error);
       }
     },
     onCategoryDelete(category) {
       setShowDeleteCategoryDialog(true);
-      setDeleteCategory(category);
+      setDeleteCategories([category]);
+    },
+    selection: {
+      onSelectAll(shouldSelectAll) {
+        setSelectedCategories(shouldSelectAll ? displayedCategories : []);
+      },
+      onSelect(entity) {
+        if (this.isSelected(entity)) {
+          setSelectedCategories((prev) => prev.filter(({ id }) => id !== entity.id));
+        } else setSelectedCategories((prev) => [...prev, entity]);
+      },
+      isSelected(entity) {
+        return selectedCategories.find((elem) => elem.id === entity.id) !== undefined;
+      },
+      onDeleteMultiple() {
+        setShowDeleteCategoryDialog(true);
+        setDeleteCategories(selectedCategories);
+      },
     },
   };
 
@@ -136,6 +157,12 @@ export const Categories = () => {
                 whiteSpace: 'nowrap',
               }}
             >
+              <TableCell>
+                <Checkbox
+                  checked={handler.selection.isSelected(category)}
+                  onChange={() => handler.selection.onSelect(category)}
+                />
+              </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
                 <CategoryChip category={category} />
               </TableCell>
@@ -163,6 +190,12 @@ export const Categories = () => {
               </IconButton>
             </React.Fragment>
           }
+          withSelection
+          onSelectAll={handler.selection.onSelectAll}
+          amountOfSelectedEntities={selectedCategories.length}
+          onDelete={() => {
+            if (handler.selection.onDeleteMultiple) handler.selection.onDeleteMultiple();
+          }}
         />
       </Grid>
 
@@ -199,13 +232,13 @@ export const Categories = () => {
         open={showDeleteCategoryDialog}
         onClose={() => {
           setShowDeleteCategoryDialog(false);
-          setDeleteCategory(null);
+          setDeleteCategories([]);
         }}
         onCancel={() => {
           setShowDeleteCategoryDialog(false);
-          setDeleteCategory(null);
+          setDeleteCategories([]);
         }}
-        onConfirm={() => handler.onConfirmCategoryDelete}
+        onConfirm={() => handler.onConfirmCategoryDelete()}
         withTransition
       />
 
