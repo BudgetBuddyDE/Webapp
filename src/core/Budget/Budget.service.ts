@@ -8,6 +8,8 @@ import {
   type TDeleteBudgetPayload,
   type TUpdateBudgetPayload,
   ZBudgetProgress,
+  TDeleteBudgetResponsePayload,
+  ZDeleteBudgetResponsePayload,
 } from '@budgetbuddyde/types';
 import { prepareRequestOptions } from '@/utils';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
@@ -108,17 +110,17 @@ export class BudgetService {
   static async delete(
     budget: TDeleteBudgetPayload,
     user: IAuthContext['authOptions']
-  ): Promise<[TBudget | null, Error | null]> {
+  ): Promise<[TDeleteBudgetResponsePayload | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
         method: 'DELETE',
         body: JSON.stringify(budget),
         ...prepareRequestOptions(user),
       });
-      const json = (await response.json()) as TApiResponse<TBudget>;
+      const json = (await response.json()) as TApiResponse<TDeleteBudgetResponsePayload>;
       if (json.status != 200) return [null, new Error(json.message!)];
 
-      const parsingResult = ZBudget.safeParse(json.data);
+      const parsingResult = ZDeleteBudgetResponsePayload.safeParse(json.data);
       if (!parsingResult.success) throw new Error(parsingResult.error.message);
       return [parsingResult.data, null];
     } catch (error) {

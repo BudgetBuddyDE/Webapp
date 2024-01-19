@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node-version: [14.x, 16.x, 18.x, 20.x]
+        node-version: [16.x, 18.x, 20.x]
     env:
       REACT_APP_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       REACT_APP_SUPABASE_ANON: ${{ secrets.SUPABASE_ANON_KEY }}

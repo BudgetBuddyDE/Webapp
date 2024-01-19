@@ -6,6 +6,8 @@ import {
   type TCreateCategoryPayload,
   type TDeleteCategoryPayload,
   type TUpdateCategoryPayload,
+  TDeleteCategoryResponsePayload,
+  ZDeleteCategoryResponsePayload,
 } from '@budgetbuddyde/types';
 import { prepareRequestOptions } from '@/utils';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
@@ -84,17 +86,17 @@ export class CategoryService {
   static async delete(
     category: TDeleteCategoryPayload,
     user: IAuthContext['authOptions']
-  ): Promise<[TCategory | null, Error | null]> {
+  ): Promise<[TDeleteCategoryResponsePayload | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
         method: 'DELETE',
         body: JSON.stringify(category),
         ...prepareRequestOptions(user),
       });
-      const json = (await response.json()) as TApiResponse<TCategory>;
+      const json = (await response.json()) as TApiResponse<TDeleteCategoryResponsePayload>;
       if (json.status != 200) return [null, new Error(json.message!)];
 
-      const parsingResult = ZCategory.safeParse(json.data);
+      const parsingResult = ZDeleteCategoryResponsePayload.safeParse(json.data);
       if (!parsingResult.success) throw new Error(parsingResult.error.message);
       return [parsingResult.data, null];
     } catch (error) {
