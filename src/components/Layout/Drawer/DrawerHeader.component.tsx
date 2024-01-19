@@ -13,6 +13,7 @@ export const DrawerHeader = () => {
       }}
     >
       <Brand
+        asLink
         boxStyle={{
           display: { xs: 'flex', md: open ? 'flex' : 'none' },
           ml: 2,

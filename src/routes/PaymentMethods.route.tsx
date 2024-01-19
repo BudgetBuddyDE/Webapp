@@ -29,7 +29,7 @@ interface IPaymentMethodsHandler {
   onSearch: (keyword: string) => void;
   onCreatePaymentMethod: (payload?: TCreatePaymentMethodDrawerPayload) => void;
   onPaymentMethodDelete: (paymentMethod: TPaymentMethod) => void;
-  onConfirmTransactionDelete: () => void;
+  onConfirmPaymentMethodDelete: () => void;
   onEditPaymentMethod: (paymentMethod: TPaymentMethod) => void;
   selection: ISelectionHandler<TPaymentMethod>;
 }
@@ -71,7 +71,7 @@ export const PaymentMethods = () => {
     onEditPaymentMethod(paymentMethod) {
       dispatchEditDrawer({ type: 'open', payload: paymentMethod });
     },
-    async onConfirmTransactionDelete() {
+    async onConfirmPaymentMethodDelete() {
       try {
         if (deletePaymentMethods.length === 0) return;
         const [deletedItem, error] = await PaymentMethodService.delete(
