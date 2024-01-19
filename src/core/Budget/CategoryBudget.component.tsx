@@ -24,7 +24,7 @@ export const CategoryBudget: React.FC<TCategoryBudgetProps> = ({
       if (onEdit) onEdit(budget);
     },
     onDelete() {
-      if (onDelete) onDelete({ budgetId: budget.id });
+      if (onDelete) onDelete([{ budgetId: budget.id }]);
     },
   };
 

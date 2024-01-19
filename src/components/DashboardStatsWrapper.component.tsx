@@ -1,6 +1,6 @@
 import { Grid } from '@mui/material';
 import React from 'react';
-import { StatsCard, StatsIconStyle, TStatsCardProps } from './StatsCard.component';
+import { StatsCard, TStatsCardProps } from './StatsCard.component';
 import {
   AddRounded,
   BalanceRounded,
@@ -65,29 +65,29 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
   const stats: TStatsCardProps[] = React.useMemo(() => {
     return [
       {
-        title: formatBalance(fetchedStats.earnings),
-        subtitle: 'Earnings',
-        icon: <AddRounded sx={StatsIconStyle} />,
+        value: formatBalance(fetchedStats.earnings),
+        label: 'Earnings',
+        icon: <AddRounded />,
       },
       {
-        title: formatBalance(fetchedStats.upcoming_earnings),
-        subtitle: 'Upcoming Earnings',
-        icon: <ScheduleSendRounded sx={StatsIconStyle} />,
+        value: formatBalance(fetchedStats.upcoming_earnings),
+        label: 'Upcoming Earnings',
+        icon: <ScheduleSendRounded />,
       },
       {
-        title: formatBalance(fetchedStats.expenses),
-        subtitle: 'Expenses',
-        icon: <RemoveRounded sx={StatsIconStyle} />,
+        value: formatBalance(fetchedStats.expenses),
+        label: 'Expenses',
+        icon: <RemoveRounded />,
       },
       {
-        title: formatBalance(fetchedStats.upcoming_expenses),
-        subtitle: 'Upcoming Expenses',
-        icon: <ScheduleSendRounded sx={StatsIconStyle} />,
+        value: formatBalance(fetchedStats.upcoming_expenses),
+        label: 'Upcoming Expenses',
+        icon: <ScheduleSendRounded />,
       },
       {
-        title: formatBalance(fetchedStats.balance),
-        subtitle: 'Balance',
-        icon: <BalanceRounded sx={StatsIconStyle} />,
+        value: formatBalance(fetchedStats.balance),
+        label: 'Balance',
+        icon: <BalanceRounded />,
       },
     ];
   }, [fetchedStats]);
@@ -128,12 +128,12 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
     <Grid container item xs={12} md={12} columns={10} spacing={3}>
       {stats.map((props, idx, list) => (
         <Grid
-          key={props.subtitle.toString().toLowerCase().replace(' ', '_')}
+          key={props.label.toString().toLowerCase().replace(' ', '_')}
           item
           xs={idx == list.length - 1 ? 10 : 5}
           md={2}
         >
-          <StatsCard loading={loading} {...props} />
+          <StatsCard isLoading={loading} {...props} />
         </Grid>
       ))}
     </Grid>

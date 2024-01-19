@@ -1,8 +1,8 @@
 import React from 'react';
 import { Grid, type GridProps } from '@mui/material';
-import { StatsCard, StatsIconStyle, type TStatsCardProps } from '@/components/StatsCard.component';
+import { StatsCard, type TStatsCardProps } from '@/components/StatsCard.component';
 import { formatBalance } from '@/utils';
-import { useFetchBudget } from '.';
+import { useFetchBudget } from './useFetchBudget.hook';
 import { SubscriptionService, useFetchSubscriptions } from '../Subscription';
 import { AddRounded, BalanceRounded, RemoveRounded } from '@mui/icons-material';
 
@@ -43,32 +43,32 @@ export const StatsWrapper: React.FC<TStatsWrapperProps> = ({ containerProps }) =
 
   const cards: TStatsCardProps[] = [
     {
-      title: formatBalance(values.subscriptions.income),
-      subtitle: 'Income',
-      info: 'Based on your income subscriptions',
-      loading: loadingSubscriptions,
-      icon: <AddRounded sx={StatsIconStyle} />,
+      value: formatBalance(values.subscriptions.income),
+      label: 'Income',
+      valueInformation: 'Based on your income subscriptions',
+      isLoading: loadingSubscriptions,
+      icon: <AddRounded />,
     },
     {
-      title: formatBalance(values.subscriptions.spendings),
-      subtitle: 'Spendings',
-      info: 'Based on your spending subscriptions',
-      icon: <RemoveRounded sx={StatsIconStyle} />,
+      value: formatBalance(values.subscriptions.spendings),
+      label: 'Spendings',
+      valueInformation: 'Based on your spending subscriptions',
+      icon: <RemoveRounded />,
     },
     {
-      title: `${formatBalance(values.budgets.totalPlanned)} / ${formatBalance(
+      value: `${formatBalance(values.budgets.totalPlanned)} / ${formatBalance(
         values.subscriptions.income
       )}`,
-      subtitle: 'Planned Budget',
-      info: 'Already planned budget against planned available income',
-      loading: loadingBudgets,
-      icon: <BalanceRounded sx={StatsIconStyle} />,
+      label: 'Planned Budget',
+      valueInformation: 'Already planned budget against planned available income',
+      isLoading: loadingBudgets,
+      icon: <BalanceRounded />,
     },
     {
-      title: formatBalance(values.subscriptions.income - values.budgets.totalPlanned),
-      subtitle: 'Available Budget',
-      info: 'Available budget based on planned income and budget',
-      loading: loadingBudgets || loadingSubscriptions,
+      value: formatBalance(values.subscriptions.income - values.budgets.totalPlanned),
+      label: 'Available Budget',
+      valueInformation: 'Available budget based on planned income and budget',
+      isLoading: loadingBudgets || loadingSubscriptions,
     },
   ];
 

@@ -1,17 +1,8 @@
 import { AppConfig } from '@/app.config';
-import { ActionPaper, Card, Linkify, NoResults } from '@/components/Base';
-import {
-  InitialPaginationState,
-  Pagination,
-  type PaginationHandler,
-  PaginationReducer,
-  usePagination,
-} from '@/components/Base/Pagination';
-import { SearchInput } from '@/components/Base/Search';
+import { ActionPaper, Linkify } from '@/components/Base';
 import { Table } from '@/components/Base/Table';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
-import { CircularProgress } from '@/components/Loading';
 import { useAuthContext } from '@/core/Auth';
 import { withAuthLayout } from '@/core/Auth/Layout';
 import {
@@ -30,19 +21,12 @@ import { useSnackbarContext } from '@/core/Snackbar';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import type { TCategory } from '@budgetbuddyde/types';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
-import {
-  Box,
-  Grid,
-  IconButton,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Typography,
-} from '@mui/material';
+import { Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
 import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { SearchInput } from '@/components/Base/Search';
+import { type ISelectionHandler } from '@/components/Base/Select';
 
 interface ICategoriesHandler {
   onSearch: (keyword: string) => void;
@@ -50,7 +34,7 @@ interface ICategoriesHandler {
   onCategoryDelete: (category: TCategory) => void;
   onConfirmCategoryDelete: () => void;
   onEditCategory: (category: TCategory) => void;
-  pagination: PaginationHandler;
+  selection: ISelectionHandler<TCategory>;
 }
 
 export const Categories = () => {
@@ -63,10 +47,6 @@ export const Categories = () => {
   } = useFetchCategories();
   const { showSnackbar } = useSnackbarContext();
   const { authOptions } = useAuthContext();
-  const [tablePagination, setTablePagination] = React.useReducer(
-    PaginationReducer,
-    InitialPaginationState
-  );
   const [showCreateDrawer, dispatchCreateDrawer] = React.useReducer(
     useEntityDrawer<TCreateCategoryDrawerPayload>,
     CreateEntityDrawerState<TCreateCategoryDrawerPayload>()
@@ -76,13 +56,13 @@ export const Categories = () => {
     CreateEntityDrawerState<TEditCategoryDrawerPayload>()
   );
   const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] = React.useState(false);
-  const [deleteCategory, setDeleteCategory] = React.useState<TCategory | null>(null);
+  const [deleteCategories, setDeleteCategories] = React.useState<TCategory[]>([]);
+  const [selectedCategories, setSelectedCategories] = React.useState<TCategory[]>([]);
   const [keyword, setKeyword] = React.useState('');
   const displayedCategories: TCategory[] = React.useMemo(() => {
     if (keyword.length == 0) return categories;
     return categories.filter(({ name }) => name.toLowerCase().includes(keyword.toLowerCase()));
-  }, [categories, keyword, tablePagination]);
-  const currentPageCategories = usePagination(displayedCategories, tablePagination);
+  }, [categories, keyword]);
 
   const handler: ICategoriesHandler = {
     onSearch(keyword) {
@@ -96,9 +76,9 @@ export const Categories = () => {
     },
     async onConfirmCategoryDelete() {
       try {
-        if (!deleteCategory) return;
+        if (deleteCategories.length === 0) return;
         const [deletedItem, error] = await CategoryService.delete(
-          { categoryId: deleteCategory.id },
+          deleteCategories.map(({ id }) => ({ categoryId: id })),
           authOptions
         );
         if (error) {
@@ -109,23 +89,33 @@ export const Categories = () => {
         }
 
         setShowDeleteCategoryDialog(false);
-        setDeleteCategory(null);
+        setDeleteCategories([]);
         refreshCategories(); // FIXME: Wrap inside startTransition
-        showSnackbar({ message: `Deleted category ${deletedItem.name}` });
+        showSnackbar({ message: `Categories we're deleted` });
+        setSelectedCategories([]);
       } catch (error) {
         console.error(error);
       }
     },
     onCategoryDelete(category) {
       setShowDeleteCategoryDialog(true);
-      setDeleteCategory(category);
+      setDeleteCategories([category]);
     },
-    pagination: {
-      onPageChange(newPage) {
-        setTablePagination({ type: 'CHANGE_PAGE', page: newPage });
+    selection: {
+      onSelectAll(shouldSelectAll) {
+        setSelectedCategories(shouldSelectAll ? displayedCategories : []);
       },
-      onRowsPerPageChange(rowsPerPage) {
-        setTablePagination({ type: 'CHANGE_ROWS_PER_PAGE', rowsPerPage: rowsPerPage });
+      onSelect(entity) {
+        if (this.isSelected(entity)) {
+          setSelectedCategories((prev) => prev.filter(({ id }) => id !== entity.id));
+        } else setSelectedCategories((prev) => [...prev, entity]);
+      },
+      isSelected(entity) {
+        return selectedCategories.find((elem) => elem.id === entity.id) !== undefined;
+      },
+      onDeleteMultiple() {
+        setShowDeleteCategoryDialog(true);
+        setDeleteCategories(selectedCategories);
       },
     },
   };
@@ -145,89 +135,68 @@ export const Categories = () => {
   return (
     <ContentGrid title={'Categories'}>
       <Grid item xs={12} md={12} lg={8} xl={8}>
-        <Card sx={{ p: 0 }}>
-          <Card.Header sx={{ p: 2, pb: 0 }}>
-            <Box>
-              <Card.Title>Categories</Card.Title>
-              <Card.Subtitle>Manage your categories</Card.Subtitle>
-            </Box>
-
-            <Card.HeaderActions
-              sx={{ mt: { xs: 1, md: 0 }, width: { xs: '100%', md: 'unset' } }}
-              actionPaperProps={{
-                sx: { display: 'flex', flexDirection: 'category', width: { xs: '100%' } },
+        <Table<TCategory>
+          isLoading={loadingCategories}
+          title="Categories"
+          subtitle="Manage your categories"
+          data={displayedCategories}
+          headerCells={['Name', 'Description', '']}
+          renderHeaderCell={(headerCell) => (
+            <TableCell
+              key={headerCell.replaceAll(' ', '_').toLowerCase()}
+              size={AppConfig.table.cellSize}
+            >
+              <Typography fontWeight="bolder">{headerCell}</Typography>
+            </TableCell>
+          )}
+          renderRow={(category) => (
+            <TableRow
+              key={category.id}
+              sx={{
+                '&:last-child td, &:last-child th': { border: 0 },
+                whiteSpace: 'nowrap',
               }}
             >
+              <TableCell>
+                <Checkbox
+                  checked={handler.selection.isSelected(category)}
+                  onChange={() => handler.selection.onSelect(category)}
+                />
+              </TableCell>
+              <TableCell size={AppConfig.table.cellSize}>
+                <CategoryChip category={category} />
+              </TableCell>
+              <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
+                <Linkify>{category.description ?? 'No Description'}</Linkify>
+              </TableCell>
+              <TableCell align="right" size={AppConfig.table.cellSize}>
+                <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
+                  <IconButton color="primary" onClick={() => handler.onEditCategory(category)}>
+                    <EditRounded />
+                  </IconButton>
+                  <IconButton color="primary" onClick={() => handler.onCategoryDelete(category)}>
+                    <DeleteRounded />
+                  </IconButton>
+                </ActionPaper>
+              </TableCell>
+            </TableRow>
+          )}
+          tableActions={
+            <React.Fragment>
               <SearchInput onSearch={handler.onSearch} />
 
               <IconButton color="primary" onClick={() => handler.onCreateCategory()}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
-            </Card.HeaderActions>
-          </Card.Header>
-          {loadingCategories && <CircularProgress />}
-          {!loadingCategories && currentPageCategories.length > 0 ? (
-            <React.Fragment>
-              <Card.Body>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      {['Name', 'Description', ''].map((cell, index) => (
-                        <TableCell key={index} size={AppConfig.table.cellSize}>
-                          <Typography fontWeight="bolder">{cell}</Typography>
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {currentPageCategories.map((category) => (
-                      <TableRow
-                        key={category.id}
-                        sx={{
-                          '&:last-child td, &:last-child th': { border: 0 },
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        <TableCell size={AppConfig.table.cellSize}>
-                          <CategoryChip category={category} />
-                        </TableCell>
-                        <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
-                          <Linkify>{category.description ?? 'No Description'}</Linkify>
-                        </TableCell>
-                        <TableCell align="right" size={AppConfig.table.cellSize}>
-                          <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
-                            <IconButton
-                              color="primary"
-                              onClick={() => handler.onEditCategory(category)}
-                            >
-                              <EditRounded />
-                            </IconButton>
-                            <IconButton
-                              color="primary"
-                              onClick={() => handler.onCategoryDelete(category)}
-                            >
-                              <DeleteRounded />
-                            </IconButton>
-                          </ActionPaper>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Card.Body>
-              <Card.Footer sx={{ p: 2, pt: 0 }}>
-                <Pagination
-                  {...tablePagination}
-                  count={displayedCategories.length}
-                  onPageChange={handler.pagination.onPageChange}
-                  onRowsPerPageChange={handler.pagination.onRowsPerPageChange}
-                />
-              </Card.Footer>
             </React.Fragment>
-          ) : (
-            <NoResults sx={{ m: 2 }} />
-          )}
-        </Card>
+          }
+          withSelection
+          onSelectAll={handler.selection.onSelectAll}
+          amountOfSelectedEntities={selectedCategories.length}
+          onDelete={() => {
+            if (handler.selection.onDeleteMultiple) handler.selection.onDeleteMultiple();
+          }}
+        />
       </Grid>
 
       <Grid container item xs={12} md={12} lg={4} xl={4} spacing={3} sx={{ height: 'max-content' }}>
@@ -263,13 +232,13 @@ export const Categories = () => {
         open={showDeleteCategoryDialog}
         onClose={() => {
           setShowDeleteCategoryDialog(false);
-          setDeleteCategory(null);
+          setDeleteCategories([]);
         }}
         onCancel={() => {
           setShowDeleteCategoryDialog(false);
-          setDeleteCategory(null);
+          setDeleteCategories([]);
         }}
-        onConfirm={() => handler.onConfirmCategoryDelete}
+        onConfirm={() => handler.onConfirmCategoryDelete()}
         withTransition
       />
 
