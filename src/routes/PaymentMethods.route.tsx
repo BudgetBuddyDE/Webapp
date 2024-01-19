@@ -233,7 +233,7 @@ export const PaymentMethods = () => {
           setShowDeletePaymentMethodDialog(false);
           setDeletePaymentMethods([]);
         }}
-        onConfirm={() => handler.onConfirmTransactionDelete()}
+        onConfirm={() => handler.onConfirmPaymentMethodDelete()}
         withTransition
       />
 
