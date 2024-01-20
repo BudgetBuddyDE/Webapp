@@ -7,10 +7,11 @@ import { Card, PasswordInput } from '@/components/Base';
 import { StackedIconButton } from '@/components/StackedIconButton.component';
 import { AppLogo } from '@/components/AppLogo.component';
 import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { type TSignInPayload, ZSignInPayload } from '@budgetbuddyde/types';
 
 const SignIn = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const { session, setSession } = useAuthContext();
   const { showSnackbar } = useSnackbarContext();
@@ -20,27 +21,35 @@ const SignIn = () => {
     inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     },
-    formSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
+    formSubmit: React.useCallback(
+      async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
 
-      try {
-        const parsedForm = ZSignInPayload.safeParse(form);
-        if (!parsedForm.success) throw new Error(parsedForm.error.message);
-        const payload: TSignInPayload = parsedForm.data;
+        try {
+          const parsedForm = ZSignInPayload.safeParse(form);
+          if (!parsedForm.success) throw new Error(parsedForm.error.message);
+          const payload: TSignInPayload = parsedForm.data;
 
-        const [session, error] = await AuthService.signIn(payload);
-        if (error) throw error;
-        if (!session) throw new Error('No session returned');
-        setSession(session);
-        showSnackbar({ message: 'Authentification successfull' });
-        navigate('/');
-      } catch (error) {
-        console.error(error);
-        showSnackbar({
-          message: error instanceof Error ? error.message : 'Authentification failed',
-        });
-      }
-    },
+          const [session, error] = await AuthService.signIn(payload);
+          if (error) throw error;
+          if (!session) throw new Error('No session returned');
+          setSession(session);
+          showSnackbar({ message: 'Authentification successfull' });
+          if (location.search) {
+            const query = new URLSearchParams(location.search.substring(1));
+            if (query.get('callbackUrl')) navigate(query.get('callbackUrl')!);
+            return;
+          }
+          navigate('/');
+        } catch (error) {
+          console.error(error);
+          showSnackbar({
+            message: error instanceof Error ? error.message : 'Authentification failed',
+          });
+        }
+      },
+      [form, setSession, showSnackbar, navigate, location]
+    ),
   };
 
   React.useEffect(() => {
