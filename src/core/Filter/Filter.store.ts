@@ -9,8 +9,8 @@ export type TFilters = {
   paymentMethods: TPaymentMethod['id'][] | null;
   startDate: Date;
   endDate: Date;
-  priceFrom: number;
-  priceTo: number;
+  priceFrom: number | null;
+  priceTo: number | null;
 };
 
 export const DEFAULT_FILTERS: TFilters = {
@@ -19,8 +19,8 @@ export const DEFAULT_FILTERS: TFilters = {
   paymentMethods: null,
   startDate: getFirstDayOfMonth(subMonths(new Date(), 12)),
   endDate: getLastDayOfMonth(),
-  priceFrom: -99999,
-  priceTo: 99999,
+  priceFrom: null,
+  priceTo: null,
 };
 
 export interface IFilterStore {
