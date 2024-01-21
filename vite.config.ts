@@ -1,4 +1,5 @@
 import { defineConfig, type CommonServerOptions } from 'vite';
+import { ViteEjsPlugin } from 'vite-plugin-ejs';
 import path from 'path';
 import react from '@vitejs/plugin-react-swc';
 // import dns from 'dns';
@@ -39,5 +40,13 @@ export default defineConfig({
   build: {
     outDir: 'build',
   },
-  plugins: [react()],
+  plugins: [
+    react(),
+    ViteEjsPlugin((config) => {
+      return {
+        ...config,
+        isProd: config.mode === 'production',
+      };
+    }),
+  ],
 });
