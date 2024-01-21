@@ -165,7 +165,7 @@ export const Table = <T,>({
       <Card.Footer sx={{ p: 2 }}>
         <Pagination
           {...state}
-          count={currentPageData.length}
+          count={data.length}
           onPageChange={handler.pagination.onPageChange}
           onRowsPerPageChange={handler.pagination.onRowsPerPageChange}
         />

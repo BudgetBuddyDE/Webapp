@@ -9,12 +9,14 @@
     <link rel="apple-touch-icon" href="/logo.png" />
     <link rel="manifest" href="/manifest.json" />
     <title>Budget-Buddy</title>
+    <% if (isProd) { %>
     <!-- Umami Analytics -->
     <script
       async
       src="https://analytics.tools.tklein.it/script.js"
       data-website-id="2876313f-9ed3-4497-9a47-65b4f42a4155"
     ></script>
+    <% } %>
   </head>
   <body>
     <div id="root"></div>

@@ -12,7 +12,7 @@ import {
   type TDeleteTransactionResponsePayload,
   ZDeleteTransactionResponsePayload,
 } from '@budgetbuddyde/types';
-import { format, isSameMonth } from 'date-fns';
+import { format, isSameMonth, subDays } from 'date-fns';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { prepareRequestOptions } from '@/utils';
 import { type IAuthContext } from '../Auth';
@@ -112,12 +112,34 @@ export class TransactionService {
   }
 
   /**
-   * Retrieves the unique receivers of a set of transactions.
-   * @param transactions - The transactions to retrieve the unique receivers from.
-   * @returns An array containing the unique receivers.
+   * Returns an array of unique receivers from the given transactions within a specified number of days.
+   * The receivers are sorted based on their frequency of occurrence in the transactions.
+   *
+   * @param transactions - The array of transactions.
+   * @param days - The number of days to consider for filtering the transactions. Default is 30 days.
+   * @returns An array of unique receivers sorted by frequency of occurrence.
    */
-  static getUniqueReceivers(transactions: TTransaction[]): string[] {
-    return [...new Set(transactions.map(({ receiver }) => receiver))];
+  static getUniqueReceivers(transactions: TTransaction[], days: number = 30): string[] {
+    const uniqueReceivers = Array.from(new Set(transactions.map(({ receiver }) => receiver)));
+    const now = new Date();
+    const startDate = subDays(now, days);
+    const receiverFrequencyMap: { [receiver: string]: number } = {};
+
+    let pastNTransactions = transactions.filter(({ processedAt }) => processedAt >= startDate);
+    if (pastNTransactions.length < 1) pastNTransactions = transactions.slice(0, 50);
+    pastNTransactions.forEach(({ receiver, processedAt }) => {
+      if (processedAt >= startDate && processedAt <= now) {
+        receiverFrequencyMap[receiver] = (receiverFrequencyMap[receiver] || 0) + 1;
+      }
+    });
+
+    return uniqueReceivers
+      .map((receiver) => ({
+        receiver,
+        frequency: receiverFrequencyMap[receiver] || -1,
+      }))
+      .sort((a, b) => b.frequency - a.frequency)
+      .map(({ receiver }) => receiver);
   }
 
   /**

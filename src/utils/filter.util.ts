@@ -46,11 +46,11 @@ export function filterTransactions(
   }
 
   if (filter.priceFrom != null) {
-    transactions = transactions.filter(({ transferAmount }) => transferAmount >= filter.priceFrom);
+    transactions = transactions.filter(({ transferAmount }) => transferAmount >= filter.priceFrom!);
   }
 
   if (filter.priceTo != null) {
-    transactions = transactions.filter(({ transferAmount }) => transferAmount <= filter.priceTo);
+    transactions = transactions.filter(({ transferAmount }) => transferAmount <= filter.priceTo!);
   }
 
   return transactions;

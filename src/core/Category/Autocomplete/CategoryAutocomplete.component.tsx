@@ -12,8 +12,9 @@ import {
   Typography,
   createFilterOptions,
 } from '@mui/material';
-import { CreateCategoryAlert, useFetchCategories } from '../';
+import { CategoryService, CreateCategoryAlert, useFetchCategories } from '../';
 import { StyledAutocompleteOption } from '@/components/Base';
+import { useFetchTransactions } from '@/core/Transaction';
 
 export type TCategoryInputOption = {
   label: string;
@@ -74,22 +75,29 @@ export const CategoryAutocomplete: React.FC<TCategoryAutocompleteProps> = ({
 }) => {
   const id = React.useId();
   const navigate = useNavigate();
-  const { loading: loadingCategories, categories, error } = useFetchCategories();
+  const { loading: loadingTransactions, transactions } = useFetchTransactions();
+  const { loading: loadingCategories, categories, error: categoryError } = useFetchCategories();
 
-  if (!loadingCategories && categories.length === 0 && !error) {
-    if (error) {
-      return (
-        <Alert severity="error">
-          <AlertTitle>Error</AlertTitle>
-          <Typography>{String(error)}</Typography>
-        </Alert>
-      );
-    } else return <CreateCategoryAlert sx={sx} />;
-  } else if (!loadingCategories && error) console.error('CategoryAutocomplete: ' + error);
+  const options: TCategoryInputOption[] = React.useMemo(() => {
+    return CategoryService.sortAutocompleteOptionsByTransactionUsage(categories, transactions);
+  }, [categories, transactions]);
+
+  if (categoryError) {
+    console.log('CategoryAutocomplete.component.tsx: categoryError: ', categoryError);
+    return (
+      <Alert severity="error">
+        <AlertTitle>Error</AlertTitle>
+        <Typography>{String(!categoryError)}</Typography>
+      </Alert>
+    );
+  }
+  if (!loadingCategories && categories.length === 0) {
+    return <CreateCategoryAlert sx={sx} />;
+  }
   return (
     <Autocomplete
       id={id + '-create-category'}
-      options={categories.map((item) => ({ label: item.name, value: item.id }))}
+      options={options}
       onChange={(event, value, _details) => {
         if (!value) return;
         const categoryNameExists = categories.some((category) => category.name === value.label);
@@ -123,9 +131,9 @@ export const CategoryAutocomplete: React.FC<TCategoryAutocompleteProps> = ({
           required={required}
         />
       )}
-      disabled={loadingCategories}
+      disabled={loadingCategories || loadingTransactions}
       isOptionEqualToValue={(option, value) => option.value === value.value}
-      loading={loadingCategories}
+      loading={loadingCategories || loadingTransactions}
       sx={sx}
     />
   );
