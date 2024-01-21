@@ -1,7 +1,9 @@
 name: Build Application
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main, dev]
   workflow_dispatch:
 jobs:
   build:
@@ -10,9 +12,6 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         node-version: [16.x, 18.x, 20.x]
-    env:
-      REACT_APP_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      REACT_APP_SUPABASE_ANON: ${{ secrets.SUPABASE_ANON_KEY }}
 
     steps:
       - name: Checkout code
