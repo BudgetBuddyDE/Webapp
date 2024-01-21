@@ -132,7 +132,7 @@ export const PaymentMethods = () => {
 
   return (
     <ContentGrid title={'Payment-Methods'}>
-      <Grid item xs={12} md={12} lg={8} xl={8}>
+      <Grid item xs={12} md={12} lg={12} xl={12}>
         <Table<TPaymentMethod>
           isLoading={loadingPaymentMethods}
           title="Payment Methods"

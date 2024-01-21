@@ -9,3 +9,4 @@ export * from './BudgetList.component';
 export * from './CategoryBudget.component';
 export * from './EditBudgetDrawer.component';
 export * from './StatsWrapper.component';
+export * from './BalanceWidget.component';
