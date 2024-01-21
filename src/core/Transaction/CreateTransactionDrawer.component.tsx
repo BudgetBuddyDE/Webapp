@@ -16,14 +16,14 @@ import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { TransactionService, useFetchTransactions } from '.';
 import { CategoryAutocomplete, getCategoryFromList, useFetchCategories } from '../Category';
-import { ReceiverAutocomplete } from '@/components/Base';
+import { ReceiverAutocomplete, type TAutocompleteOption } from '@/components/Base';
 import {
   PaymentMethodAutocomplete,
   getPaymentMethodFromList,
   useFetchPaymentMethods,
 } from '../PaymentMethod';
 import {
-  TCreateTransactionPayload,
+  type TCreateTransactionPayload,
   type TTransaction,
   ZCreateTransactionPayload,
 } from '@budgetbuddyde/types';
@@ -66,6 +66,13 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
   const [form, setForm] = React.useState<Record<string, string | number | Date>>({
     date: new Date(),
   });
+
+  const receiverOptions: TAutocompleteOption[] = React.useMemo(() => {
+    return TransactionService.getUniqueReceivers(transactions).map((receiver) => ({
+      label: receiver,
+      value: receiver,
+    }));
+  }, [transactions]);
 
   const handler: ICreateTransactionDrawerHandler = {
     onClose() {
@@ -202,10 +209,7 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
         sx={FormStyle}
         id="receiver"
         label="Receiver"
-        options={TransactionService.getUniqueReceivers(transactions).map((receiver) => ({
-          label: receiver,
-          value: receiver,
-        }))}
+        options={receiverOptions}
         defaultValue={transaction?.receiver}
         onValueChange={(value) => handler.onReceiverChange(String(value))}
         required
