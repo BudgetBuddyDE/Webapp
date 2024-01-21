@@ -10,7 +10,7 @@ const PageNotFound = () => {
   return (
     <ActionPaper
       sx={{
-        width: { xs: '90%', md: '40%', lg: '25%' },
+        width: { xs: '90%', md: '40%', lg: '30%', xl: '25%' },
         maxWidth: '480px',
         mx: 'auto',
         px: 3,

@@ -52,7 +52,9 @@ const SignUp = () => {
   };
 
   return (
-    <Box sx={{ width: { xs: '90%', md: '40%', lg: '25%' }, maxWidth: '480px', mx: 'auto' }}>
+    <Box
+      sx={{ width: { xs: '90%', md: '40%', lg: '30%', xl: '25%' }, maxWidth: '480px', mx: 'auto' }}
+    >
       <Card sx={{ py: 3, px: 4 }}>
         <Box display="flex" flexDirection="column">
           <AppLogo
