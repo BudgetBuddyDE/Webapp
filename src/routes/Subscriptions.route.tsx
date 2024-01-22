@@ -14,7 +14,11 @@ import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
 import { Box, Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
 import { useSnackbarContext } from '@/core/Snackbar';
 import { useAuthContext } from '@/core/Auth';
-import { TSubscription, TTransaction, TUpdateSubscriptionPayload } from '@budgetbuddyde/types';
+import {
+  type TSubscription,
+  type TTransaction,
+  type TUpdateSubscriptionPayload,
+} from '@budgetbuddyde/types';
 import { Table } from '@/components/Base/Table';
 import { AppConfig } from '@/app.config';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
@@ -22,10 +26,12 @@ import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { determineNextExecution, determineNextExecutionDate } from '@/utils';
 import { CreateTransactionDrawer } from '@/core/Transaction';
 import { filterSubscriptions } from '@/utils/filter.util';
-import { useFilterStore } from '@/core/Filter';
+import { ToggleFilterDrawerButton, useFilterStore } from '@/core/Filter';
 import { CategoryChip } from '@/core/Category';
 import { PaymentMethodChip } from '@/core/PaymentMethod';
 import { type ISelectionHandler } from '@/components/Base/Select';
+import { useKeyPress } from '@/hooks';
+import { HotkeyBadge } from '@/components/HotkeyBadge.component';
 
 interface ISubscriptionsHandler {
   onSearch: (keyword: string) => void;
@@ -60,6 +66,14 @@ export const Subscriptions = () => {
   );
   const [selectedSubscriptions, setSelectedSubscriptions] = React.useState<TSubscription[]>([]);
   const [keyword, setKeyword] = React.useState('');
+  useKeyPress(
+    'a',
+    (event) => {
+      event.preventDefault();
+      setShowCreateSubscriptionDrawer(true);
+    },
+    { requiresCtrl: true }
+  );
   const displayedSubscriptions: TSubscription[] = React.useMemo(() => {
     return filterSubscriptions(keyword, filters, subscriptions);
   }, [subscriptions, keyword, filters]);
@@ -267,11 +281,15 @@ export const Subscriptions = () => {
           )}
           tableActions={
             <React.Fragment>
+              <ToggleFilterDrawerButton />
+
               <SearchInput onSearch={handler.onSearch} />
 
-              <IconButton color="primary" onClick={() => setShowCreateSubscriptionDrawer(true)}>
-                <AddRounded fontSize="inherit" />
-              </IconButton>
+              <HotkeyBadge hotkey="a">
+                <IconButton color="primary" onClick={() => setShowCreateSubscriptionDrawer(true)}>
+                  <AddRounded fontSize="inherit" />
+                </IconButton>
+              </HotkeyBadge>
             </React.Fragment>
           }
           withSelection

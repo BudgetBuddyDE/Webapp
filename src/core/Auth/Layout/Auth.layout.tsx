@@ -1,13 +1,24 @@
 import React from 'react';
 import { Box, Container } from '@mui/material';
 import { AppBar, Footer } from '@/components/Layout';
-import { Drawer } from '@/components/Layout/Drawer';
+import { Drawer, useDrawerStore } from '@/components/Layout/Drawer';
 import { Main } from '@/components/Base';
 import { FilterDrawer } from '@/core/Filter';
+import { useKeyPress } from '@/hooks';
 
 export type TAuthLayout = React.PropsWithChildren;
 
 export const AuthLayout: React.FC<TAuthLayout> = ({ children }) => {
+  const { toggle } = useDrawerStore();
+  useKeyPress(
+    'b',
+    (event) => {
+      event.preventDefault();
+      toggle();
+    },
+    { requiresCtrl: true }
+  );
+
   return (
     <Box sx={{ display: 'flex' }}>
       <Drawer />
