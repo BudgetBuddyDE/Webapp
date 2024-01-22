@@ -20,7 +20,7 @@ export const useKeyPress = (
   };
 
   useEffect(() => {
-    // if (screenSize === 'small') return;
+    if (screenSize === 'small') return;
 
     window.addEventListener('keydown', handleKeyPress);
 
