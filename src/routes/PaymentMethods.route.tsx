@@ -21,9 +21,10 @@ import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
 import { Table } from '@/components/Base/Table';
 import { AppConfig } from '@/app.config';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
-import { useEntityDrawer, CreateEntityDrawerState } from '@/hooks';
+import { useEntityDrawer, CreateEntityDrawerState, useKeyPress } from '@/hooks';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { type ISelectionHandler } from '@/components/Base/Select';
+import { HotkeyBadge } from '@/components/HotkeyBadge.component';
 
 interface IPaymentMethodsHandler {
   onSearch: (keyword: string) => void;
@@ -56,6 +57,14 @@ export const PaymentMethods = () => {
   const [deletePaymentMethods, setDeletePaymentMethods] = React.useState<TPaymentMethod[]>([]);
   const [selectedPaymentMethods, setSelectedPaymentMethods] = React.useState<TPaymentMethod[]>([]);
   const [keyword, setKeyword] = React.useState('');
+  useKeyPress(
+    'a',
+    (event) => {
+      event.preventDefault();
+      dispatchCreateDrawer({ type: 'open' });
+    },
+    { requiresCtrl: true }
+  );
   const displayedPaymentMethods: TPaymentMethod[] = React.useMemo(() => {
     if (keyword.length == 0) return paymentMethods;
     return paymentMethods.filter(({ name }) => name.toLowerCase().includes(keyword.toLowerCase()));
@@ -196,9 +205,11 @@ export const PaymentMethods = () => {
             <React.Fragment>
               <SearchInput onSearch={handler.onSearch} />
 
-              <IconButton color="primary" onClick={() => handler.onCreatePaymentMethod()}>
-                <AddRounded fontSize="inherit" />
-              </IconButton>
+              <HotkeyBadge hotkey="a">
+                <IconButton color="primary" onClick={() => handler.onCreatePaymentMethod()}>
+                  <AddRounded fontSize="inherit" />
+                </IconButton>
+              </HotkeyBadge>
             </React.Fragment>
           }
           withSelection
