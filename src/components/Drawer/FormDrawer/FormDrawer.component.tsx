@@ -1,4 +1,4 @@
-import { useScreenSize } from '@/hooks';
+import { useKeyPress, useScreenSize } from '@/hooks';
 import { drawerWidth } from '@/style/theme/theme';
 import {
   Box,
@@ -9,11 +9,13 @@ import {
   IconButton,
   Alert,
   CircularProgress,
+  ButtonProps,
 } from '@mui/material';
 import React from 'react';
 import { ActionPaper } from '../../Base';
 import { CloseRounded, DoneRounded, ErrorRounded } from '@mui/icons-material';
 import { type TFormDrawerState } from './FormDrawer.reducer';
+import { HotkeyBadge } from '@/components/HotkeyBadge.component';
 
 export type TFormDrawerProps = {
   state?: TFormDrawerState;
@@ -22,6 +24,7 @@ export type TFormDrawerProps = {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   onClose: () => void;
   closeOnBackdropClick?: boolean;
+  withHotkey?: boolean;
 };
 
 export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = ({
@@ -32,8 +35,21 @@ export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = (
   closeOnBackdropClick = false,
   heading = 'Drawer',
   children,
+  withHotkey = false,
 }) => {
   const screenSize = useScreenSize();
+  const saveBtnRef = React.createRef<HTMLButtonElement>();
+
+  useKeyPress(
+    'S',
+    (event) => {
+      event.preventDefault();
+      if (!withHotkey) return;
+      if (!saveBtnRef.current) return console.error('saveBtnRef is null');
+      saveBtnRef.current.click();
+    },
+    { requiresCtrl: true }
+  );
 
   const DrawerAnchor: DrawerProps['anchor'] = React.useMemo(() => {
     return screenSize === 'small' ? 'bottom' : 'right';
@@ -100,30 +116,16 @@ export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = (
               pt: 0,
             }}
           >
-            <Button onClick={onClose} sx={{ mr: 1 }}>
+            <Button onClick={onClose} sx={{ mr: 2 }}>
               Cancel
             </Button>
-            {state !== undefined ? (
-              <Button
-                type="submit"
-                variant="contained"
-                startIcon={
-                  state.loading ? (
-                    <CircularProgress color="inherit" size={16} />
-                  ) : state.success ? (
-                    <DoneRounded color="inherit" fontSize="inherit" />
-                  ) : !state.success && state.error !== null ? (
-                    <ErrorRounded color="inherit" fontSize="inherit" />
-                  ) : null
-                }
-                disabled={state.loading}
-              >
-                Save
-              </Button>
+
+            {withHotkey ? (
+              <HotkeyBadge hotkey="s">
+                <SaveButton ref={saveBtnRef} />
+              </HotkeyBadge>
             ) : (
-              <Button type="submit" variant="contained">
-                Save
-              </Button>
+              <SaveButton ref={saveBtnRef} />
             )}
           </Box>
         </Box>
@@ -131,3 +133,28 @@ export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = (
     </Drawer>
   );
 };
+
+const SaveButton: React.FC<{ state?: TFormDrawerState } & Pick<ButtonProps, 'ref'>> =
+  React.forwardRef(({ state }, ref) => {
+    return (
+      <Button
+        type="submit"
+        variant="contained"
+        {...(state !== undefined
+          ? {
+              startIcon: state.loading ? (
+                <CircularProgress color="inherit" size={16} />
+              ) : state.success ? (
+                <DoneRounded color="inherit" fontSize="inherit" />
+              ) : !state.success && state.error !== null ? (
+                <ErrorRounded color="inherit" fontSize="inherit" />
+              ) : null,
+              disabled: state.loading,
+            }
+          : {})}
+        ref={ref}
+      >
+        Save
+      </Button>
+    );
+  });

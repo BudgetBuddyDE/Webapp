@@ -120,6 +120,7 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
       heading="Create Subscription"
       onClose={handler.onClose}
       closeOnBackdropClick
+      withHotkey
     >
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         {screenSize === 'small' ? (

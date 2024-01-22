@@ -91,6 +91,7 @@ export const CreateCategoryDrawer: React.FC<TCreateCategoryDrawerProps> = ({
       heading="Create Category"
       onClose={handler.onClose}
       closeOnBackdropClick
+      withHotkey
     >
       <TextField
         id="category-name"

@@ -24,6 +24,7 @@ import { filterTransactions } from '@/utils/filter.util';
 import { CategoryChip } from '@/core/Category';
 import { PaymentMethodChip } from '@/core/PaymentMethod';
 import { type ISelectionHandler } from '@/components/Base/Select';
+import { HotkeyBadge } from '@/components/HotkeyBadge.component';
 
 interface ITransactionsHandler {
   onSearch: (keyword: string) => void;
@@ -194,9 +195,11 @@ export const Transactions = () => {
             <React.Fragment>
               <SearchInput onSearch={handler.onSearch} />
 
-              <IconButton color="primary" onClick={() => setShowCreateTransactionDrawer(true)}>
-                <AddRounded fontSize="inherit" />
-              </IconButton>
+              <HotkeyBadge hotkey="A">
+                <IconButton color="primary" onClick={() => setShowCreateTransactionDrawer(true)}>
+                  <AddRounded fontSize="inherit" />
+                </IconButton>
+              </HotkeyBadge>
             </React.Fragment>
           }
           withSelection

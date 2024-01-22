@@ -151,6 +151,7 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
       heading="Create Transaction"
       onClose={handler.onClose}
       closeOnBackdropClick
+      withHotkey
     >
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         {screenSize === 'small' ? (
