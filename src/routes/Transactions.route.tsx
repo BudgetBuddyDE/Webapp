@@ -11,7 +11,7 @@ import {
   useFetchTransactions,
 } from '@/core/Transaction';
 import { Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
-import { TTransaction } from '@budgetbuddyde/types';
+import { type TTransaction } from '@budgetbuddyde/types';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { SearchInput } from '@/components/Base/Search';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
@@ -19,7 +19,7 @@ import { Table } from '@/components/Base/Table';
 import { AppConfig } from '@/app.config';
 import { format } from 'date-fns';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
-import { useFilterStore } from '@/core/Filter';
+import { ToggleFilterDrawerButton, useFilterStore } from '@/core/Filter';
 import { filterTransactions } from '@/utils/filter.util';
 import { CategoryChip } from '@/core/Category';
 import { PaymentMethodChip } from '@/core/PaymentMethod';
@@ -202,6 +202,8 @@ export const Transactions = () => {
           )}
           tableActions={
             <React.Fragment>
+              <ToggleFilterDrawerButton />
+
               <SearchInput onSearch={handler.onSearch} />
 
               <HotkeyBadge hotkey="A">

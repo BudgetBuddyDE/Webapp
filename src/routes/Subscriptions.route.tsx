@@ -14,7 +14,11 @@ import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
 import { Box, Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
 import { useSnackbarContext } from '@/core/Snackbar';
 import { useAuthContext } from '@/core/Auth';
-import { TSubscription, TTransaction, TUpdateSubscriptionPayload } from '@budgetbuddyde/types';
+import {
+  type TSubscription,
+  type TTransaction,
+  type TUpdateSubscriptionPayload,
+} from '@budgetbuddyde/types';
 import { Table } from '@/components/Base/Table';
 import { AppConfig } from '@/app.config';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
@@ -22,7 +26,7 @@ import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { determineNextExecution, determineNextExecutionDate } from '@/utils';
 import { CreateTransactionDrawer } from '@/core/Transaction';
 import { filterSubscriptions } from '@/utils/filter.util';
-import { useFilterStore } from '@/core/Filter';
+import { ToggleFilterDrawerButton, useFilterStore } from '@/core/Filter';
 import { CategoryChip } from '@/core/Category';
 import { PaymentMethodChip } from '@/core/PaymentMethod';
 import { type ISelectionHandler } from '@/components/Base/Select';
@@ -277,6 +281,8 @@ export const Subscriptions = () => {
           )}
           tableActions={
             <React.Fragment>
+              <ToggleFilterDrawerButton />
+
               <SearchInput onSearch={handler.onSearch} />
 
               <HotkeyBadge hotkey="a">

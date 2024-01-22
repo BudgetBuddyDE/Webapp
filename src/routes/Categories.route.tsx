@@ -28,6 +28,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { SearchInput } from '@/components/Base/Search';
 import { type ISelectionHandler } from '@/components/Base/Select';
 import { HotkeyBadge } from '@/components/HotkeyBadge.component';
+import { ToggleFilterDrawerButton } from '@/core/Filter';
 
 interface ICategoriesHandler {
   onSearch: (keyword: string) => void;
@@ -192,6 +193,8 @@ export const Categories = () => {
           )}
           tableActions={
             <React.Fragment>
+              <ToggleFilterDrawerButton />
+
               <SearchInput onSearch={handler.onSearch} />
 
               <HotkeyBadge hotkey="a">

@@ -25,6 +25,7 @@ import { useEntityDrawer, CreateEntityDrawerState, useKeyPress } from '@/hooks';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { type ISelectionHandler } from '@/components/Base/Select';
 import { HotkeyBadge } from '@/components/HotkeyBadge.component';
+import { ToggleFilterDrawerButton } from '@/core/Filter';
 
 interface IPaymentMethodsHandler {
   onSearch: (keyword: string) => void;
@@ -203,6 +204,8 @@ export const PaymentMethods = () => {
           )}
           tableActions={
             <React.Fragment>
+              <ToggleFilterDrawerButton />
+
               <SearchInput onSearch={handler.onSearch} />
 
               <HotkeyBadge hotkey="a">
