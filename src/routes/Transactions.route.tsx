@@ -141,6 +141,7 @@ export const Transactions = () => {
             'Amount',
             'Payment Method',
             'Information',
+            'Attached Files',
             '',
           ]}
           renderHeaderCell={(headerCell) => (
@@ -193,12 +194,12 @@ export const Transactions = () => {
               </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
                 <AvatarGroup max={4} variant="rounded">
-                  {Array.from({ length: 4 }).map((_, index) => (
+                  {transaction.attachedFiles.map((file) => (
                     <Avatar
-                      key={index}
+                      key={file.uuid}
                       variant="rounded"
-                      alt={'Image ' + index}
-                      src="https://avatars.githubusercontent.com/u/38816229?v=4"
+                      alt={file.fileName}
+                      src={file.location}
                       sx={{
                         ':hover': {
                           zIndex: 1,

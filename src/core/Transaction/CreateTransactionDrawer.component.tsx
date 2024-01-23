@@ -2,10 +2,9 @@ import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@
 import { useScreenSize } from '@/hooks';
 import {
   Avatar,
-  AvatarGroup,
   Box,
   FormControl,
-  IconButton,
+  Grid,
   InputAdornment,
   InputLabel,
   OutlinedInput,
@@ -19,7 +18,12 @@ import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { TransactionService, useFetchTransactions } from '.';
 import { CategoryAutocomplete, getCategoryFromList, useFetchCategories } from '../Category';
-import { ReceiverAutocomplete, type TAutocompleteOption } from '@/components/Base';
+import {
+  FileUpload,
+  ReceiverAutocomplete,
+  TFileUploadProps,
+  type TAutocompleteOption,
+} from '@/components/Base';
 import {
   PaymentMethodAutocomplete,
   getPaymentMethodFromList,
@@ -31,9 +35,8 @@ import {
   ZCreateTransactionPayload,
 } from '@budgetbuddyde/types';
 import { transformBalance } from '@/utils';
-import { UploadFileRounded } from '@mui/icons-material';
 
-interface ICreateTransactionDrawerHandler {
+interface ICreateTransactionDrawerHandler extends Pick<TFileUploadProps, 'onFileUpload'> {
   onClose: () => void;
   onDateChange: (date: Date | null) => void;
   onAutocompleteChange: (
@@ -63,10 +66,7 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
   const { categories } = useFetchCategories();
   const { paymentMethods } = useFetchPaymentMethods();
   const { refresh: refreshTransactions, transactions } = useFetchTransactions();
-  const fileUploadInputRef = React.useRef<HTMLInputElement>(null);
-  const [uploadedFiles, setUploadedFiles] = React.useState<
-    (File & { buffer: string | ArrayBuffer | null })[]
-  >([]);
+  const [uploadedFiles, setUploadedFiles] = React.useState<File[]>([]);
   const [drawerState, setDrawerState] = React.useReducer(
     FormDrawerReducer,
     generateInitialFormDrawerState()
@@ -81,6 +81,24 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
       value: receiver,
     }));
   }, [transactions]);
+
+  const uploadedFilePreview: (File & { buffer: string | ArrayBuffer | null })[] =
+    React.useMemo(() => {
+      let files: (File & { buffer: string | ArrayBuffer | null })[] = [];
+      uploadedFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          files.push({
+            ...file,
+            buffer: reader.result,
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+
+      console.log(files);
+      return files;
+    }, [uploadedFiles]);
 
   const handler: ICreateTransactionDrawerHandler = {
     onClose() {
@@ -134,6 +152,13 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
         console.error(error);
         setDrawerState({ type: 'ERROR', error: error as Error });
       }
+    },
+    onFileUpload(files) {
+      const filesArray = Array.from(files);
+      if (filesArray.length > 4) {
+        return showSnackbar({ message: 'You can only upload 4 files at once' });
+      }
+      setUploadedFiles(filesArray);
     },
   };
 
@@ -252,53 +277,33 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
       />
 
       {/* upload */}
-      <IconButton size="large" onClick={() => fileUploadInputRef.current?.click()} color="primary">
-        <UploadFileRounded />
-        <input
-          type="file"
-          ref={fileUploadInputRef}
-          onChange={(event) => {
-            const files = event.target.files;
-            if (!files || (files && files.length === 0)) return;
-            console.log(event.target.files);
-            for (let i = 0; i < files.length; i++) {
-              const file = files[i];
-              console.log(file);
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                setUploadedFiles((prev) => [
-                  ...prev,
-                  {
-                    ...file,
-                    buffer: reader.result,
-                  },
-                ]);
-              };
-              reader.readAsDataURL(file);
-            }
-          }}
-          multiple
-          hidden
-        />
-      </IconButton>
+      <Grid container spacing={2} columns={10}>
+        <Grid item xs={2}>
+          <FileUpload sx={{ width: '100%' }} onFileUpload={handler.onFileUpload} multiple />
+        </Grid>
 
-      <AvatarGroup max={4} variant="rounded">
-        {uploadedFiles.map((file, index) => (
-          <Avatar
-            key={index}
-            sizes="40px"
-            alt={'Image ' + file.name}
-            src={file.buffer ? String(file.buffer) : undefined}
-            sx={{
-              ':hover': {
-                zIndex: 1,
-                transform: 'scale(1.1)',
-                transition: 'transform 0.2s ease-in-out',
-              },
-            }}
-          />
+        {uploadedFilePreview.map((file, index) => (
+          <Grid item key={index} xs={2}>
+            <Avatar
+              key={index}
+              variant="rounded"
+              alt={'Image ' + file.name}
+              src={file.buffer ? String(file.buffer) : undefined}
+              sx={{
+                width: '100%',
+                height: 'auto',
+                aspectRatio: '1/1',
+                border: (theme) => `2px solid ${theme.palette.primary.main}`,
+                // ':hover': {
+                //   zIndex: 1,
+                //   transform: 'scale(1.1)',
+                //   transition: 'transform 0.2s ease-in-out',
+                // },
+              }}
+            />
+          </Grid>
         ))}
-      </AvatarGroup>
+      </Grid>
     </FormDrawer>
   );
 };

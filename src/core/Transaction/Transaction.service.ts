@@ -36,7 +36,6 @@ export class TransactionService {
     password,
   }: IAuthContext['authOptions']): Promise<[TTransaction[] | null, Error | null]> {
     try {
-      console.log('fetching transactions');
       const query = new URLSearchParams();
       query.append('uuid', uuid);
       const response = await fetch(this.host + '?' + query.toString(), {
