@@ -10,7 +10,16 @@ import {
   TransactionService,
   useFetchTransactions,
 } from '@/core/Transaction';
-import { Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
+import {
+  Avatar,
+  AvatarGroup,
+  Checkbox,
+  Grid,
+  IconButton,
+  TableCell,
+  TableRow,
+  Typography,
+} from '@mui/material';
 import { type TTransaction } from '@budgetbuddyde/types';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { SearchInput } from '@/components/Base/Search';
@@ -181,7 +190,26 @@ export const Transactions = () => {
               </TableCell>
               <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                 <Linkify>{transaction.description ?? 'No information'}</Linkify>
-              </TableCell>{' '}
+              </TableCell>
+              <TableCell size={AppConfig.table.cellSize}>
+                <AvatarGroup max={4} variant="rounded">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <Avatar
+                      key={index}
+                      variant="rounded"
+                      alt={'Image ' + index}
+                      src="https://avatars.githubusercontent.com/u/38816229?v=4"
+                      sx={{
+                        ':hover': {
+                          zIndex: 1,
+                          transform: 'scale(1.1)',
+                          transition: 'transform 0.2s ease-in-out',
+                        },
+                      }}
+                    />
+                  ))}
+                </AvatarGroup>
+              </TableCell>
               <TableCell align="right" size={AppConfig.table.cellSize}>
                 <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                   <IconButton

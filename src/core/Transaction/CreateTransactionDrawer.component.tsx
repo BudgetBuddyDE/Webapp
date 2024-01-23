@@ -1,8 +1,11 @@
 import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@/components/Drawer';
 import { useScreenSize } from '@/hooks';
 import {
+  Avatar,
+  AvatarGroup,
   Box,
   FormControl,
+  IconButton,
   InputAdornment,
   InputLabel,
   OutlinedInput,
@@ -28,6 +31,7 @@ import {
   ZCreateTransactionPayload,
 } from '@budgetbuddyde/types';
 import { transformBalance } from '@/utils';
+import { UploadFileRounded } from '@mui/icons-material';
 
 interface ICreateTransactionDrawerHandler {
   onClose: () => void;
@@ -59,6 +63,10 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
   const { categories } = useFetchCategories();
   const { paymentMethods } = useFetchPaymentMethods();
   const { refresh: refreshTransactions, transactions } = useFetchTransactions();
+  const fileUploadInputRef = React.useRef<HTMLInputElement>(null);
+  const [uploadedFiles, setUploadedFiles] = React.useState<
+    (File & { buffer: string | ArrayBuffer | null })[]
+  >([]);
   const [drawerState, setDrawerState] = React.useReducer(
     FormDrawerReducer,
     generateInitialFormDrawerState()
@@ -235,13 +243,62 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
         variant="outlined"
         label="Description"
         name="description"
-        sx={{ ...FormStyle, mb: 0 }}
+        sx={FormStyle}
         multiline
         rows={2}
         onChange={handler.onInputChange}
         value={form.description}
         defaultValue={transaction?.description ?? ''}
       />
+
+      {/* upload */}
+      <IconButton size="large" onClick={() => fileUploadInputRef.current?.click()} color="primary">
+        <UploadFileRounded />
+        <input
+          type="file"
+          ref={fileUploadInputRef}
+          onChange={(event) => {
+            const files = event.target.files;
+            if (!files || (files && files.length === 0)) return;
+            console.log(event.target.files);
+            for (let i = 0; i < files.length; i++) {
+              const file = files[i];
+              console.log(file);
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                setUploadedFiles((prev) => [
+                  ...prev,
+                  {
+                    ...file,
+                    buffer: reader.result,
+                  },
+                ]);
+              };
+              reader.readAsDataURL(file);
+            }
+          }}
+          multiple
+          hidden
+        />
+      </IconButton>
+
+      <AvatarGroup max={4} variant="rounded">
+        {uploadedFiles.map((file, index) => (
+          <Avatar
+            key={index}
+            sizes="40px"
+            alt={'Image ' + file.name}
+            src={file.buffer ? String(file.buffer) : undefined}
+            sx={{
+              ':hover': {
+                zIndex: 1,
+                transform: 'scale(1.1)',
+                transition: 'transform 0.2s ease-in-out',
+              },
+            }}
+          />
+        ))}
+      </AvatarGroup>
     </FormDrawer>
   );
 };
