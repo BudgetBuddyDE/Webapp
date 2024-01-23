@@ -3,7 +3,7 @@ import { Paper, type PaperProps } from '@mui/material';
 
 export type TActionPaperProps = React.PropsWithChildren<PaperProps>;
 
-export const ActionPaper: React.FC<TActionPaperProps> = (props) => (
+export const ActionPaper: React.FC<TActionPaperProps> = React.forwardRef((props, ref) => (
   <Paper
     elevation={2}
     {...props}
@@ -12,7 +12,8 @@ export const ActionPaper: React.FC<TActionPaperProps> = (props) => (
       border: 'none',
       ...props.sx,
     }}
+    ref={ref}
   >
     {props.children}
   </Paper>
-);
+));

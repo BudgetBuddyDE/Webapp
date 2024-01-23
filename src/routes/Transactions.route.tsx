@@ -10,7 +10,17 @@ import {
   TransactionService,
   useFetchTransactions,
 } from '@/core/Transaction';
-import { Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
+import {
+  Avatar,
+  AvatarGroup,
+  Box,
+  Checkbox,
+  Grid,
+  IconButton,
+  TableCell,
+  TableRow,
+  Typography,
+} from '@mui/material';
 import { type TTransaction } from '@budgetbuddyde/types';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { SearchInput } from '@/components/Base/Search';
@@ -132,6 +142,7 @@ export const Transactions = () => {
             'Amount',
             'Payment Method',
             'Information',
+            // '',
             '',
           ]}
           renderHeaderCell={(headerCell) => (
@@ -181,7 +192,27 @@ export const Transactions = () => {
               </TableCell>
               <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                 <Linkify>{transaction.description ?? 'No information'}</Linkify>
-              </TableCell>{' '}
+              </TableCell>
+              {/* <TableCell size={AppConfig.table.cellSize}>
+                <AvatarGroup max={4} variant="rounded">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <Avatar
+                      key={index}
+                      alt={'Image ' + index}
+                      variant="rounded"
+                      src="https://avatars.githubusercontent.com/u/38816229?v=4"
+                      sx={{
+                        width: 40,
+                        ':hover': {
+                          zIndex: 1,
+                          transform: 'scale(1.1)',
+                          transition: 'transform .2s ease-in-out',
+                        },
+                      }}
+                    />
+                  ))}
+                </AvatarGroup>
+              </TableCell> */}
               <TableCell align="right" size={AppConfig.table.cellSize}>
                 <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                   <IconButton
