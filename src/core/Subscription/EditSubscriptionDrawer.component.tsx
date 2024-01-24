@@ -150,6 +150,7 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
       heading="Edit Subscription"
       onClose={handler.onClose}
       closeOnBackdropClick
+      withHotkey
     >
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         {screenSize === 'small' ? (

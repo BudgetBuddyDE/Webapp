@@ -96,6 +96,7 @@ export const EditCategoryDrawer: React.FC<TEditCategoryDrawerProps> = ({
         setDrawerState({ type: 'RESET' });
       }}
       closeOnBackdropClick
+      withHotkey
     >
       <TextField
         id="category-name"
