@@ -155,6 +155,7 @@ export const Subscriptions = () => {
           transferAmount: transferAmount,
           owner: owner,
           processedAt: determineNextExecutionDate(executeAt),
+          attachedFiles: [],
           createdAt: new Date(),
         });
       },
