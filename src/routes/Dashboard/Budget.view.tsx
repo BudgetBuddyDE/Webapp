@@ -1,6 +1,4 @@
 import React from 'react';
-import { ContentGrid } from '@/components/Layout';
-import { withAuthLayout } from '@/core/Auth/Layout';
 import {
   BalanceWidget,
   BudgetList,
@@ -22,7 +20,7 @@ export const ChartContentTypes = [
   { type: 'SPENDINGS' as TChartContentType, label: 'Spendings' },
 ];
 
-export const Budgets = () => {
+export const BudgetView = () => {
   const { budgetProgress, loading: loadingBudgetProgress } = useFetchBudgetProgress();
   const { loading: loadingSubscriptions, subscriptions } = useFetchSubscriptions();
 
@@ -41,7 +39,7 @@ export const Budgets = () => {
   );
 
   return (
-    <ContentGrid title={'Budget'}>
+    <React.Fragment>
       <Grid item xs={12} md={12} lg={5} xl={5}>
         <DailyTransactionChart />
 
@@ -77,8 +75,8 @@ export const Budgets = () => {
           <CategoryIncomeChart />
         </Grid>
       </Grid>
-    </ContentGrid>
+    </React.Fragment>
   );
 };
 
-export default withAuthLayout(Budgets);
+export default BudgetView;

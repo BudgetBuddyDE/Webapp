@@ -4,6 +4,8 @@ import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useScreenSize } from '@/hooks';
 
+export const DATE_RANGE_INPUT_FORMAT = 'dd.MM.yyyy';
+
 export type TDateRangeInputProps = TextFieldProps & { sx?: SxProps<Theme> };
 
 export const StartDateInput: React.FC<TDateRangeInputProps> = (props) => {

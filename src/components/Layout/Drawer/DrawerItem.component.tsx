@@ -32,7 +32,7 @@ export const DrawerItem: React.FC<TDrawerItemProps> = ({
   const location = useLocation();
 
   const active: boolean = React.useMemo(() => {
-    return location.pathname === path;
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
   }, [location, path]);
 
   const handler = {

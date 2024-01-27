@@ -1,19 +1,15 @@
+import React, { useMemo, useState } from 'react';
+import { Grid } from '@mui/material';
+import { type TSubscription, type TTransaction } from '@budgetbuddyde/types';
 import { DashboardStatsWrapper } from '@/components/DashboardStatsWrapper.component';
-import { ContentGrid } from '@/components/Layout';
 import { CircularProgress } from '@/components/Loading';
-import { useAuthContext } from '@/core/Auth';
-import { withAuthLayout } from '@/core/Auth/Layout';
 import { CategorySpendingsChart } from '@/core/Category';
 import { CreateSubscriptionDrawer, SubscriptionList } from '@/core/Subscription';
 import { useFetchSubscriptions } from '@/core/Subscription';
 import { TransactionList, useFetchTransactions } from '@/core/Transaction';
 import { CreateTransactionDrawer } from '@/core/Transaction/CreateTransactionDrawer.component';
-import { TSubscription, TTransaction } from '@budgetbuddyde/types';
-import { Grid } from '@mui/material';
-import { useMemo, useState } from 'react';
 
-export const Dashboard = () => {
-  const { session } = useAuthContext();
+export const DashboardView = () => {
   const { transactions, loading: loadingTransactions } = useFetchTransactions();
   const { subscriptions, loading: loadingSubscriptions } = useFetchSubscriptions();
   const [showTransactionDrawer, setShowTransactionDrawer] = useState(false);
@@ -28,7 +24,7 @@ export const Dashboard = () => {
   }, [subscriptions]);
 
   return (
-    <ContentGrid title={`Welcome, ${session?.name}!`}>
+    <React.Fragment>
       <DashboardStatsWrapper />
 
       <Grid item xs={12} md={6} lg={4} order={{ xs: 3, md: 1 }}>
@@ -66,8 +62,8 @@ export const Dashboard = () => {
         open={showSubscriptionDrawer}
         onChangeOpen={(isOpen) => setShowSubscriptionDrawer(isOpen)}
       />
-    </ContentGrid>
+    </React.Fragment>
   );
 };
 
-export default withAuthLayout(Dashboard);
+export default DashboardView;
