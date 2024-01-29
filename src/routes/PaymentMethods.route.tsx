@@ -68,7 +68,7 @@ export const PaymentMethods = () => {
   );
   const displayedPaymentMethods: TPaymentMethod[] = React.useMemo(() => {
     if (keyword.length == 0) return paymentMethods;
-    return paymentMethods.filter(({ name }) => name.toLowerCase().includes(keyword.toLowerCase()));
+    return PaymentMethodService.filter(paymentMethods, keyword);
   }, [paymentMethods, keyword]);
 
   const handler: IPaymentMethodsHandler = {

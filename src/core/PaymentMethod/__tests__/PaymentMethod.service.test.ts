@@ -92,3 +92,84 @@ describe('sortAutocompleteOptionsByTransactionUsage', () => {
     expect(result).toEqual(expected);
   });
 });
+describe('filter', () => {
+  it('should return an empty array if paymentMethods is empty', () => {
+    const paymentMethods: TPaymentMethod[] = [];
+    const keyword = 'keyword';
+    const result = PaymentMethodService.filter(paymentMethods, keyword);
+    expect(result).toEqual([]);
+  });
+
+  it('should return an empty array if no paymentMethod matches the keyword', () => {
+    const paymentMethods = [
+      { id: 1, name: 'Payment Method 1', provider: 'Provider 1', description: 'Description 1' },
+      { id: 2, name: 'Payment Method 2', provider: 'Provider 2', description: 'Description 2' },
+      { id: 3, name: 'Payment Method 3', provider: 'Provider 3', description: 'Description 3' },
+    ] as TPaymentMethod[];
+    const keyword = 'keyword';
+    const result = PaymentMethodService.filter(paymentMethods, keyword);
+    expect(result).toEqual([]);
+  });
+
+  it('should return paymentMethods that match the keyword', () => {
+    const paymentMethods = [
+      { id: 1, name: 'Payment Method 1', provider: 'Provider 1', description: 'Description 1' },
+      { id: 2, name: 'Payment Method 2', provider: 'Provider 2', description: 'Description 2' },
+      { id: 3, name: 'Payment Method 3', provider: 'Provider 3', description: 'Description 3' },
+    ] as TPaymentMethod[];
+    const keyword = 'method';
+    const result = PaymentMethodService.filter(paymentMethods, keyword);
+    const expected = [
+      { id: 1, name: 'Payment Method 1', provider: 'Provider 1', description: 'Description 1' },
+      { id: 2, name: 'Payment Method 2', provider: 'Provider 2', description: 'Description 2' },
+      { id: 3, name: 'Payment Method 3', provider: 'Provider 3', description: 'Description 3' },
+    ] as TPaymentMethod[];
+    expect(result).toEqual(expected);
+  });
+
+  it('should return paymentMethods that match the keyword (case-insensitive)', () => {
+    const paymentMethods = [
+      { id: 1, name: 'Payment Method 1', provider: 'Provider 1', description: 'Description 1' },
+      { id: 2, name: 'Payment Method 2', provider: 'Provider 2', description: 'Description 2' },
+      { id: 3, name: 'Payment Method 3', provider: 'Provider 3', description: 'Description 3' },
+    ] as TPaymentMethod[];
+    const keyword = 'METHOD';
+    const result = PaymentMethodService.filter(paymentMethods, keyword);
+    const expected = [
+      { id: 1, name: 'Payment Method 1', provider: 'Provider 1', description: 'Description 1' },
+      { id: 2, name: 'Payment Method 2', provider: 'Provider 2', description: 'Description 2' },
+      { id: 3, name: 'Payment Method 3', provider: 'Provider 3', description: 'Description 3' },
+    ] as TPaymentMethod[];
+    expect(result).toEqual(expected);
+  });
+
+  it('should return paymentMethods that match the keyword (partial match)', () => {
+    const paymentMethods = [
+      { id: 1, name: 'Payment Method 1', provider: 'Provider 1', description: 'Description 1' },
+      { id: 2, name: 'Payment Method 2', provider: 'Provider 2', description: 'Description 2' },
+      { id: 3, name: 'Payment Method 3', provider: 'Provider 3', description: 'Description 3' },
+    ] as TPaymentMethod[];
+    const keyword = '1';
+    const result = PaymentMethodService.filter(paymentMethods, keyword);
+    const expected = [
+      { id: 1, name: 'Payment Method 1', provider: 'Provider 1', description: 'Description 1' },
+    ] as TPaymentMethod[];
+    expect(result).toEqual(expected);
+  });
+
+  it('should return paymentMethods that match the keyword (partial match, case-insensitive)', () => {
+    const paymentMethods = [
+      { id: 1, name: 'Payment Method 1', provider: 'Provider 1', description: 'Description 1' },
+      { id: 2, name: 'Payment Method 2', provider: 'Provider 2', description: 'Description 2' },
+      { id: 3, name: 'Payment Method 3', provider: 'Provider 3', description: 'Description 3' },
+    ] as TPaymentMethod[];
+    const keyword = 'METHOD';
+    const result = PaymentMethodService.filter(paymentMethods, keyword);
+    const expected = [
+      { id: 1, name: 'Payment Method 1', provider: 'Provider 1', description: 'Description 1' },
+      { id: 2, name: 'Payment Method 2', provider: 'Provider 2', description: 'Description 2' },
+      { id: 3, name: 'Payment Method 3', provider: 'Provider 3', description: 'Description 3' },
+    ] as TPaymentMethod[];
+    expect(result).toEqual(expected);
+  });
+});
