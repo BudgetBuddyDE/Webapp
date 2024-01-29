@@ -2,17 +2,17 @@ import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { FullPageLoader } from './components/Loading/FullPageLoader.component';
 import { DashboardLayout, DashboardView, BudgetView } from './routes/Dashboard';
-const TransactionsRoute = React.lazy(() => import('./routes/Transactions.route'));
-const SubscriptionsRoute = React.lazy(() => import('./routes/Subscriptions.route'));
-const PaymentMethodsRoute = React.lazy(() => import('./routes/PaymentMethods.route'));
-const CategoriesRoute = React.lazy(() => import('./routes/Categories.route'));
-const NotFoundPage = React.lazy(() => import('./routes/NotFound.route'));
+import TransactionsRoute from './routes/Transactions.route';
+import SubscriptionsRoute from './routes/Subscriptions.route';
+import PaymentMethodsRoute from './routes/PaymentMethods.route';
+import CategoriesRoute from './routes/Categories.route';
+import NotFoundPage from './routes/NotFound.route';
 const SignInRoute = React.lazy(() => import('./routes/SignIn.route'));
 const SignUpRoute = React.lazy(() => import('./routes/SignUp.route'));
 const VerifyMailRoute = React.lazy(() => import('./routes/VerifyMail.route'));
 const RequestPasswordResetRoute = React.lazy(() => import('./routes/RequestPasswordReset.route'));
 const ResetPasswordRoute = React.lazy(() => import('./routes/ResetPassword.route'));
-const SettingsRoute = React.lazy(() => import('./routes/Settings.route'));
+import SettingsRoute from './routes/Settings.route';
 
 const App = () => {
   return (
