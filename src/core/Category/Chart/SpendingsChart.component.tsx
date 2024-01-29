@@ -88,7 +88,14 @@ export const CategorySpendingsChart: React.FC<TCategorySpendingsChartProps> = ()
             </ParentSize>
           </Box>
         ) : (
-          <NoResults sx={{ mt: 2 }} />
+          <NoResults
+            text={
+              chart === 'MONTH'
+                ? 'There are no spendings for this month!'
+                : "You haven't spent anything yet!"
+            }
+            sx={{ mt: 2 }}
+          />
         )}
       </Card.Body>
     </Card>

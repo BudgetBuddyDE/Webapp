@@ -53,7 +53,7 @@ export const TransactionList: React.FC<TTransactionList> = ({ data, onAddTransac
             />
           ))
         ) : (
-          <NoResults />
+          <NoResults text="You haven't made any purchases yet" />
         )}
       </Card.Body>
     </Card>

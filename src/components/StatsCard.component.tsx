@@ -29,7 +29,7 @@ export const StatsCard: React.FC<TStatsCardProps> = ({
   isLoading = false,
 }) => {
   return (
-    <Card sx={{ position: 'relative', height: '100%' }}>
+    <Card sx={{ position: 'relative', height: '100%', px: 2, py: 1.25 }}>
       <Typography variant="body2" fontWeight={'bold'}>
         {label}
       </Typography>
