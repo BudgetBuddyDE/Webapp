@@ -92,3 +92,70 @@ describe('sortAutocompleteOptionsByTransactionUsage', () => {
     expect(result).toEqual(expected);
   });
 });
+describe('filter', () => {
+  it('should return an empty array if categories is empty', () => {
+    const categories: TCategory[] = [];
+    const keyword = 'test';
+    const result = CategoryService.filter(categories, keyword);
+    expect(result).toEqual([]);
+  });
+
+  it('should return categories that match the keyword', () => {
+    const categories = [
+      { id: 1, name: 'Category 1', description: 'Description 1' },
+      { id: 2, name: 'Category 2', description: 'Description 2' },
+      { id: 3, name: 'Category 3', description: 'Description 3' },
+    ] as TCategory[];
+    const keyword = 'category';
+    const result = CategoryService.filter(categories, keyword);
+    const expected = [
+      { id: 1, name: 'Category 1', description: 'Description 1' },
+      { id: 2, name: 'Category 2', description: 'Description 2' },
+      { id: 3, name: 'Category 3', description: 'Description 3' },
+    ];
+    expect(result).toEqual(expected);
+  });
+
+  it('should return categories that match the keyword case-insensitively', () => {
+    const categories = [
+      { id: 1, name: 'Category 1', description: 'Description 1' },
+      { id: 2, name: 'Category 2', description: 'Description 2' },
+      { id: 3, name: 'Category 3', description: 'Description 3' },
+    ] as TCategory[];
+    const keyword = 'CATEGORY';
+    const result = CategoryService.filter(categories, keyword);
+    const expected = [
+      { id: 1, name: 'Category 1', description: 'Description 1' },
+      { id: 2, name: 'Category 2', description: 'Description 2' },
+      { id: 3, name: 'Category 3', description: 'Description 3' },
+    ];
+    expect(result).toEqual(expected);
+  });
+
+  it('should return categories that match the keyword in name or description', () => {
+    const categories = [
+      { id: 1, name: 'Category 1', description: 'Description 1' },
+      { id: 2, name: 'Category 2', description: 'Description 2' },
+      { id: 3, name: 'Category 3', description: 'Description 3' },
+    ] as TCategory[];
+    const keyword = 'description';
+    const result = CategoryService.filter(categories, keyword);
+    const expected = [
+      { id: 1, name: 'Category 1', description: 'Description 1' },
+      { id: 2, name: 'Category 2', description: 'Description 2' },
+      { id: 3, name: 'Category 3', description: 'Description 3' },
+    ];
+    expect(result).toEqual(expected);
+  });
+
+  it('should return an empty array if no categories match the keyword', () => {
+    const categories = [
+      { id: 1, name: 'Category 1', description: 'Description 1' },
+      { id: 2, name: 'Category 2', description: 'Description 2' },
+      { id: 3, name: 'Category 3', description: 'Description 3' },
+    ] as TCategory[];
+    const keyword = 'test';
+    const result = CategoryService.filter(categories, keyword);
+    expect(result).toEqual([]);
+  });
+});

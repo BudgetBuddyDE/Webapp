@@ -71,7 +71,7 @@ export const Categories = () => {
   );
   const displayedCategories: TCategory[] = React.useMemo(() => {
     if (keyword.length == 0) return categories;
-    return categories.filter(({ name }) => name.toLowerCase().includes(keyword.toLowerCase()));
+    return CategoryService.filter(categories, keyword);
   }, [categories, keyword]);
 
   const handler: ICategoriesHandler = {
