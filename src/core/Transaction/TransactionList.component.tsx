@@ -3,14 +3,25 @@ import { format } from 'date-fns';
 import { Box, Chip, IconButton, type ChipProps } from '@mui/material';
 import { AddRounded as AddIcon, ReceiptRounded as ReceiptIcon } from '@mui/icons-material';
 import type { TTransaction } from '@budgetbuddyde/types';
-import { Card, ListWithIcon, NoResults } from '@/components/Base';
+import { Card, ListWithIcon, NoResults, TCardProps } from '@/components/Base';
 
-export type TTransactionList = {
+export type TTransactionListProps = {
+  title: string;
+  subtitle?: string;
+  noResultsMessage?: string;
   data: TTransaction[];
   onAddTransaction?: () => void;
+  cardProps?: TCardProps;
 };
 
-export const TransactionList: React.FC<TTransactionList> = ({ data, onAddTransaction }) => {
+export const TransactionList: React.FC<TTransactionListProps> = ({
+  title,
+  subtitle,
+  noResultsMessage = "You haven't made any purchases yet",
+  data,
+  onAddTransaction,
+  cardProps,
+}) => {
   const chipProps: ChipProps = {
     variant: 'outlined',
     size: 'small',
@@ -18,11 +29,13 @@ export const TransactionList: React.FC<TTransactionList> = ({ data, onAddTransac
   };
 
   return (
-    <Card>
+    <Card {...cardProps}>
       <Card.Header sx={{ mb: 1 }}>
         <Box>
-          <Card.Title>Transactions</Card.Title>
-          <Card.Subtitle>Your latest transactions</Card.Subtitle>
+          <Card.Title>{title}</Card.Title>
+          {subtitle !== undefined && subtitle.length > 0 && (
+            <Card.Subtitle>{subtitle}</Card.Subtitle>
+          )}
         </Box>
         {onAddTransaction && (
           <Card.HeaderActions>
@@ -53,7 +66,7 @@ export const TransactionList: React.FC<TTransactionList> = ({ data, onAddTransac
             />
           ))
         ) : (
-          <NoResults text="You haven't made any purchases yet" />
+          <NoResults text={noResultsMessage} />
         )}
       </Card.Body>
     </Card>

@@ -9,6 +9,8 @@ import { useFetchSubscriptions } from '@/core/Subscription';
 import { TransactionList, useFetchTransactions } from '@/core/Transaction';
 import { CreateTransactionDrawer } from '@/core/Transaction/CreateTransactionDrawer.component';
 
+const LIST_ITEM_COUNT = 6;
+
 export const DashboardView = () => {
   const { transactions, loading: loadingTransactions } = useFetchTransactions();
   const { subscriptions, loading: loadingSubscriptions } = useFetchSubscriptions();
@@ -16,11 +18,16 @@ export const DashboardView = () => {
   const [showSubscriptionDrawer, setShowSubscriptionDrawer] = useState(false);
 
   const latestTransactions: TTransaction[] = useMemo(() => {
-    return transactions.slice(0, 6);
+    return transactions.slice(0, LIST_ITEM_COUNT);
+  }, [transactions]);
+
+  const upcomingTransactions: TTransaction[] = useMemo(() => {
+    const now = new Date();
+    return transactions.filter(({ processedAt }) => processedAt >= now).slice(0, LIST_ITEM_COUNT);
   }, [transactions]);
 
   const upcomingSubscriptions: TSubscription[] = useMemo(() => {
-    return subscriptions.filter(({ paused }) => !paused).slice(0, 6);
+    return subscriptions.filter(({ paused }) => !paused).slice(0, LIST_ITEM_COUNT);
   }, [subscriptions]);
 
   return (
@@ -47,7 +54,21 @@ export const DashboardView = () => {
           <CircularProgress />
         ) : (
           <TransactionList
+            title="Latest transactions"
+            subtitle="What purchases did you make recently?"
             data={latestTransactions}
+            onAddTransaction={() => setShowTransactionDrawer(true)}
+          />
+        )}
+
+        {loadingTransactions ? (
+          <CircularProgress />
+        ) : (
+          <TransactionList
+            cardProps={{ sx: { mt: 3 } }}
+            title="Upcoming Transactions"
+            noResultsMessage="You don't have any upcoming transactions"
+            data={upcomingTransactions}
             onAddTransaction={() => setShowTransactionDrawer(true)}
           />
         )}
