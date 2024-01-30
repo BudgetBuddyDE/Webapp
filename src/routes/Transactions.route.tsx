@@ -24,8 +24,6 @@ import { filterTransactions } from '@/utils/filter.util';
 import { CategoryChip } from '@/core/Category';
 import { PaymentMethodChip } from '@/core/PaymentMethod';
 import { type ISelectionHandler } from '@/components/Base/Select';
-import { HotkeyBadge } from '@/components/HotkeyBadge.component';
-import { useKeyPress } from '@/hooks';
 
 interface ITransactionsHandler {
   onSearch: (keyword: string) => void;
@@ -51,14 +49,6 @@ export const Transactions = () => {
   const [deleteTransactions, setDeleteTransactions] = React.useState<TTransaction[]>([]);
   const [selectedTransactions, setSelectedTransactions] = React.useState<TTransaction[]>([]);
   const [keyword, setKeyword] = React.useState('');
-  useKeyPress(
-    'a',
-    (event) => {
-      event.preventDefault();
-      setShowCreateTransactionDrawer(true);
-    },
-    { requiresCtrl: true }
-  );
   const displayedTransactions: TTransaction[] = React.useMemo(() => {
     return filterTransactions(keyword, filters, transactions);
   }, [transactions, keyword, filters]);
@@ -206,11 +196,9 @@ export const Transactions = () => {
 
               <SearchInput onSearch={handler.onSearch} />
 
-              <HotkeyBadge hotkey="A">
-                <IconButton color="primary" onClick={() => setShowCreateTransactionDrawer(true)}>
-                  <AddRounded fontSize="inherit" />
-                </IconButton>
-              </HotkeyBadge>
+              <IconButton color="primary" onClick={() => setShowCreateTransactionDrawer(true)}>
+                <AddRounded fontSize="inherit" />
+              </IconButton>
             </React.Fragment>
           }
           withSelection

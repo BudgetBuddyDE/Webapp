@@ -96,7 +96,6 @@ export const CreatePaymentMethodDrawer: React.FC<TCreatePaymentMethodProps> = ({
       heading="Create Payment-Method"
       onClose={handler.onClose}
       closeOnBackdropClick
-      withHotkey
     >
       {(['name', 'address', 'provider'] as Partial<keyof TCreatePaymentMethodPayload>[]).map(
         (name) => {

@@ -22,12 +22,11 @@ import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import type { TCategory } from '@budgetbuddyde/types';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
 import { Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
-import { CreateEntityDrawerState, useEntityDrawer, useKeyPress } from '@/hooks';
+import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { SearchInput } from '@/components/Base/Search';
 import { type ISelectionHandler } from '@/components/Base/Select';
-import { HotkeyBadge } from '@/components/HotkeyBadge.component';
 import { ToggleFilterDrawerButton } from '@/core/Filter';
 
 interface ICategoriesHandler {
@@ -61,14 +60,7 @@ export const Categories = () => {
   const [deleteCategories, setDeleteCategories] = React.useState<TCategory[]>([]);
   const [selectedCategories, setSelectedCategories] = React.useState<TCategory[]>([]);
   const [keyword, setKeyword] = React.useState('');
-  useKeyPress(
-    'a',
-    (event) => {
-      event.preventDefault();
-      dispatchCreateDrawer({ type: 'open' });
-    },
-    { requiresCtrl: true }
-  );
+
   const displayedCategories: TCategory[] = React.useMemo(() => {
     if (keyword.length == 0) return categories;
     return CategoryService.filter(categories, keyword);
@@ -197,11 +189,9 @@ export const Categories = () => {
 
               <SearchInput onSearch={handler.onSearch} />
 
-              <HotkeyBadge hotkey="a">
-                <IconButton color="primary" onClick={() => handler.onCreateCategory()}>
-                  <AddRounded fontSize="inherit" />
-                </IconButton>
-              </HotkeyBadge>
+              <IconButton color="primary" onClick={() => handler.onCreateCategory()}>
+                <AddRounded fontSize="inherit" />
+              </IconButton>
             </React.Fragment>
           }
           withSelection

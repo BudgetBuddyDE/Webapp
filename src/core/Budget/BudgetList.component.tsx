@@ -9,8 +9,6 @@ import { BudgetService, CreateBudgetDrawer, EditBudgetDrawer, useFetchBudgetProg
 import { useSnackbarContext } from '../Snackbar';
 import { useAuthContext } from '../Auth';
 import { TBudget } from '@budgetbuddyde/types';
-import { useKeyPress } from '@/hooks';
-import { HotkeyBadge } from '@/components/HotkeyBadge.component';
 
 export type TBudgetListProps = {};
 
@@ -26,10 +24,6 @@ export const BudgetList: React.FC<TBudgetListProps> = () => {
   const [showCreateBudgetDrawer, setShowCreateBudgetDrawer] = React.useState(false);
   const [showEditBudgetDrawer, setShowEditBudgetDrawer] = React.useState(false);
   const [editBudget, setEditBudget] = React.useState<TBudget | null>(null);
-  useKeyPress('a', (event) => {
-    event.preventDefault();
-    setShowCreateBudgetDrawer(true);
-  });
 
   const handler: Pick<TCategoryBudgetProps, 'onEdit' | 'onDelete'> = {
     async onEdit(budget) {
@@ -76,11 +70,9 @@ export const BudgetList: React.FC<TBudgetListProps> = () => {
           <Card.HeaderActions>
             <ActionPaper>
               <Tooltip title="Set Budget">
-                <HotkeyBadge hotkey="a">
-                  <IconButton color="primary" onClick={() => setShowCreateBudgetDrawer(true)}>
-                    <AddRounded />
-                  </IconButton>
-                </HotkeyBadge>
+                <IconButton color="primary" onClick={() => setShowCreateBudgetDrawer(true)}>
+                  <AddRounded />
+                </IconButton>
               </Tooltip>
             </ActionPaper>
           </Card.HeaderActions>

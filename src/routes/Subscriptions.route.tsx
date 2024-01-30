@@ -30,8 +30,6 @@ import { ToggleFilterDrawerButton, useFilterStore } from '@/core/Filter';
 import { CategoryChip } from '@/core/Category';
 import { PaymentMethodChip } from '@/core/PaymentMethod';
 import { type ISelectionHandler } from '@/components/Base/Select';
-import { useKeyPress } from '@/hooks';
-import { HotkeyBadge } from '@/components/HotkeyBadge.component';
 
 interface ISubscriptionsHandler {
   onSearch: (keyword: string) => void;
@@ -66,14 +64,7 @@ export const Subscriptions = () => {
   );
   const [selectedSubscriptions, setSelectedSubscriptions] = React.useState<TSubscription[]>([]);
   const [keyword, setKeyword] = React.useState('');
-  useKeyPress(
-    'a',
-    (event) => {
-      event.preventDefault();
-      setShowCreateSubscriptionDrawer(true);
-    },
-    { requiresCtrl: true }
-  );
+
   const displayedSubscriptions: TSubscription[] = React.useMemo(() => {
     return filterSubscriptions(keyword, filters, subscriptions);
   }, [subscriptions, keyword, filters]);
@@ -286,11 +277,9 @@ export const Subscriptions = () => {
 
               <SearchInput onSearch={handler.onSearch} />
 
-              <HotkeyBadge hotkey="a">
-                <IconButton color="primary" onClick={() => setShowCreateSubscriptionDrawer(true)}>
-                  <AddRounded fontSize="inherit" />
-                </IconButton>
-              </HotkeyBadge>
+              <IconButton color="primary" onClick={() => setShowCreateSubscriptionDrawer(true)}>
+                <AddRounded fontSize="inherit" />
+              </IconButton>
             </React.Fragment>
           }
           withSelection
