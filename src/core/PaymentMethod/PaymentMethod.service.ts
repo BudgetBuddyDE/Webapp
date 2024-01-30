@@ -165,4 +165,20 @@ export class PaymentMethodService {
   static getAutocompleteLabel(paymentMethod: Pick<TPaymentMethod, 'name' | 'provider'>): string {
     return `${paymentMethod.name} ${PaymentMethodLabelSeperator} ${paymentMethod.provider}`;
   }
+
+  /**
+   * Filters an array of payment methods based on a keyword.
+   * @param paymentMethods - The array of payment methods to filter.
+   * @param keyword - The keyword to filter by.
+   * @returns The filtered array of payment methods.
+   */
+  static filter(paymentMethods: TPaymentMethod[], keyword: string): TPaymentMethod[] {
+    const lowerKeyword = keyword.toLowerCase();
+    return paymentMethods.filter(
+      ({ name, provider, description }) =>
+        name.toLowerCase().includes(lowerKeyword) ||
+        provider.toLowerCase().includes(lowerKeyword) ||
+        description?.toLowerCase().includes(lowerKeyword)
+    );
+  }
 }

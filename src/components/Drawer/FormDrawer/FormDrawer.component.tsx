@@ -1,4 +1,4 @@
-import { useKeyPress, useScreenSize } from '@/hooks';
+import { useScreenSize } from '@/hooks';
 import { drawerWidth } from '@/style/theme/theme';
 import {
   Box,
@@ -15,7 +15,6 @@ import React from 'react';
 import { ActionPaper } from '../../Base';
 import { CloseRounded, DoneRounded, ErrorRounded } from '@mui/icons-material';
 import { type TFormDrawerState } from './FormDrawer.reducer';
-import { HotkeyBadge } from '@/components/HotkeyBadge.component';
 
 export type TFormDrawerProps = {
   state?: TFormDrawerState;
@@ -24,7 +23,6 @@ export type TFormDrawerProps = {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   onClose: () => void;
   closeOnBackdropClick?: boolean;
-  withHotkey?: boolean;
 };
 
 export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = ({
@@ -35,21 +33,8 @@ export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = (
   closeOnBackdropClick = false,
   heading = 'Drawer',
   children,
-  withHotkey = false,
 }) => {
   const screenSize = useScreenSize();
-  const saveBtnRef = React.createRef<HTMLButtonElement>();
-
-  useKeyPress(
-    'S',
-    (event) => {
-      event.preventDefault();
-      if (!withHotkey) return;
-      if (!saveBtnRef.current) return console.error('saveBtnRef is null');
-      saveBtnRef.current.click();
-    },
-    { requiresCtrl: true }
-  );
 
   const DrawerAnchor: DrawerProps['anchor'] = React.useMemo(() => {
     return screenSize === 'small' ? 'bottom' : 'right';
@@ -120,13 +105,7 @@ export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = (
               Cancel
             </Button>
 
-            {withHotkey ? (
-              <HotkeyBadge hotkey="s">
-                <SaveButton ref={saveBtnRef} />
-              </HotkeyBadge>
-            ) : (
-              <SaveButton ref={saveBtnRef} />
-            )}
+            <SaveButton />
           </Box>
         </Box>
       </form>

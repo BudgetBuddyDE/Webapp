@@ -1,7 +1,6 @@
 import {
   CompareArrowsRounded as CompareArrowsIcon,
   DashboardRounded as DashboardIcon,
-  DonutSmallRounded as DonutSmallIcon,
   LabelRounded as LabelIcon,
   PaymentsRounded as PaymentsIcon,
   ScheduleSendRounded as ScheduleSendIcon,
@@ -10,7 +9,7 @@ import {
 export const DrawerLinks = [
   {
     text: 'Dashboard',
-    path: '/',
+    path: '/dashboard',
     icon: <DashboardIcon />,
   },
   {
@@ -22,11 +21,6 @@ export const DrawerLinks = [
     text: 'Subscriptions',
     path: '/subscriptions',
     icon: <ScheduleSendIcon />,
-  },
-  {
-    text: 'Budget',
-    path: '/budgets',
-    icon: <DonutSmallIcon />,
   },
   {
     text: 'Payment Methods',

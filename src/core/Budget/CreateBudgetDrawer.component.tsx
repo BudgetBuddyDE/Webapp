@@ -91,7 +91,6 @@ export const CreateBudgetDrawer: React.FC<TCreateBudgetDrawerProps> = ({ open, o
       heading="Set Budget"
       onClose={handler.onClose}
       closeOnBackdropClick
-      withHotkey
     >
       <CategoryAutocomplete
         onChange={(event, value) =>

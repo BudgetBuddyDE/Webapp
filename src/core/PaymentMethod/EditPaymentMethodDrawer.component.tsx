@@ -96,7 +96,6 @@ export const EditPaymentMethodDrawer: React.FC<TEditPaymentMethodProps> = ({
       heading="Edit Payment-Method"
       onClose={handler.onClose}
       closeOnBackdropClick
-      withHotkey
     >
       {(['name', 'address', 'provider'] as Partial<keyof TUpdatePaymentMethodPayload>[]).map(
         (name) => {

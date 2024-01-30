@@ -154,4 +154,19 @@ export class CategoryService {
       value: id,
     }));
   }
+
+  /**
+   * Filters an array of categories based on a keyword.
+   * @param categories - The array of categories to filter.
+   * @param keyword - The keyword to filter the categories by.
+   * @returns The filtered array of categories.
+   */
+  static filter(categories: TCategory[], keyword: string): TCategory[] {
+    const lowerKeyword = keyword.toLowerCase();
+    return categories.filter(
+      ({ name, description }) =>
+        name.toLowerCase().includes(lowerKeyword) ||
+        description?.toLowerCase().includes(lowerKeyword)
+    );
+  }
 }

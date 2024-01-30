@@ -1,4 +1,4 @@
-import { Card, NoResults, PieChart, type TPieChartData } from '@/components/Base';
+import { Card, NoResults, type TPieChartData } from '@/components/Base';
 import { CircularProgress } from '@/components/Loading';
 import { DateService } from '@/services';
 import { Box, ToggleButton, ToggleButtonGroup } from '@mui/material';
@@ -6,6 +6,7 @@ import { ParentSize } from '@visx/responsive';
 import React from 'react';
 import { useFetchTransactions } from '../../Transaction';
 import { isSameMonth } from 'date-fns';
+import { PieChart } from '@/components/Base';
 
 export type TChartType = 'MONTH' | 'ALL_TIME';
 
@@ -74,7 +75,7 @@ export const CategorySpendingsChart: React.FC<TCategorySpendingsChartProps> = ()
         {loadingTransactions ? (
           <CircularProgress />
         ) : currentChartData.length > 0 ? (
-          <Box sx={{ display: 'flex', flex: 1, mt: '1rem' }}>
+          <Box sx={{ display: 'flex', flex: 1, mt: '1rem', flexDirection: 'column' }}>
             <ParentSize>
               {({ width }) => (
                 <PieChart
@@ -88,7 +89,14 @@ export const CategorySpendingsChart: React.FC<TCategorySpendingsChartProps> = ()
             </ParentSize>
           </Box>
         ) : (
-          <NoResults sx={{ mt: 2 }} />
+          <NoResults
+            text={
+              chart === 'MONTH'
+                ? 'There are no spendings for this month!'
+                : "You haven't spent anything yet!"
+            }
+            sx={{ mt: 2 }}
+          />
         )}
       </Card.Body>
     </Card>

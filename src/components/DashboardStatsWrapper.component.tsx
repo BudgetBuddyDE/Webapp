@@ -1,12 +1,7 @@
 import { Grid } from '@mui/material';
 import React from 'react';
 import { StatsCard, TStatsCardProps } from './StatsCard.component';
-import {
-  AddRounded,
-  BalanceRounded,
-  RemoveRounded,
-  ScheduleSendRounded,
-} from '@mui/icons-material';
+import { AddRounded, RemoveRounded, BalanceRounded } from '@mui/icons-material';
 import { IBaseStore, TransactionService, useTransactionStore } from '@/core/Transaction';
 import { TUser } from '@budgetbuddyde/types';
 import { create } from 'zustand';
@@ -65,29 +60,27 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
   const stats: TStatsCardProps[] = React.useMemo(() => {
     return [
       {
-        value: formatBalance(fetchedStats.earnings),
-        label: 'Earnings',
         icon: <AddRounded />,
+        label: 'Income',
+        value: formatBalance(fetchedStats.earnings),
+        valueInformation:
+          fetchedStats.upcoming_earnings > 0
+            ? `Upcoming ${formatBalance(fetchedStats.upcoming_earnings)}`
+            : undefined,
       },
       {
-        value: formatBalance(fetchedStats.upcoming_earnings),
-        label: 'Upcoming Earnings',
-        icon: <ScheduleSendRounded />,
-      },
-      {
-        value: formatBalance(fetchedStats.expenses),
-        label: 'Expenses',
         icon: <RemoveRounded />,
+        label: 'Spendings',
+        value: formatBalance(fetchedStats.expenses),
+        valueInformation:
+          fetchedStats.upcoming_expenses > 0
+            ? `Anstehend ${formatBalance(fetchedStats.upcoming_expenses)}`
+            : undefined,
       },
       {
-        value: formatBalance(fetchedStats.upcoming_expenses),
-        label: 'Upcoming Expenses',
-        icon: <ScheduleSendRounded />,
-      },
-      {
-        value: formatBalance(fetchedStats.balance),
-        label: 'Balance',
         icon: <BalanceRounded />,
+        label: 'Balance',
+        value: formatBalance(fetchedStats.balance),
       },
     ];
   }, [fetchedStats]);
@@ -125,13 +118,13 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
   }, [session]);
 
   return (
-    <Grid container item xs={12} md={12} columns={10} spacing={3}>
+    <Grid container item xs={12} md={12} columns={12} spacing={3}>
       {stats.map((props, idx, list) => (
         <Grid
           key={props.label.toString().toLowerCase().replace(' ', '_')}
           item
-          xs={idx == list.length - 1 ? 10 : 5}
-          md={2}
+          xs={idx == list.length - 1 ? 12 : 6}
+          md={4}
         >
           <StatsCard isLoading={loading} {...props} />
         </Grid>
