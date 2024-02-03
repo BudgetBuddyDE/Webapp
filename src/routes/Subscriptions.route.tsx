@@ -15,8 +15,9 @@ import { Box, Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from
 import { useSnackbarContext } from '@/core/Snackbar';
 import { useAuthContext } from '@/core/Auth';
 import {
+  type TCreateSubscriptionPayload,
+  type TCreateTransactionPayload,
   type TSubscription,
-  type TTransaction,
   type TUpdateSubscriptionPayload,
 } from '@budgetbuddyde/types';
 import { Table } from '@/components/Base/Table';
@@ -30,16 +31,16 @@ import { ToggleFilterDrawerButton, useFilterStore } from '@/core/Filter';
 import { CategoryChip } from '@/core/Category';
 import { PaymentMethodChip } from '@/core/PaymentMethod';
 import { type ISelectionHandler } from '@/components/Base/Select';
+import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
 
 interface ISubscriptionsHandler {
   onSearch: (keyword: string) => void;
   onSubscriptionDelete: (subscription: TSubscription) => void;
   onConfirmSubscriptionDelete: () => void;
-  onEditSubscription: (subscription: TSubscription) => void;
+  onEditSubscription: (subscription: TUpdateSubscriptionPayload) => void;
   onToggleExecutionStatus: (subscription: TSubscription) => void;
   transaction: {
     onShowCreateDrawer: (subscription: TSubscription) => void;
-    onHideCreateDrawer: () => void;
   };
   selection: ISelectionHandler<TSubscription>;
 }
@@ -53,15 +54,20 @@ export const Subscriptions = () => {
     loading: loadingSubscriptions,
     refresh: refreshSubscriptions,
   } = useFetchSubscriptions();
-  const [showCreateSubscriptionsDrawer, setShowCreateSubscriptionDrawer] = React.useState(false);
-  const [showEditSubscriptionDrawer, setShowEditSubscriptionDrawer] = React.useState(false);
-  const [editSubscription, setEditSubscription] = React.useState<TSubscription | null>(null);
+  const [showCreateTransactionDrawer, dispatchCreateTransactionDrawer] = React.useReducer(
+    useEntityDrawer<TCreateTransactionPayload>,
+    CreateEntityDrawerState<TCreateTransactionPayload>()
+  );
+  const [showCreateDrawer, dispatchCreateDrawer] = React.useReducer(
+    useEntityDrawer<TCreateSubscriptionPayload>,
+    CreateEntityDrawerState<TCreateSubscriptionPayload>()
+  );
+  const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
+    useEntityDrawer<TUpdateSubscriptionPayload>,
+    CreateEntityDrawerState<TUpdateSubscriptionPayload>()
+  );
   const [showDeleteSubscriptionDialog, setShowDeleteSubscriptionDialog] = React.useState(false);
   const [deleteSubscriptions, setDeleteSubscriptions] = React.useState<TSubscription[]>([]);
-  const [showCreateTransactionDrawer, setShowCreateTransactionDrawer] = React.useState(false);
-  const [createableTransaction, setCreateableTransaction] = React.useState<TTransaction | null>(
-    null
-  );
   const [selectedSubscriptions, setSelectedSubscriptions] = React.useState<TSubscription[]>([]);
   const [keyword, setKeyword] = React.useState('');
 
@@ -74,8 +80,7 @@ export const Subscriptions = () => {
       setKeyword(keyword.toLowerCase());
     },
     onEditSubscription(subscription) {
-      setShowEditSubscriptionDrawer(true);
-      setEditSubscription(subscription);
+      dispatchEditDrawer({ type: 'open', payload: subscription });
     },
     async onConfirmSubscriptionDelete() {
       try {
@@ -136,23 +141,18 @@ export const Subscriptions = () => {
         receiver,
         transferAmount,
       }) {
-        setShowCreateTransactionDrawer(true);
-        setCreateableTransaction({
-          id: -1,
-          category: category,
-          paymentMethod: paymentMethod,
-          receiver: receiver,
-          description: description,
-          transferAmount: transferAmount,
-          owner: owner,
-          processedAt: determineNextExecutionDate(executeAt),
-          attachedFiles: [],
-          createdAt: new Date(),
+        dispatchCreateTransactionDrawer({
+          type: 'open',
+          payload: {
+            categoryId: category.id,
+            paymentMethodId: paymentMethod.id,
+            receiver,
+            description: description,
+            processedAt: determineNextExecutionDate(executeAt),
+            transferAmount,
+            owner: owner.uuid,
+          },
         });
-      },
-      onHideCreateDrawer() {
-        setShowCreateTransactionDrawer(false);
-        setCreateableTransaction(null);
       },
     },
     selection: {
@@ -248,7 +248,11 @@ export const Subscriptions = () => {
                   <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                     <IconButton
                       color="primary"
-                      onClick={() => handler.onEditSubscription(subscription)}
+                      onClick={() => {
+                        handler.onEditSubscription(
+                          SubscriptionService.toUpdatePayload(subscription)
+                        );
+                      }}
                     >
                       <EditRounded />
                     </IconButton>
@@ -277,7 +281,7 @@ export const Subscriptions = () => {
 
               <SearchInput onSearch={handler.onSearch} />
 
-              <IconButton color="primary" onClick={() => setShowCreateSubscriptionDrawer(true)}>
+              <IconButton color="primary" onClick={() => dispatchCreateDrawer({ type: 'open' })}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
             </React.Fragment>
@@ -292,26 +296,18 @@ export const Subscriptions = () => {
       </Grid>
 
       <CreateTransactionDrawer
-        open={showCreateTransactionDrawer}
-        onChangeOpen={(isOpen) => {
-          setShowCreateTransactionDrawer(isOpen);
-          if (!isOpen) setCreateableTransaction(null);
-        }}
-        transaction={createableTransaction}
+        {...showCreateTransactionDrawer}
+        onClose={() => dispatchCreateTransactionDrawer({ type: 'close' })}
       />
 
       <CreateSubscriptionDrawer
-        open={showCreateSubscriptionsDrawer}
-        onChangeOpen={(isOpen) => setShowCreateSubscriptionDrawer(isOpen)}
+        {...showCreateDrawer}
+        onClose={() => dispatchCreateDrawer({ type: 'close' })}
       />
 
       <EditSubscriptionDrawer
-        open={showEditSubscriptionDrawer}
-        onChangeOpen={(isOpen) => {
-          setShowEditSubscriptionDrawer(isOpen);
-          if (!isOpen) setEditSubscription(null);
-        }}
-        subscription={editSubscription}
+        {...showEditDrawer}
+        onClose={() => dispatchEditDrawer({ type: 'close' })}
       />
 
       <DeleteDialog
@@ -330,7 +326,7 @@ export const Subscriptions = () => {
 
       <FabContainer>
         <OpenFilterDrawerFab />
-        <AddFab onClick={() => setShowCreateSubscriptionDrawer(true)} />
+        <AddFab onClick={() => dispatchCreateDrawer({ type: 'open' })} />
       </FabContainer>
     </ContentGrid>
   );

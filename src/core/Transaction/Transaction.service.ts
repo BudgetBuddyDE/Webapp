@@ -16,7 +16,7 @@ import { format, isSameMonth, subDays } from 'date-fns';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { prepareRequestOptions } from '@/utils';
 import { type IAuthContext } from '../Auth';
-import { TDashboardStats } from '@/components/DashboardStatsWrapper.component';
+import { type TDashboardStats } from '@/components/DashboardStatsWrapper.component';
 
 /**
  * Service for managing transactions.
@@ -36,7 +36,6 @@ export class TransactionService {
     password,
   }: IAuthContext['authOptions']): Promise<[TTransaction[] | null, Error | null]> {
     try {
-      console.log('fetching transactions');
       const query = new URLSearchParams();
       query.append('uuid', uuid);
       const response = await fetch(this.host + '?' + query.toString(), {
@@ -259,5 +258,22 @@ export class TransactionService {
       )
       .reduce((prev, cur) => prev + cur.transferAmount, 0);
     return Number(num.toFixed(2));
+  }
+
+  /**
+   * Converts a transaction object into an update payload object.
+   * @param transaction - The transaction object to be converted.
+   * @returns The update payload object.
+   */
+  static toUpdatePayload(transaction: TTransaction): TUpdateTransactionPayload {
+    return {
+      transactionId: transaction.id,
+      categoryId: transaction.category.id,
+      paymentMethodId: transaction.paymentMethod.id,
+      receiver: transaction.receiver,
+      transferAmount: transaction.transferAmount,
+      processedAt: transaction.processedAt,
+      description: transaction.description,
+    };
   }
 }

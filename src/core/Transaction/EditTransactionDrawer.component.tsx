@@ -1,5 +1,5 @@
 import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@/components/Drawer';
-import { useScreenSize } from '@/hooks';
+import { type TEntityDrawerState, useScreenSize } from '@/hooks';
 import {
   Box,
   FormControl,
@@ -22,11 +22,7 @@ import {
   getPaymentMethodFromList,
   useFetchPaymentMethods,
 } from '../PaymentMethod';
-import {
-  ZUpdateTransactionPayload,
-  type TTransaction,
-  type TUpdateTransactionPayload,
-} from '@budgetbuddyde/types';
+import { ZUpdateTransactionPayload, type TUpdateTransactionPayload } from '@budgetbuddyde/types';
 import { transformBalance } from '@/utils/transformBalance.util';
 
 interface IEditTransactionDrawerHandler {
@@ -43,15 +39,13 @@ interface IEditTransactionDrawerHandler {
 }
 
 export type TEditTransactionDrawerProps = {
-  open: boolean;
-  onChangeOpen: (isOpen: boolean) => void;
-  transaction: TTransaction | null;
-};
+  onClose: () => void;
+} & TEntityDrawerState<TUpdateTransactionPayload>;
 
 export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
-  open,
-  onChangeOpen,
-  transaction,
+  shown,
+  payload,
+  onClose,
 }) => {
   const screenSize = useScreenSize();
   const { session, authOptions } = useAuthContext();
@@ -69,7 +63,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
 
   const handler: IEditTransactionDrawerHandler = {
     onClose() {
-      onChangeOpen(false);
+      onClose();
       setForm({ processedAt: new Date() });
       setDrawerState({ type: 'RESET' });
     },
@@ -88,21 +82,21 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      if (!session || !transaction) return;
+      if (!session || !payload) return;
       setDrawerState({ type: 'SUBMIT' });
 
       try {
         const parsedForm = ZUpdateTransactionPayload.safeParse({
           ...form,
-          transactionId: transaction.id,
+          transactionId: payload.transactionId,
           transferAmount: transformBalance(String(form.transferAmount)),
         });
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
-        const payload: TUpdateTransactionPayload = parsedForm.data;
-
-        console.log(payload);
-
-        const [updatedTransaction, error] = await TransactionService.update(payload, authOptions);
+        const requestPayload: TUpdateTransactionPayload = parsedForm.data;
+        const [updatedTransaction, error] = await TransactionService.update(
+          requestPayload,
+          authOptions
+        );
         if (error) {
           setDrawerState({ type: 'ERROR', error: error });
           return;
@@ -114,7 +108,9 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
 
         setDrawerState({ type: 'SUCCESS' });
         handler.onClose();
-        refreshTransactions(); // FIXME: Wrap inside startTransition
+        React.startTransition(() => {
+          refreshTransactions();
+        });
         showSnackbar({ message: `Saved the applied changes` });
       } catch (error) {
         console.error(error);
@@ -123,24 +119,27 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
     },
   };
 
-  React.useEffect(() => {
-    if (!transaction) return setForm({ processedAt: new Date() });
-    const { processedAt, receiver, category, paymentMethod, transferAmount, description } =
-      transaction;
+  React.useLayoutEffect(() => {
+    if (!payload) return setForm({ processedAt: new Date() });
+    const { description } = payload;
     setForm({
-      processedAt: processedAt,
-      receiver: receiver,
-      categoryId: category.id,
-      paymentMethodId: paymentMethod.id,
-      transferAmount: transferAmount,
+      ...payload,
+      // processedAt: processedAt,
+      // receiver: receiver,
+      // categoryId: categoryId,
+      // paymentMethodId: paymentMethodId,
+      // transferAmount: transferAmount,
       description: description ?? '',
     });
-  }, [transaction]);
+    return () => {
+      setForm({});
+    };
+  }, [payload]);
 
   return (
     <FormDrawer
       state={drawerState}
-      open={open}
+      open={shown}
       onSubmit={handler.onFormSubmit}
       heading="Create Transaction"
       onClose={handler.onClose}
@@ -178,9 +177,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
           onChange={(event, value) =>
             handler.onAutocompleteChange(event, 'categoryId', Number(value?.value))
           }
-          defaultValue={
-            transaction ? getCategoryFromList(transaction.category.id, categories) : undefined
-          }
+          defaultValue={payload ? getCategoryFromList(payload.categoryId, categories) : undefined}
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
           required
         />
@@ -190,9 +187,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
             handler.onAutocompleteChange(event, 'paymentMethodId', Number(value?.value))
           }
           defaultValue={
-            transaction
-              ? getPaymentMethodFromList(transaction.paymentMethod.id, paymentMethods)
-              : undefined
+            payload ? getPaymentMethodFromList(payload.paymentMethodId, paymentMethods) : undefined
           }
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
           required
@@ -207,7 +202,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
           label: receiver,
           value: receiver,
         }))}
-        defaultValue={transaction?.receiver}
+        defaultValue={payload?.receiver}
         onValueChange={(value) => handler.onReceiverChange(String(value))}
         required
       />
@@ -221,7 +216,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
           inputProps={{ inputMode: 'numeric' }}
           onChange={handler.onInputChange}
           value={form.transferAmount}
-          defaultValue={transaction?.transferAmount}
+          defaultValue={payload?.transferAmount}
           startAdornment={<InputAdornment position="start">€</InputAdornment>}
         />
       </FormControl>
@@ -231,12 +226,12 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
         variant="outlined"
         label="Description"
         name="description"
-        sx={{ ...FormStyle, mb: 0 }}
+        sx={FormStyle}
         multiline
         rows={2}
         onChange={handler.onInputChange}
         value={form.description}
-        defaultValue={transaction?.description ?? ''}
+        defaultValue={payload?.description ?? ''}
       />
     </FormDrawer>
   );

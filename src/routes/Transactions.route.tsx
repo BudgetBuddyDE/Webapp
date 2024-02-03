@@ -11,7 +11,11 @@ import {
   useFetchTransactions,
 } from '@/core/Transaction';
 import { Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
-import { type TTransaction } from '@budgetbuddyde/types';
+import {
+  type TCreateTransactionPayload,
+  type TUpdateTransactionPayload,
+  type TTransaction,
+} from '@budgetbuddyde/types';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { SearchInput } from '@/components/Base/Search';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
@@ -24,12 +28,13 @@ import { filterTransactions } from '@/utils/filter.util';
 import { CategoryChip } from '@/core/Category';
 import { PaymentMethodChip } from '@/core/PaymentMethod';
 import { type ISelectionHandler } from '@/components/Base/Select';
+import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
 
 interface ITransactionsHandler {
   onSearch: (keyword: string) => void;
   onTransactionDelete: (transaction: TTransaction) => void;
   onConfirmTransactionDelete: () => void;
-  onEditTransaction: (transaction: TTransaction) => void;
+  onEditTransaction: (transaction: TUpdateTransactionPayload) => void;
   selection: ISelectionHandler<TTransaction>;
 }
 
@@ -42,9 +47,14 @@ export const Transactions = () => {
     loading: loadingTransactions,
     refresh: refreshTransactions,
   } = useFetchTransactions();
-  const [showCreateTransactionDrawer, setShowCreateTransactionDrawer] = React.useState(false);
-  const [showEditTransactionDrawer, setShowEditTransactionDrawer] = React.useState(false);
-  const [editTransaction, setEditTransaction] = React.useState<TTransaction | null>(null);
+  const [showCreateDrawer, dispatchCreateDrawer] = React.useReducer(
+    useEntityDrawer<TCreateTransactionPayload>,
+    CreateEntityDrawerState<TCreateTransactionPayload>()
+  );
+  const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
+    useEntityDrawer<TUpdateTransactionPayload>,
+    CreateEntityDrawerState<TUpdateTransactionPayload>()
+  );
   const [showDeleteTransactionDialog, setShowDeleteTransactionDialog] = React.useState(false);
   const [deleteTransactions, setDeleteTransactions] = React.useState<TTransaction[]>([]);
   const [selectedTransactions, setSelectedTransactions] = React.useState<TTransaction[]>([]);
@@ -58,8 +68,7 @@ export const Transactions = () => {
       setKeyword(keyword.toLowerCase());
     },
     onEditTransaction(transaction) {
-      setShowEditTransactionDrawer(true);
-      setEditTransaction(transaction);
+      dispatchEditDrawer({ type: 'open', payload: transaction });
     },
     async onConfirmTransactionDelete() {
       try {
@@ -68,16 +77,17 @@ export const Transactions = () => {
           deleteTransactions.map(({ id }) => ({ transactionId: id })),
           authOptions
         );
-        if (error) {
-          return showSnackbar({ message: error.message });
-        }
+        if (error) return showSnackbar({ message: error.message });
+
         if (!deletedItem) {
           return showSnackbar({ message: "Couldn't delete the transaction" });
         }
 
         setShowDeleteTransactionDialog(false);
         setDeleteTransactions([]);
-        refreshTransactions(); // FIXME: Wrap inside startTransition
+        React.startTransition(() => {
+          refreshTransactions();
+        });
         showSnackbar({ message: `Deleted the transaction` });
         setSelectedTransactions([]);
       } catch (error) {
@@ -171,12 +181,14 @@ export const Transactions = () => {
               </TableCell>
               <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                 <Linkify>{transaction.description ?? 'No information'}</Linkify>
-              </TableCell>{' '}
+              </TableCell>
               <TableCell align="right" size={AppConfig.table.cellSize}>
                 <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                   <IconButton
                     color="primary"
-                    onClick={() => handler.onEditTransaction(transaction)}
+                    onClick={() =>
+                      handler.onEditTransaction(TransactionService.toUpdatePayload(transaction))
+                    }
                   >
                     <EditRounded />
                   </IconButton>
@@ -196,7 +208,7 @@ export const Transactions = () => {
 
               <SearchInput onSearch={handler.onSearch} />
 
-              <IconButton color="primary" onClick={() => setShowCreateTransactionDrawer(true)}>
+              <IconButton color="primary" onClick={() => dispatchCreateDrawer({ type: 'open' })}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
             </React.Fragment>
@@ -211,17 +223,19 @@ export const Transactions = () => {
       </Grid>
 
       <CreateTransactionDrawer
-        open={showCreateTransactionDrawer}
-        onChangeOpen={(isOpen) => setShowCreateTransactionDrawer(isOpen)}
+        {...showCreateDrawer}
+        onClose={() => dispatchCreateDrawer({ type: 'close' })}
       />
 
       <EditTransactionDrawer
-        open={showEditTransactionDrawer}
-        onChangeOpen={(isOpen) => {
-          setShowEditTransactionDrawer(isOpen);
-          if (!isOpen) setEditTransaction(null);
-        }}
-        transaction={editTransaction}
+        {...showEditDrawer}
+        onClose={() => dispatchCreateDrawer({ type: 'close' })}
+        // open={showEditTransactionDrawer}
+        // onChangeOpen={(isOpen) => {
+        //   setShowEditTransactionDrawer(isOpen);
+        //   if (!isOpen) setEditTransaction(null);
+        // }}
+        // transaction={editTransaction}
       />
 
       <DeleteDialog
@@ -240,7 +254,7 @@ export const Transactions = () => {
 
       <FabContainer>
         <OpenFilterDrawerFab />
-        <AddFab onClick={() => setShowCreateTransactionDrawer(true)} />
+        <AddFab onClick={() => dispatchCreateDrawer({ type: 'open' })} />
       </FabContainer>
     </ContentGrid>
   );

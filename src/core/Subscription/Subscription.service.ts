@@ -172,4 +172,22 @@ export class SubscriptionService {
       )
     );
   }
+
+  /**
+   * Converts a subscription object to an update payload object.
+   * @param subscription - The subscription object to be converted.
+   * @returns The update payload object.
+   */
+  static toUpdatePayload(subscription: TSubscription): TUpdateSubscriptionPayload {
+    return {
+      subscriptionId: subscription.id,
+      paused: subscription.paused,
+      executeAt: subscription.executeAt,
+      receiver: subscription.receiver,
+      categoryId: subscription.category.id,
+      paymentMethodId: subscription.paymentMethod.id,
+      transferAmount: subscription.transferAmount,
+      description: subscription.description,
+    };
+  }
 }
