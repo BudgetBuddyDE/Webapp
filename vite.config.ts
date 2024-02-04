@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { defineConfig, type CommonServerOptions } from 'vite';
 import { ViteEjsPlugin } from 'vite-plugin-ejs';
 import path from 'path';
@@ -9,13 +12,20 @@ import react from '@vitejs/plugin-react-swc';
 
 const production = process.env.NODE_ENV === 'production';
 
+const BACKEND_HOST = process.env.BACKEND_HOST;
+const FILE_SERVICE_HOST = process.env.FILE_SERVICE_HOST;
+
 const proxy: CommonServerOptions['proxy'] = production
   ? undefined
   : {
       '/api': {
-        target: 'http://localhost:8080',
+        target: BACKEND_HOST,
         // changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/file': {
+        target: FILE_SERVICE_HOST,
+        rewrite: (path) => path.replace(/^\/file/, ''),
       },
     };
 
@@ -24,7 +34,7 @@ export default defineConfig({
   // https://github.com/vitejs/vite/issues/1973#issuecomment-787571499
   define: {
     'process.env': {
-      BACKEND_HOST: process.env.BACKEND_HOST || 'http://localhost:8080',
+      BACKEND_HOST: BACKEND_HOST,
       NODE_ENV: process.env.NODE_ENV,
     },
   },

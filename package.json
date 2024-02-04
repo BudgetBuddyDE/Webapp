@@ -12,7 +12,7 @@
     "prepare": "node .husky/install.mjs"
   },
   "dependencies": {
-    "@budgetbuddyde/types": "^1.0.6",
+    "@budgetbuddyde/types": "^1.0.12",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.15",

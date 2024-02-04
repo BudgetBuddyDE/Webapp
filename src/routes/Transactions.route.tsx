@@ -10,7 +10,16 @@ import {
   TransactionService,
   useFetchTransactions,
 } from '@/core/Transaction';
-import { Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
+import {
+  Avatar,
+  AvatarGroup,
+  Checkbox,
+  Grid,
+  IconButton,
+  TableCell,
+  TableRow,
+  Typography,
+} from '@mui/material';
 import {
   type TCreateTransactionPayload,
   type TUpdateTransactionPayload,
@@ -29,6 +38,7 @@ import { CategoryChip } from '@/core/Category';
 import { PaymentMethodChip } from '@/core/PaymentMethod';
 import { type ISelectionHandler } from '@/components/Base/Select';
 import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
+import { FileService } from '@/services/File.service';
 
 interface ITransactionsHandler {
   onSearch: (keyword: string) => void;
@@ -132,6 +142,7 @@ export const Transactions = () => {
             'Amount',
             'Payment Method',
             'Information',
+            'Attached Files',
             '',
           ]}
           renderHeaderCell={(headerCell) => (
@@ -182,6 +193,28 @@ export const Transactions = () => {
               <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                 <Linkify>{transaction.description ?? 'No information'}</Linkify>
               </TableCell>
+              <TableCell size={AppConfig.table.cellSize}>
+                <AvatarGroup max={4} variant="rounded">
+                  {transaction.attachedFiles.map((file) => (
+                    <Avatar
+                      key={file.uuid}
+                      variant="rounded"
+                      alt={file.fileName}
+                      src={FileService.getFilePreviewUrl(
+                        FileService.transformTransactionFileToTFile(file),
+                        authOptions
+                      )}
+                      sx={{
+                        ':hover': {
+                          zIndex: 1,
+                          transform: 'scale(1.1)',
+                          transition: 'transform 0.2s ease-in-out',
+                        },
+                      }}
+                    />
+                  ))}
+                </AvatarGroup>
+              </TableCell>
               <TableCell align="right" size={AppConfig.table.cellSize}>
                 <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                   <IconButton
@@ -229,7 +262,7 @@ export const Transactions = () => {
 
       <EditTransactionDrawer
         {...showEditDrawer}
-        onClose={() => dispatchCreateDrawer({ type: 'close' })}
+        onClose={() => dispatchEditDrawer({ type: 'close' })}
         // open={showEditTransactionDrawer}
         // onChangeOpen={(isOpen) => {
         //   setShowEditTransactionDrawer(isOpen);

@@ -11,12 +11,16 @@ import {
   ZDailyTransaction,
   type TDeleteTransactionResponsePayload,
   ZDeleteTransactionResponsePayload,
+  TTransactionFile,
+  TFile,
+  TCreateTransactionFilePayload,
 } from '@budgetbuddyde/types';
 import { format, isSameMonth, subDays } from 'date-fns';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { prepareRequestOptions } from '@/utils';
 import { type IAuthContext } from '../Auth';
 import { type TDashboardStats } from '@/components/DashboardStatsWrapper.component';
+import { FileService } from '@/services/File.service';
 
 /**
  * Service for managing transactions.
@@ -274,6 +278,40 @@ export class TransactionService {
       transferAmount: transaction.transferAmount,
       processedAt: transaction.processedAt,
       description: transaction.description,
+      attachedFiles: transaction.attachedFiles.map(this.transformTransactionFileToCreatePayload),
+    };
+  }
+
+  /**
+   * Transforms a transaction file into a payload for creating a transaction file.
+   * @param file - The transaction file to transform.
+   * @returns The payload for creating a transaction file.
+   */
+  static transformTransactionFileToCreatePayload(
+    file: TTransactionFile
+  ): TCreateTransactionFilePayload {
+    return {
+      fileName: file.fileName,
+      fileSize: file.fileSize,
+      mimeType: file.mimeType,
+      fileUrl: file.location,
+    };
+  }
+
+  /**
+   * Transforms a TFile object into a payload for creating a transaction file.
+   * @param file The TFile object to transform.
+   * @returns The transformed payload.
+   */
+  static transformTFileToCreatePayload(
+    file: TFile,
+    user: IAuthContext['authOptions']
+  ): TCreateTransactionFilePayload {
+    return {
+      fileName: file.name,
+      fileSize: file.size,
+      mimeType: file.type,
+      fileUrl: FileService.getFileUrl(file, user),
     };
   }
 }

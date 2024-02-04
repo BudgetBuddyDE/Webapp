@@ -1,8 +1,10 @@
 import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@/components/Drawer';
 import { type TEntityDrawerState, useScreenSize } from '@/hooks';
 import {
+  Avatar,
   Box,
   FormControl,
+  Grid,
   InputAdornment,
   InputLabel,
   OutlinedInput,
@@ -16,16 +18,21 @@ import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { TransactionService, useFetchTransactions } from '.';
 import { CategoryAutocomplete, getCategoryFromList, useFetchCategories } from '../Category';
-import { ReceiverAutocomplete } from '@/components/Base';
+import { FileUpload, ReceiverAutocomplete, type TFileUploadProps } from '@/components/Base';
 import {
   PaymentMethodAutocomplete,
   getPaymentMethodFromList,
   useFetchPaymentMethods,
 } from '../PaymentMethod';
-import { ZUpdateTransactionPayload, type TUpdateTransactionPayload } from '@budgetbuddyde/types';
+import {
+  ZUpdateTransactionPayload,
+  type TUpdateTransactionPayload,
+  type TFile,
+} from '@budgetbuddyde/types';
 import { transformBalance } from '@/utils/transformBalance.util';
+import { FileService } from '@/services/File.service';
 
-interface IEditTransactionDrawerHandler {
+interface IEditTransactionDrawerHandler extends Pick<TFileUploadProps, 'onFileUpload'> {
   onClose: () => void;
   onDateChange: (date: Date | null) => void;
   onAutocompleteChange: (
@@ -57,9 +64,26 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
     FormDrawerReducer,
     generateInitialFormDrawerState()
   );
+  const [uploadedFiles, setUploadedFiles] = React.useState<TFile[]>([]);
   const [form, setForm] = React.useState<Record<string, string | number | Date>>({
     date: new Date(),
   });
+
+  // const uploadedFilePreview: (File & { buffer: string | ArrayBuffer | null })[] =
+  //   React.useMemo(() => {
+  //     let files: (File & { buffer: string | ArrayBuffer | null })[] = [];
+  //     uploadedFiles.forEach((file) => {
+  //       const reader = new FileReader();
+  //       reader.onloadend = () => {
+  //         files.push({
+  //           ...file,
+  //           buffer: reader.result,
+  //         });
+  //       };
+  //       reader.readAsDataURL(file);
+  //     });
+  //     return files;
+  //   }, [uploadedFiles]);
 
   const handler: IEditTransactionDrawerHandler = {
     onClose() {
@@ -90,6 +114,9 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
           ...form,
           transactionId: payload.transactionId,
           transferAmount: transformBalance(String(form.transferAmount)),
+          attachedFiles: uploadedFiles.map((file) =>
+            TransactionService.transformTFileToCreatePayload(file, authOptions)
+          ),
         });
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
         const requestPayload: TUpdateTransactionPayload = parsedForm.data;
@@ -117,22 +144,36 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
         setDrawerState({ type: 'ERROR', error: error as Error });
       }
     },
+    async onFileUpload(files) {
+      const filesArray = Array.from(files);
+      if (filesArray.length > 4) {
+        return showSnackbar({ message: 'You can only upload 4 files at once' });
+      }
+
+      const [remotelyUploadedFiles, error] = await FileService.upload(filesArray, authOptions);
+      if (error) {
+        console.error(error);
+        return showSnackbar({ message: error.message || "'Failed to upload files'" });
+      }
+      setUploadedFiles(remotelyUploadedFiles ?? []);
+    },
   };
 
   React.useLayoutEffect(() => {
     if (!payload) return setForm({ processedAt: new Date() });
-    const { description } = payload;
+    const { categoryId, description, paymentMethodId, processedAt, receiver, transferAmount } =
+      payload;
     setForm({
-      ...payload,
-      // processedAt: processedAt,
-      // receiver: receiver,
-      // categoryId: categoryId,
-      // paymentMethodId: paymentMethodId,
-      // transferAmount: transferAmount,
+      processedAt: processedAt,
+      receiver: receiver,
+      categoryId: categoryId,
+      paymentMethodId: paymentMethodId,
+      transferAmount: transferAmount,
       description: description ?? '',
     });
     return () => {
       setForm({});
+      setUploadedFiles([]);
     };
   }, [payload]);
 
@@ -141,7 +182,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
       state={drawerState}
       open={shown}
       onSubmit={handler.onFormSubmit}
-      heading="Create Transaction"
+      heading="Update Transaction"
       onClose={handler.onClose}
       closeOnBackdropClick
     >
@@ -233,6 +274,51 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
         value={form.description}
         defaultValue={payload?.description ?? ''}
       />
+
+      {/* upload */}
+      <Grid container spacing={2} columns={10}>
+        <Grid item xs={2}>
+          <FileUpload sx={{ width: '100%' }} onFileUpload={handler.onFileUpload} multiple />
+        </Grid>
+        {uploadedFiles.map((file, index) => (
+          <Grid item key={index} xs={2}>
+            <Avatar
+              key={index}
+              variant="rounded"
+              alt={'Image ' + file.name}
+              src={FileService.getFilePreviewUrl(file, authOptions)}
+              sx={{
+                width: '100%',
+                height: 'auto',
+                aspectRatio: '1/1',
+                border: (theme) => `2px solid ${theme.palette.primary.main}`,
+              }}
+            />
+          </Grid>
+        ))}
+
+        {/* {uploadedFilePreview.map((file, index) => (
+          <Grid item key={index} xs={2}>
+            <Avatar
+              key={index}
+              variant="rounded"
+              alt={'Image ' + file.name}
+              src={file.buffer ? String(file.buffer) : undefined}
+              sx={{
+                width: '100%',
+                height: 'auto',
+                aspectRatio: '1/1',
+                border: (theme) => `2px solid ${theme.palette.primary.main}`,
+                // ':hover': {
+                //   zIndex: 1,
+                //   transform: 'scale(1.1)',
+                //   transition: 'transform 0.2s ease-in-out',
+                // },
+              }}
+            />
+          </Grid>
+        ))} */}
+      </Grid>
     </FormDrawer>
   );
 };
