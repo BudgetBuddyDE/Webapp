@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { Grid, Link, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { withAuthLayout } from '@/core/Auth/Layout';
 import { ContentGrid } from '@/components/Layout';
@@ -30,19 +30,18 @@ const DashboardLayout: React.FC<TDashboardLayoutProps> = ({
     >
       <Grid item xs={12}>
         <ActionPaper sx={{ width: 'min-content' }}>
-          <ToggleButtonGroup
-            size="small"
-            color="primary"
-            value={location.pathname}
-            onChange={(event: React.BaseSyntheticEvent) => {
-              const newPath = event.target.value;
-              if (location.pathname === newPath) return;
-              navigate(newPath);
-            }}
-            exclusive
-          >
+          <ToggleButtonGroup size="small" color="primary" value={location.pathname} exclusive>
             {Object.entries(DashboardViewMapping).map(([path, view]: [string, TDashboardView]) => (
-              <ToggleButton key={path} value={path}>
+              <ToggleButton
+                key={path}
+                value={path}
+                LinkComponent={Link}
+                href={path}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (location.pathname !== path) navigate(path);
+                }}
+              >
                 {view.substring(0, 1).toUpperCase() + view.substring(1)}
               </ToggleButton>
             ))}

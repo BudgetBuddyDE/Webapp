@@ -1,6 +1,6 @@
 /**
  * // TODO: Get language and currency from browser-settings(current location?)
  */
-export function formatBalance(balance: number): string {
-  return balance.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+export function formatBalance(balance: number, currency = 'EUR'): string {
+  return balance.toLocaleString('de-DE', { style: 'currency', currency: currency });
 }

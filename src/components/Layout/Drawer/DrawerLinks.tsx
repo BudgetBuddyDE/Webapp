@@ -1,6 +1,6 @@
+import { DashboardViewIconMapping } from '@/routes/Dashboard';
 import {
   CompareArrowsRounded as CompareArrowsIcon,
-  DashboardRounded as DashboardIcon,
   LabelRounded as LabelIcon,
   PaymentsRounded as PaymentsIcon,
   ScheduleSendRounded as ScheduleSendIcon,
@@ -10,7 +10,12 @@ export const DrawerLinks = [
   {
     text: 'Dashboard',
     path: '/dashboard',
-    icon: <DashboardIcon />,
+    icon: DashboardViewIconMapping['overview'] as JSX.Element,
+  },
+  {
+    text: 'Stocks',
+    path: '/stocks',
+    icon: DashboardViewIconMapping['stocks'] as JSX.Element,
   },
   {
     text: 'Transactions',

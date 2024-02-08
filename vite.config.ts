@@ -14,6 +14,7 @@ const production = process.env.NODE_ENV === 'production';
 
 const BACKEND_HOST = process.env.BACKEND_HOST || 'http://localhost:8080';
 const FILE_SERVICE_HOST = process.env.FILE_SERVICE_HOST || 'http://localhost:8090';
+const STOCK_SERVICE_HOST = process.env.STOCK_SERVICE_HOST || 'http://localhost:7080';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -22,6 +23,7 @@ export default defineConfig({
     'process.env': {
       BACKEND_HOST: BACKEND_HOST,
       FILE_SERVICE_HOST: FILE_SERVICE_HOST,
+      STOCK_SERVICE_HOST: STOCK_SERVICE_HOST,
       NODE_ENV: process.env.NODE_ENV,
     },
   },
@@ -41,6 +43,17 @@ export default defineConfig({
             changeOrigin: true,
             rewrite: (path) => path.replace('/file', ''),
           },
+          '/stock_service': {
+            target: STOCK_SERVICE_HOST,
+            changeOrigin: true,
+            rewrite: (path) => path.replace('/stock_service', ''),
+          },
+          // "/socket": {
+          //   target: "http://localhost:7070",
+          //   changeOrigin: true,
+          //   ws: true,
+          //   rewrite: (path) => path.replace("/socket", ""),
+          // },
         }
       : undefined,
   },
