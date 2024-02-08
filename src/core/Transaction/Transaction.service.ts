@@ -16,11 +16,11 @@ import {
   type TCreateTransactionFilePayload,
 } from '@budgetbuddyde/types';
 import { format, isSameMonth, subDays } from 'date-fns';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { prepareRequestOptions } from '@/utils';
 import { type IAuthContext } from '../Auth';
 import { type TDashboardStats } from '@/components/DashboardStatsWrapper.component';
 import { FileService } from '@/services/File.service';
+import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 
 /**
  * Service for managing transactions.

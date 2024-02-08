@@ -1,3 +1,4 @@
+import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import {
   ZUser,
   type TApiResponse,
@@ -7,7 +8,6 @@ import {
   type TPasswordReset,
   ZPasswordReset,
 } from '@budgetbuddyde/types';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 
 export class AuthService {
   private static host =

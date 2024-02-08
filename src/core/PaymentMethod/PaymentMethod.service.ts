@@ -12,10 +12,10 @@ import {
   type TTransaction,
 } from '@budgetbuddyde/types';
 import { prepareRequestOptions } from '@/utils';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
-import { IAuthContext } from '../Auth';
+import { type IAuthContext } from '../Auth';
 import { PaymentMethodLabelSeperator, type TPaymentMethodInputOption } from './Autocomplete';
 import { subDays } from 'date-fns';
+import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 
 export class PaymentMethodService {
   private static host =

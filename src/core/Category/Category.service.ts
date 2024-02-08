@@ -8,13 +8,13 @@ import {
   type TUpdateCategoryPayload,
   type TDeleteCategoryResponsePayload,
   ZDeleteCategoryResponsePayload,
-  TTransaction,
+  type TTransaction,
 } from '@budgetbuddyde/types';
 import { prepareRequestOptions } from '@/utils';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
-import { IAuthContext } from '../Auth';
-import { TCategoryInputOption } from '.';
+import { type IAuthContext } from '../Auth';
+import { type TCategoryInputOption } from './Autocomplete';
 import { subDays } from 'date-fns';
+import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 
 export class CategoryService {
   private static host =

@@ -13,11 +13,10 @@ import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 
 export class FileService {
   private static host = isRunningInProdEnv() ? (process.env.FILE_SERVICE_HOST as string) : '/file';
-  // private static host = '/file';
-  // private static host = 'http://localhost:8090';
+  private static serviceUrl = process.env.FILE_SERVICE_HOST;
 
   static getFileUrl(file: TFile, { uuid }: IAuthContext['authOptions']): string {
-    return `${this.host}/static/${uuid}/${file.name}`;
+    return `${this.serviceUrl}/static/${uuid}/${file.name}`;
   }
 
   static getAuthentificatedFileLink(
@@ -77,7 +76,6 @@ export class FileService {
       if (json.status !== 200) return [null, new Error(json.message!)];
 
       const parsingResult = z.array(ZTransactionFile).safeParse(json.data);
-      console.log(json.data);
       if (!parsingResult.success) return [null, new Error(parsingResult.error.message)];
       return [parsingResult.data, null];
     } catch (error) {

@@ -10,9 +10,9 @@ import {
   type TDeleteSubscriptionResponsePayload,
   ZDeleteSubscriptionResponsePayload,
 } from '@budgetbuddyde/types';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { determineNextExecutionDate, prepareRequestOptions } from '@/utils';
-import { IAuthContext } from '../Auth';
+import { type IAuthContext } from '../Auth';
+import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 
 export class SubscriptionService {
   private static host =
