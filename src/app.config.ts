@@ -15,6 +15,7 @@ export type TAppConfig = {
   table: {
     cellSize: TableCellProps['size'];
   };
+  allowedFileTypes: string[];
 };
 
 export const AppConfig: TAppConfig = {
@@ -30,4 +31,5 @@ export const AppConfig: TAppConfig = {
   table: {
     cellSize: 'medium',
   },
+  allowedFileTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
 };

@@ -200,10 +200,7 @@ export const Transactions = () => {
                       key={file.uuid}
                       variant="rounded"
                       alt={file.fileName}
-                      src={FileService.getFilePreviewUrl(
-                        FileService.transformTransactionFileToTFile(file),
-                        authOptions
-                      )}
+                      src={FileService.getAuthentificatedFileLink(file.location, authOptions)}
                       sx={{
                         ':hover': {
                           zIndex: 1,
