@@ -1,7 +1,7 @@
 import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@/components/Drawer';
 import { type TEntityDrawerState, useScreenSize } from '@/hooks';
 import {
-  Avatar,
+  Alert,
   Box,
   FormControl,
   Grid,
@@ -18,19 +18,25 @@ import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { TransactionService, useFetchTransactions } from '.';
 import { CategoryAutocomplete, getCategoryFromList, useFetchCategories } from '../Category';
-import { FileUpload, ReceiverAutocomplete, type TFileUploadProps } from '@/components/Base';
+import {
+  FileUpload,
+  FileUploadPreview,
+  ReceiverAutocomplete,
+  type TFileUploadProps,
+} from '@/components/Base';
 import {
   PaymentMethodAutocomplete,
   getPaymentMethodFromList,
   useFetchPaymentMethods,
 } from '../PaymentMethod';
 import {
-  ZUpdateTransactionPayload,
   type TUpdateTransactionPayload,
-  type TFile,
+  type TTransactionFile,
+  ZUpdateTransactionPayload,
 } from '@budgetbuddyde/types';
-import { transformBalance } from '@/utils/transformBalance.util';
 import { FileService } from '@/services/File.service';
+import { AppConfig } from '@/app.config';
+import { transformBalance } from '@/utils';
 
 interface IEditTransactionDrawerHandler extends Pick<TFileUploadProps, 'onFileUpload'> {
   onClose: () => void;
@@ -57,33 +63,31 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
   const screenSize = useScreenSize();
   const { session, authOptions } = useAuthContext();
   const { showSnackbar } = useSnackbarContext();
-  const { refresh: refreshTransactions, transactions } = useFetchTransactions();
+  const {
+    refresh: refreshTransactions,
+    transactions,
+    loading: loadingTransactions,
+  } = useFetchTransactions();
   const { categories } = useFetchCategories();
   const { paymentMethods } = useFetchPaymentMethods();
   const [drawerState, setDrawerState] = React.useReducer(
     FormDrawerReducer,
     generateInitialFormDrawerState()
   );
-  const [uploadedFiles, setUploadedFiles] = React.useState<TFile[]>([]);
+  const [uploadedFiles, setUploadedFiles] = React.useState<
+    (File & { buffer?: string | ArrayBuffer | null })[]
+  >([]);
   const [form, setForm] = React.useState<Record<string, string | number | Date>>({
     date: new Date(),
   });
 
-  // const uploadedFilePreview: (File & { buffer: string | ArrayBuffer | null })[] =
-  //   React.useMemo(() => {
-  //     let files: (File & { buffer: string | ArrayBuffer | null })[] = [];
-  //     uploadedFiles.forEach((file) => {
-  //       const reader = new FileReader();
-  //       reader.onloadend = () => {
-  //         files.push({
-  //           ...file,
-  //           buffer: reader.result,
-  //         });
-  //       };
-  //       reader.readAsDataURL(file);
-  //     });
-  //     return files;
-  //   }, [uploadedFiles]);
+  const attachedTransactionFiles: TTransactionFile[] = React.useMemo(() => {
+    if (loadingTransactions || !payload) return [];
+    const transaction = transactions.find(
+      (transaction) => transaction.id === payload.transactionId
+    );
+    return transaction?.attachedFiles ?? [];
+  }, [loadingTransactions, transactions, payload]);
 
   const handler: IEditTransactionDrawerHandler = {
     onClose() {
@@ -114,9 +118,6 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
           ...form,
           transactionId: payload.transactionId,
           transferAmount: transformBalance(String(form.transferAmount)),
-          attachedFiles: uploadedFiles.map((file) =>
-            TransactionService.transformTFileToCreatePayload(file, authOptions)
-          ),
         });
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
         const requestPayload: TUpdateTransactionPayload = parsedForm.data;
@@ -133,10 +134,32 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
           return;
         }
 
+        let uploadedFileCount = 0;
+        if (uploadedFiles.length > 0) {
+          const [remoteUploadedFiles, uploadError] = await FileService.attachFilesToTransaction(
+            payload.transactionId,
+            uploadedFiles.map((file) => {
+              delete file.buffer;
+              return file;
+            }),
+            authOptions
+          );
+          if (uploadError) {
+            return showSnackbar({ message: uploadError.message });
+          }
+          uploadedFileCount = remoteUploadedFiles.length;
+        }
+
         setDrawerState({ type: 'SUCCESS' });
         handler.onClose();
         React.startTransition(() => {
-          refreshTransactions();
+          refreshTransactions().then(() => {
+            showSnackbar({
+              message: `${uploadedFileCount} ${uploadedFileCount > 1 ? 'files' : 'file'} ${
+                uploadedFileCount > 1 ? "we're" : 'was'
+              } uploaded!`,
+            });
+          });
         });
         showSnackbar({ message: `Saved the applied changes` });
       } catch (error) {
@@ -145,17 +168,40 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
       }
     },
     async onFileUpload(files) {
+      if (!payload) return;
       const filesArray = Array.from(files);
-      if (filesArray.length > 4) {
-        return showSnackbar({ message: 'You can only upload 4 files at once' });
+      const uploadLimit = 4;
+      if (filesArray.length > uploadLimit) {
+        return showSnackbar({ message: `You can only upload ${uploadLimit} files at once` });
       }
 
-      const [remotelyUploadedFiles, error] = await FileService.upload(filesArray, authOptions);
-      if (error) {
-        console.error(error);
-        return showSnackbar({ message: error.message || "'Failed to upload files'" });
+      const acceptedFiles = filesArray.filter((file) =>
+        AppConfig.allowedFileTypes.includes(file.type)
+      );
+
+      if (acceptedFiles.length !== filesArray.length) {
+        const blockedAmount = filesArray.length - acceptedFiles.length;
+        return showSnackbar({
+          message: `Only images are allowed! ${blockedAmount} ${
+            blockedAmount > 1 ? 'files' : 'file'
+          } ${blockedAmount > 1 ? "we're" : 'was'} blocked!`,
+        });
       }
-      setUploadedFiles(remotelyUploadedFiles ?? []);
+
+      acceptedFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const url = reader.result?.toString() ?? '';
+          // @ts-ignore
+          file['buffer'] = url;
+          console.log(file);
+          setUploadedFiles((prev) => [...prev, file]);
+        };
+
+        if (file) {
+          reader.readAsDataURL(file);
+        }
+      });
     },
   };
 
@@ -173,7 +219,6 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
     });
     return () => {
       setForm({});
-      setUploadedFiles([]);
     };
   }, [payload]);
 
@@ -275,49 +320,45 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
         defaultValue={payload?.description ?? ''}
       />
 
-      {/* upload */}
       <Grid container spacing={2} columns={10}>
-        <Grid item xs={2}>
-          <FileUpload sx={{ width: '100%' }} onFileUpload={handler.onFileUpload} multiple />
+        <Grid item xs={12}>
+          <Alert severity="warning">
+            Currently, uploaded files cannot be deleted. Please only upload files that you want to
+            keep.
+          </Alert>
         </Grid>
-        {uploadedFiles.map((file, index) => (
-          <Grid item key={index} xs={2}>
-            <Avatar
-              key={index}
-              variant="rounded"
-              alt={'Image ' + file.name}
-              src={FileService.getFilePreviewUrl(file, authOptions)}
-              sx={{
-                width: '100%',
-                height: 'auto',
-                aspectRatio: '1/1',
-                border: (theme) => `2px solid ${theme.palette.primary.main}`,
-              }}
+
+        <Grid item xs={2}>
+          <FileUpload
+            sx={{ width: '100%' }}
+            onFileUpload={handler.onFileUpload}
+            accept="image/*"
+            multiple
+          />
+        </Grid>
+        {attachedTransactionFiles.map((file) => (
+          <Grid item key={file.uuid} xs={2}>
+            <FileUploadPreview
+              {...file}
+              buffer={null}
+              location={FileService.getAuthentificatedFileLink(file.location, authOptions)}
             />
           </Grid>
         ))}
 
-        {/* {uploadedFilePreview.map((file, index) => (
+        {uploadedFiles.map((file, index) => (
           <Grid item key={index} xs={2}>
-            <Avatar
-              key={index}
-              variant="rounded"
-              alt={'Image ' + file.name}
-              src={file.buffer ? String(file.buffer) : undefined}
-              sx={{
-                width: '100%',
-                height: 'auto',
-                aspectRatio: '1/1',
-                border: (theme) => `2px solid ${theme.palette.primary.main}`,
-                // ':hover': {
-                //   zIndex: 1,
-                //   transform: 'scale(1.1)',
-                //   transition: 'transform 0.2s ease-in-out',
-                // },
+            <FileUploadPreview
+              fileName={file.name}
+              fileSize={file.size}
+              mimeType={file.type}
+              buffer={file.buffer as string}
+              onDelete={(f) => {
+                setUploadedFiles((prev) => prev.filter((pf) => pf.name !== f.fileName));
               }}
             />
           </Grid>
-        ))} */}
+        ))}
       </Grid>
     </FormDrawer>
   );

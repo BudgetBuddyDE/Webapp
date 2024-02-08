@@ -1,4 +1,12 @@
-import { type TTransactionFile, type TApiResponse, type TFile } from '@budgetbuddyde/types';
+import { z } from 'zod';
+import {
+  type TTransactionFile,
+  type TApiResponse,
+  type TFile,
+  type TTransaction,
+  type TServiceResponse,
+  ZTransactionFile,
+} from '@budgetbuddyde/types';
 import { prepareRequestOptions } from '@/utils';
 import { type IAuthContext } from '@/core/Auth';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
@@ -6,15 +14,19 @@ import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 export class FileService {
   private static host = isRunningInProdEnv() ? (process.env.FILE_SERVICE_HOST as string) : '/file';
   // private static host = '/file';
+  // private static host = 'http://localhost:8090';
 
   static getFileUrl(file: TFile, { uuid }: IAuthContext['authOptions']): string {
     return `${this.host}/static/${uuid}/${file.name}`;
   }
 
-  static getFilePreviewUrl(file: TFile, { uuid, password }: IAuthContext['authOptions']): string {
+  static getAuthentificatedFileLink(
+    fileUrl: string,
+    { uuid, password }: IAuthContext['authOptions']
+  ) {
     const query = new URLSearchParams();
     query.append('bearer', `${uuid}.${password}`);
-    return `${this.getFileUrl(file, { uuid, password })}?${query.toString()}`;
+    return `${fileUrl}?${query.toString()}`;
   }
 
   static transformTransactionFileToTFile(transactionFile: TTransactionFile): TFile {
@@ -41,6 +53,38 @@ export class FileService {
   //     return [null, error as Error];
   //   }
   // }
+
+  static async attachFilesToTransaction(
+    transactionId: TTransaction['id'],
+    files: File[],
+    user: IAuthContext['authOptions']
+  ): Promise<TServiceResponse<TTransactionFile[]>> {
+    if (files.length === 0) return [null, new Error('No files to upload')];
+    const query = new URLSearchParams();
+    query.append('transactionId', transactionId.toString());
+    const formData = new FormData();
+    files.forEach((file) => formData.append('files', file, file.name));
+    try {
+      const requestOptions = prepareRequestOptions(user);
+      const requestHeaders = new Headers(requestOptions.headers);
+      if (requestHeaders.has('Content-Type')) requestHeaders.delete('Content-Type');
+      const response = await fetch(`${this.host}/transaction/upload?${query.toString()}`, {
+        method: 'POST',
+        body: formData,
+        headers: requestHeaders,
+      });
+      const json = (await response.json()) as TApiResponse<TFile[]>;
+      if (json.status !== 200) return [null, new Error(json.message!)];
+
+      const parsingResult = z.array(ZTransactionFile).safeParse(json.data);
+      console.log(json.data);
+      if (!parsingResult.success) return [null, new Error(parsingResult.error.message)];
+      return [parsingResult.data, null];
+    } catch (error) {
+      console.error(error);
+      return [null, error as Error];
+    }
+  }
 
   static async upload(
     files: File[],

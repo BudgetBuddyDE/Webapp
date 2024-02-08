@@ -11,9 +11,9 @@ import {
   ZDailyTransaction,
   type TDeleteTransactionResponsePayload,
   ZDeleteTransactionResponsePayload,
-  TTransactionFile,
-  TFile,
-  TCreateTransactionFilePayload,
+  type TTransactionFile,
+  type TFile,
+  type TCreateTransactionFilePayload,
 } from '@budgetbuddyde/types';
 import { format, isSameMonth, subDays } from 'date-fns';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
@@ -278,7 +278,6 @@ export class TransactionService {
       transferAmount: transaction.transferAmount,
       processedAt: transaction.processedAt,
       description: transaction.description,
-      attachedFiles: transaction.attachedFiles.map(this.transformTransactionFileToCreatePayload),
     };
   }
 
@@ -288,9 +287,11 @@ export class TransactionService {
    * @returns The payload for creating a transaction file.
    */
   static transformTransactionFileToCreatePayload(
-    file: TTransactionFile
+    file: TTransactionFile,
+    transactionId: TTransaction['id']
   ): TCreateTransactionFilePayload {
     return {
+      transactionId,
       fileName: file.fileName,
       fileSize: file.fileSize,
       mimeType: file.mimeType,
@@ -305,9 +306,11 @@ export class TransactionService {
    */
   static transformTFileToCreatePayload(
     file: TFile,
+    transactionId: TTransaction['id'],
     user: IAuthContext['authOptions']
   ): TCreateTransactionFilePayload {
     return {
+      transactionId,
       fileName: file.name,
       fileSize: file.size,
       mimeType: file.type,
