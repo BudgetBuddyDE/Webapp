@@ -219,6 +219,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
     });
     return () => {
       setForm({});
+      setUploadedFiles([]);
     };
   }, [payload]);
 
