@@ -11,6 +11,12 @@ import { prepareRequestOptions } from '@/utils';
 import { type IAuthContext } from '@/core/Auth';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 
+const ZDetachResponse = z.object({
+  path: z.string(),
+  files: z.array(ZTransactionFile),
+});
+export type TDetachResponse = z.infer<typeof ZDetachResponse>;
+
 export class FileService {
   private static host = isRunningInProdEnv() ? (process.env.FILE_SERVICE_HOST as string) : '/file';
   private static serviceUrl = process.env.FILE_SERVICE_HOST;
@@ -38,20 +44,6 @@ export class FileService {
       last_edited_at: transactionFile.createdAt,
     };
   }
-
-  // static async checkStatus(
-  //   user: IAuthContext['authOptions']
-  // ): Promise<[Boolean | null, Error | null]> {
-  //   try {
-  //     const response = await fetch(this.host + `/status`, {
-  //       ...prepareRequestOptions(user),
-  //     });
-  //     return [response.status === 200 || response.status === 401, null];
-  //   } catch (error) {
-  //     console.error(error);
-  //     return [null, error as Error];
-  //   }
-  // }
 
   static async attachFilesToTransaction(
     transactionId: TTransaction['id'],
@@ -84,29 +76,28 @@ export class FileService {
     }
   }
 
-  static async upload(
-    files: File[],
+  static async detachFilesFromTransaction(
+    transactionId: TTransaction['id'],
+    files: TTransactionFile['uuid'][],
     user: IAuthContext['authOptions']
-  ): Promise<[TFile[] | null, Error | null]> {
+  ): Promise<TServiceResponse<TDetachResponse>> {
     try {
-      if (files.length === 0) return [null, new Error('No files to upload')];
-      const formData = new FormData();
-      files.forEach((file) => {
-        formData.append('files', file);
-      });
+      const query = new URLSearchParams();
+      query.append('transactionId', transactionId.toString());
+      files.forEach((file) => query.append('files', file));
 
-      const requestOptions = prepareRequestOptions(user);
-      const requestHeaders = new Headers(requestOptions.headers);
-      if (requestHeaders.has('Content-Type')) requestHeaders.delete('Content-Type');
-      const response = await fetch(this.host + `/upload`, {
-        method: 'POST',
-        body: formData,
-        ...requestOptions,
-        headers: requestHeaders,
+      const response = await fetch(`${this.host}/transaction/delete?${query.toString()}`, {
+        method: 'DELETE',
+        headers: {
+          ...prepareRequestOptions(user).headers,
+        },
       });
-      const json = (await response.json()) as TApiResponse<TFile[]>;
+      const json = (await response.json()) as TApiResponse<{ path: string; files: TFile[] }>;
       if (json.status !== 200) return [null, new Error(json.message!)];
-      return [json.data, null];
+
+      const parsingResult = ZDetachResponse.safeParse(json.data);
+      if (!parsingResult.success) return [null, new Error(parsingResult.error.message)];
+      return [parsingResult.data, null];
     } catch (error) {
       console.error(error);
       return [null, error as Error];

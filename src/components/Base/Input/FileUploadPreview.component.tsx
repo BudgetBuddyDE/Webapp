@@ -4,6 +4,7 @@ import { type TTransactionFile } from '@budgetbuddyde/types';
 import { DeleteRounded } from '@mui/icons-material';
 
 export type TFileUploadPreview = Pick<TTransactionFile, 'fileName' | 'fileSize' | 'mimeType'> & {
+  uuid?: TTransactionFile['uuid'];
   location?: TTransactionFile['location'];
   buffer: string | ArrayBuffer | null;
 };
@@ -14,6 +15,7 @@ export type TFileUploadPreviewProps = TFileUploadPreview &
   };
 
 export const FileUploadPreview: React.FC<TFileUploadPreviewProps> = ({
+  uuid,
   fileName,
   fileSize,
   mimeType,
@@ -51,7 +53,7 @@ export const FileUploadPreview: React.FC<TFileUploadPreviewProps> = ({
         <PreviewImage />
         <IconButton
           aria-label="delete"
-          onClick={() => onDelete({ fileName, fileSize, mimeType, buffer, location })}
+          onClick={() => onDelete({ uuid, fileName, fileSize, mimeType, buffer, location })}
           sx={{
             position: 'absolute',
             inset: 0,

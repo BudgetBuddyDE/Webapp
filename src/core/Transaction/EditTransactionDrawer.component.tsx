@@ -1,7 +1,6 @@
 import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@/components/Drawer';
 import { type TEntityDrawerState, useScreenSize } from '@/hooks';
 import {
-  Alert,
   Box,
   FormControl,
   Grid,
@@ -77,6 +76,9 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
   const [uploadedFiles, setUploadedFiles] = React.useState<
     (File & { buffer?: string | ArrayBuffer | null })[]
   >([]);
+  const [forDelectionMarkedFiles, setForDeleteMarkedFiles] = React.useState<
+    TTransactionFile['uuid'][]
+  >([]);
   const [form, setForm] = React.useState<Record<string, string | number | Date>>({
     date: new Date(),
   });
@@ -86,8 +88,12 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
     const transaction = transactions.find(
       (transaction) => transaction.id === payload.transactionId
     );
-    return transaction?.attachedFiles ?? [];
-  }, [loadingTransactions, transactions, payload]);
+    return (
+      (transaction?.attachedFiles.filter(
+        (file) => !forDelectionMarkedFiles.includes(file.uuid)
+      ) as TTransactionFile[]) ?? []
+    );
+  }, [loadingTransactions, transactions, payload, forDelectionMarkedFiles]);
 
   const handler: IEditTransactionDrawerHandler = {
     onClose() {
@@ -134,9 +140,8 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
           return;
         }
 
-        let uploadedFileCount = 0;
         if (uploadedFiles.length > 0) {
-          const [remoteUploadedFiles, uploadError] = await FileService.attachFilesToTransaction(
+          const [_, uploadError] = await FileService.attachFilesToTransaction(
             payload.transactionId,
             uploadedFiles.map((file) => {
               delete file.buffer;
@@ -147,19 +152,23 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
           if (uploadError) {
             return showSnackbar({ message: uploadError.message });
           }
-          uploadedFileCount = remoteUploadedFiles.length;
+        }
+
+        if (forDelectionMarkedFiles.length > 0) {
+          const [_, detachError] = await FileService.detachFilesFromTransaction(
+            payload.transactionId,
+            forDelectionMarkedFiles,
+            authOptions
+          );
+          if (detachError) {
+            return showSnackbar({ message: detachError.message });
+          }
         }
 
         setDrawerState({ type: 'SUCCESS' });
         handler.onClose();
         React.startTransition(() => {
-          refreshTransactions().then(() => {
-            showSnackbar({
-              message: `${uploadedFileCount} ${uploadedFileCount > 1 ? 'files' : 'file'} ${
-                uploadedFileCount > 1 ? "we're" : 'was'
-              } uploaded!`,
-            });
-          });
+          refreshTransactions();
         });
         showSnackbar({ message: `Saved the applied changes` });
       } catch (error) {
@@ -220,6 +229,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
     return () => {
       setForm({});
       setUploadedFiles([]);
+      setForDeleteMarkedFiles([]);
     };
   }, [payload]);
 
@@ -322,13 +332,6 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
       />
 
       <Grid container spacing={2} columns={10}>
-        <Grid item xs={12}>
-          <Alert severity="warning">
-            Currently, uploaded files cannot be deleted. Please only upload files that you want to
-            keep.
-          </Alert>
-        </Grid>
-
         <Grid item xs={2}>
           <FileUpload
             sx={{ width: '100%' }}
@@ -343,6 +346,11 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
               {...file}
               buffer={null}
               location={FileService.getAuthentificatedFileLink(file.location, authOptions)}
+              onDelete={(file) => {
+                if (file.uuid) {
+                  setForDeleteMarkedFiles((prev) => [...prev, file.uuid!]);
+                }
+              }}
             />
           </Grid>
         ))}
