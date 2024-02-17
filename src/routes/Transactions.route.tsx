@@ -24,6 +24,7 @@ import {
   type TCreateTransactionPayload,
   type TUpdateTransactionPayload,
   type TTransaction,
+  type TTransactionFile,
 } from '@budgetbuddyde/types';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { SearchInput } from '@/components/Base/Search';
@@ -39,6 +40,7 @@ import { PaymentMethodChip } from '@/core/PaymentMethod';
 import { type ISelectionHandler } from '@/components/Base/Select';
 import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
 import { FileService } from '@/services/File.service';
+import { ImageViewDialog } from '@/components/ImageViewDialog.component';
 
 interface ITransactionsHandler {
   onSearch: (keyword: string) => void;
@@ -72,6 +74,11 @@ export const Transactions = () => {
   const displayedTransactions: TTransaction[] = React.useMemo(() => {
     return filterTransactions(keyword, filters, transactions);
   }, [transactions, keyword, filters]);
+
+  const [imageDialog, setImageDialog] = React.useState<{
+    open: boolean;
+    image: TTransactionFile | null;
+  }>({ open: false, image: null });
 
   const handler: ITransactionsHandler = {
     onSearch(keyword) {
@@ -194,12 +201,26 @@ export const Transactions = () => {
                       alt={file.fileName}
                       src={FileService.getAuthentificatedFileLink(file.location, authOptions)}
                       sx={{
+                        backgroundColor: (theme) => theme.palette.background.default,
                         ':hover': {
                           zIndex: 1,
                           transform: 'scale(1.1)',
                           transition: 'transform 0.2s ease-in-out',
+                          cursor: 'pointer',
                         },
                       }}
+                      onClick={() =>
+                        setImageDialog({
+                          open: true,
+                          image: {
+                            ...file,
+                            location: FileService.getAuthentificatedFileLink(
+                              file.location,
+                              authOptions
+                            ),
+                          },
+                        })
+                      }
                     />
                   ))}
                 </AvatarGroup>
@@ -278,6 +299,15 @@ export const Transactions = () => {
         <OpenFilterDrawerFab />
         <AddFab onClick={() => dispatchCreateDrawer({ type: 'open' })} />
       </FabContainer>
+
+      <ImageViewDialog
+        dialogProps={{
+          open: imageDialog.open,
+          onClose: () => setImageDialog({ open: false, image: null }),
+        }}
+        image={imageDialog.image}
+        withTransition
+      />
     </ContentGrid>
   );
 };
