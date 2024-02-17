@@ -141,14 +141,6 @@ export const PaymentMethods = () => {
           subtitle="Manage your payment methods"
           data={displayedPaymentMethods}
           headerCells={['Name', 'Address', 'Provider', 'Description', '']}
-          renderHeaderCell={(headerCell) => (
-            <TableCell
-              key={headerCell.replaceAll(' ', '_').toLowerCase()}
-              size={AppConfig.table.cellSize}
-            >
-              <Typography fontWeight="bolder">{headerCell}</Typography>
-            </TableCell>
-          )}
           renderRow={(paymentMethod) => (
             <TableRow
               key={paymentMethod.id}

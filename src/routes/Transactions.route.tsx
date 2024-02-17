@@ -145,14 +145,6 @@ export const Transactions = () => {
             'Attached Files',
             '',
           ]}
-          renderHeaderCell={(headerCell) => (
-            <TableCell
-              key={headerCell.replaceAll(' ', '_').toLowerCase()}
-              size={AppConfig.table.cellSize}
-            >
-              <Typography fontWeight="bolder">{headerCell}</Typography>
-            </TableCell>
-          )}
           renderRow={(transaction) => (
             <TableRow
               key={transaction.id}

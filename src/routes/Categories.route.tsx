@@ -21,7 +21,7 @@ import { useSnackbarContext } from '@/core/Snackbar';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import type { TCategory } from '@budgetbuddyde/types';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
-import { Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
+import { Checkbox, Grid, IconButton, TableCell, TableRow } from '@mui/material';
 import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -143,14 +143,6 @@ export const Categories = () => {
           subtitle="Manage your categories"
           data={displayedCategories}
           headerCells={['Name', 'Description', '']}
-          renderHeaderCell={(headerCell) => (
-            <TableCell
-              key={headerCell.replaceAll(' ', '_').toLowerCase()}
-              size={AppConfig.table.cellSize}
-            >
-              <Typography fontWeight="bolder">{headerCell}</Typography>
-            </TableCell>
-          )}
           renderRow={(category) => (
             <TableRow
               key={category.id}

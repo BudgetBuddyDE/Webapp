@@ -191,14 +191,6 @@ export const Subscriptions = () => {
             'Information',
             '',
           ]}
-          renderHeaderCell={(headerCell) => (
-            <TableCell
-              key={headerCell.replaceAll(' ', '_').toLowerCase()}
-              size={AppConfig.table.cellSize}
-            >
-              <Typography fontWeight="bolder">{headerCell}</Typography>
-            </TableCell>
-          )}
           renderRow={(subscription) => (
             <TableRow
               key={subscription.id}

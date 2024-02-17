@@ -21,6 +21,7 @@ import { TableContainer } from './TableContainer.component';
 import { CircularProgress } from '@/components/Loading';
 import { type ISelectionHandler, SelectAll } from '../Select';
 import { DeleteRounded } from '@mui/icons-material';
+import { AppConfig } from '@/app.config';
 
 export type TTableProps<T> = {
   title?: string;
@@ -148,7 +149,11 @@ export const Table = <T,>({
                     renderHeaderCell ? (
                       renderHeaderCell(headerCell)
                     ) : (
-                      <TableCell key={headerCell.replaceAll(' ', '_').toLowerCase()}>
+                      <TableCell
+                        key={headerCell.replaceAll(' ', '_').toLowerCase()}
+                        size={AppConfig.table.cellSize}
+                        sx={{ whiteSpace: 'nowrap' }}
+                      >
                         <Typography fontWeight={'bold'}>{headerCell}</Typography>
                       </TableCell>
                     )
