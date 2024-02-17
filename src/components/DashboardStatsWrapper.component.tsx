@@ -74,7 +74,7 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
         value: formatBalance(fetchedStats.expenses),
         valueInformation:
           fetchedStats.upcoming_expenses > 0
-            ? `Anstehend ${formatBalance(fetchedStats.upcoming_expenses)}`
+            ? `Upcoming ${formatBalance(fetchedStats.upcoming_expenses)}`
             : undefined,
       },
       {

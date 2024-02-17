@@ -12,14 +12,13 @@
     "prepare": "node .husky/install.mjs"
   },
   "dependencies": {
-    "@budgetbuddyde/types": "^1.0.6",
+    "@budgetbuddyde/types": "^1.0.15",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.15",
     "@mui/material": "^5.14.15",
     "@mui/x-date-pickers": "^5.0.0-beta.4",
     "@testing-library/react": "^14.1.0",
-    "@vercel/analytics": "^1.1.1",
     "@vercel/speed-insights": "^1.0.1",
     "@visx/axis": "^3.5.0",
     "@visx/group": "^3.3.0",

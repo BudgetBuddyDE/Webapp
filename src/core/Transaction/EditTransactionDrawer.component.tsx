@@ -1,8 +1,9 @@
 import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@/components/Drawer';
-import { useScreenSize } from '@/hooks';
+import { type TEntityDrawerState, useScreenSize } from '@/hooks';
 import {
   Box,
   FormControl,
+  Grid,
   InputAdornment,
   InputLabel,
   OutlinedInput,
@@ -16,20 +17,27 @@ import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { TransactionService, useFetchTransactions } from '.';
 import { CategoryAutocomplete, getCategoryFromList, useFetchCategories } from '../Category';
-import { ReceiverAutocomplete } from '@/components/Base';
+import {
+  FileUpload,
+  FileUploadPreview,
+  ReceiverAutocomplete,
+  type TFileUploadProps,
+} from '@/components/Base';
 import {
   PaymentMethodAutocomplete,
   getPaymentMethodFromList,
   useFetchPaymentMethods,
 } from '../PaymentMethod';
 import {
-  ZUpdateTransactionPayload,
-  type TTransaction,
   type TUpdateTransactionPayload,
+  type TTransactionFile,
+  ZUpdateTransactionPayload,
 } from '@budgetbuddyde/types';
-import { transformBalance } from '@/utils/transformBalance.util';
+import { FileService } from '@/services/File.service';
+import { AppConfig } from '@/app.config';
+import { transformBalance } from '@/utils';
 
-interface IEditTransactionDrawerHandler {
+interface IEditTransactionDrawerHandler extends Pick<TFileUploadProps, 'onFileUpload'> {
   onClose: () => void;
   onDateChange: (date: Date | null) => void;
   onAutocompleteChange: (
@@ -43,33 +51,53 @@ interface IEditTransactionDrawerHandler {
 }
 
 export type TEditTransactionDrawerProps = {
-  open: boolean;
-  onChangeOpen: (isOpen: boolean) => void;
-  transaction: TTransaction | null;
-};
+  onClose: () => void;
+} & TEntityDrawerState<TUpdateTransactionPayload>;
 
 export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
-  open,
-  onChangeOpen,
-  transaction,
+  shown,
+  payload,
+  onClose,
 }) => {
   const screenSize = useScreenSize();
   const { session, authOptions } = useAuthContext();
   const { showSnackbar } = useSnackbarContext();
-  const { refresh: refreshTransactions, transactions } = useFetchTransactions();
+  const {
+    refresh: refreshTransactions,
+    transactions,
+    loading: loadingTransactions,
+  } = useFetchTransactions();
   const { categories } = useFetchCategories();
   const { paymentMethods } = useFetchPaymentMethods();
   const [drawerState, setDrawerState] = React.useReducer(
     FormDrawerReducer,
     generateInitialFormDrawerState()
   );
+  const [uploadedFiles, setUploadedFiles] = React.useState<
+    (File & { buffer?: string | ArrayBuffer | null })[]
+  >([]);
+  const [forDelectionMarkedFiles, setForDeleteMarkedFiles] = React.useState<
+    TTransactionFile['uuid'][]
+  >([]);
   const [form, setForm] = React.useState<Record<string, string | number | Date>>({
     date: new Date(),
   });
 
+  const attachedTransactionFiles: TTransactionFile[] = React.useMemo(() => {
+    if (loadingTransactions || !payload) return [];
+    const transaction = transactions.find(
+      (transaction) => transaction.id === payload.transactionId
+    );
+    return (
+      (transaction?.attachedFiles.filter(
+        (file) => !forDelectionMarkedFiles.includes(file.uuid)
+      ) as TTransactionFile[]) ?? []
+    );
+  }, [loadingTransactions, transactions, payload, forDelectionMarkedFiles]);
+
   const handler: IEditTransactionDrawerHandler = {
     onClose() {
-      onChangeOpen(false);
+      onClose();
       setForm({ processedAt: new Date() });
       setDrawerState({ type: 'RESET' });
     },
@@ -88,21 +116,21 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      if (!session || !transaction) return;
+      if (!session || !payload) return;
       setDrawerState({ type: 'SUBMIT' });
 
       try {
         const parsedForm = ZUpdateTransactionPayload.safeParse({
           ...form,
-          transactionId: transaction.id,
+          transactionId: payload.transactionId,
           transferAmount: transformBalance(String(form.transferAmount)),
         });
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
-        const payload: TUpdateTransactionPayload = parsedForm.data;
-
-        console.log(payload);
-
-        const [updatedTransaction, error] = await TransactionService.update(payload, authOptions);
+        const requestPayload: TUpdateTransactionPayload = parsedForm.data;
+        const [updatedTransaction, error] = await TransactionService.update(
+          requestPayload,
+          authOptions
+        );
         if (error) {
           setDrawerState({ type: 'ERROR', error: error });
           return;
@@ -112,37 +140,105 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
           return;
         }
 
+        if (uploadedFiles.length > 0) {
+          const [_, uploadError] = await FileService.attachFilesToTransaction(
+            payload.transactionId,
+            uploadedFiles.map((file) => {
+              delete file.buffer;
+              return file;
+            }),
+            authOptions
+          );
+          if (uploadError) {
+            return showSnackbar({ message: uploadError.message });
+          }
+        }
+
+        if (forDelectionMarkedFiles.length > 0) {
+          const [_, detachError] = await FileService.detachFilesFromTransaction(
+            payload.transactionId,
+            forDelectionMarkedFiles,
+            authOptions
+          );
+          if (detachError) {
+            return showSnackbar({ message: detachError.message });
+          }
+        }
+
         setDrawerState({ type: 'SUCCESS' });
         handler.onClose();
-        refreshTransactions(); // FIXME: Wrap inside startTransition
+        React.startTransition(() => {
+          refreshTransactions();
+        });
         showSnackbar({ message: `Saved the applied changes` });
       } catch (error) {
         console.error(error);
         setDrawerState({ type: 'ERROR', error: error as Error });
       }
     },
+    async onFileUpload(files) {
+      if (!payload) return;
+      const filesArray = Array.from(files);
+      const uploadLimit = 4;
+      if (filesArray.length > uploadLimit) {
+        return showSnackbar({ message: `You can only upload ${uploadLimit} files at once` });
+      }
+
+      const acceptedFiles = filesArray.filter((file) =>
+        AppConfig.allowedFileTypes.includes(file.type)
+      );
+
+      if (acceptedFiles.length !== filesArray.length) {
+        const blockedAmount = filesArray.length - acceptedFiles.length;
+        return showSnackbar({
+          message: `Only images are allowed! ${blockedAmount} ${
+            blockedAmount > 1 ? 'files' : 'file'
+          } ${blockedAmount > 1 ? "we're" : 'was'} blocked!`,
+        });
+      }
+
+      acceptedFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const url = reader.result?.toString() ?? '';
+          // @ts-ignore
+          file['buffer'] = url;
+          console.log(file);
+          setUploadedFiles((prev) => [...prev, file]);
+        };
+
+        if (file) {
+          reader.readAsDataURL(file);
+        }
+      });
+    },
   };
 
-  React.useEffect(() => {
-    if (!transaction) return setForm({ processedAt: new Date() });
-    const { processedAt, receiver, category, paymentMethod, transferAmount, description } =
-      transaction;
+  React.useLayoutEffect(() => {
+    if (!payload) return setForm({ processedAt: new Date() });
+    const { categoryId, description, paymentMethodId, processedAt, receiver, transferAmount } =
+      payload;
     setForm({
       processedAt: processedAt,
       receiver: receiver,
-      categoryId: category.id,
-      paymentMethodId: paymentMethod.id,
+      categoryId: categoryId,
+      paymentMethodId: paymentMethodId,
       transferAmount: transferAmount,
       description: description ?? '',
     });
-  }, [transaction]);
+    return () => {
+      setForm({});
+      setUploadedFiles([]);
+      setForDeleteMarkedFiles([]);
+    };
+  }, [payload]);
 
   return (
     <FormDrawer
       state={drawerState}
-      open={open}
+      open={shown}
       onSubmit={handler.onFormSubmit}
-      heading="Create Transaction"
+      heading="Update Transaction"
       onClose={handler.onClose}
       closeOnBackdropClick
     >
@@ -178,9 +274,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
           onChange={(event, value) =>
             handler.onAutocompleteChange(event, 'categoryId', Number(value?.value))
           }
-          defaultValue={
-            transaction ? getCategoryFromList(transaction.category.id, categories) : undefined
-          }
+          defaultValue={payload ? getCategoryFromList(payload.categoryId, categories) : undefined}
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
           required
         />
@@ -190,9 +284,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
             handler.onAutocompleteChange(event, 'paymentMethodId', Number(value?.value))
           }
           defaultValue={
-            transaction
-              ? getPaymentMethodFromList(transaction.paymentMethod.id, paymentMethods)
-              : undefined
+            payload ? getPaymentMethodFromList(payload.paymentMethodId, paymentMethods) : undefined
           }
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
           required
@@ -207,7 +299,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
           label: receiver,
           value: receiver,
         }))}
-        defaultValue={transaction?.receiver}
+        defaultValue={payload?.receiver}
         onValueChange={(value) => handler.onReceiverChange(String(value))}
         required
       />
@@ -221,7 +313,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
           inputProps={{ inputMode: 'numeric' }}
           onChange={handler.onInputChange}
           value={form.transferAmount}
-          defaultValue={transaction?.transferAmount}
+          defaultValue={payload?.transferAmount}
           startAdornment={<InputAdornment position="start">€</InputAdornment>}
         />
       </FormControl>
@@ -231,13 +323,52 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
         variant="outlined"
         label="Description"
         name="description"
-        sx={{ ...FormStyle, mb: 0 }}
+        sx={FormStyle}
         multiline
         rows={2}
         onChange={handler.onInputChange}
         value={form.description}
-        defaultValue={transaction?.description ?? ''}
+        defaultValue={payload?.description ?? ''}
       />
+
+      <Grid container spacing={2} columns={10}>
+        <Grid item xs={2}>
+          <FileUpload
+            sx={{ width: '100%' }}
+            onFileUpload={handler.onFileUpload}
+            accept="image/*"
+            multiple
+          />
+        </Grid>
+        {attachedTransactionFiles.map((file) => (
+          <Grid item key={file.uuid} xs={2}>
+            <FileUploadPreview
+              {...file}
+              buffer={null}
+              location={FileService.getAuthentificatedFileLink(file.location, authOptions)}
+              onDelete={(file) => {
+                if (file.uuid) {
+                  setForDeleteMarkedFiles((prev) => [...prev, file.uuid!]);
+                }
+              }}
+            />
+          </Grid>
+        ))}
+
+        {uploadedFiles.map((file, index) => (
+          <Grid item key={index} xs={2}>
+            <FileUploadPreview
+              fileName={file.name}
+              fileSize={file.size}
+              mimeType={file.type}
+              buffer={file.buffer as string}
+              onDelete={(f) => {
+                setUploadedFiles((prev) => prev.filter((pf) => pf.name !== f.fileName));
+              }}
+            />
+          </Grid>
+        ))}
+      </Grid>
     </FormDrawer>
   );
 };

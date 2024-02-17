@@ -10,9 +10,9 @@ import {
   type TDeleteSubscriptionResponsePayload,
   ZDeleteSubscriptionResponsePayload,
 } from '@budgetbuddyde/types';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { determineNextExecutionDate, prepareRequestOptions } from '@/utils';
-import { IAuthContext } from '../Auth';
+import { type IAuthContext } from '../Auth';
+import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 
 export class SubscriptionService {
   private static host =
@@ -171,5 +171,23 @@ export class SubscriptionService {
         type === 'INCOME' ? transferAmount > 0 : transferAmount < 0
       )
     );
+  }
+
+  /**
+   * Converts a subscription object to an update payload object.
+   * @param subscription - The subscription object to be converted.
+   * @returns The update payload object.
+   */
+  static toUpdatePayload(subscription: TSubscription): TUpdateSubscriptionPayload {
+    return {
+      subscriptionId: subscription.id,
+      paused: subscription.paused,
+      executeAt: subscription.executeAt,
+      receiver: subscription.receiver,
+      categoryId: subscription.category.id,
+      paymentMethodId: subscription.paymentMethod.id,
+      transferAmount: subscription.transferAmount,
+      description: subscription.description,
+    };
   }
 }

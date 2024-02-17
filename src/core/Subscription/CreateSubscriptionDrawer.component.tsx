@@ -1,5 +1,5 @@
 import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@/components/Drawer';
-import { useScreenSize } from '@/hooks';
+import { type TEntityDrawerState, useScreenSize } from '@/hooks';
 import {
   Box,
   FormControl,
@@ -18,7 +18,7 @@ import { CategoryAutocomplete } from '../Category';
 import { ReceiverAutocomplete } from '@/components/Base';
 import { PaymentMethodAutocomplete } from '../PaymentMethod';
 import { ZCreateSubcriptionPayload, type TCreateSubscriptionPayload } from '@budgetbuddyde/types';
-import { transformBalance } from '@/utils';
+import { determineNextExecutionDate, transformBalance } from '@/utils';
 import { SubscriptionService, useFetchSubscriptions } from '.';
 import { TransactionService, useFetchTransactions } from '../Transaction';
 
@@ -36,13 +36,13 @@ interface ICreateSubscriptionDrawerHandler {
 }
 
 export type TCreateSubscriptionDrawerProps = {
-  open: boolean;
-  onChangeOpen: (isOpen: boolean) => void;
-};
+  onClose: () => void;
+} & TEntityDrawerState<TCreateSubscriptionPayload>;
 
 export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> = ({
-  open,
-  onChangeOpen,
+  shown,
+  payload,
+  onClose,
 }) => {
   const screenSize = useScreenSize();
   const { session, authOptions } = useAuthContext();
@@ -59,7 +59,7 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
 
   const handler: ICreateSubscriptionDrawerHandler = {
     onClose() {
-      onChangeOpen(false);
+      onClose();
       setForm({ executeAt: new Date() });
       setDrawerState({ type: 'RESET' });
     },
@@ -89,9 +89,12 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
           transferAmount: transformBalance(String(form.transferAmount)),
         });
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
-        const payload: TCreateSubscriptionPayload = parsedForm.data;
+        const requestPayload: TCreateSubscriptionPayload = parsedForm.data;
 
-        const [createdSubscription, error] = await SubscriptionService.create(payload, authOptions);
+        const [createdSubscription, error] = await SubscriptionService.create(
+          requestPayload,
+          authOptions
+        );
         if (error) {
           setDrawerState({ type: 'ERROR', error: error });
           return;
@@ -103,7 +106,9 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
 
         setDrawerState({ type: 'SUCCESS' });
         handler.onClose();
-        refreshSubscriptions(); // FIXME: Wrap inside startTransition
+        React.startTransition(() => {
+          refreshSubscriptions();
+        });
         showSnackbar({ message: `Subscription created` });
       } catch (error) {
         console.error(error);
@@ -112,10 +117,27 @@ export const CreateSubscriptionDrawer: React.FC<TCreateSubscriptionDrawerProps> 
     },
   };
 
+  React.useLayoutEffect(() => {
+    if (!payload) return setForm({ processedAt: new Date() });
+    const { executeAt, receiver, categoryId, paymentMethodId, transferAmount, description } =
+      payload;
+    setForm({
+      executeAt: determineNextExecutionDate(executeAt),
+      receiver: receiver,
+      categoryId: categoryId,
+      paymentMethodId: paymentMethodId,
+      transferAmount: transferAmount,
+      description: description ?? '',
+    });
+    return () => {
+      setForm({});
+    };
+  }, [payload]);
+
   return (
     <FormDrawer
       state={drawerState}
-      open={open}
+      open={shown}
       onSubmit={handler.onFormSubmit}
       heading="Create Subscription"
       onClose={handler.onClose}

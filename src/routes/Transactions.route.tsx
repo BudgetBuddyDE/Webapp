@@ -10,8 +10,22 @@ import {
   TransactionService,
   useFetchTransactions,
 } from '@/core/Transaction';
-import { Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
-import { type TTransaction } from '@budgetbuddyde/types';
+import {
+  Avatar,
+  AvatarGroup,
+  Checkbox,
+  Grid,
+  IconButton,
+  TableCell,
+  TableRow,
+  Typography,
+} from '@mui/material';
+import {
+  type TCreateTransactionPayload,
+  type TUpdateTransactionPayload,
+  type TTransaction,
+  type TTransactionFile,
+} from '@budgetbuddyde/types';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { SearchInput } from '@/components/Base/Search';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
@@ -24,12 +38,15 @@ import { filterTransactions } from '@/utils/filter.util';
 import { CategoryChip } from '@/core/Category';
 import { PaymentMethodChip } from '@/core/PaymentMethod';
 import { type ISelectionHandler } from '@/components/Base/Select';
+import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
+import { FileService } from '@/services/File.service';
+import { ImageViewDialog } from '@/components/ImageViewDialog.component';
 
 interface ITransactionsHandler {
   onSearch: (keyword: string) => void;
   onTransactionDelete: (transaction: TTransaction) => void;
   onConfirmTransactionDelete: () => void;
-  onEditTransaction: (transaction: TTransaction) => void;
+  onEditTransaction: (transaction: TUpdateTransactionPayload) => void;
   selection: ISelectionHandler<TTransaction>;
 }
 
@@ -42,9 +59,14 @@ export const Transactions = () => {
     loading: loadingTransactions,
     refresh: refreshTransactions,
   } = useFetchTransactions();
-  const [showCreateTransactionDrawer, setShowCreateTransactionDrawer] = React.useState(false);
-  const [showEditTransactionDrawer, setShowEditTransactionDrawer] = React.useState(false);
-  const [editTransaction, setEditTransaction] = React.useState<TTransaction | null>(null);
+  const [showCreateDrawer, dispatchCreateDrawer] = React.useReducer(
+    useEntityDrawer<TCreateTransactionPayload>,
+    CreateEntityDrawerState<TCreateTransactionPayload>()
+  );
+  const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
+    useEntityDrawer<TUpdateTransactionPayload>,
+    CreateEntityDrawerState<TUpdateTransactionPayload>()
+  );
   const [showDeleteTransactionDialog, setShowDeleteTransactionDialog] = React.useState(false);
   const [deleteTransactions, setDeleteTransactions] = React.useState<TTransaction[]>([]);
   const [selectedTransactions, setSelectedTransactions] = React.useState<TTransaction[]>([]);
@@ -53,13 +75,17 @@ export const Transactions = () => {
     return filterTransactions(keyword, filters, transactions);
   }, [transactions, keyword, filters]);
 
+  const [imageDialog, setImageDialog] = React.useState<{
+    open: boolean;
+    image: TTransactionFile | null;
+  }>({ open: false, image: null });
+
   const handler: ITransactionsHandler = {
     onSearch(keyword) {
       setKeyword(keyword.toLowerCase());
     },
     onEditTransaction(transaction) {
-      setShowEditTransactionDrawer(true);
-      setEditTransaction(transaction);
+      dispatchEditDrawer({ type: 'open', payload: transaction });
     },
     async onConfirmTransactionDelete() {
       try {
@@ -68,16 +94,17 @@ export const Transactions = () => {
           deleteTransactions.map(({ id }) => ({ transactionId: id })),
           authOptions
         );
-        if (error) {
-          return showSnackbar({ message: error.message });
-        }
+        if (error) return showSnackbar({ message: error.message });
+
         if (!deletedItem) {
           return showSnackbar({ message: "Couldn't delete the transaction" });
         }
 
         setShowDeleteTransactionDialog(false);
         setDeleteTransactions([]);
-        refreshTransactions(); // FIXME: Wrap inside startTransition
+        React.startTransition(() => {
+          refreshTransactions();
+        });
         showSnackbar({ message: `Deleted the transaction` });
         setSelectedTransactions([]);
       } catch (error) {
@@ -122,16 +149,9 @@ export const Transactions = () => {
             'Amount',
             'Payment Method',
             'Information',
+            'Attached Files',
             '',
           ]}
-          renderHeaderCell={(headerCell) => (
-            <TableCell
-              key={headerCell.replaceAll(' ', '_').toLowerCase()}
-              size={AppConfig.table.cellSize}
-            >
-              <Typography fontWeight="bolder">{headerCell}</Typography>
-            </TableCell>
-          )}
           renderRow={(transaction) => (
             <TableRow
               key={transaction.id}
@@ -171,12 +191,47 @@ export const Transactions = () => {
               </TableCell>
               <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                 <Linkify>{transaction.description ?? 'No information'}</Linkify>
-              </TableCell>{' '}
+              </TableCell>
+              <TableCell size={AppConfig.table.cellSize}>
+                <AvatarGroup max={4} variant="rounded">
+                  {transaction.attachedFiles.map((file) => (
+                    <Avatar
+                      key={file.uuid}
+                      variant="rounded"
+                      alt={file.fileName}
+                      src={FileService.getAuthentificatedFileLink(file.location, authOptions)}
+                      sx={{
+                        backgroundColor: (theme) => theme.palette.background.default,
+                        ':hover': {
+                          zIndex: 1,
+                          transform: 'scale(1.1)',
+                          transition: 'transform 0.2s ease-in-out',
+                          cursor: 'pointer',
+                        },
+                      }}
+                      onClick={() =>
+                        setImageDialog({
+                          open: true,
+                          image: {
+                            ...file,
+                            location: FileService.getAuthentificatedFileLink(
+                              file.location,
+                              authOptions
+                            ),
+                          },
+                        })
+                      }
+                    />
+                  ))}
+                </AvatarGroup>
+              </TableCell>
               <TableCell align="right" size={AppConfig.table.cellSize}>
                 <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
                   <IconButton
                     color="primary"
-                    onClick={() => handler.onEditTransaction(transaction)}
+                    onClick={() =>
+                      handler.onEditTransaction(TransactionService.toUpdatePayload(transaction))
+                    }
                   >
                     <EditRounded />
                   </IconButton>
@@ -196,7 +251,7 @@ export const Transactions = () => {
 
               <SearchInput onSearch={handler.onSearch} />
 
-              <IconButton color="primary" onClick={() => setShowCreateTransactionDrawer(true)}>
+              <IconButton color="primary" onClick={() => dispatchCreateDrawer({ type: 'open' })}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
             </React.Fragment>
@@ -211,17 +266,19 @@ export const Transactions = () => {
       </Grid>
 
       <CreateTransactionDrawer
-        open={showCreateTransactionDrawer}
-        onChangeOpen={(isOpen) => setShowCreateTransactionDrawer(isOpen)}
+        {...showCreateDrawer}
+        onClose={() => dispatchCreateDrawer({ type: 'close' })}
       />
 
       <EditTransactionDrawer
-        open={showEditTransactionDrawer}
-        onChangeOpen={(isOpen) => {
-          setShowEditTransactionDrawer(isOpen);
-          if (!isOpen) setEditTransaction(null);
-        }}
-        transaction={editTransaction}
+        {...showEditDrawer}
+        onClose={() => dispatchEditDrawer({ type: 'close' })}
+        // open={showEditTransactionDrawer}
+        // onChangeOpen={(isOpen) => {
+        //   setShowEditTransactionDrawer(isOpen);
+        //   if (!isOpen) setEditTransaction(null);
+        // }}
+        // transaction={editTransaction}
       />
 
       <DeleteDialog
@@ -240,8 +297,17 @@ export const Transactions = () => {
 
       <FabContainer>
         <OpenFilterDrawerFab />
-        <AddFab onClick={() => setShowCreateTransactionDrawer(true)} />
+        <AddFab onClick={() => dispatchCreateDrawer({ type: 'open' })} />
       </FabContainer>
+
+      <ImageViewDialog
+        dialogProps={{
+          open: imageDialog.open,
+          onClose: () => setImageDialog({ open: false, image: null }),
+        }}
+        image={imageDialog.image}
+        withTransition
+      />
     </ContentGrid>
   );
 };

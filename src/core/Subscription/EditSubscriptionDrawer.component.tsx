@@ -1,5 +1,5 @@
 import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@/components/Drawer';
-import { useScreenSize } from '@/hooks';
+import { type TEntityDrawerState, useScreenSize } from '@/hooks';
 import {
   Box,
   FormControl,
@@ -21,11 +21,7 @@ import {
   getPaymentMethodFromList,
   useFetchPaymentMethods,
 } from '../PaymentMethod';
-import {
-  ZUpdateSubscriptionPayload,
-  type TSubscription,
-  type TUpdateSubscriptionPayload,
-} from '@budgetbuddyde/types';
+import { ZUpdateSubscriptionPayload, type TUpdateSubscriptionPayload } from '@budgetbuddyde/types';
 import { determineNextExecutionDate, transformBalance } from '@/utils';
 import { SubscriptionService, useFetchSubscriptions } from '.';
 import { TransactionService, useFetchTransactions } from '../Transaction';
@@ -44,15 +40,13 @@ interface IEditSubscriptionDrawerHandler {
 }
 
 export type TEditSubscriptionDrawerProps = {
-  open: boolean;
-  onChangeOpen: (isOpen: boolean) => void;
-  subscription: TSubscription | null;
-};
+  onClose: () => void;
+} & TEntityDrawerState<TUpdateSubscriptionPayload>;
 
 export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
-  open,
-  onChangeOpen,
-  subscription,
+  shown,
+  payload,
+  onClose,
 }) => {
   const screenSize = useScreenSize();
   const { session, authOptions } = useAuthContext();
@@ -71,7 +65,7 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
 
   const handler: IEditSubscriptionDrawerHandler = {
     onClose() {
-      onChangeOpen(false);
+      onClose();
       setForm({ executeAt: new Date() });
       setDrawerState({ type: 'RESET' });
     },
@@ -90,21 +84,24 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      if (!session || !subscription) return;
+      if (!session || !payload) return;
       setDrawerState({ type: 'SUBMIT' });
 
       try {
         const parsedForm = ZUpdateSubscriptionPayload.safeParse({
           ...form,
-          subscriptionId: subscription.id,
-          paused: subscription.paused,
+          subscriptionId: payload.subscriptionId,
+          paused: payload.paused,
           transferAmount: transformBalance(String(form.transferAmount)),
           description: form.description,
         });
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
-        const payload: TUpdateSubscriptionPayload = parsedForm.data;
+        const requestPayload: TUpdateSubscriptionPayload = parsedForm.data;
 
-        const [updatedSubscription, error] = await SubscriptionService.update(payload, authOptions);
+        const [updatedSubscription, error] = await SubscriptionService.update(
+          requestPayload,
+          authOptions
+        );
         if (error) {
           setDrawerState({ type: 'ERROR', error: error });
           return;
@@ -119,7 +116,9 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
 
         setDrawerState({ type: 'SUCCESS' });
         handler.onClose();
-        refreshSubscriptions(); // FIXME: Wrap inside startTransition
+        React.startTransition(() => {
+          refreshSubscriptions();
+        });
         showSnackbar({ message: `Applied changes were saved` });
       } catch (error) {
         console.error(error);
@@ -128,24 +127,27 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
     },
   };
 
-  React.useEffect(() => {
-    if (!subscription) return setForm({ processedAt: new Date() });
-    const { executeAt, receiver, category, paymentMethod, transferAmount, description } =
-      subscription;
+  React.useLayoutEffect(() => {
+    if (!payload) return setForm({ processedAt: new Date() });
+    const { executeAt, receiver, categoryId, paymentMethodId, transferAmount, description } =
+      payload;
     setForm({
       executeAt: determineNextExecutionDate(executeAt),
       receiver: receiver,
-      categoryId: category.id,
-      paymentMethodId: paymentMethod.id,
+      categoryId: categoryId,
+      paymentMethodId: paymentMethodId,
       transferAmount: transferAmount,
       description: description ?? '',
     });
-  }, [subscription]);
+    return () => {
+      setForm({});
+    };
+  }, [payload]);
 
   return (
     <FormDrawer
       state={drawerState}
-      open={open}
+      open={shown}
       onSubmit={handler.onFormSubmit}
       heading="Edit Subscription"
       onClose={handler.onClose}
@@ -183,9 +185,7 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
           onChange={(event, value) =>
             handler.onAutocompleteChange(event, 'categoryId', Number(value?.value))
           }
-          defaultValue={
-            subscription ? getCategoryFromList(subscription.category.id, categories) : undefined
-          }
+          defaultValue={payload ? getCategoryFromList(payload.categoryId, categories) : undefined}
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
           required
         />
@@ -195,9 +195,7 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
             handler.onAutocompleteChange(event, 'paymentMethodId', Number(value?.value))
           }
           defaultValue={
-            subscription
-              ? getPaymentMethodFromList(subscription.paymentMethod.id, paymentMethods)
-              : undefined
+            payload ? getPaymentMethodFromList(payload.paymentMethodId, paymentMethods) : undefined
           }
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
           required
@@ -212,7 +210,7 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
           label: receiver,
           value: receiver,
         }))}
-        defaultValue={subscription?.receiver}
+        defaultValue={payload?.receiver}
         onValueChange={(value) => handler.onReceiverChange(String(value))}
         required
       />
@@ -226,7 +224,7 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
           inputProps={{ inputMode: 'numeric' }}
           onChange={handler.onInputChange}
           value={form.amount}
-          defaultValue={subscription?.transferAmount}
+          defaultValue={payload?.transferAmount}
           startAdornment={<InputAdornment position="start">€</InputAdornment>}
         />
       </FormControl>
@@ -241,7 +239,7 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
         rows={2}
         onChange={handler.onInputChange}
         value={form.description}
-        defaultValue={subscription?.description ?? ''}
+        defaultValue={payload?.description ?? ''}
       />
     </FormDrawer>
   );

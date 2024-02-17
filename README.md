@@ -24,3 +24,8 @@
    npm run dev
    npm run dev --host # if you want to expose it to your network
    ```
+
+### Docker-Compose
+
+> [!NOTE]  
+> You can find an pre-defined `compose.yml` in the [Setup-Repository](https://github.com/BudgetBuddyDE/setup.git) which also contains the instructions for the setup-process

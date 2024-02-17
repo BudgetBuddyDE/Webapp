@@ -1,5 +1,5 @@
 import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@/components/Drawer';
-import { useScreenSize } from '@/hooks';
+import { type TEntityDrawerState, useScreenSize } from '@/hooks';
 import {
   Box,
   FormControl,
@@ -22,11 +22,7 @@ import {
   getPaymentMethodFromList,
   useFetchPaymentMethods,
 } from '../PaymentMethod';
-import {
-  type TCreateTransactionPayload,
-  type TTransaction,
-  ZCreateTransactionPayload,
-} from '@budgetbuddyde/types';
+import { type TCreateTransactionPayload, ZCreateTransactionPayload } from '@budgetbuddyde/types';
 import { transformBalance } from '@/utils';
 
 interface ICreateTransactionDrawerHandler {
@@ -43,15 +39,13 @@ interface ICreateTransactionDrawerHandler {
 }
 
 export type TCreateTransactionDrawerProps = {
-  open: boolean;
-  onChangeOpen: (isOpen: boolean) => void;
-  transaction?: TTransaction | null;
-};
+  onClose: () => void;
+} & TEntityDrawerState<TCreateTransactionPayload>;
 
 export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = ({
-  open,
-  onChangeOpen,
-  transaction,
+  shown,
+  payload,
+  onClose,
 }) => {
   const screenSize = useScreenSize();
   const { session, authOptions } = useAuthContext();
@@ -76,7 +70,7 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
 
   const handler: ICreateTransactionDrawerHandler = {
     onClose() {
-      onChangeOpen(false);
+      onClose();
       setForm({ processedAt: new Date() });
       setDrawerState({ type: 'RESET' });
     },
@@ -106,9 +100,12 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
           owner: session.uuid,
         });
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
-        const payload: TCreateTransactionPayload = parsedForm.data;
+        const requestPayload: TCreateTransactionPayload = parsedForm.data;
 
-        const [createdTransaction, error] = await TransactionService.create([payload], authOptions);
+        const [createdTransaction, error] = await TransactionService.create(
+          [requestPayload],
+          authOptions
+        );
         if (error) {
           setDrawerState({ type: 'ERROR', error: error });
           return;
@@ -120,7 +117,9 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
 
         setDrawerState({ type: 'SUCCESS' });
         handler.onClose();
-        refreshTransactions(); // FIXME: Wrap inside startTransition
+        React.startTransition(() => {
+          refreshTransactions();
+        });
         showSnackbar({ message: `Created transaction` });
       } catch (error) {
         console.error(error);
@@ -129,24 +128,27 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
     },
   };
 
-  React.useEffect(() => {
-    if (!transaction) return setForm({ processedAt: new Date() });
-    const { processedAt, receiver, category, paymentMethod, transferAmount, description } =
-      transaction;
+  React.useLayoutEffect(() => {
+    if (!payload) return setForm({ processedAt: new Date() });
+    const { description } = payload;
     setForm({
-      processedAt: processedAt,
-      receiver: receiver,
-      categoryId: category.id,
-      paymentMethodId: paymentMethod.id,
-      transferAmount: transferAmount,
+      ...payload,
+      // processedAt: processedAt,
+      // receiver: receiver,
+      // categoryId: categoryId,
+      // paymentMethodId: paymentMethodId,
+      // transferAmount: transferAmount,
       description: description ?? '',
     });
-  }, [transaction]);
+    return () => {
+      setForm({});
+    };
+  }, [payload]);
 
   return (
     <FormDrawer
       state={drawerState}
-      open={open}
+      open={shown}
       onSubmit={handler.onFormSubmit}
       heading="Create Transaction"
       onClose={handler.onClose}
@@ -184,9 +186,7 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
           onChange={(event, value) =>
             handler.onAutocompleteChange(event, 'categoryId', Number(value?.value))
           }
-          defaultValue={
-            transaction ? getCategoryFromList(transaction.category.id, categories) : undefined
-          }
+          defaultValue={payload ? getCategoryFromList(payload.categoryId, categories) : undefined}
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
           required
         />
@@ -196,9 +196,7 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
             handler.onAutocompleteChange(event, 'paymentMethodId', Number(value?.value))
           }
           defaultValue={
-            transaction
-              ? getPaymentMethodFromList(transaction.paymentMethod.id, paymentMethods)
-              : undefined
+            payload ? getPaymentMethodFromList(payload.paymentMethodId, paymentMethods) : undefined
           }
           sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
           required
@@ -210,7 +208,7 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
         id="receiver"
         label="Receiver"
         options={receiverOptions}
-        defaultValue={transaction?.receiver}
+        defaultValue={payload?.receiver}
         onValueChange={(value) => handler.onReceiverChange(String(value))}
         required
       />
@@ -224,7 +222,7 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
           inputProps={{ inputMode: 'numeric' }}
           onChange={handler.onInputChange}
           value={form.transferAmount}
-          defaultValue={transaction?.transferAmount}
+          defaultValue={payload?.transferAmount}
           startAdornment={<InputAdornment position="start">€</InputAdornment>}
         />
       </FormControl>
@@ -234,12 +232,12 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
         variant="outlined"
         label="Description"
         name="description"
-        sx={{ ...FormStyle, mb: 0 }}
+        sx={FormStyle}
         multiline
         rows={2}
         onChange={handler.onInputChange}
         value={form.description}
-        defaultValue={transaction?.description ?? ''}
+        defaultValue={payload?.description ?? ''}
       />
     </FormDrawer>
   );

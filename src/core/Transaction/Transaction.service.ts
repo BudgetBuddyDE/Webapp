@@ -11,12 +11,16 @@ import {
   ZDailyTransaction,
   type TDeleteTransactionResponsePayload,
   ZDeleteTransactionResponsePayload,
+  type TTransactionFile,
+  type TFile,
+  type TCreateTransactionFilePayload,
 } from '@budgetbuddyde/types';
 import { format, isSameMonth, subDays } from 'date-fns';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { prepareRequestOptions } from '@/utils';
 import { type IAuthContext } from '../Auth';
-import { TDashboardStats } from '@/components/DashboardStatsWrapper.component';
+import { type TDashboardStats } from '@/components/DashboardStatsWrapper.component';
+import { FileService } from '@/services/File.service';
+import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 
 /**
  * Service for managing transactions.
@@ -36,7 +40,6 @@ export class TransactionService {
     password,
   }: IAuthContext['authOptions']): Promise<[TTransaction[] | null, Error | null]> {
     try {
-      console.log('fetching transactions');
       const query = new URLSearchParams();
       query.append('uuid', uuid);
       const response = await fetch(this.host + '?' + query.toString(), {
@@ -259,5 +262,59 @@ export class TransactionService {
       )
       .reduce((prev, cur) => prev + cur.transferAmount, 0);
     return Number(num.toFixed(2));
+  }
+
+  /**
+   * Converts a transaction object into an update payload object.
+   * @param transaction - The transaction object to be converted.
+   * @returns The update payload object.
+   */
+  static toUpdatePayload(transaction: TTransaction): TUpdateTransactionPayload {
+    return {
+      transactionId: transaction.id,
+      categoryId: transaction.category.id,
+      paymentMethodId: transaction.paymentMethod.id,
+      receiver: transaction.receiver,
+      transferAmount: transaction.transferAmount,
+      processedAt: transaction.processedAt,
+      description: transaction.description,
+    };
+  }
+
+  /**
+   * Transforms a transaction file into a payload for creating a transaction file.
+   * @param file - The transaction file to transform.
+   * @returns The payload for creating a transaction file.
+   */
+  static transformTransactionFileToCreatePayload(
+    file: TTransactionFile,
+    transactionId: TTransaction['id']
+  ): TCreateTransactionFilePayload {
+    return {
+      transactionId,
+      fileName: file.fileName,
+      fileSize: file.fileSize,
+      mimeType: file.mimeType,
+      fileUrl: file.location,
+    };
+  }
+
+  /**
+   * Transforms a TFile object into a payload for creating a transaction file.
+   * @param file The TFile object to transform.
+   * @returns The transformed payload.
+   */
+  static transformTFileToCreatePayload(
+    file: TFile,
+    transactionId: TTransaction['id'],
+    user: IAuthContext['authOptions']
+  ): TCreateTransactionFilePayload {
+    return {
+      transactionId,
+      fileName: file.name,
+      fileSize: file.size,
+      mimeType: file.type,
+      fileUrl: FileService.getFileUrl(file, user),
+    };
   }
 }

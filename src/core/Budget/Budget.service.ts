@@ -8,12 +8,12 @@ import {
   type TDeleteBudgetPayload,
   type TUpdateBudgetPayload,
   ZBudgetProgress,
-  TDeleteBudgetResponsePayload,
+  type TDeleteBudgetResponsePayload,
   ZDeleteBudgetResponsePayload,
 } from '@budgetbuddyde/types';
 import { prepareRequestOptions } from '@/utils';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 import { type IAuthContext } from '../Auth';
+import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 
 export class BudgetService {
   private static host =
