@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  BalanceWidget,
   BudgetList,
   BudgetProgressWrapper,
   StatsWrapper,
@@ -10,7 +9,6 @@ import { CategorySpendingsChart, CategoryIncomeChart } from '@/components/Catego
 import { Grid } from '@mui/material';
 import { DailyTransactionChart } from '@/components/Transaction';
 import { CircularProgress } from '@/components/Loading';
-import { SubscriptionService, useFetchSubscriptions } from '@/components/Subscription';
 
 export const DATE_RANGE_INPUT_FORMAT = 'dd.MM';
 export type TChartContentType = 'INCOME' | 'SPENDINGS';
@@ -21,36 +19,11 @@ export const ChartContentTypes = [
 
 export const BudgetView = () => {
   const { budgetProgress, loading: loadingBudgetProgress } = useFetchBudgetProgress();
-  const { loading: loadingSubscriptions, subscriptions } = useFetchSubscriptions();
-
-  const getSubscriptionDataByType = React.useCallback(
-    (type: 'INCOME' | 'SPENDINGS') => {
-      return SubscriptionService.getPlannedBalanceByType(subscriptions, type)
-        .filter(({ paused }) => !paused)
-        .map((item) => ({
-          type: type,
-          label: item.category.name,
-          description: item.description,
-          amount: item.transferAmount,
-        }));
-    },
-    [subscriptions]
-  );
 
   return (
     <React.Fragment>
       <Grid item xs={12} md={12} lg={5} xl={5}>
         <DailyTransactionChart />
-
-        {!loadingSubscriptions && (
-          <BalanceWidget
-            income={getSubscriptionDataByType('INCOME')}
-            spendings={getSubscriptionDataByType('SPENDINGS')}
-            cardProps={{
-              sx: { mt: 2 },
-            }}
-          />
-        )}
       </Grid>
 
       <Grid container item xs={12} md={12} lg={7} xl={7} spacing={3}>
