@@ -1,4 +1,4 @@
-import { IAuthContext } from '@/core/Auth';
+import { IAuthContext } from '@/components/Auth';
 import {
   type TApiResponse,
   type TUpdateUserPayload,

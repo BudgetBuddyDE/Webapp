@@ -16,7 +16,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useScreenSize } from '@/hooks';
 import { ParentSize } from '@visx/responsive';
 import { BarChart, type TBarChartData } from '@/components/Base';
-import { useAuthContext } from '@/core/Auth';
+import { useAuthContext } from '@/components/Auth';
 import { useDailyTransactionStore } from '../DailyTransaction.store';
 import { TransactionService } from '../Transaction.service';
 import { formatBalance } from '@/utils';

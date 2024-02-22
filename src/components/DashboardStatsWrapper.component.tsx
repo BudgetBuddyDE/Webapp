@@ -2,11 +2,11 @@ import { Grid } from '@mui/material';
 import React from 'react';
 import { StatsCard, TStatsCardProps } from './StatsCard.component';
 import { AddRounded, RemoveRounded, BalanceRounded } from '@mui/icons-material';
-import { IBaseStore, TransactionService, useTransactionStore } from '@/core/Transaction';
+import { IBaseStore, TransactionService, useTransactionStore } from '@/components/Transaction';
 import { TUser } from '@budgetbuddyde/types';
 import { create } from 'zustand';
-import { useAuthContext } from '@/core/Auth';
-import { useSubscriptionStore } from '@/core/Subscription';
+import { useAuthContext } from '@/components/Auth';
+import { useSubscriptionStore } from '@/components/Subscription';
 import { formatBalance } from '@/utils';
 
 export type TDashboardStats = {

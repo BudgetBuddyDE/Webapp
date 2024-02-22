@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { CategoryService, CreateCategoryAlert, useFetchCategories } from '../';
 import { StyledAutocompleteOption } from '@/components/Base';
-import { useFetchTransactions } from '@/core/Transaction';
+import { useFetchTransactions } from '@/components/Transaction';
 
 export type TCategoryInputOption = {
   label: string;

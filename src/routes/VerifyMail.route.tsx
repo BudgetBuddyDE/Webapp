@@ -1,5 +1,5 @@
 import React from 'react';
-import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
+import { withUnauthentificatedLayout } from '@/components/Auth/Layout';
 import { VerifyMailReturnCodeToMessage, ZVerifyMailReturnCode } from '@budgetbuddyde/types';
 import { Card } from '@/components/Base';
 import { Button, Link, Typography } from '@mui/material';

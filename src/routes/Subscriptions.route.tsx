@@ -2,18 +2,18 @@ import React from 'react';
 import { ActionPaper, Linkify } from '@/components/Base';
 import { SearchInput } from '@/components/Base/Search';
 import { AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
-import { withAuthLayout } from '@/core/Auth/Layout';
+import { withAuthLayout } from '@/components/Auth/Layout';
 import {
   CreateSubscriptionDrawer,
   EditSubscriptionDrawer,
   SubscriptionActionMenu,
   SubscriptionService,
   useFetchSubscriptions,
-} from '@/core/Subscription';
+} from '@/components/Subscription';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
 import { Box, Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
-import { useSnackbarContext } from '@/core/Snackbar';
-import { useAuthContext } from '@/core/Auth';
+import { useSnackbarContext } from '@/components/Snackbar';
+import { useAuthContext } from '@/components/Auth';
 import {
   type TCreateSubscriptionPayload,
   type TCreateTransactionPayload,
@@ -25,11 +25,11 @@ import { AppConfig } from '@/app.config';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { determineNextExecution, determineNextExecutionDate } from '@/utils';
-import { CreateTransactionDrawer } from '@/core/Transaction';
+import { CreateTransactionDrawer } from '@/components/Transaction';
 import { filterSubscriptions } from '@/utils/filter.util';
-import { ToggleFilterDrawerButton, useFilterStore } from '@/core/Filter';
-import { CategoryChip } from '@/core/Category';
-import { PaymentMethodChip } from '@/core/PaymentMethod';
+import { ToggleFilterDrawerButton, useFilterStore } from '@/components/Filter';
+import { CategoryChip } from '@/components/Category';
+import { PaymentMethodChip } from '@/components/PaymentMethod';
 import { type ISelectionHandler } from '@/components/Base/Select';
 import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
 

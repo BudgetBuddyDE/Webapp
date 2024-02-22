@@ -3,8 +3,8 @@ import { ActionPaper, Linkify } from '@/components/Base';
 import { Table } from '@/components/Base/Table';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
-import { useAuthContext } from '@/core/Auth';
-import { withAuthLayout } from '@/core/Auth/Layout';
+import { useAuthContext } from '@/components/Auth';
+import { withAuthLayout } from '@/components/Auth/Layout';
 import {
   CategoryAnalytics,
   CategoryChip,
@@ -15,9 +15,9 @@ import {
   type TCreateCategoryDrawerPayload,
   type TEditCategoryDrawerPayload,
   useFetchCategories,
-} from '@/core/Category';
-import { CategoryIncomeChart } from '@/core/Category/Chart/IncomeChart.component';
-import { useSnackbarContext } from '@/core/Snackbar';
+} from '@/components/Category';
+import { CategoryIncomeChart } from '@/components/Category/Chart/IncomeChart.component';
+import { useSnackbarContext } from '@/components/Snackbar';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import type { TCategory } from '@budgetbuddyde/types';
 import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
@@ -27,7 +27,7 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { SearchInput } from '@/components/Base/Search';
 import { type ISelectionHandler } from '@/components/Base/Select';
-import { ToggleFilterDrawerButton } from '@/core/Filter';
+import { ToggleFilterDrawerButton } from '@/components/Filter';
 
 interface ICategoriesHandler {
   onSearch: (keyword: string) => void;

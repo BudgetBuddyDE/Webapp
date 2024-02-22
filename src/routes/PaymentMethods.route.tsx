@@ -1,8 +1,8 @@
 import React from 'react';
 import { ActionPaper, Linkify } from '@/components/Base';
 import { AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
-import { useAuthContext } from '@/core/Auth';
-import { withAuthLayout } from '@/core/Auth/Layout';
+import { useAuthContext } from '@/components/Auth';
+import { withAuthLayout } from '@/components/Auth/Layout';
 import {
   CreatePaymentMethodDrawer,
   EditPaymentMethodDrawer,
@@ -11,8 +11,8 @@ import {
   type TCreatePaymentMethodDrawerPayload,
   type TEditPaymentMethodDrawerPayload,
   useFetchPaymentMethods,
-} from '@/core/PaymentMethod';
-import { useSnackbarContext } from '@/core/Snackbar';
+} from '@/components/PaymentMethod';
+import { useSnackbarContext } from '@/components/Snackbar';
 import type { TPaymentMethod } from '@budgetbuddyde/types';
 import { Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
@@ -24,7 +24,7 @@ import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
 import { useEntityDrawer, CreateEntityDrawerState } from '@/hooks';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { type ISelectionHandler } from '@/components/Base/Select';
-import { ToggleFilterDrawerButton } from '@/core/Filter';
+import { ToggleFilterDrawerButton } from '@/components/Filter';
 
 interface IPaymentMethodsHandler {
   onSearch: (keyword: string) => void;

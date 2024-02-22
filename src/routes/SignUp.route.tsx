@@ -1,7 +1,7 @@
 import React from 'react';
 import { ExitToAppRounded, HomeRounded } from '@mui/icons-material';
-import { AuthService, useAuthContext } from '@/core/Auth';
-import { useSnackbarContext } from '@/core/Snackbar';
+import { AuthService, useAuthContext } from '@/components/Auth';
+import { useSnackbarContext } from '@/components/Snackbar';
 import {
   Box,
   Button,
@@ -15,7 +15,7 @@ import {
 import { Card, PasswordInput } from '@/components/Base';
 import { AppLogo } from '@/components/AppLogo.component';
 import { StackedIconButton } from '@/components/StackedIconButton.component';
-import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
+import { withUnauthentificatedLayout } from '@/components/Auth/Layout';
 import { useNavigate } from 'react-router-dom';
 import { AppConfig } from '@/app.config';
 import { type TSignUpPayload, ZSignUpPayload } from '@budgetbuddyde/types';

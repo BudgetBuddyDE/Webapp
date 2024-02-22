@@ -5,13 +5,12 @@ import {
   BudgetProgressWrapper,
   StatsWrapper,
   useFetchBudgetProgress,
-} from '@/core/Budget';
-import { CategorySpendingsChart } from '@/core/Category';
-import { CategoryIncomeChart } from '@/core/Category/Chart/IncomeChart.component';
+} from '@/components/Budget';
+import { CategorySpendingsChart, CategoryIncomeChart } from '@/components/Category';
 import { Grid } from '@mui/material';
-import { DailyTransactionChart } from '@/core/Transaction';
+import { DailyTransactionChart } from '@/components/Transaction';
 import { CircularProgress } from '@/components/Loading';
-import { SubscriptionService, useFetchSubscriptions } from '@/core/Subscription';
+import { SubscriptionService, useFetchSubscriptions } from '@/components/Subscription';
 
 export const DATE_RANGE_INPUT_FORMAT = 'dd.MM';
 export type TChartContentType = 'INCOME' | 'SPENDINGS';
