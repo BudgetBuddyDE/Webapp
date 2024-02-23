@@ -144,6 +144,13 @@ const BlueTheme = createTheme({
   },
   unstable_strictMode: true,
   components: {
+    MuiGrid: {
+      styleOverrides: {
+        item: {
+          height: 'fit-content',
+        },
+      },
+    },
     MuiMenu: {
       styleOverrides: {
         root: {

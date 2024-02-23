@@ -9,6 +9,10 @@ import { CategorySpendingsChart, CategoryIncomeChart } from '@/components/Catego
 import { Grid } from '@mui/material';
 import { DailyTransactionChart } from '@/components/Transaction';
 import { CircularProgress } from '@/components/Loading';
+import {
+  MonthlyBalanceChartCard,
+  MonthlyBalanceWidget,
+} from '@/components/Transaction/MonthlyBalance';
 
 export const DATE_RANGE_INPUT_FORMAT = 'dd.MM';
 export type TChartContentType = 'INCOME' | 'SPENDINGS';
@@ -24,6 +28,10 @@ export const BudgetView = () => {
     <React.Fragment>
       <Grid item xs={12} md={12} lg={5} xl={5}>
         <DailyTransactionChart />
+
+        <MonthlyBalanceWidget cardPros={{ sx: { my: 3 } }} />
+
+        <MonthlyBalanceChartCard />
       </Grid>
 
       <Grid container item xs={12} md={12} lg={7} xl={7} spacing={3}>

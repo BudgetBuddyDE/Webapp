@@ -14,6 +14,8 @@ import {
   type TTransactionFile,
   type TFile,
   type TCreateTransactionFilePayload,
+  TMonthlyBalance,
+  ZMonthlyBalance,
 } from '@budgetbuddyde/types';
 import { format, isSameMonth, subDays } from 'date-fns';
 import { prepareRequestOptions } from '@/utils';
@@ -21,6 +23,14 @@ import { type IAuthContext } from '../Auth';
 import { type TDashboardStats } from '@/components/DashboardStatsWrapper.component';
 import { FileService } from '@/services/File.service';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
+
+// export const ZMonthlyBalance = z.object({
+//   month: ZDate,
+//   income: z.number(),
+//   expenses: z.number(),
+//   balance: z.number(),
+// });
+// export type TMonthlyBalance = z.infer<typeof ZMonthlyBalance>;
 
 /**
  * Service for managing transactions.
@@ -83,6 +93,30 @@ export class TransactionService {
       if (json.status != 200) return [null, new Error(json.message!)];
 
       const parsingResult = z.array(ZDailyTransaction).safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
+    } catch (error) {
+      console.error(error);
+      return [null, error as Error];
+    }
+  }
+
+  /**
+   * Retrieves the monthly balance for a user.
+   * @param user - The user's authentication options.
+   * @returns A promise that resolves to an array of monthly balance data or an error.
+   */
+  static async getMonthlyBalance(
+    user: IAuthContext['authOptions']
+  ): Promise<[TMonthlyBalance[] | null, Error | null]> {
+    try {
+      const response = await fetch(this.host + '/monthly-balance', {
+        ...prepareRequestOptions(user),
+      });
+      const json = (await response.json()) as TApiResponse<TMonthlyBalance[]>;
+      if (json.status != 200) return [null, new Error(json.message!)];
+
+      const parsingResult = z.array(ZMonthlyBalance).safeParse(json.data);
       if (!parsingResult.success) throw new Error(parsingResult.error.message);
       return [parsingResult.data, null];
     } catch (error) {

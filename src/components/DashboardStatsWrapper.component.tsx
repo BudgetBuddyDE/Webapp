@@ -1,9 +1,9 @@
 import { Grid } from '@mui/material';
 import React from 'react';
-import { StatsCard, TStatsCardProps } from './StatsCard.component';
+import { StatsCard, type TStatsCardProps } from './StatsCard.component';
 import { AddRounded, RemoveRounded, BalanceRounded } from '@mui/icons-material';
-import { IBaseStore, TransactionService, useTransactionStore } from '@/components/Transaction';
-import { TUser } from '@budgetbuddyde/types';
+import { type IBaseStore, TransactionService, useTransactionStore } from '@/components/Transaction';
+import { type TUser } from '@budgetbuddyde/types';
 import { create } from 'zustand';
 import { useAuthContext } from '@/components/Auth';
 import { useSubscriptionStore } from '@/components/Subscription';
@@ -125,6 +125,7 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
           item
           xs={idx == list.length - 1 ? 12 : 6}
           md={4}
+          sx={{ height: 'unset' }}
         >
           <StatsCard isLoading={loading} {...props} />
         </Grid>
