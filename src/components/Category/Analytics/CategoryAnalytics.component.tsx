@@ -6,10 +6,10 @@ import { Autocomplete, TextField, Button, Box, Skeleton, Paper, Typography } fro
 import { useFetchCategories } from '..';
 import { TCategory } from '@budgetbuddyde/types';
 import { ParentSize } from '@visx/responsive';
-import { useFetchTransactions } from '@/core/Transaction';
+import { useFetchTransactions } from '@/components/Transaction';
 import { format, isBefore, isSameMonth, isSameYear } from 'date-fns';
 import { DateService } from '@/services';
-import { useSnackbarContext } from '@/core/Snackbar';
+import { useSnackbarContext } from '@/components/Snackbar';
 import { formatBalance } from '@/utils';
 
 const MONTH_BACKLOG = 8;

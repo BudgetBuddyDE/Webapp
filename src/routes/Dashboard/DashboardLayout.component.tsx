@@ -1,9 +1,9 @@
 import React from 'react';
 import { Grid, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { withAuthLayout } from '@/core/Auth/Layout';
+import { withAuthLayout } from '@/components/Auth/Layout';
+import { useAuthContext } from '@/components/Auth';
 import { ContentGrid } from '@/components/Layout';
-import { useAuthContext } from '@/core/Auth';
 import {
   type TDashboardView,
   DashboardViewMapping,

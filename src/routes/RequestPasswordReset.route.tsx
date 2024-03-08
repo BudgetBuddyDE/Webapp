@@ -1,12 +1,12 @@
-import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
+import { withUnauthentificatedLayout } from '@/components/Auth/Layout';
 import { Card } from '@/components/Base';
 import { Button, CircularProgress, Divider, Grid, TextField, Typography } from '@mui/material';
 import { AppRegistrationRounded, HomeRounded, SendRounded } from '@mui/icons-material';
 import { AppLogo } from '@/components/AppLogo.component';
-import { AuthService, useAuthContext } from '@/core/Auth';
+import { AuthService, useAuthContext } from '@/components/Auth';
 import { StackedIconButton } from '@/components/StackedIconButton.component';
 import { useNavigate } from 'react-router-dom';
-import { useSnackbarContext } from '@/core/Snackbar';
+import { useSnackbarContext } from '@/components/Snackbar';
 import React from 'react';
 import { ZEmail } from '@budgetbuddyde/types';
 

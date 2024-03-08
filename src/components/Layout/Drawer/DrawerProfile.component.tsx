@@ -3,8 +3,8 @@ import { LogoutRounded as LogoutIcon } from '@mui/icons-material';
 import { Box, Button, type ButtonProps, useTheme, Divider, Typography, Chip } from '@mui/material';
 import { useDrawerStore } from './Drawer.store';
 import { useScreenSize, useWindowDimensions } from '@/hooks';
-import { AuthService, useAuthContext } from '@/core/Auth';
-import { UserAvatar } from '@/core/User';
+import { AuthService, useAuthContext } from '@/components/Auth';
+import { UserAvatar } from '@/components/User';
 import { useNavigate } from 'react-router-dom';
 
 export type TDrawerProfileProps = {};

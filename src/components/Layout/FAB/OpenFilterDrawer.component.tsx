@@ -1,6 +1,6 @@
 import { TuneRounded as TuneIcon } from '@mui/icons-material';
 import { Fab } from '@mui/material';
-import { useFilterStore } from '@/core/Filter/Filter.store';
+import { useFilterStore } from '@/components/Filter/Filter.store';
 
 export const OpenFilterDrawerFab = () => {
   const { toggleVisibility } = useFilterStore();

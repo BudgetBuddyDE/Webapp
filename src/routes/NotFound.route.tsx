@@ -1,7 +1,7 @@
 import { ActionPaper } from '@/components/Base';
 import { StackedIconButton } from '@/components/StackedIconButton.component';
-import { useAuthContext } from '@/core/Auth';
-import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
+import { useAuthContext } from '@/components/Auth';
+import { withUnauthentificatedLayout } from '@/components/Auth/Layout';
 import { ExitToAppRounded, HomeRounded } from '@mui/icons-material';
 import { Grid, Typography, Link } from '@mui/material';
 

@@ -8,11 +8,17 @@ import {
 } from '@budgetbuddyde/types';
 import { DashboardStatsWrapper } from '@/components/DashboardStatsWrapper.component';
 import { CircularProgress } from '@/components/Loading';
-import { CategorySpendingsChart } from '@/core/Category';
-import { CreateSubscriptionDrawer, SubscriptionList } from '@/core/Subscription';
-import { useFetchSubscriptions } from '@/core/Subscription';
-import { TransactionList, useFetchTransactions } from '@/core/Transaction';
-import { CreateTransactionDrawer } from '@/core/Transaction/CreateTransactionDrawer.component';
+import { CategorySpendingsChart } from '@/components/Category';
+import {
+  CreateSubscriptionDrawer,
+  SubscriptionList,
+  useFetchSubscriptions,
+} from '@/components/Subscription';
+import {
+  TransactionList,
+  useFetchTransactions,
+  CreateTransactionDrawer,
+} from '@/components/Transaction';
 import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
 
 const LIST_ITEM_COUNT = 6;

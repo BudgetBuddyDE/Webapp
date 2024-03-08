@@ -4,9 +4,9 @@ import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import '@/style/global.css';
 import { CssBaseline, ThemeProvider } from '@mui/material';
-import { AuthProvider } from '@/core/Auth';
-import { SnackbarProvider } from './core/Snackbar';
 import { AppConfig } from './app.config.ts';
+import { AuthProvider } from '@/components/Auth';
+import { SnackbarProvider } from '@/components/Snackbar';
 
 const Wrapper = () => (
   <ThemeProvider theme={AppConfig.theme}>

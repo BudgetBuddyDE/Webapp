@@ -1,15 +1,15 @@
 import React from 'react';
 import { ActionPaper, Linkify } from '@/components/Base';
 import { AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
-import { useAuthContext } from '@/core/Auth';
-import { withAuthLayout } from '@/core/Auth/Layout';
-import { useSnackbarContext } from '@/core/Snackbar';
+import { useAuthContext } from '@/components/Auth';
+import { withAuthLayout } from '@/components/Auth/Layout';
+import { useSnackbarContext } from '@/components/Snackbar';
 import {
   CreateTransactionDrawer,
   EditTransactionDrawer,
   TransactionService,
   useFetchTransactions,
-} from '@/core/Transaction';
+} from '@/components/Transaction';
 import {
   Avatar,
   AvatarGroup,
@@ -33,10 +33,10 @@ import { Table } from '@/components/Base/Table';
 import { AppConfig } from '@/app.config';
 import { format } from 'date-fns';
 import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
-import { ToggleFilterDrawerButton, useFilterStore } from '@/core/Filter';
+import { ToggleFilterDrawerButton, useFilterStore } from '@/components/Filter';
 import { filterTransactions } from '@/utils/filter.util';
-import { CategoryChip } from '@/core/Category';
-import { PaymentMethodChip } from '@/core/PaymentMethod';
+import { CategoryChip } from '@/components/Category';
+import { PaymentMethodChip } from '@/components/PaymentMethod';
 import { type ISelectionHandler } from '@/components/Base/Select';
 import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
 import { FileService } from '@/services/File.service';

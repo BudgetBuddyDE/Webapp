@@ -3,7 +3,7 @@ import { Box, Container } from '@mui/material';
 import { AppBar, Footer } from '@/components/Layout';
 import { Drawer } from '@/components/Layout/Drawer';
 import { Main } from '@/components/Base';
-import { FilterDrawer } from '@/core/Filter';
+import { FilterDrawer } from '@/components/Filter';
 
 export type TAuthLayout = React.PropsWithChildren;
 

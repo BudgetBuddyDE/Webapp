@@ -2,10 +2,10 @@ import React from 'react';
 import { Card } from '@/components/Base';
 import { PageHeader } from '@/components/Layout';
 import { Box, Grid, Typography } from '@mui/material';
-import { withAuthLayout } from '@/core/Auth/Layout';
-import { AppInformation, EditProfile } from '@/core/Settings';
-import { UserAvatar } from '@/core/User';
-import { useAuthContext } from '@/core/Auth';
+import { withAuthLayout } from '@/components/Auth/Layout';
+import { AppInformation, EditProfile } from '@/components/Settings';
+import { UserAvatar } from '@/components/User';
+import { useAuthContext } from '@/components/Auth';
 
 export type TSettingsRouteProps = {};
 

@@ -1,4 +1,4 @@
-import { TFilters } from '@/core/Filter';
+import { TFilters } from '@/components/Filter';
 import { TSubscription, TTransaction } from '@budgetbuddyde/types';
 import { isSameDay } from 'date-fns';
 

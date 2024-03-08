@@ -14,9 +14,9 @@ import {
   Tooltip,
 } from '@mui/material';
 import { Brand } from '../Brand.component';
-import { UserAvatar } from '@/core/User';
+import { UserAvatar } from '@/components/User';
 import { DrawerHamburger } from './Drawer/DrawerHamburger.component';
-import { AuthService } from '@/core/Auth';
+import { AuthService } from '@/components/Auth';
 import { useNavigate } from 'react-router-dom';
 import { AppConfig } from '@/app.config';
 

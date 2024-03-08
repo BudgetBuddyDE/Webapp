@@ -8,7 +8,7 @@ import {
   ZTransactionFile,
 } from '@budgetbuddyde/types';
 import { prepareRequestOptions } from '@/utils';
-import { type IAuthContext } from '@/core/Auth';
+import { type IAuthContext } from '@/components/Auth';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
 
 const ZDetachResponse = z.object({

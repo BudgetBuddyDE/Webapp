@@ -1,12 +1,12 @@
 import React from 'react';
 import { AppRegistrationRounded, HomeRounded } from '@mui/icons-material';
 import { Box, Button, Divider, Grid, Link, TextField } from '@mui/material';
-import { AuthService, useAuthContext } from '@/core/Auth';
-import { useSnackbarContext } from '@/core/Snackbar';
+import { AuthService, useAuthContext } from '@/components/Auth';
+import { useSnackbarContext } from '@/components/Snackbar';
 import { Card, PasswordInput } from '@/components/Base';
 import { StackedIconButton } from '@/components/StackedIconButton.component';
 import { AppLogo } from '@/components/AppLogo.component';
-import { withUnauthentificatedLayout } from '@/core/Auth/Layout';
+import { withUnauthentificatedLayout } from '@/components/Auth/Layout';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { type TSignInPayload, ZSignInPayload } from '@budgetbuddyde/types';
 

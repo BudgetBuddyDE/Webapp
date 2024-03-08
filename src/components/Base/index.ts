@@ -9,3 +9,4 @@ export * from './Link.component';
 export * from './Linkify.component';
 export * from './Input';
 export * from './Charts';
+export * from './SparklineWidget.component';

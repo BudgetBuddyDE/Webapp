@@ -2,6 +2,7 @@ import React from 'react';
 import { ActionPaper, Card, DATE_RANGE_INPUT_FORMAT } from '@/components/Base';
 import {
   Box,
+  Grid,
   Paper,
   Skeleton,
   TextField,
@@ -10,13 +11,13 @@ import {
   Typography,
 } from '@mui/material';
 import { format, isSameDay, subDays } from 'date-fns';
-import { EDailyTransactionType, TDailyTransaction } from '@budgetbuddyde/types';
+import { EDailyTransactionType, type TDailyTransaction } from '@budgetbuddyde/types';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useScreenSize } from '@/hooks';
 import { ParentSize } from '@visx/responsive';
 import { BarChart, type TBarChartData } from '@/components/Base';
-import { useAuthContext } from '@/core/Auth';
+import { useAuthContext } from '@/components/Auth';
 import { useDailyTransactionStore } from '../DailyTransaction.store';
 import { TransactionService } from '../Transaction.service';
 import { formatBalance } from '@/utils';
@@ -132,53 +133,49 @@ export const DailyTransactionChart: React.FC<TDailyTransactionChart> = () => {
         </Card.HeaderActions>
       </Card.Header>
       <Card.Header>
-        <Box>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            {screenSize === 'small' ? (
-              <MobileDatePicker
-                label="From"
-                inputFormat={DATE_RANGE_INPUT_FORMAT}
-                value={dateRange.startDate}
-                onChange={handler.onStartDateChange}
-                renderInput={(params) => (
-                  <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
-                )}
-              />
-            ) : (
-              <DesktopDatePicker
-                label="From"
-                inputFormat={DATE_RANGE_INPUT_FORMAT}
-                value={dateRange.startDate}
-                onChange={handler.onStartDateChange}
-                renderInput={(params) => (
-                  <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
-                )}
-              />
-            )}
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <Grid container spacing={3}>
+            <Grid item xs={6} md={6}>
+              {screenSize === 'small' ? (
+                <MobileDatePicker
+                  label="From"
+                  inputFormat={DATE_RANGE_INPUT_FORMAT}
+                  value={dateRange.startDate}
+                  onChange={handler.onStartDateChange}
+                  renderInput={(params) => <TextField size="small" fullWidth {...params} />}
+                />
+              ) : (
+                <DesktopDatePicker
+                  label="From"
+                  inputFormat={DATE_RANGE_INPUT_FORMAT}
+                  value={dateRange.startDate}
+                  onChange={handler.onStartDateChange}
+                  renderInput={(params) => <TextField size="medium" fullWidth {...params} />}
+                />
+              )}
+            </Grid>
 
-            {screenSize === 'small' ? (
-              <MobileDatePicker
-                label="To"
-                inputFormat={DATE_RANGE_INPUT_FORMAT}
-                value={dateRange.endDate}
-                onChange={handler.onEndDateChange}
-                renderInput={(params) => (
-                  <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
-                )}
-              />
-            ) : (
-              <DesktopDatePicker
-                label="To"
-                inputFormat={DATE_RANGE_INPUT_FORMAT}
-                value={dateRange.endDate}
-                onChange={handler.onEndDateChange}
-                renderInput={(params) => (
-                  <TextField size="small" sx={{ width: 110, mr: 2 }} {...params} />
-                )}
-              />
-            )}
-          </LocalizationProvider>
-        </Box>
+            <Grid item xs={6} md={6}>
+              {screenSize === 'small' ? (
+                <MobileDatePicker
+                  label="To"
+                  inputFormat={DATE_RANGE_INPUT_FORMAT}
+                  value={dateRange.endDate}
+                  onChange={handler.onEndDateChange}
+                  renderInput={(params) => <TextField size="small" fullWidth {...params} />}
+                />
+              ) : (
+                <DesktopDatePicker
+                  label="To"
+                  inputFormat={DATE_RANGE_INPUT_FORMAT}
+                  value={dateRange.endDate}
+                  onChange={handler.onEndDateChange}
+                  renderInput={(params) => <TextField size="medium" fullWidth {...params} />}
+                />
+              )}
+            </Grid>
+          </Grid>
+        </LocalizationProvider>
       </Card.Header>
       <Card.Body>
         <Paper elevation={0} sx={{ mt: '1rem' }}>

@@ -15,9 +15,9 @@ import {
 import { useFetchPaymentMethods } from '../useFetchPaymentMethods.hook';
 import { CreatePaymentMethodAlert } from '../CreatePaymentMethodAlert.component';
 import { StyledAutocompleteOption } from '@/components/Base';
-import { getNameFromLabel } from '@/core/Category';
+import { getNameFromLabel } from '@/components/Category';
 import { PaymentMethodService } from '../PaymentMethod.service';
-import { useFetchTransactions } from '@/core/Transaction';
+import { useFetchTransactions } from '@/components/Transaction';
 
 export type TPaymentMethodInputOption = {
   label: string;
