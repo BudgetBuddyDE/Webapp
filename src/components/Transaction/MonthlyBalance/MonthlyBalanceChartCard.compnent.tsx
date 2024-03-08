@@ -54,9 +54,7 @@ export const MonthlyBalanceChartCard: React.FC<TMonthlyBalanceChartCardProps> = 
               <Typography variant="caption">
                 {handler.formatMonth(selectedBarGroup.month)}
               </Typography>
-              <Typography variant="subtitle1">
-                {formatBalance(Math.abs(selectedBarGroup.balance))}
-              </Typography>
+              <Typography variant="subtitle1">{formatBalance(selectedBarGroup.balance)}</Typography>
             </Box>
           )}
 

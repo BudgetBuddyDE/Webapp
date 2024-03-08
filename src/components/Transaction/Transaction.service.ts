@@ -14,7 +14,7 @@ import {
   type TTransactionFile,
   type TFile,
   type TCreateTransactionFilePayload,
-  TMonthlyBalance,
+  type TMonthlyBalance,
   ZMonthlyBalance,
 } from '@budgetbuddyde/types';
 import { format, isSameMonth, subDays } from 'date-fns';
@@ -23,14 +23,6 @@ import { type IAuthContext } from '../Auth';
 import { type TDashboardStats } from '@/components/DashboardStatsWrapper.component';
 import { FileService } from '@/services/File.service';
 import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
-
-// export const ZMonthlyBalance = z.object({
-//   month: ZDate,
-//   income: z.number(),
-//   expenses: z.number(),
-//   balance: z.number(),
-// });
-// export type TMonthlyBalance = z.infer<typeof ZMonthlyBalance>;
 
 /**
  * Service for managing transactions.
