@@ -1,5 +1,5 @@
 import React from 'react';
-import { SparklineWidget, TSparklineWidget } from '@/components/Base';
+import { SparklineWidget, type TSparklineWidget } from '@/components/Base';
 import { useFetchMonthlyBalance } from './useFetchMonthlyBalance.hook';
 import { DateService } from '@/services';
 import { isSameYear } from 'date-fns';

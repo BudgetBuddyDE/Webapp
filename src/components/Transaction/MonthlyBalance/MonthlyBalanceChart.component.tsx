@@ -3,10 +3,11 @@ import { Group } from '@visx/group';
 import { BarGroup } from '@visx/shape';
 import { AxisBottom } from '@visx/axis';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
-import { useTheme } from '@mui/material';
+import { Tooltip, useTheme } from '@mui/material';
 import { format, isSameYear } from 'date-fns';
 import { type TMonthlyBalance } from '@budgetbuddyde/types';
 import { DateService } from '@/services';
+import { formatBalance } from '@/utils';
 
 export type TMontlyBalanceChartProps = {
   data: TMonthlyBalance[];
@@ -124,18 +125,23 @@ export const MonthlyBalanceChart: React.FC<TMontlyBalanceChartProps> = ({
                 onMouseEnter={() => helper.onMouseEnter(data[barGroup.index])}
                 onMouseLeave={() => helper.onMouseLeave()}
               >
-                {barGroup.bars.map((bar) => (
-                  <rect
-                    key={`bar-group-bar-${barGroup.index}-${bar.index}-${bar.value}-${bar.key}`}
-                    x={bar.x}
-                    y={bar.y}
-                    width={bar.width}
-                    height={bar.height}
-                    fill={bar.color}
-                    rx={theme.shape.borderRadius * 0.5}
-                    onMouseEnter={() => helper.onMouseEnter(data[barGroup.index])}
-                    onMouseLeave={() => helper.onMouseLeave()}
-                  />
+                {barGroup.bars.map((bar, idx) => (
+                  <Tooltip
+                    title={`${idx === 0 ? 'Income' : 'Expenses'} ${formatBalance(bar.value)}`}
+                    placement={'top'}
+                  >
+                    <rect
+                      key={`bar-group-bar-${barGroup.index}-${bar.index}-${bar.value}-${bar.key}`}
+                      x={bar.x}
+                      y={bar.y}
+                      width={bar.width}
+                      height={bar.height}
+                      fill={bar.color}
+                      rx={theme.shape.borderRadius * 0.5}
+                      onMouseEnter={() => helper.onMouseEnter(data[barGroup.index])}
+                      onMouseLeave={() => helper.onMouseLeave()}
+                    />
+                  </Tooltip>
                 ))}
               </Group>
             ))
