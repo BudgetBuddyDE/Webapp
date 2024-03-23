@@ -1,8 +1,14 @@
-import { TFilters } from '@/components/Filter';
-import { TSubscription, TTransaction } from '@budgetbuddyde/types';
+import { type TFilters } from '@/components/Filter';
+import { type TSubscription, type TTransaction } from '@budgetbuddyde/types';
 import { isSameDay } from 'date-fns';
 
-export function filterByKeyboard(
+/**
+ * Filters an array of transactions or subscriptions based on a keyword.
+ * @param keyword - The keyword to filter by.
+ * @param items - The array of transactions or subscriptions to filter.
+ * @returns The filtered array of transactions or subscriptions.
+ */
+export function filterByKeyword(
   keyword: string | null,
   items: TTransaction[] | TSubscription[]
 ): TTransaction[] | TSubscription[] {
@@ -18,6 +24,13 @@ export function filterByKeyboard(
   }) as TTransaction[] | TSubscription[];
 }
 
+/**
+ * Filters transactions based on the provided keyword, filter options, and transaction list.
+ * @param keyword - The keyword to filter transactions by.
+ * @param filter - The filter options to apply.
+ * @param transactions - The list of transactions to filter.
+ * @returns The filtered list of transactions.
+ */
 export function filterTransactions(
   keyword: string,
   filter: TFilters,
@@ -25,7 +38,7 @@ export function filterTransactions(
 ): TTransaction[] {
   if (transactions.length === 0) return [];
 
-  transactions = filterByKeyboard(keyword, transactions) as TTransaction[];
+  transactions = filterByKeyword(keyword, transactions) as TTransaction[];
 
   transactions = transactions.filter(
     ({ processedAt }) => processedAt > filter.startDate || isSameDay(processedAt, filter.startDate)
@@ -56,6 +69,13 @@ export function filterTransactions(
   return transactions;
 }
 
+/**
+ * Filters an array of subscriptions based on the provided keyword, filter options, and subscription data.
+ * @param keyword - The keyword to filter the subscriptions by.
+ * @param filter - The filter options to apply.
+ * @param subscriptions - The array of subscriptions to filter.
+ * @returns The filtered array of subscriptions.
+ */
 export function filterSubscriptions(
   keyword: string,
   filter: TFilters,
@@ -63,7 +83,7 @@ export function filterSubscriptions(
 ): TSubscription[] {
   if (subscriptions.length === 0) return [];
 
-  subscriptions = filterByKeyboard(keyword, subscriptions) as TSubscription[];
+  subscriptions = filterByKeyword(keyword, subscriptions) as TSubscription[];
 
   subscriptions = subscriptions.filter(({ executeAt }) => executeAt >= filter.startDate.getDate());
 

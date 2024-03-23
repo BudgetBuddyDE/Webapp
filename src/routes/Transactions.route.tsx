@@ -160,7 +160,7 @@ export const Transactions = () => {
                 whiteSpace: 'nowrap',
               }}
             >
-              <TableCell>
+              <TableCell size={AppConfig.table.cellSize}>
                 <Checkbox
                   checked={handler.selection.isSelected(transaction)}
                   onChange={() => handler.selection.onSelect(transaction)}

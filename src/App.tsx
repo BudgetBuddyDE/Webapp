@@ -1,7 +1,9 @@
 import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { FullPageLoader } from './components/Loading/FullPageLoader.component';
-import { DashboardLayout, DashboardView, BudgetView } from './routes/Dashboard';
+import { DashboardLayout, DashboardView, BudgetView, StocksView } from './routes/Dashboard';
+import StockRoute from './routes/Stock.route';
+import StocksRoute from './routes/Stocks.route';
 import TransactionsRoute from './routes/Transactions.route';
 import SubscriptionsRoute from './routes/Subscriptions.route';
 import PaymentMethodsRoute from './routes/PaymentMethods.route';
@@ -23,7 +25,12 @@ const App = () => {
           <Route path="/dashboard" element={<DashboardLayout useOutletInsteadOfChildren />}>
             <Route index element={<DashboardView />} />
             <Route path="budget" element={<BudgetView />} />
+            <Route path="stocks" element={<StocksView />} />
             <Route path="*" element={<Navigate to="/dashboard" />} />
+          </Route>
+          <Route path="/stocks">
+            <Route index element={<StocksRoute />} />
+            <Route path=":isin" element={<StockRoute />} />
           </Route>
           <Route path="/transactions" element={<TransactionsRoute />} />
           <Route path="/subscriptions" element={<SubscriptionsRoute />} />
