@@ -12,7 +12,6 @@ import {
 } from '@mui/material';
 import { AddRounded, ArrowForwardRounded, DeleteRounded } from '@mui/icons-material';
 import { format } from 'date-fns';
-import { io } from 'socket.io-client';
 import { ActionPaper } from '@/components/Base';
 import { ContentGrid } from '@/components/Layout';
 import { withAuthLayout } from '@/components/Auth/Layout';
@@ -36,7 +35,7 @@ import {
   type TTimeframe,
   type TDividendDetails,
 } from '@/components/Stocks';
-import { formatBalance } from '@/utils';
+import { formatBalance, getSocketIOClient } from '@/utils';
 import { SearchInput } from '@/components/Base/Search';
 import { useAuthContext } from '@/components/Auth';
 import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks/useEntityDrawer.reducer';
@@ -54,12 +53,7 @@ interface IStockHandler {
 export const Stock = () => {
   const { showSnackbar } = useSnackbarContext();
   const { authOptions } = useAuthContext();
-  const socket = io('ws://' + process.env.STOCK_SERVICE_HOST!.split('//')[1], {
-    autoConnect: false,
-    auth: {
-      token: `Bearer ${authOptions.uuid}.${authOptions.password}`,
-    },
-  });
+  const socket = getSocketIOClient(authOptions);
   const {
     loading: loadingStockPositions,
     positions: stockPositions,

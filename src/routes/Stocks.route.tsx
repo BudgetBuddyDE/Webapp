@@ -16,7 +16,6 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { io } from 'socket.io-client';
 import { useSnackbarContext } from '@/components/Snackbar';
 import {
   AddStockPositionDrawer,
@@ -29,7 +28,7 @@ import {
   useStockStore,
 } from '@/components/Stocks';
 import { AppConfig } from '@/app.config';
-import { formatBalance } from '@/utils';
+import { formatBalance, getSocketIOClient } from '@/utils';
 import { ActionPaper } from '@/components/Base';
 import { SearchInput } from '@/components/Base/Search';
 import { CircularProgress } from '@/components/Loading';
@@ -48,12 +47,7 @@ export const Stocks = () => {
   const navigate = useNavigate();
   const { authOptions } = useAuthContext();
   const { updateQuote } = useStockStore();
-  const socket = io('ws://' + process.env.STOCK_SERVICE_HOST!.split('//')[1], {
-    autoConnect: false,
-    auth: {
-      token: `Bearer ${authOptions.uuid}.${authOptions.password}`,
-    },
-  });
+  const socket = getSocketIOClient(authOptions);
   const { showSnackbar } = useSnackbarContext();
   const [showDeletePositionDialog, setShowDeletePositionDialog] = React.useState(false);
   const [deletePosition, setDeletePosition] = React.useState<TStockPosition | null>(null);

@@ -3,7 +3,7 @@ import { AccountBalanceRounded, TimelineRounded } from '@mui/icons-material';
 import { Grid } from '@mui/material';
 import { StatsCard } from '@/components/StatsCard.component';
 import { useAuthContext } from '@/components/Auth';
-import { formatBalance } from '@/utils';
+import { formatBalance, getSocketIOClient } from '@/utils';
 import {
   StockList,
   StockNews,
@@ -13,17 +13,11 @@ import {
   useStockStore,
 } from '@/components/Stocks';
 import { DividendTable } from '@/components/Stocks/DividendTable.component';
-import { io } from 'socket.io-client';
 
 export const StocksView = () => {
   const { updateQuote } = useStockStore();
   const { authOptions } = useAuthContext();
-  const socket = io('ws://' + process.env.STOCK_SERVICE_HOST!.split('//')[1], {
-    autoConnect: false,
-    auth: {
-      token: `Bearer ${authOptions.uuid}.${authOptions.password}`,
-    },
-  });
+  const socket = getSocketIOClient(authOptions);
   const { positions: stockPositions } = useFetchStockPositions();
   const [loading, setLoading] = React.useState(true);
   const [dividends, setDividends] = React.useState<TDividendDetails[]>([]);
