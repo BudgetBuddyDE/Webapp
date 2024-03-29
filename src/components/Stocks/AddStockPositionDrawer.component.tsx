@@ -6,7 +6,7 @@ import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@
 import { useAuthContext } from '../Auth';
 import { useSnackbarContext } from '../Snackbar';
 import { useScreenSize, type TEntityDrawerState } from '@/hooks';
-import { ZOpenPositionPayload, type TOpenPositionPayload } from './types';
+import { ZOpenPositionPayload, type TOpenPositionPayload } from '@budgetbuddyde/types';
 import { SearchStock, type TSearchStockOption } from './SearchStock.component';
 import {
   SelectStockExchange,

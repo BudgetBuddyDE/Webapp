@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { TUser } from '@budgetbuddyde/types';
 import { type IBaseStore } from '../Transaction';
-import { type TStockPosition } from './types';
+import { type TStockPosition } from '@budgetbuddyde/types';
 
 export interface IStockStore<T> extends IBaseStore<T[]> {
   fetchedBy: TUser['uuid'] | null;

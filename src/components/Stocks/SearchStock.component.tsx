@@ -2,7 +2,7 @@ import React from 'react';
 import { debounce } from 'lodash';
 import { Autocomplete, Box, CircularProgress, Grid, TextField, Typography } from '@mui/material';
 import { useSnackbarContext } from '../Snackbar';
-import { type TAssetSearchResult } from './types';
+import { type TAssetSearchResult } from '@budgetbuddyde/types';
 import { Image, StyledAutocompleteOption } from '@/components/Base';
 import { StockService } from './Stock.service';
 import { useAuthContext } from '../Auth';

@@ -1,66 +1,90 @@
 import React from 'react';
-import { Box, Divider, List, ListItem, ListItemText, Typography } from '@mui/material';
-import { Card, Image, Linkify } from '../Base';
+import { Divider, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import {
+  BusinessRounded,
+  PublicRounded,
+  BookmarkRounded,
+  TodayRounded,
+  PeopleRounded,
+  AttachMoneyRounded,
+  PieChartRounded,
+  SportsMartialArtsRounded,
+} from '@mui/icons-material';
+import { format } from 'date-fns';
+import { type TAssetDetails } from '@budgetbuddyde/types';
+import { Card } from '../Base';
+import { formatBalance } from '@/utils';
 
 export type TCompanyInformationProps = {
-  name: string;
-  logo: string;
-  type: string;
-  domicile?: string;
-  identifier: string;
-  wkn: string;
-  website?: string;
+  details: TAssetDetails;
 };
 
-export const CompanyInformation: React.FC<TCompanyInformationProps> = ({
-  name,
-  logo,
-  type,
-  domicile = 'Unknown',
-  identifier,
-  wkn,
-  website = 'Unknown',
-}) => {
+export const CompanyInformation: React.FC<TCompanyInformationProps> = ({ details }) => {
   return (
     <Card sx={{ p: 0 }}>
-      <Card.Header sx={{ p: 2, pb: 0 }}>
-        <Box sx={{ display: 'flex' }}>
-          <Image
-            src={logo}
-            alt={'Stock Logo'}
-            sx={{
-              width: '40px',
-              height: '40px',
-              mr: 1,
-            }}
-          />
-          <Box>
-            <Card.Title>{name}</Card.Title>
-            <Card.Subtitle>Company information</Card.Subtitle>
-          </Box>
-        </Box>
+      <Card.Header sx={{ px: 2, pt: 2 }}>
+        <Card.Title>Info</Card.Title>
       </Card.Header>
-      <Card.Body>
+      <Card.Body sx={{ px: 0 }}>
         <List dense>
-          <ListItem>
-            <ListItemText primary="Type" secondary={<Typography>{type}</Typography>} />
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemText primary="Domicil" secondary={<Typography>{domicile}</Typography>} />
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemText primary="ISIN" secondary={<Typography>{identifier}</Typography>} />
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemText primary="WKN" secondary={<Typography>{wkn}</Typography>} />
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemText primary="Website" secondary={<Linkify>{website}</Linkify>} />
-          </ListItem>
+          {[
+            {
+              icon: <BusinessRounded fontSize="small" />,
+              text: 'Company',
+              value: details.asset.security.etfCompany,
+            },
+            {
+              icon: <PublicRounded fontSize="small" />,
+              text: 'Domicile',
+              value: details.asset.security.etfDomicile,
+            },
+            {
+              icon: <BookmarkRounded fontSize="small" />,
+              text: 'ISIN',
+              value: details.asset.security.isin,
+            },
+            {
+              icon: <BookmarkRounded fontSize="small" />,
+              text: 'WKN',
+              value: details.asset.security.wkn,
+            },
+            {
+              icon: <TodayRounded fontSize="small" />,
+              text: 'IPO',
+              value: format(details.asset.security.ipoDate, 'dd.MM.yyyy'),
+            },
+            {
+              icon: <PeopleRounded fontSize="small" />,
+              text: 'Employees (Full-Time)',
+              value: details.details.securityDetails.fullTimeEmployees.toLocaleString(),
+            },
+            {
+              icon: <SportsMartialArtsRounded fontSize="small" />,
+              text: 'CEO',
+              value: details.details.securityDetails.ceo,
+            },
+            {
+              icon: <AttachMoneyRounded fontSize="small" />,
+              text: 'Market cap.',
+              value: formatBalance(
+                details.details.securityDetails.marketCap,
+                details.details.securityDetails.currency
+              ),
+            },
+            {
+              icon: <PieChartRounded fontSize="small" />,
+              text: 'Shares',
+              value: details.details.securityDetails.shares.toLocaleString(),
+            },
+          ].map(({ icon, text, value }, idx, arr) => (
+            <React.Fragment key={text.toLowerCase()}>
+              <ListItem secondaryAction={<Typography>{value}</Typography>}>
+                <ListItemIcon sx={{ minWidth: 'unset', mr: 1 }}>{icon}</ListItemIcon>
+                <ListItemText primary={text} />
+              </ListItem>
+              {idx !== arr.length - 1 && <Divider />}
+            </React.Fragment>
+          ))}
         </List>
       </Card.Body>
     </Card>

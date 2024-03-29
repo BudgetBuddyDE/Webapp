@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuthContext } from '@/components/Auth';
-import { StockService } from './Stock.service';
+import { StockService } from '../Stock.service';
 
 export function useFetchStockDividends(isin: string[]) {
   const { session, authOptions } = useAuthContext();

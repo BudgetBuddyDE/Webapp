@@ -2,10 +2,10 @@ import React from 'react';
 import { Chip, TableCell, TableRow, Typography } from '@mui/material';
 import { format } from 'date-fns';
 import { type TTableProps, Table } from '@/components/Base/Table';
-import { type TDividendDetails } from './types';
+import { type TDividendDetails } from '@budgetbuddyde/types';
 import { AppConfig } from '@/app.config';
 import { StockPrice } from './StockPrice.component';
-import { useFetchStockPositions } from './useFetchStockPositions.hook';
+import { useFetchStockPositions } from './hooks/useFetchStockPositions.hook';
 import { StockService } from './Stock.service';
 
 export type TDividendTableProps = {

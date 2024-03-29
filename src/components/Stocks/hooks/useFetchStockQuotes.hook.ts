@@ -1,7 +1,7 @@
 import React from 'react';
+import { type TTimeframe } from '@budgetbuddyde/types';
 import { useAuthContext } from '@/components/Auth';
-import { TTimeframe } from './types';
-import { StockService } from './Stock.service';
+import { StockService } from '../Stock.service';
 
 export function useFetchStockQuotes(isin: string[], exchange: string, timeframe: TTimeframe) {
   const { session, authOptions } = useAuthContext();

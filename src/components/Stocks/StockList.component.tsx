@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { ArrowForwardRounded } from '@mui/icons-material';
 import { Box, Button, Chip, Link } from '@mui/material';
 import { Card, ListWithIcon } from '@/components/Base';
-import { type TStockPosition } from '@/components/Stocks';
+import { type TStockPosition } from '@budgetbuddyde/types';
 import { StockPrice } from './index';
 import { useSnackbarContext } from '../Snackbar';
 

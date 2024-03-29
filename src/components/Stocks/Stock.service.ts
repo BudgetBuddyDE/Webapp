@@ -11,6 +11,7 @@ import {
   ZAssetChartQuote,
   ZMaterializedStockPositionTable,
   ZStockPositionTable,
+  ZAssetDetails,
   type TDividendDetailList,
   type TStockExchanges,
   type TAssetSearchResult,
@@ -24,7 +25,8 @@ import {
   type TMaterializedStockPositionTable,
   type TStockPositionTable,
   type TDividendDetails,
-} from './types';
+  type TAssetDetails,
+} from '@budgetbuddyde/types';
 import { type TSelectStockExchangeOption } from './SelectStockExchange.component';
 
 export class StockService {
@@ -32,6 +34,13 @@ export class StockService {
     ? (process.env.STOCK_SERVICE_HOST as string)
     : '/stock_service';
 
+  /**
+   * Retrieves a stock exchange input option from a list of stock exchanges based on the exchange ticker.
+   *
+   * @param exchangeTicker - The ticker symbol of the stock exchange.
+   * @param stockExchanges - The list of stock exchanges to search from.
+   * @returns The matching stock exchange input option, or undefined if no match is found.
+   */
   static getStockExchangeInputOptionFromList(
     exchangeTicker: string,
     stockExchanges: TSelectStockExchangeOption[]
@@ -41,6 +50,11 @@ export class StockService {
     return match;
   }
 
+  /**
+   * Transforms an array of dividend details into a new array of transformed dividend objects.
+   * @param dividends - An array of dividend details.
+   * @returns An array of transformed dividend objects.
+   */
   static transformDividendDetails(dividends: TDividendDetails[]) {
     return Object.entries(dividends).flatMap(([_, data]) => {
       const companyInfo = data.asset;
@@ -82,6 +96,37 @@ export class StockService {
     });
   }
 
+  /**
+   * Retrieves asset details for a given ISIN.
+   * @param isin - The ISIN of the asset.
+   * @returns A promise that resolves to a tuple containing the asset details and any error that occurred during the retrieval.
+   */
+  static async getAssetDetails(
+    isin: string,
+    authOptions: IAuthContext['authOptions']
+  ): Promise<TServiceResponse<TAssetDetails>> {
+    try {
+      const response = await fetch(`${this.host}/v1/asset/details/${isin}`, {
+        ...prepareRequestOptions(authOptions),
+      });
+      const json = (await response.json()) as TApiResponse<TAssetDetails>;
+      if (json.status != 200) return [null, new Error(json.message!)];
+
+      const parsingResult = ZAssetDetails.safeParse(json.data);
+      if (!parsingResult.success) throw new Error(parsingResult.error.message);
+      return [parsingResult.data, null];
+    } catch (error) {
+      return [null, error as Error];
+    }
+  }
+
+  /**
+   * Retrieves the open positions for the given payload.
+   *
+   * @param payload - The payload containing the open position data.
+   * @param authOptions - The authentication options.
+   * @returns A promise that resolves to a tuple containing the open positions and an error, if any.
+   */
   static async openPositions(
     payload: TOpenPositionPayload[],
     authOptions: IAuthContext['authOptions']
@@ -103,6 +148,12 @@ export class StockService {
     }
   }
 
+  /**
+   * Retrieves the positions of stocks for a given user.
+   *
+   * @param authOptions - The authentication options for the request.
+   * @returns A promise that resolves to a tuple containing the stock positions and any potential error.
+   */
   static async getPositions(
     authOptions: IAuthContext['authOptions']
   ): Promise<TServiceResponse<TStockPosition[]>> {
@@ -121,6 +172,13 @@ export class StockService {
     }
   }
 
+  /**
+   * Updates the positions of stocks.
+   *
+   * @param payload - The payload containing the updated positions.
+   * @param authOptions - The authentication options.
+   * @returns A promise that resolves to a tuple containing the updated positions and an error, if any.
+   */
   static async updatePositions(
     payload: TUpdatePositionPayload[],
     authOptions: IAuthContext['authOptions']
@@ -143,6 +201,13 @@ export class StockService {
     }
   }
 
+  /**
+   * Deletes stock positions.
+   *
+   * @param payload - The payload containing the positions to be deleted.
+   * @param authOptions - The authentication options.
+   * @returns A promise that resolves to a tuple containing the parsed response data and any error that occurred.
+   */
   static async deletePosition(
     payload: TClosePositionPayload[],
     authOptions: IAuthContext['authOptions']
@@ -164,6 +229,13 @@ export class StockService {
     }
   }
 
+  /**
+   * Retrieves the quote for a specific stock asset from the given exchange.
+   * @param asset - The asset symbol or identifier.
+   * @param exchange - The exchange where the asset is traded.
+   * @param authOptions - The authentication options for the request.
+   * @returns A promise that resolves to a tuple containing the stock quote data and any error that occurred during the request.
+   */
   static async getQuote(
     asset: string,
     exchange: string,
@@ -188,6 +260,15 @@ export class StockService {
     }
   }
 
+  /**
+   * Retrieves quotes for multiple assets from the specified exchange and timeframe.
+   *
+   * @param assets - An array of asset symbols.
+   * @param exchange - The exchange from which to retrieve the quotes.
+   * @param timeframe - The timeframe for the quotes.
+   * @param authOptions - The authentication options for the request.
+   * @returns A promise that resolves to a tuple containing the quotes data and any error that occurred.
+   */
   static async getQuotes(
     assets: string[],
     exchange: string,

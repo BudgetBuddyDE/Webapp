@@ -8,14 +8,14 @@ import { useScreenSize, type TEntityDrawerState } from '@/hooks';
 import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { StockService } from './Stock.service';
-import { ZUpdatePositionPayload, type TUpdatePositionPayload } from './types';
+import { ZUpdatePositionPayload, type TUpdatePositionPayload } from '@budgetbuddyde/types';
 import {
   type TSelectStockExchangeOption,
   SelectStockExchange,
   StockExchangeOptions,
 } from './SelectStockExchange.component';
 import { transformBalance } from '@/utils';
-import { useFetchStockPositions } from './useFetchStockPositions.hook';
+import { useFetchStockPositions } from './hooks/useFetchStockPositions.hook';
 
 export type TEditStockPositionDrawerProps = {
   onClose: () => void;

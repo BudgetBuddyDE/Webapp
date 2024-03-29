@@ -1,6 +1,7 @@
 import React from 'react';
 import { AccountBalanceRounded, TimelineRounded } from '@mui/icons-material';
 import { Grid } from '@mui/material';
+import { type TDividendDetails } from '@budgetbuddyde/types';
 import { StatsCard } from '@/components/StatsCard.component';
 import { useAuthContext } from '@/components/Auth';
 import { formatBalance, getSocketIOClient } from '@/utils';
@@ -11,7 +12,6 @@ import {
   useFetchStockPositions,
   useStockStore,
   useFetchStockDividends,
-  type TDividendDetails,
 } from '@/components/Stocks';
 
 export const StocksView = () => {
@@ -19,9 +19,11 @@ export const StocksView = () => {
   const { authOptions } = useAuthContext();
   const socket = getSocketIOClient(authOptions);
   const { loading: loadingStockPositions, positions: stockPositions } = useFetchStockPositions();
-  const { loading: loadingDividends, dividends } = useFetchStockDividends(
-    stockPositions.map(({ isin }) => isin)
-  );
+  const {
+    loading: loadingDividends,
+    dividends,
+    refresh: refreshDividends,
+  } = useFetchStockDividends(stockPositions.map(({ isin }) => isin));
 
   const depotBuyIn: number = React.useMemo(() => {
     return stockPositions.reduce((acc, position) => {
@@ -66,6 +68,12 @@ export const StocksView = () => {
       socket.disconnect();
     };
   }, [authOptions.uuid, socket, stockPositions]);
+
+  React.useEffect(() => {
+    if (!loadingStockPositions && stockPositions.length > 0) {
+      refreshDividends();
+    }
+  }, [loadingStockPositions, stockPositions]);
 
   return (
     <React.Fragment>

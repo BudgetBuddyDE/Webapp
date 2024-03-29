@@ -1,6 +1,6 @@
 import React from 'react';
 import { ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { type TTimeframe } from './types';
+import { type TTimeframe } from '@budgetbuddyde/types';
 
 export type TTimeframeProps = {
   onChange: (timeframe: TTimeframe) => void;

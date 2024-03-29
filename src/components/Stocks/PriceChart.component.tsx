@@ -4,7 +4,7 @@ import { ParentSize } from '@visx/responsive';
 import { LineChart } from '@mui/x-charts';
 import { Box, useTheme } from '@mui/material';
 import { Card } from '@/components/Base';
-import { type TTimeframe } from './types';
+import { type TTimeframe } from '@budgetbuddyde/types';
 import { Timeframe } from './Timeframe.component';
 
 export type TPriceChartPoint = {

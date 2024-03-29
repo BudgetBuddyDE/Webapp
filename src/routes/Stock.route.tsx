@@ -1,6 +1,9 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Button,
   Chip,
   Grid,
@@ -10,30 +13,40 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { AddRounded, ArrowForwardRounded, DeleteRounded } from '@mui/icons-material';
+import {
+  type TStockPosition,
+  type TUpdatePositionPayload,
+  type TOpenPositionPayload,
+  type TTimeframe,
+} from '@budgetbuddyde/types';
+import {
+  AddRounded,
+  ArrowForwardRounded,
+  DeleteRounded,
+  ExpandMoreRounded,
+  HelpOutlineRounded,
+  TimelineRounded,
+} from '@mui/icons-material';
 import { format } from 'date-fns';
-import { ActionPaper } from '@/components/Base';
+import { ActionPaper, NoResults } from '@/components/Base';
 import { ContentGrid } from '@/components/Layout';
 import { withAuthLayout } from '@/components/Auth/Layout';
-import { PriceChart, type TPriceChartPoint } from '@/components/Stocks/PriceChart.component';
 import { Table } from '@/components/Base/Table';
 import {
   StockNews,
   StockPrice,
   StockService,
-  useFetchStockPositions,
   EditStockPositionDrawer,
   AddStockPositionDrawer,
   CompanyInformation,
   DividendList,
+  StockRating,
+  PriceChart,
+  useFetchStockPositions,
   useStockStore,
   useFetchStockQuotes,
-  type TAssetSearchResult,
-  type TStockPosition,
-  type TUpdatePositionPayload,
-  type TOpenPositionPayload,
-  type TTimeframe,
-  type TDividendDetails,
+  useFetchStockDetails,
+  type TPriceChartPoint,
 } from '@/components/Stocks';
 import { formatBalance, getSocketIOClient } from '@/utils';
 import { SearchInput } from '@/components/Base/Search';
@@ -41,6 +54,11 @@ import { useAuthContext } from '@/components/Auth';
 import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks/useEntityDrawer.reducer';
 import { useSnackbarContext } from '@/components/Snackbar';
 import { DeleteDialog } from '@/components/DeleteDialog.component';
+import { CircularProgress } from '@/components/Loading';
+
+const NoStockMessage = () => (
+  <NoResults icon={<HelpOutlineRounded />} text="No information found!" />
+);
 
 interface IStockHandler {
   onSearch: (term: string) => void;
@@ -51,25 +69,27 @@ interface IStockHandler {
 }
 
 export const Stock = () => {
+  const params = useParams<{ isin: string }>();
   const { showSnackbar } = useSnackbarContext();
   const { authOptions } = useAuthContext();
+  const { updateQuote } = useStockStore();
   const socket = getSocketIOClient(authOptions);
+  const [keyword, setKeyword] = React.useState('');
+  const [chartTimeframe, setChartTimeframe] = React.useState<TTimeframe>('1m');
+  const { loading: loadingDetails, details: stockDetails } = useFetchStockDetails(
+    params.isin || ''
+  );
+  const {
+    loading: loadingQuotes,
+    quotes,
+    updateQuotes,
+    refresh: refreshQuotes,
+  } = useFetchStockQuotes([params.isin || ''], 'langschwarz', chartTimeframe);
   const {
     loading: loadingStockPositions,
     positions: stockPositions,
     refresh: refreshStockPositions,
   } = useFetchStockPositions();
-  const { updateQuote } = useStockStore();
-  const params = useParams<{ isin: string }>();
-  const [loading, setLoading] = React.useState(true);
-  const [stock, setStock] = React.useState<TAssetSearchResult | null>(null);
-  const [keyword, setKeyword] = React.useState('');
-  const [chartTimeframe, setChartTimeframe] = React.useState<TTimeframe>('1m');
-  const { quotes, updateQuotes } = useFetchStockQuotes(
-    [params.isin || ''],
-    'langschwarz',
-    chartTimeframe
-  );
   const [showAddDrawer, dispatchAddDrawer] = React.useReducer(
     useEntityDrawer<TOpenPositionPayload>,
     CreateEntityDrawerState<TOpenPositionPayload>()
@@ -80,7 +100,11 @@ export const Stock = () => {
   );
   const [showDeletePositionDialog, setShowDeletePositionDialog] = React.useState(false);
   const [deletePosition, setDeletePosition] = React.useState<TStockPosition | null>(null);
-  const [dividends, setDividends] = React.useState<TDividendDetails[]>([]);
+
+  const preparedChartData: TPriceChartPoint[] = React.useMemo(() => {
+    if (!quotes) return [];
+    return quotes[0].quotes.map(({ date, price }) => ({ price, date }));
+  }, [quotes]);
 
   const displayedStockPositions = React.useMemo(() => {
     if (keyword === '') return stockPositions.filter(({ isin }) => isin === params.isin);
@@ -103,7 +127,6 @@ export const Stock = () => {
     },
     async onConfirmDeletePosition() {
       if (!deletePosition) return;
-
       const [position, error] = await StockService.deletePosition(
         [{ id: deletePosition.id }],
         authOptions
@@ -123,7 +146,6 @@ export const Stock = () => {
         });
         return;
       }
-
       showSnackbar({ message: 'Position deleted' });
       setShowDeletePositionDialog(false);
       setDeletePosition(null);
@@ -149,56 +171,8 @@ export const Stock = () => {
     },
   };
 
-  const chartData: TPriceChartPoint[] = React.useMemo(() => {
-    if (!quotes) return [];
-    return quotes[0].quotes.map(({ date, price }) => ({ price, date }));
-  }, [quotes]);
-
-  const fetchStock = async (isin: string) => {
-    setLoading(true);
-    const [result, error] = await StockService.searchAsset(isin, authOptions);
-    if (error) {
-      console.error(error);
-      setStock(null);
-      setLoading(false);
-      return;
-    }
-
-    if (!result || result.length === 0) {
-      setStock(null);
-      setLoading(false);
-      return;
-    }
-
-    setStock(result![0]);
-    setLoading(false);
-  };
-
-  const fetchStockDividends = React.useCallback(async () => {
-    if (!params.isin) return;
-    setLoading(true);
-    const [dividends, error] = await StockService.getDividends([params.isin], authOptions);
-    if (error) {
-      console.error(error);
-      setLoading(false);
-      return;
-    }
-    if (!dividends) return setLoading(false);
-    setDividends(Object.entries(dividends).map(([_, dividendDetails]) => dividendDetails));
-    setLoading(false);
-  }, [stockPositions]);
-
-  React.useLayoutEffect(() => {
-    fetchStockDividends();
-    return () => {
-      setLoading(false);
-    };
-  }, [params.isin]);
-
   React.useLayoutEffect(() => {
     if (!params.isin) return;
-    fetchStock(params.isin);
-
     socket.connect();
 
     socket.emit(
@@ -233,22 +207,28 @@ export const Stock = () => {
         authOptions.uuid
       );
       socket.disconnect();
-      setLoading(true);
-      setStock(null);
     };
   }, [params, authOptions]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  if (!loading && !stock) {
-    return <div>Stock not found</div>;
-  }
+  React.useEffect(() => {
+    refreshQuotes();
+  }, [chartTimeframe]);
+
   return (
-    <ContentGrid title={stock?.name ?? ''} description={params.isin}>
-      <Grid container item xs={12} md={8} spacing={3}>
+    <ContentGrid title={stockDetails?.asset.name ?? ''} description={params.isin}>
+      <Grid container item xs={12} md={12} lg={8} spacing={3}>
         <Grid item xs={12} md={12}>
-          <PriceChart data={chartData} onTimeframeChange={setChartTimeframe} />
+          {loadingQuotes ? (
+            <CircularProgress />
+          ) : quotes ? (
+            <PriceChart
+              data={preparedChartData}
+              timeframe={chartTimeframe}
+              onTimeframeChange={setChartTimeframe}
+            />
+          ) : (
+            <NoResults icon={<TimelineRounded />} text="No quotes found" />
+          )}
         </Grid>
 
         <Grid item xs={12} md={12}>
@@ -331,27 +311,66 @@ export const Stock = () => {
         </Grid>
       </Grid>
 
-      <Grid container item xs={12} md={4} spacing={3}>
-        {stock && (
-          <Grid item xs={12} md={12}>
-            <CompanyInformation
-              name={stock.name}
-              identifier={stock.identifier}
-              logo={stock.logo}
-              type={stock.type}
-              domicile={stock.domicile}
-              wkn={stock.wkn}
-              website={stock.website}
-            />
-          </Grid>
-        )}
-
+      <Grid container item xs={12} md={12} lg={4} spacing={3}>
         <Grid item xs={12} md={12}>
-          <StockNews news={[]} />
+          {loadingDetails ? (
+            <CircularProgress />
+          ) : stockDetails ? (
+            <CompanyInformation details={stockDetails} />
+          ) : (
+            <NoStockMessage />
+          )}
         </Grid>
 
         <Grid item xs={12} md={12}>
-          <DividendList dividends={dividends} />
+          {loadingDetails ? (
+            <CircularProgress />
+          ) : stockDetails ? (
+            <DividendList dividends={stockDetails.details.futureDividends ?? []} />
+          ) : (
+            <NoStockMessage />
+          )}
+        </Grid>
+
+        <Grid item xs={12} md={12}>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+              <Typography variant="subtitle1" fontWeight={'bold'}>
+                Company Information
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography variant="body2">
+                {stockDetails?.details.securityDetails.description}
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
+        </Grid>
+
+        <Grid item xs={12} md={12}>
+          {loadingDetails ? (
+            <CircularProgress />
+          ) : stockDetails ? (
+            <StockNews
+              news={stockDetails.details.news.map(({ title, description, url }) => ({
+                heading: title,
+                summary: description,
+                link: url,
+              }))}
+            />
+          ) : (
+            <NoStockMessage />
+          )}
+        </Grid>
+
+        <Grid item xs={12} md={12}>
+          {loadingDetails ? (
+            <CircularProgress />
+          ) : stockDetails ? (
+            <StockRating ratings={stockDetails!.details.scorings} />
+          ) : (
+            <NoStockMessage />
+          )}
         </Grid>
       </Grid>
 

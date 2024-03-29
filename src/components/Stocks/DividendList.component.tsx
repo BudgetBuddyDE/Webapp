@@ -2,20 +2,15 @@ import React from 'react';
 import { Box, Divider, List, ListItem, ListItemText } from '@mui/material';
 import { format } from 'date-fns';
 import { EventBusyRounded } from '@mui/icons-material';
-import { type TDividendDetails } from './types';
+import { type TDividend } from '@budgetbuddyde/types';
 import { Card, NoResults } from '../Base';
-import { StockService } from './Stock.service';
 import { StockPrice } from './StockPrice.component';
 
 export type TDividendListProps = {
-  dividends: TDividendDetails[];
+  dividends: TDividend[];
 };
 
 export const DividendList: React.FC<TDividendListProps> = ({ dividends }) => {
-  const futureDividends = React.useMemo(() => {
-    return StockService.transformDividendDetails(dividends);
-  }, [dividends]);
-
   return (
     <Card sx={{ p: 0 }}>
       <Card.Header sx={{ p: 2, pb: 0 }}>
@@ -24,27 +19,22 @@ export const DividendList: React.FC<TDividendListProps> = ({ dividends }) => {
         </Box>
       </Card.Header>
       <Card.Body>
-        {futureDividends.length > 0 ? (
+        {dividends.length > 0 ? (
           <List>
-            {futureDividends.map((dividend, idx, arr) => (
-              <React.Fragment key={dividend.key}>
+            {dividends.map((dividend, idx, arr) => (
+              <React.Fragment key={dividend.exDate.toString()}>
                 <ListItem
                   alignItems="flex-start"
                   secondaryAction={
                     <Box>
-                      <StockPrice
-                        price={dividend.dividend.price}
-                        currency={dividend.dividend.currency}
-                      />
+                      <StockPrice price={dividend.price} currency={dividend.currency} />
                     </Box>
                   }
                 >
                   <ListItemText
-                    primary={format(dividend.dividend.paymentDate, 'dd.MM')}
+                    primary={format(dividend.paymentDate, 'dd.MM')}
                     secondary={
-                      <React.Fragment>
-                        Ex-Date: {format(dividend.dividend.exDate, 'dd.MM')}
-                      </React.Fragment>
+                      <React.Fragment>Ex-Date: {format(dividend.exDate, 'dd.MM')}</React.Fragment>
                     }
                   />
                 </ListItem>
@@ -55,7 +45,7 @@ export const DividendList: React.FC<TDividendListProps> = ({ dividends }) => {
         ) : (
           <NoResults
             icon={<EventBusyRounded />}
-            text="No upcoming dividends found."
+            text="No dividend information found."
             sx={{ m: 2 }}
           />
         )}

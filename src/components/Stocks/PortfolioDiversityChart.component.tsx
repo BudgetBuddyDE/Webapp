@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 import { ParentSize } from '@visx/responsive';
 import { Card, MuiPieChart, NoResults, type TMuiChartData } from '@/components/Base';
-import { type TStockPosition } from './types';
+import { type TStockPosition } from '@budgetbuddyde/types';
 
 export type TPortfolioDiversityChartProps = {
   positions: TStockPosition[];

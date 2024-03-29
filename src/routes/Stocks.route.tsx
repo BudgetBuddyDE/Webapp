@@ -16,13 +16,12 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { type TOpenPositionPayload, type TStockPosition } from '@budgetbuddyde/types';
 import { useSnackbarContext } from '@/components/Snackbar';
 import {
   AddStockPositionDrawer,
   PortfolioDiversityChart,
-  type TOpenPositionPayload,
   StockPrice,
-  type TStockPosition,
   useFetchStockPositions,
   StockService,
   useStockStore,
@@ -148,7 +147,16 @@ export const Stocks = () => {
         <Table<TStockPosition>
           title="Positions"
           data={displayedStockPositions}
-          headerCells={['Bought at', 'Name', 'Buy in', 'Price', 'Quantity', 'Value', 'Change', '']}
+          headerCells={[
+            'Bought at',
+            'Name',
+            'Buy in',
+            'Price',
+            'Quantity',
+            'Value',
+            'Profit (+/-)',
+            '',
+          ]}
           renderRow={(position) => (
             <TableRow key={position.id}>
               <TableCell size={AppConfig.table.cellSize}>
