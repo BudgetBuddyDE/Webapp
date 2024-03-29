@@ -7,20 +7,21 @@ import { formatBalance, getSocketIOClient } from '@/utils';
 import {
   StockList,
   StockNews,
-  StockService,
+  DividendTable,
   useFetchStockPositions,
-  type TDividendDetails,
   useStockStore,
+  useFetchStockDividends,
+  type TDividendDetails,
 } from '@/components/Stocks';
-import { DividendTable } from '@/components/Stocks/DividendTable.component';
 
 export const StocksView = () => {
   const { updateQuote } = useStockStore();
   const { authOptions } = useAuthContext();
   const socket = getSocketIOClient(authOptions);
-  const { positions: stockPositions } = useFetchStockPositions();
-  const [loading, setLoading] = React.useState(true);
-  const [dividends, setDividends] = React.useState<TDividendDetails[]>([]);
+  const { loading: loadingStockPositions, positions: stockPositions } = useFetchStockPositions();
+  const { loading: loadingDividends, dividends } = useFetchStockDividends(
+    stockPositions.map(({ isin }) => isin)
+  );
 
   const depotBuyIn: number = React.useMemo(() => {
     return stockPositions.reduce((acc, position) => {
@@ -34,21 +35,10 @@ export const StocksView = () => {
     }, 0);
   }, [stockPositions]);
 
-  const fetchStockDividends = React.useCallback(async () => {
-    if (!stockPositions) return;
-    setLoading(true);
-
-    const isins = stockPositions.map((position) => position.isin);
-    const [dividends, error] = await StockService.getDividends(isins, authOptions);
-    if (error) {
-      console.error(error);
-      setLoading(false);
-      return;
-    }
-    if (!dividends) return setLoading(false);
-    setDividends(Object.entries(dividends).map(([_, dividendDetails]) => dividendDetails));
-    setLoading(false);
-  }, [stockPositions]);
+  const preparedDividends: TDividendDetails[] = React.useMemo(() => {
+    if (!dividends) return [];
+    return Object.entries(dividends).map(([_, dividendDetails]) => dividendDetails);
+  }, [dividends]);
 
   React.useLayoutEffect(() => {
     const subscribedAssets: { isin: string; exchange: string }[] = [
@@ -77,13 +67,6 @@ export const StocksView = () => {
     };
   }, [authOptions.uuid, socket, stockPositions]);
 
-  React.useLayoutEffect(() => {
-    fetchStockDividends();
-    return () => {
-      setLoading(false);
-    };
-  }, [stockPositions]);
-
   return (
     <React.Fragment>
       <Grid container item xs={12} md={8} spacing={3} sx={{ height: 'fit-content' }}>
@@ -92,7 +75,7 @@ export const StocksView = () => {
             label={'Depot'}
             value={formatBalance(depotValue)}
             icon={<AccountBalanceRounded />}
-            isLoading={loading}
+            isLoading={loadingStockPositions}
             valueInformation="Current value of your depot"
           />
         </Grid>
@@ -106,7 +89,7 @@ export const StocksView = () => {
         </Grid>
 
         <Grid item xs={12} md={12} order={{ xs: 4 }}>
-          <DividendTable dividends={dividends} />
+          <DividendTable dividends={preparedDividends} isLoading={loadingDividends} />
         </Grid>
       </Grid>
 

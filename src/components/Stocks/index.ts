@@ -13,3 +13,6 @@ export * from './EditStockPositionDrawer.component';
 export * from './Timeframe.component';
 export * from './CompanyInformation.component';
 export * from './DividendList.component';
+export * from './useFetchStockQuotes.hook';
+export * from './useFetchStockDividends.hook';
+export * from './DividendTable.component';

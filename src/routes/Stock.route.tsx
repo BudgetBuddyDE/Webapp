@@ -27,9 +27,9 @@ import {
   CompanyInformation,
   DividendList,
   useStockStore,
+  useFetchStockQuotes,
   type TAssetSearchResult,
   type TStockPosition,
-  type TAssetChartQuote,
   type TUpdatePositionPayload,
   type TOpenPositionPayload,
   type TTimeframe,
@@ -64,8 +64,12 @@ export const Stock = () => {
   const [loading, setLoading] = React.useState(true);
   const [stock, setStock] = React.useState<TAssetSearchResult | null>(null);
   const [keyword, setKeyword] = React.useState('');
-  const [quotes, setQuotes] = React.useState<TAssetChartQuote | null>(null);
   const [chartTimeframe, setChartTimeframe] = React.useState<TTimeframe>('1m');
+  const { quotes, updateQuotes } = useFetchStockQuotes(
+    [params.isin || ''],
+    'langschwarz',
+    chartTimeframe
+  );
   const [showAddDrawer, dispatchAddDrawer] = React.useReducer(
     useEntityDrawer<TOpenPositionPayload>,
     CreateEntityDrawerState<TOpenPositionPayload>()
@@ -147,7 +151,7 @@ export const Stock = () => {
 
   const chartData: TPriceChartPoint[] = React.useMemo(() => {
     if (!quotes) return [];
-    return quotes.quotes.map(({ date, price }) => ({ price, date }));
+    return quotes[0].quotes.map(({ date, price }) => ({ price, date }));
   }, [quotes]);
 
   const fetchStock = async (isin: string) => {
@@ -191,31 +195,6 @@ export const Stock = () => {
     };
   }, [params.isin]);
 
-  const fetchQuotes = async (isin: string, exchange: string, timeframe: TTimeframe) => {
-    const [result, error] = await StockService.getQuotes([isin], exchange, timeframe, authOptions);
-    if (error) {
-      console.error(error);
-      setQuotes(null);
-      return;
-    }
-
-    if (!result || result.length === 0) {
-      setQuotes(null);
-      return;
-    }
-
-    setQuotes(result[0]);
-  };
-
-  React.useLayoutEffect(() => {
-    if (!params.isin) return;
-    fetchQuotes(params.isin, 'langschwarz', chartTimeframe);
-
-    return () => {
-      setQuotes(null);
-    };
-  }, [params, chartTimeframe]);
-
   React.useLayoutEffect(() => {
     if (!params.isin) return;
     fetchStock(params.isin);
@@ -237,11 +216,11 @@ export const Stock = () => {
       }) => {
         console.log('stock:update', data);
         updateQuote(data.exchange, data.isin, data.quote.price);
-        setQuotes((prev) => {
+        updateQuotes((prev) => {
           if (!prev) return prev;
-          const quotes = prev.quotes;
-          const idx = prev.quotes.length - 1;
-          prev.quotes[idx] = { ...quotes[idx], price: data.quote.price };
+          const quotes = prev[0].quotes;
+          const idx = prev[0].quotes.length - 1;
+          prev[0].quotes[idx] = { ...quotes[idx], price: data.quote.price };
           return prev;
         });
       }

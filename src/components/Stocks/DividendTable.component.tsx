@@ -1,7 +1,7 @@
 import React from 'react';
 import { Chip, TableCell, TableRow, Typography } from '@mui/material';
 import { format } from 'date-fns';
-import { Table } from '../Base/Table';
+import { type TTableProps, Table } from '@/components/Base/Table';
 import { type TDividendDetails } from './types';
 import { AppConfig } from '@/app.config';
 import { StockPrice } from './StockPrice.component';
@@ -10,9 +10,9 @@ import { StockService } from './Stock.service';
 
 export type TDividendTableProps = {
   dividends: TDividendDetails[];
-};
+} & Pick<TTableProps<TDividendDetails>, 'isLoading'>;
 
-export const DividendTable: React.FC<TDividendTableProps> = ({ dividends }) => {
+export const DividendTable: React.FC<TDividendTableProps> = ({ dividends, ...tableProps }) => {
   const { loading: loadingStockPositions, positions: stockPositions } = useFetchStockPositions();
 
   const futureDividends = React.useMemo(() => {
@@ -64,7 +64,8 @@ export const DividendTable: React.FC<TDividendTableProps> = ({ dividends }) => {
           </TableRow>
         );
       }}
-      isLoading={loadingStockPositions}
+      {...tableProps}
+      isLoading={loadingStockPositions || tableProps.isLoading}
     />
   );
 };
