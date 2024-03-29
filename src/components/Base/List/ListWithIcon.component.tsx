@@ -3,6 +3,7 @@ import { Box, Chip, Typography } from '@mui/material';
 import { Image } from '../Image.component';
 import { Icon } from '@/components/Icon.component';
 import { formatBalance } from '@/utils';
+import { ActionPaper } from '../ActionPaper.component';
 
 export type TListWithIconProps = {
   icon?: JSX.Element;
@@ -37,14 +38,16 @@ export const ListWithIcon: React.FC<TListWithIconProps> = ({
       onClick={onClick}
     >
       {imageUrl ? (
-        <Image
-          src={imageUrl}
+        <ActionPaper
           sx={{
             minWidth: '40px',
             width: '40px',
+            height: '40px',
             mr: 1,
           }}
-        />
+        >
+          <Image src={imageUrl} sx={{ width: 'inherit', height: 'inherit' }} />
+        </ActionPaper>
       ) : (
         <Icon icon={icon} sx={{ mr: 1 }} />
       )}
