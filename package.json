@@ -12,7 +12,7 @@
     "prepare": "node .husky/install.mjs"
   },
   "dependencies": {
-    "@budgetbuddyde/types": "^1.0.17",
+    "@budgetbuddyde/types": "^1.0.18",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.15",
@@ -34,6 +34,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.17.0",
+    "socket.io-client": "^4.7.5",
     "vite-plugin-ejs": "^1.7.0",
     "zod": "^3.22.4",
     "zustand": "^4.4.4"

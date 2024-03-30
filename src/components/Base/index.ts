@@ -10,3 +10,4 @@ export * from './Linkify.component';
 export * from './Input';
 export * from './Charts';
 export * from './SparklineWidget.component';
+export * from './LabelBadge.component';

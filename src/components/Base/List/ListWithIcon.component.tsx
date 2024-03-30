@@ -1,16 +1,27 @@
+import React from 'react';
+import { Box, Chip, Typography } from '@mui/material';
+import { Image } from '../Image.component';
 import { Icon } from '@/components/Icon.component';
 import { formatBalance } from '@/utils';
-import { Box, Chip, Typography } from '@mui/material';
-import React from 'react';
+import { ActionPaper } from '../ActionPaper.component';
 
 export type TListWithIconProps = {
   icon?: JSX.Element;
+  imageUrl?: string;
   title: string;
   subtitle?: string | string[] | JSX.Element;
-  amount?: string | number;
+  amount?: string | number | React.ReactNode;
+  onClick?: () => void;
 };
 
-export const ListWithIcon: React.FC<TListWithIconProps> = ({ icon, title, subtitle, amount }) => {
+export const ListWithIcon: React.FC<TListWithIconProps> = ({
+  icon,
+  imageUrl,
+  title,
+  subtitle,
+  amount,
+  onClick,
+}) => {
   return (
     <Box
       sx={{
@@ -18,9 +29,28 @@ export const ListWithIcon: React.FC<TListWithIconProps> = ({ icon, title, subtit
         flexDirection: 'row',
         alignItems: 'center',
         mt: 1,
+        borderRadius: (theme) => theme.shape.borderRadius + 'px',
+        ':hover': onClick && {
+          backgroundColor: (theme) => theme.palette.action.hover,
+          cursor: 'Pointer',
+        },
       }}
+      onClick={onClick}
     >
-      <Icon icon={icon} sx={{ mr: 1 }} />
+      {imageUrl ? (
+        <ActionPaper
+          sx={{
+            minWidth: '40px',
+            width: '40px',
+            height: '40px',
+            mr: 1,
+          }}
+        >
+          <Image src={imageUrl} sx={{ width: 'inherit', height: 'inherit' }} />
+        </ActionPaper>
+      ) : (
+        <Icon icon={icon} sx={{ mr: 1 }} />
+      )}
       <Box>
         <Typography fontWeight="bold">{title}</Typography>
         {typeof subtitle === 'string' && <Typography>{subtitle}</Typography>}
@@ -41,7 +71,11 @@ export const ListWithIcon: React.FC<TListWithIconProps> = ({ icon, title, subtit
       {amount && (
         <Box sx={{ ml: 'auto' }}>
           <Typography fontWeight="bold">
-            {typeof amount === 'string' ? amount : formatBalance(amount)}
+            {typeof amount === 'string'
+              ? amount
+              : typeof amount === 'object'
+              ? amount
+              : formatBalance(amount as number)}
           </Typography>
         </Box>
       )}
