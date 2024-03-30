@@ -28,7 +28,7 @@ import {
   TimelineRounded,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
-import { ActionPaper, NoResults } from '@/components/Base';
+import { ActionPaper, Card, NoResults } from '@/components/Base';
 import { ContentGrid } from '@/components/Layout';
 import { withAuthLayout } from '@/components/Auth/Layout';
 import { Table } from '@/components/Base/Table';
@@ -57,7 +57,9 @@ import { DeleteDialog } from '@/components/DeleteDialog.component';
 import { CircularProgress } from '@/components/Loading';
 
 const NoStockMessage = () => (
-  <NoResults icon={<HelpOutlineRounded />} text="No information found!" />
+  <Card>
+    <NoResults icon={<HelpOutlineRounded />} text="No information found!" />
+  </Card>
 );
 
 interface IStockHandler {
@@ -332,20 +334,22 @@ export const Stock = () => {
           )}
         </Grid>
 
-        <Grid item xs={12} md={12}>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
-              <Typography variant="subtitle1" fontWeight={'bold'}>
-                Company Information
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography variant="body2">
-                {stockDetails?.details.securityDetails.description}
-              </Typography>
-            </AccordionDetails>
-          </Accordion>
-        </Grid>
+        {stockDetails && (
+          <Grid item xs={12} md={12}>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+                <Typography variant="subtitle1" fontWeight={'bold'}>
+                  Company Information
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography variant="body2">
+                  {stockDetails?.details.securityDetails.description}
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
+        )}
 
         <Grid item xs={12} md={12}>
           {loadingDetails ? (
