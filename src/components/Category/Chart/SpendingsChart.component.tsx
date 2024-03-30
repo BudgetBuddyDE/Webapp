@@ -1,12 +1,12 @@
+import React from 'react';
+import { isSameMonth } from 'date-fns';
+import { ParentSize } from '@visx/responsive';
+import { Box, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { DateService } from '@/services';
 import { Card, NoResults, type TPieChartData } from '@/components/Base';
 import { CircularProgress } from '@/components/Loading';
-import { DateService } from '@/services';
-import { Box, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { ParentSize } from '@visx/responsive';
-import React from 'react';
-import { useFetchTransactions } from '../../Transaction';
-import { isSameMonth } from 'date-fns';
-import { PieChart } from '@/components/Base';
+import { useFetchTransactions } from '@/components/Transaction';
+import { ApexPieChart } from '@/components/Base/Charts/ApexPieChart.component';
 
 export type TChartType = 'MONTH' | 'ALL_TIME';
 
@@ -44,8 +44,8 @@ export const CategorySpendingsChart: React.FC<TCategorySpendingsChartProps> = ()
   }, [transactions, chart]);
 
   return (
-    <Card>
-      <Card.Header>
+    <Card sx={{ p: 0 }}>
+      <Card.Header sx={{ p: 2, pb: 0 }}>
         <Box>
           <Card.Title>Spendings</Card.Title>
           <Card.Subtitle>Categorized Spendings</Card.Subtitle>
@@ -77,15 +77,7 @@ export const CategorySpendingsChart: React.FC<TCategorySpendingsChartProps> = ()
         ) : currentChartData.length > 0 ? (
           <Box sx={{ display: 'flex', flex: 1, mt: '1rem', flexDirection: 'column' }}>
             <ParentSize>
-              {({ width }) => (
-                <PieChart
-                  width={width}
-                  height={width}
-                  data={currentChartData}
-                  formatAsCurrency
-                  showTotalSum
-                />
-              )}
+              {({ width }) => <ApexPieChart width={width} height={width} data={currentChartData} />}
             </ParentSize>
           </Box>
         ) : (
