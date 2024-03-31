@@ -1,17 +1,22 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import Chart from 'react-apexcharts';
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
   Button,
   Chip,
   Grid,
   IconButton,
+  Tab,
   TableCell,
   TableRow,
+  Tabs,
   Tooltip,
   Typography,
+  useTheme,
 } from '@mui/material';
 import {
   type TStockPosition,
@@ -28,7 +33,7 @@ import {
   TimelineRounded,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
-import { ActionPaper, Card, NoResults } from '@/components/Base';
+import { ActionPaper, Card, NoResults, TabPanel } from '@/components/Base';
 import { ContentGrid } from '@/components/Layout';
 import { withAuthLayout } from '@/components/Auth/Layout';
 import { Table } from '@/components/Base/Table';
@@ -71,6 +76,7 @@ interface IStockHandler {
 }
 
 export const Stock = () => {
+  const theme = useTheme();
   const params = useParams<{ isin: string }>();
   const { showSnackbar } = useSnackbarContext();
   const { authOptions } = useAuthContext();
@@ -78,6 +84,10 @@ export const Stock = () => {
   const socket = getSocketIOClient(authOptions);
   const [keyword, setKeyword] = React.useState('');
   const [chartTimeframe, setChartTimeframe] = React.useState<TTimeframe>('1m');
+  const [tabPane, setTabPane] = React.useState({
+    profit: 0,
+    financial: 0,
+  });
   const { loading: loadingDetails, details: stockDetails } = useFetchStockDetails(
     params.isin || ''
   );
@@ -102,6 +112,64 @@ export const Stock = () => {
   );
   const [showDeletePositionDialog, setShowDeletePositionDialog] = React.useState(false);
   const [deletePosition, setDeletePosition] = React.useState<TStockPosition | null>(null);
+  const chartOptions: Chart['props']['options'] = {
+    chart: {
+      type: 'bar',
+      toolbar: {
+        show: false,
+      },
+    },
+    xaxis: {
+      labels: {
+        style: {
+          colors: theme.palette.text.primary,
+        },
+      },
+      categories: stockDetails?.details.securityDetails?.annualFinancials
+        .map(({ date }) => date.getFullYear())
+        .reverse(),
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    grid: {
+      borderColor: theme.palette.action.disabled,
+      strokeDashArray: 5,
+    },
+    yaxis: {
+      forceNiceScale: true,
+      opposite: true,
+      labels: {
+        style: {
+          colors: theme.palette.text.primary,
+        },
+        formatter(val: number) {
+          let formattedVal: number | string = val as number;
+          if (formattedVal >= 1000000000) {
+            formattedVal = (formattedVal / 1000000000).toFixed(2) + ' Mrd.';
+          } else if (formattedVal >= 1000000) {
+            formattedVal = (formattedVal / 1000000).toFixed(2) + ' Mio.';
+          }
+          return formattedVal as string;
+        },
+      },
+    },
+    legend: {
+      position: 'bottom',
+      horizontalAlign: 'left',
+      labels: {
+        colors: 'white',
+      },
+    },
+    tooltip: {
+      theme: 'dark',
+      y: {
+        formatter(val: number) {
+          return formatBalance(val as number);
+        },
+      },
+    },
+  };
 
   const preparedChartData: TPriceChartPoint[] = React.useMemo(() => {
     if (!quotes) return [];
@@ -310,6 +378,180 @@ export const Stock = () => {
               </React.Fragment>
             }
           />
+        </Grid>
+
+        <Grid item xs={12} md={12}>
+          <Accordion defaultExpanded>
+            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+              <Typography variant="subtitle1" fontWeight={'bold'}>
+                Profit & loss statements
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={{ px: 0 }}>
+              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs
+                  value={tabPane.profit}
+                  onChange={(_, value) => setTabPane((prev) => ({ ...prev, profit: value }))}
+                  sx={{ mx: 2 }}
+                >
+                  <Tab label="Yearly" value={0} />
+                  <Tab label="Quarterly" value={1} />
+                </Tabs>
+              </Box>
+              <TabPanel idx={0} value={tabPane.profit}>
+                {stockDetails && stockDetails.details.securityDetails && (
+                  <Chart
+                    type="bar"
+                    width={'100%'}
+                    height={300}
+                    options={chartOptions}
+                    series={[
+                      {
+                        name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                        data: stockDetails.details.securityDetails.annualFinancials
+                          .map(({ revenue }) => revenue)
+                          .reverse(),
+                        color: theme.palette.success.main,
+                      },
+                      {
+                        name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                        data: stockDetails.details.securityDetails.annualFinancials
+                          .map(({ netIncome }) => netIncome)
+                          .reverse(),
+                        color: theme.palette.warning.light,
+                      },
+                    ]}
+                  />
+                )}
+              </TabPanel>
+              <TabPanel idx={1} value={tabPane.profit}>
+                {stockDetails && stockDetails.details.securityDetails && (
+                  <Chart
+                    type="bar"
+                    width={'100%'}
+                    height={300}
+                    options={chartOptions}
+                    series={[
+                      {
+                        name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                        data: stockDetails.details.securityDetails.quarterlyFinancials
+                          .map(({ revenue }) => revenue)
+                          .reverse(),
+                        color: theme.palette.success.main,
+                      },
+                      {
+                        name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                        data: stockDetails.details.securityDetails.quarterlyFinancials
+                          .map(({ netIncome }) => netIncome)
+                          .reverse(),
+                        color: theme.palette.warning.light,
+                      },
+                    ]}
+                  />
+                )}
+              </TabPanel>
+            </AccordionDetails>
+          </Accordion>
+
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+              <Typography variant="subtitle1" fontWeight={'bold'}>
+                Financial Statements
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={{ px: 0 }}>
+              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs
+                  value={tabPane.financial}
+                  onChange={(_, value) => setTabPane((prev) => ({ ...prev, financial: value }))}
+                  sx={{ mx: 2 }}
+                >
+                  <Tab label="Yearly" value={0} />
+                  <Tab label="Quarterly" value={1} />
+                </Tabs>
+              </Box>
+              <TabPanel idx={0} value={tabPane.financial}>
+                {stockDetails && stockDetails.details.securityDetails && (
+                  <Chart
+                    type="bar"
+                    width={'100%'}
+                    height={300}
+                    options={chartOptions}
+                    series={[
+                      {
+                        name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                        data: stockDetails.details.securityDetails.annualFinancials
+                          .map(({ revenue }) => revenue)
+                          .reverse(),
+                        color: theme.palette.success.main,
+                      },
+                      {
+                        name: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
+                        data: stockDetails.details.securityDetails.annualFinancials
+                          .map(({ grossProfit }) => grossProfit)
+                          .reverse(),
+                        color: theme.palette.primary.main,
+                      },
+                      {
+                        name: `EBITDA (${stockDetails.details.securityDetails.currency})`,
+                        data: stockDetails.details.securityDetails.annualFinancials
+                          .map(({ ebitda }) => ebitda)
+                          .reverse(),
+                        color: theme.palette.primary.light,
+                      },
+                      {
+                        name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                        data: stockDetails.details.securityDetails.annualFinancials
+                          .map(({ netIncome }) => netIncome)
+                          .reverse(),
+                        color: theme.palette.warning.light,
+                      },
+                    ]}
+                  />
+                )}
+              </TabPanel>
+              <TabPanel idx={1} value={tabPane.financial}>
+                {stockDetails && stockDetails.details.securityDetails && (
+                  <Chart
+                    type="bar"
+                    width={'100%'}
+                    height={300}
+                    options={chartOptions}
+                    series={[
+                      {
+                        name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                        data: stockDetails.details.securityDetails.quarterlyFinancials
+                          .map(({ revenue }) => revenue)
+                          .reverse(),
+                        color: theme.palette.success.main,
+                      },
+                      {
+                        name: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
+                        data: stockDetails.details.securityDetails.quarterlyFinancials
+                          .map(({ grossProfit }) => grossProfit)
+                          .reverse(),
+                        color: theme.palette.primary.main,
+                      },
+                      {
+                        name: `EBITDA (${stockDetails.details.securityDetails.currency})`,
+                        data: stockDetails.details.securityDetails.quarterlyFinancials
+                          .map(({ ebitda }) => ebitda)
+                          .reverse(),
+                        color: theme.palette.primary.light,
+                      },
+                      {
+                        name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                        data: stockDetails.details.securityDetails.quarterlyFinancials
+                          .map(({ netIncome }) => netIncome)
+                          .reverse(),
+                        color: theme.palette.warning.light,
+                      },
+                    ]}
+                  />
+                )}
+              </TabPanel>
+            </AccordionDetails>
+          </Accordion>
         </Grid>
       </Grid>
 

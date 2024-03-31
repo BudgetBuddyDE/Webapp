@@ -74,6 +74,10 @@ export const PriceChart: React.FC<TPriceChartProps> = ({ onTimeframeChange, data
                     stops: [0, 90, 100],
                   },
                 },
+                grid: {
+                  borderColor: theme.palette.action.disabled,
+                  strokeDashArray: 5,
+                },
                 xaxis: {
                   type: 'datetime',
                   labels: {
@@ -88,10 +92,10 @@ export const PriceChart: React.FC<TPriceChartProps> = ({ onTimeframeChange, data
                     style: {
                       colors: theme.palette.text.primary,
                     },
+                    formatter(val: number) {
+                      return formatBalance(val);
+                    },
                   },
-                },
-                legend: {
-                  horizontalAlign: 'left',
                 },
                 tooltip: {
                   theme: 'dark',
