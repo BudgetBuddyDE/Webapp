@@ -1,9 +1,6 @@
 import React from 'react';
 import { SparklineWidget, type TSparklineWidget } from '@/components/Base';
 import { useFetchMonthlyBalance } from './useFetchMonthlyBalance.hook';
-import { DateService } from '@/services';
-import { isSameYear } from 'date-fns';
-import { formatBalance } from '@/utils';
 
 export type TMonthlyBalanceWidget = {
   cardPros?: TSparklineWidget['cardProps'];
@@ -25,17 +22,18 @@ export const MonthlyBalanceWidget: React.FC<TMonthlyBalanceWidget> = ({ cardPros
     <SparklineWidget
       title="Monthly balance"
       subtitle={`Your monthly balance for the last ${months.length} months.`}
-      sparklineProps={{
-        data: data,
-        valueFormatter: formatBalance,
-        xAxis: {
-          data: months,
-          valueFormatter: (value) =>
-            `${DateService.shortMonthName(value)} ${
-              isSameYear(value, new Date()) ? '' : value.getFullYear()
-            }`,
-        },
-      }}
+      data={data}
+      // sparklineProps={{
+      //   data: data,
+      //   valueFormatter: formatBalance,
+      //   xAxis: {
+      //     data: months,
+      //     valueFormatter: (value) =>
+      //       `${DateService.shortMonthName(value)} ${
+      //         isSameYear(value, new Date()) ? '' : value.getFullYear()
+      //       }`,
+      //   },
+      // }}
       cardProps={cardPros}
     />
   );

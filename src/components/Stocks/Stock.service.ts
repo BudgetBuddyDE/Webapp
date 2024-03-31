@@ -329,7 +329,7 @@ export class StockService {
    * @returns A promise that resolves to a tuple containing the stock exchanges data and any potential error.
    */
   static async getExchanges(
-    authOptions: IAuthContext['authOptions']
+    _authOptions: IAuthContext['authOptions']
   ): Promise<TServiceResponse<TStockExchanges>> {
     return [null, new Error('Not implemented')];
     // try {

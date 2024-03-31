@@ -1,4 +1,7 @@
-export * from './PieChart.component';
+export type TPieChartData = {
+  label: string;
+  value: number;
+};
+
+export * from './ApexPieChart.component';
 export * from './BarChart.component';
-export * from './MuiPieChart.component';
-export * from './PieCenterLabel.component';

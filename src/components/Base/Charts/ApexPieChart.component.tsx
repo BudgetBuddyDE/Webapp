@@ -2,7 +2,7 @@ import React from 'react';
 import { useTheme, alpha, hexToRgb } from '@mui/material';
 import Chart, { type Props } from 'react-apexcharts';
 import { formatBalance } from '@/utils';
-import { type TPieChartData } from './PieChart.component';
+import { type TPieChartData } from './index';
 
 export type TApexPieChartProps = Omit<Props, 'series'> & {
   data: TPieChartData[];
