@@ -344,7 +344,7 @@ export const Stock = () => {
               </AccordionSummary>
               <AccordionDetails>
                 <Typography variant="body2">
-                  {stockDetails?.details.securityDetails.description}
+                  {stockDetails?.details.securityDetails?.description ?? 'No description available'}
                 </Typography>
               </AccordionDetails>
             </Accordion>

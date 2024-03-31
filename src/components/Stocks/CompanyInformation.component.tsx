@@ -56,25 +56,25 @@ export const CompanyInformation: React.FC<TCompanyInformationProps> = ({ details
             {
               icon: <PeopleRounded fontSize="small" />,
               text: 'Employees (Full-Time)',
-              value: details.details.securityDetails.fullTimeEmployees.toLocaleString(),
+              value: details.details.securityDetails?.fullTimeEmployees.toLocaleString(),
             },
             {
               icon: <SportsMartialArtsRounded fontSize="small" />,
               text: 'CEO',
-              value: details.details.securityDetails.ceo,
+              value: details.details.securityDetails?.ceo,
             },
             {
               icon: <AttachMoneyRounded fontSize="small" />,
               text: 'Market cap.',
               value: formatBalance(
-                details.details.securityDetails.marketCap,
-                details.details.securityDetails.currency
+                details.details.securityDetails?.marketCap ?? 0,
+                details.details.securityDetails?.currency
               ),
             },
             {
               icon: <PieChartRounded fontSize="small" />,
               text: 'Shares',
-              value: details.details.securityDetails.shares.toLocaleString(),
+              value: details.details.securityDetails?.shares.toLocaleString(),
             },
           ].map(({ icon, text, value }, idx, arr) => (
             <React.Fragment key={text.toLowerCase()}>
