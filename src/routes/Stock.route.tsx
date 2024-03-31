@@ -380,26 +380,26 @@ export const Stock = () => {
           />
         </Grid>
 
-        <Grid item xs={12} md={12}>
-          <Accordion defaultExpanded>
-            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
-              <Typography variant="subtitle1" fontWeight={'bold'}>
-                Profit & loss statements
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails sx={{ px: 0 }}>
-              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs
-                  value={tabPane.profit}
-                  onChange={(_, value) => setTabPane((prev) => ({ ...prev, profit: value }))}
-                  sx={{ mx: 2 }}
-                >
-                  <Tab label="Yearly" value={0} />
-                  <Tab label="Quarterly" value={1} />
-                </Tabs>
-              </Box>
-              <TabPanel idx={0} value={tabPane.profit}>
-                {stockDetails && stockDetails.details.securityDetails && (
+        {stockDetails && stockDetails.details.securityDetails && (
+          <Grid item xs={12} md={12}>
+            <Accordion defaultExpanded>
+              <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+                <Typography variant="subtitle1" fontWeight={'bold'}>
+                  Profit & loss statements
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails sx={{ px: 0 }}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                  <Tabs
+                    value={tabPane.profit}
+                    onChange={(_, value) => setTabPane((prev) => ({ ...prev, profit: value }))}
+                    sx={{ mx: 2 }}
+                  >
+                    <Tab label="Yearly" value={0} />
+                    <Tab label="Quarterly" value={1} />
+                  </Tabs>
+                </Box>
+                <TabPanel idx={0} value={tabPane.profit}>
                   <Chart
                     type="bar"
                     width={'100%'}
@@ -422,10 +422,8 @@ export const Stock = () => {
                       },
                     ]}
                   />
-                )}
-              </TabPanel>
-              <TabPanel idx={1} value={tabPane.profit}>
-                {stockDetails && stockDetails.details.securityDetails && (
+                </TabPanel>
+                <TabPanel idx={1} value={tabPane.profit}>
                   <Chart
                     type="bar"
                     width={'100%'}
@@ -448,30 +446,28 @@ export const Stock = () => {
                       },
                     ]}
                   />
-                )}
-              </TabPanel>
-            </AccordionDetails>
-          </Accordion>
+                </TabPanel>
+              </AccordionDetails>
+            </Accordion>
 
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
-              <Typography variant="subtitle1" fontWeight={'bold'}>
-                Financial Statements
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails sx={{ px: 0 }}>
-              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs
-                  value={tabPane.financial}
-                  onChange={(_, value) => setTabPane((prev) => ({ ...prev, financial: value }))}
-                  sx={{ mx: 2 }}
-                >
-                  <Tab label="Yearly" value={0} />
-                  <Tab label="Quarterly" value={1} />
-                </Tabs>
-              </Box>
-              <TabPanel idx={0} value={tabPane.financial}>
-                {stockDetails && stockDetails.details.securityDetails && (
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+                <Typography variant="subtitle1" fontWeight={'bold'}>
+                  Financial Statements
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails sx={{ px: 0 }}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                  <Tabs
+                    value={tabPane.financial}
+                    onChange={(_, value) => setTabPane((prev) => ({ ...prev, financial: value }))}
+                    sx={{ mx: 2 }}
+                  >
+                    <Tab label="Yearly" value={0} />
+                    <Tab label="Quarterly" value={1} />
+                  </Tabs>
+                </Box>
+                <TabPanel idx={0} value={tabPane.financial}>
                   <Chart
                     type="bar"
                     width={'100%'}
@@ -508,10 +504,8 @@ export const Stock = () => {
                       },
                     ]}
                   />
-                )}
-              </TabPanel>
-              <TabPanel idx={1} value={tabPane.financial}>
-                {stockDetails && stockDetails.details.securityDetails && (
+                </TabPanel>
+                <TabPanel idx={1} value={tabPane.financial}>
                   <Chart
                     type="bar"
                     width={'100%'}
@@ -548,11 +542,11 @@ export const Stock = () => {
                       },
                     ]}
                   />
-                )}
-              </TabPanel>
-            </AccordionDetails>
-          </Accordion>
-        </Grid>
+                </TabPanel>
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
+        )}
       </Grid>
 
       <Grid container item xs={12} md={12} lg={4} spacing={3}>
