@@ -1,11 +1,12 @@
-import { Card, NoResults, PieChart, type TPieChartData } from '@/components/Base';
-import { CircularProgress } from '@/components/Loading';
+import React from 'react';
+import { isSameMonth } from 'date-fns';
 import { Box, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { ParentSize } from '@visx/responsive';
-import React from 'react';
-import { useFetchTransactions } from '../../Transaction';
-import { isSameMonth } from 'date-fns';
+import { Card, NoResults, type TPieChartData } from '@/components/Base';
+import { CircularProgress } from '@/components/Loading';
+import { useFetchTransactions } from '@/components/Transaction';
 import { SPENDING_CHART_TYPES, type TChartType } from './SpendingsChart.component';
+import { ApexPieChart } from '@/components/Base/Charts/ApexPieChart.component';
 
 export type TCategoryIncomeChartProps = {};
 
@@ -33,8 +34,8 @@ export const CategoryIncomeChart: React.FC<TCategoryIncomeChartProps> = () => {
   }, [transactions, chart]);
 
   return (
-    <Card>
-      <Card.Header>
+    <Card sx={{ p: 0 }}>
+      <Card.Header sx={{ p: 2, pb: 0 }}>
         <Box>
           <Card.Title>Income</Card.Title>
           <Card.Subtitle>Categorized Income</Card.Subtitle>
@@ -61,15 +62,7 @@ export const CategoryIncomeChart: React.FC<TCategoryIncomeChartProps> = () => {
         ) : currentChartData.length > 0 ? (
           <Box sx={{ display: 'flex', flex: 1, mt: '1rem' }}>
             <ParentSize>
-              {({ width }) => (
-                <PieChart
-                  width={width}
-                  height={width}
-                  data={currentChartData}
-                  formatAsCurrency
-                  showTotalSum
-                />
-              )}
+              {({ width }) => <ApexPieChart width={width} height={width} data={currentChartData} />}
             </ParentSize>
           </Box>
         ) : (

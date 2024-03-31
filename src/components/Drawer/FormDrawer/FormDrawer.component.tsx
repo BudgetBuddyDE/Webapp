@@ -9,10 +9,9 @@ import {
   IconButton,
   Alert,
   CircularProgress,
-  ButtonProps,
 } from '@mui/material';
 import React from 'react';
-import { ActionPaper } from '../../Base';
+import { ActionPaper } from '@/components/Base';
 import { CloseRounded, DoneRounded, ErrorRounded } from '@mui/icons-material';
 import { type TFormDrawerState } from './FormDrawer.reducer';
 
@@ -105,35 +104,27 @@ export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = (
               Cancel
             </Button>
 
-            <SaveButton />
+            <Button
+              type="submit"
+              variant="contained"
+              {...(state !== undefined
+                ? {
+                    startIcon: state.loading ? (
+                      <CircularProgress color="inherit" size={16} />
+                    ) : state.success ? (
+                      <DoneRounded color="inherit" fontSize="inherit" />
+                    ) : !state.success && state.error !== null ? (
+                      <ErrorRounded color="inherit" fontSize="inherit" />
+                    ) : null,
+                    disabled: state.loading,
+                  }
+                : {})}
+            >
+              Save
+            </Button>
           </Box>
         </Box>
       </form>
     </Drawer>
   );
 };
-
-const SaveButton: React.FC<{ state?: TFormDrawerState } & Pick<ButtonProps, 'ref'>> =
-  React.forwardRef(({ state }, ref) => {
-    return (
-      <Button
-        type="submit"
-        variant="contained"
-        {...(state !== undefined
-          ? {
-              startIcon: state.loading ? (
-                <CircularProgress color="inherit" size={16} />
-              ) : state.success ? (
-                <DoneRounded color="inherit" fontSize="inherit" />
-              ) : !state.success && state.error !== null ? (
-                <ErrorRounded color="inherit" fontSize="inherit" />
-              ) : null,
-              disabled: state.loading,
-            }
-          : {})}
-        ref={ref}
-      >
-        Save
-      </Button>
-    );
-  });

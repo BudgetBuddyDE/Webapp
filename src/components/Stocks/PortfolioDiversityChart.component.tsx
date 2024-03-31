@@ -1,15 +1,16 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { ParentSize } from '@visx/responsive';
-import { Card, MuiPieChart, NoResults, type TMuiChartData } from '@/components/Base';
+import { Card, NoResults, type TPieChartData } from '@/components/Base';
 import { type TStockPosition } from '@budgetbuddyde/types';
+import { ApexPieChart } from '../Base/Charts/ApexPieChart.component';
 
 export type TPortfolioDiversityChartProps = {
   positions: TStockPosition[];
 };
 
 export const PortfolioDiversityChart: React.FC<TPortfolioDiversityChartProps> = ({ positions }) => {
-  const preparedData: TMuiChartData = React.useMemo(() => {
+  const preparedData: TPieChartData[] = React.useMemo(() => {
     let groupedData: Record<string, { label: string; total: number }> = {};
     for (const position of positions) {
       if (groupedData[position.isin]) {
@@ -28,8 +29,8 @@ export const PortfolioDiversityChart: React.FC<TPortfolioDiversityChartProps> = 
   }, [positions]);
 
   return (
-    <Card>
-      <Card.Header>
+    <Card sx={{ p: 0 }}>
+      <Card.Header sx={{ p: 2, pb: 0 }}>
         <Box>
           <Card.Title>Positions</Card.Title>
           <Card.Subtitle>How is your portfolio structured?</Card.Subtitle>
@@ -39,16 +40,7 @@ export const PortfolioDiversityChart: React.FC<TPortfolioDiversityChartProps> = 
         {preparedData.length > 0 ? (
           <Box sx={{ display: 'flex', flex: 1, mt: '1rem', flexDirection: 'column' }}>
             <ParentSize>
-              {({ width }) => (
-                <MuiPieChart
-                  width={width}
-                  height={width}
-                  data={preparedData}
-                  showTotalSum
-                  formatAsCurrency
-                  skipAnimation
-                />
-              )}
+              {({ width }) => <ApexPieChart width={width} height={width} data={preparedData} />}
             </ParentSize>
           </Box>
         ) : (
