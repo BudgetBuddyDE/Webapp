@@ -87,7 +87,7 @@ export const CategorySpendingsChart: React.FC<TCategorySpendingsChartProps> = ()
                 ? 'There are no spendings for this month!'
                 : "You haven't spent anything yet!"
             }
-            sx={{ mt: 2 }}
+            sx={{ m: 2 }}
           />
         )}
       </Card.Body>
