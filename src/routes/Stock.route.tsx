@@ -214,7 +214,7 @@ export const Stock = () => {
 
   React.useEffect(() => {
     refreshQuotes();
-  }, [chartTimeframe]);
+  }, [chartTimeframe, refreshQuotes]);
 
   return (
     <ContentGrid title={stockDetails?.asset.name ?? ''} description={params.isin}>
@@ -348,6 +348,19 @@ export const Stock = () => {
                 </Typography>
               </AccordionDetails>
             </Accordion>
+
+            {stockDetails && (
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+                  <Typography variant="subtitle1" fontWeight={'bold'}>
+                    Ratings
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <StockRating ratings={stockDetails.details.scorings} />
+                </AccordionDetails>
+              </Accordion>
+            )}
           </Grid>
         )}
 
@@ -362,16 +375,6 @@ export const Stock = () => {
                 link: url,
               }))}
             />
-          ) : (
-            <NoStockMessage />
-          )}
-        </Grid>
-
-        <Grid item xs={12} md={12}>
-          {loadingDetails ? (
-            <CircularProgress />
-          ) : stockDetails ? (
-            <StockRating ratings={stockDetails!.details.scorings} />
           ) : (
             <NoStockMessage />
           )}
