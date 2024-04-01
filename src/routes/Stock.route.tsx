@@ -262,7 +262,7 @@ export const Stock = () => {
 
   React.useEffect(() => {
     refreshQuotes();
-  }, [chartTimeframe, refreshQuotes]);
+  }, [chartTimeframe]);
 
   return (
     <ContentGrid title={stockDetails?.asset.name ?? ''} description={params.isin}>
@@ -546,7 +546,7 @@ export const Stock = () => {
                     Ratings
                   </Typography>
                 </AccordionSummary>
-                <AccordionDetails>
+                <AccordionDetails sx={{px: 0}}>
                   <StockRating ratings={stockDetails.details.scorings} />
                 </AccordionDetails>
               </Accordion>
