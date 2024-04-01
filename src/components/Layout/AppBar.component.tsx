@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogoutRounded as LogoutIcon, SettingsRounded as SettingsIcon } from '@mui/icons-material';
+import {LogoutRounded as LogoutIcon, SettingsRounded as SettingsIcon} from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -13,20 +13,20 @@ import {
   Toolbar,
   Tooltip,
 } from '@mui/material';
-import { Brand } from '../Brand.component';
-import { UserAvatar } from '@/components/User';
-import { DrawerHamburger } from './Drawer/DrawerHamburger.component';
-import { AuthService } from '@/components/Auth';
-import { useNavigate } from 'react-router-dom';
-import { AppConfig } from '@/app.config';
+import {Brand} from '../Brand.component';
+import {UserAvatar} from '@/components/User';
+import {DrawerHamburger} from './Drawer/DrawerHamburger.component';
+import {AuthService} from '@/components/Auth';
+import {useNavigate} from 'react-router-dom';
+import {AppConfig} from '@/app.config';
 
 export const AppBar = () => {
   const navigate = useNavigate();
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
   const MenuLinks = [
-    { label: 'Website', href: AppConfig.website },
-    { label: 'GitHub', href: AppConfig.repository },
+    {label: 'Website', href: AppConfig.website},
+    {label: 'GitHub', href: AppConfig.repository},
   ];
 
   const ProfileMenu = [
@@ -39,7 +39,7 @@ export const AppBar = () => {
       icon: <LogoutIcon />,
       label: 'Logout',
       onClick: async () => {
-        await AuthService.signOut((success) => {
+        await AuthService.signOut(success => {
           if (success) {
             window.location.reload();
           }
@@ -60,45 +60,40 @@ export const AppBar = () => {
     <MuiAppBar
       position="sticky"
       elevation={0}
-      sx={{ border: 0, borderBottom: (theme) => `1px solid ${theme.palette.divider}` }}
-    >
+      sx={{border: 0, borderBottom: theme => `1px solid ${theme.palette.divider}`}}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           {/* Desktop: Brand */}
-          <Brand asLink boxStyle={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+          <Brand asLink boxStyle={{display: {xs: 'none', md: 'flex'}, mr: 1}} />
 
           {/* Menu: Mobile */}
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+          <Box sx={{flexGrow: 1, display: {xs: 'flex', md: 'none'}}}>
             <DrawerHamburger size="large" />
           </Box>
 
           {/* Modile: Brand */}
-          <Brand asLink boxStyle={{ display: { xs: 'flex', md: 'none' }, flexGrow: 1 }} />
+          <Brand asLink boxStyle={{display: {xs: 'flex', md: 'none'}, flexGrow: 1}} />
 
           {/* Menu: Desktop */}
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, marginLeft: 'auto', marginRight: 2 }}>
-            {MenuLinks.map((page) => (
-              <Button
-                key={page.label}
-                href={page.href}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
+          <Box sx={{display: {xs: 'none', md: 'flex'}, marginLeft: 'auto', marginRight: 2}}>
+            {MenuLinks.map(page => (
+              <Button key={page.label} href={page.href} sx={{my: 2, color: 'white', display: 'block'}}>
                 {page.label}
               </Button>
             ))}
           </Box>
 
           {/* Profile */}
-          <Box sx={{ flexGrow: 0 }}>
+          <Box sx={{flexGrow: 0}}>
             <Tooltip title="Profile">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+              <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
                 {/*FIXME: {session && session.user && <UserAvatar />} */}
                 <UserAvatar />
               </IconButton>
             </Tooltip>
             <Menu
               elevation={0}
-              sx={{ mt: '45px' }}
+              sx={{mt: '45px'}}
               id="menu-appbar"
               anchorEl={anchorElUser}
               anchorOrigin={{
@@ -111,16 +106,14 @@ export const AppBar = () => {
                 horizontal: 'right',
               }}
               open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {ProfileMenu.map((item) => (
+              onClose={handleCloseUserMenu}>
+              {ProfileMenu.map(item => (
                 <MenuItem
                   key={item.label}
                   onClick={() => {
                     item.onClick();
                     handleCloseUserMenu();
-                  }}
-                >
+                  }}>
                   <ListItemIcon>{item.icon}</ListItemIcon>
                   <ListItemText>{item.label}</ListItemText>
                 </MenuItem>

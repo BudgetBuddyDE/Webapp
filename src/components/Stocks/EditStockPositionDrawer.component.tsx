@@ -1,21 +1,21 @@
-import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@/components/Drawer';
-import { Grid, InputAdornment, TextField } from '@mui/material';
+import {FormDrawer, FormDrawerReducer, generateInitialFormDrawerState} from '@/components/Drawer';
+import {Grid, InputAdornment, TextField} from '@mui/material';
 import React from 'react';
-import { useAuthContext } from '../Auth';
-import { useSnackbarContext } from '../Snackbar';
-import { useScreenSize, type TEntityDrawerState } from '@/hooks';
+import {useAuthContext} from '../Auth';
+import {useSnackbarContext} from '../Snackbar';
+import {useScreenSize, type TEntityDrawerState} from '@/hooks';
 
-import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { StockService } from './Stock.service';
-import { ZUpdatePositionPayload, type TUpdatePositionPayload } from '@budgetbuddyde/types';
+import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {StockService} from './Stock.service';
+import {ZUpdatePositionPayload, type TUpdatePositionPayload} from '@budgetbuddyde/types';
 import {
   type TSelectStockExchangeOption,
   SelectStockExchange,
   StockExchangeOptions,
 } from './SelectStockExchange.component';
-import { transformBalance } from '@/utils';
-import { useFetchStockPositions } from './hooks/useFetchStockPositions.hook';
+import {transformBalance} from '@/utils';
+import {useFetchStockPositions} from './hooks/useFetchStockPositions.hook';
 
 export type TEditStockPositionDrawerProps = {
   onClose: () => void;
@@ -29,42 +29,35 @@ interface IEditStockPositionDrawerHandler {
   onFormSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export const EditStockPositionDrawer: React.FC<TEditStockPositionDrawerProps> = ({
-  shown,
-  payload,
-  onClose,
-}) => {
+export const EditStockPositionDrawer: React.FC<TEditStockPositionDrawerProps> = ({shown, payload, onClose}) => {
   const screenSize = useScreenSize();
-  const { session, authOptions } = useAuthContext();
-  const { refresh: refreshStockPositions } = useFetchStockPositions();
-  const { showSnackbar } = useSnackbarContext();
-  const [drawerState, setDrawerState] = React.useReducer(
-    FormDrawerReducer,
-    generateInitialFormDrawerState()
-  );
+  const {session, authOptions} = useAuthContext();
+  const {refresh: refreshStockPositions} = useFetchStockPositions();
+  const {showSnackbar} = useSnackbarContext();
+  const [drawerState, setDrawerState] = React.useReducer(FormDrawerReducer, generateInitialFormDrawerState());
   const [form, setForm] = React.useState<Record<string, string | number | Date>>({});
 
   const handler: IEditStockPositionDrawerHandler = {
     onClose() {
       onClose();
       setForm({});
-      setDrawerState({ type: 'RESET' });
+      setDrawerState({type: 'RESET'});
     },
     onDateChange(date) {
       if (!date) return;
-      setForm((prev) => ({ ...prev, bought_at: date }));
+      setForm(prev => ({...prev, bought_at: date}));
     },
     onExchangeChange(value) {
       if (!value) return;
-      setForm((prev) => ({ ...prev, exchange: value.ticker }));
+      setForm(prev => ({...prev, exchange: value.ticker}));
     },
     onInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-      setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+      setForm(prev => ({...prev, [event.target.name]: event.target.value}));
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
       if (!session || !payload) return;
-      setDrawerState({ type: 'SUBMIT' });
+      setDrawerState({type: 'SUBMIT'});
 
       try {
         const parsedForm = ZUpdatePositionPayload.safeParse({
@@ -79,28 +72,25 @@ export const EditStockPositionDrawer: React.FC<TEditStockPositionDrawerProps> = 
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
         const requestPayload: TUpdatePositionPayload = parsedForm.data;
 
-        const [positions, error] = await StockService.updatePositions(
-          [requestPayload],
-          authOptions
-        );
+        const [positions, error] = await StockService.updatePositions([requestPayload], authOptions);
         if (error) {
-          setDrawerState({ type: 'ERROR', error });
+          setDrawerState({type: 'ERROR', error});
           return;
         }
         if (!positions || positions.length < 1) {
-          setDrawerState({ type: 'ERROR', error: new Error('Error updating position') });
+          setDrawerState({type: 'ERROR', error: new Error('Error updating position')});
           return;
         }
 
         React.startTransition(() => {
           refreshStockPositions();
         });
-        setDrawerState({ type: 'SUCCESS' });
+        setDrawerState({type: 'SUCCESS'});
         handler.onClose();
-        showSnackbar({ message: `Changed saved` });
+        showSnackbar({message: `Changed saved`});
       } catch (error) {
         console.error(error);
-        setDrawerState({ type: 'ERROR', error: error as Error });
+        setDrawerState({type: 'ERROR', error: error as Error});
       }
     },
   };
@@ -124,10 +114,9 @@ export const EditStockPositionDrawer: React.FC<TEditStockPositionDrawerProps> = 
       onClose={() => {
         onClose();
         setForm({});
-        setDrawerState({ type: 'RESET' });
+        setDrawerState({type: 'RESET'});
       }}
-      closeOnBackdropClick
-    >
+      closeOnBackdropClick>
       <Grid container spacing={2}>
         <Grid item xs={12} md={12}>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -137,7 +126,7 @@ export const EditStockPositionDrawer: React.FC<TEditStockPositionDrawerProps> = 
                 inputFormat="dd.MM.yy"
                 value={form.bought_at}
                 onChange={handler.onDateChange}
-                renderInput={(params) => <TextField fullWidth {...params} required />}
+                renderInput={params => <TextField fullWidth {...params} required />}
               />
             ) : (
               <DesktopDatePicker
@@ -145,7 +134,7 @@ export const EditStockPositionDrawer: React.FC<TEditStockPositionDrawerProps> = 
                 inputFormat="dd.MM.yy"
                 value={form.bought_at}
                 onChange={handler.onDateChange}
-                renderInput={(params) => <TextField fullWidth {...params} required />}
+                renderInput={params => <TextField fullWidth {...params} required />}
               />
             )}
           </LocalizationProvider>
@@ -156,10 +145,7 @@ export const EditStockPositionDrawer: React.FC<TEditStockPositionDrawerProps> = 
             onChange={handler.onExchangeChange}
             defaultValue={
               payload?.exchange
-                ? StockService.getStockExchangeInputOptionFromList(
-                    payload?.exchange,
-                    StockExchangeOptions
-                  )
+                ? StockService.getStockExchangeInputOptionFromList(payload?.exchange, StockExchangeOptions)
                 : undefined
             }
           />
@@ -174,7 +160,7 @@ export const EditStockPositionDrawer: React.FC<TEditStockPositionDrawerProps> = 
             fullWidth
             onChange={handler.onInputChange}
             value={form.quantity}
-            InputProps={{ inputMode: 'numeric' }}
+            InputProps={{inputMode: 'numeric'}}
             required
           />
         </Grid>

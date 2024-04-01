@@ -1,13 +1,13 @@
 import React from 'react';
-import { useAuthContext } from '../Auth';
-import { PaymentMethodService } from './PaymentMethod.service';
-import { usePaymentMethodStore } from './PaymentMethod.store';
+import {useAuthContext} from '../Auth';
+import {PaymentMethodService} from './PaymentMethod.service';
+import {usePaymentMethodStore} from './PaymentMethod.store';
 
 let mounted = false;
 
 export function useFetchPaymentMethods() {
-  const { session, authOptions } = useAuthContext();
-  const { data, fetchedAt, fetchedBy, setFetchedData } = usePaymentMethodStore();
+  const {session, authOptions} = useAuthContext();
+  const {data, fetchedAt, fetchedBy, setFetchedData} = usePaymentMethodStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 
@@ -18,7 +18,7 @@ export function useFetchPaymentMethods() {
       if (withLoading) setLoading(true);
       const [fetchedPaymentMethods, error] = await PaymentMethodService.getPaymentMethodsByUuid(
         session.uuid,
-        authOptions
+        authOptions,
       );
       if (error) {
         setError(error);
@@ -41,7 +41,7 @@ export function useFetchPaymentMethods() {
     if (!session || (fetchedBy === session.uuid && data) || loading || mounted) return;
 
     mounted = true;
-    fetchPaymentMethods(true).then((success) => {
+    fetchPaymentMethods(true).then(success => {
       if (!success) mounted = false;
       setLoading(false);
     });

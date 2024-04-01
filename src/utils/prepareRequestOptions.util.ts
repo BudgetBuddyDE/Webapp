@@ -1,9 +1,6 @@
-import type { TUser } from '@budgetbuddyde/types';
+import type {TUser} from '@budgetbuddyde/types';
 
-export function prepareRequestOptions({
-  uuid,
-  password,
-}: Pick<TUser, 'uuid' | 'password'>): RequestInit {
+export function prepareRequestOptions({uuid, password}: Pick<TUser, 'uuid' | 'password'>): RequestInit {
   return {
     credentials: 'include',
     headers: {

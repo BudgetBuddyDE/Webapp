@@ -1,7 +1,7 @@
 import React from 'react';
-import { Avatar, Box, type AvatarProps, IconButton } from '@mui/material';
-import { type TTransactionFile } from '@budgetbuddyde/types';
-import { DeleteRounded } from '@mui/icons-material';
+import {Avatar, Box, type AvatarProps, IconButton} from '@mui/material';
+import {type TTransactionFile} from '@budgetbuddyde/types';
+import {DeleteRounded} from '@mui/icons-material';
 
 export type TFileUploadPreview = Pick<TTransactionFile, 'fileName' | 'fileSize' | 'mimeType'> & {
   uuid?: TTransactionFile['uuid'];
@@ -49,11 +49,11 @@ export const FileUploadPreview: React.FC<TFileUploadPreviewProps> = ({
   };
   if (onDelete) {
     return (
-      <Box sx={{ position: 'relative' }}>
+      <Box sx={{position: 'relative'}}>
         <PreviewImage />
         <IconButton
           aria-label="delete"
-          onClick={() => onDelete({ uuid, fileName, fileSize, mimeType, buffer, location })}
+          onClick={() => onDelete({uuid, fileName, fileSize, mimeType, buffer, location})}
           sx={{
             position: 'absolute',
             inset: 0,
@@ -64,8 +64,7 @@ export const FileUploadPreview: React.FC<TFileUploadPreviewProps> = ({
               color: 'action.active',
               borderColor: 'action.active',
             },
-          }}
-        >
+          }}>
           <DeleteRounded />
         </IconButton>
       </Box>

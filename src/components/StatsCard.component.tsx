@@ -1,7 +1,7 @@
 import React from 'react';
-import { Skeleton, Typography, type SxProps, type Theme } from '@mui/material';
-import { Card } from './Base';
-import { QuestionMarkRounded } from '@mui/icons-material';
+import {Skeleton, Typography, type SxProps, type Theme} from '@mui/material';
+import {Card} from './Base';
+import {QuestionMarkRounded} from '@mui/icons-material';
 
 export type TStatsCardProps = {
   label: string | number;
@@ -18,18 +18,12 @@ export const StatsIconStyle: SxProps<Theme> = {
   right: '.5rem',
   fontSize: '420%',
   opacity: 0.25,
-  color: (theme) => theme.palette.primary.main,
+  color: theme => theme.palette.primary.main,
 };
 
-export const StatsCard: React.FC<TStatsCardProps> = ({
-  label,
-  value,
-  valueInformation,
-  icon,
-  isLoading = false,
-}) => {
+export const StatsCard: React.FC<TStatsCardProps> = ({label, value, valueInformation, icon, isLoading = false}) => {
   return (
-    <Card sx={{ position: 'relative', height: '100%', px: 2, py: 1.25 }}>
+    <Card sx={{position: 'relative', height: '100%', px: 2, py: 1.25}}>
       <Typography variant="body2" fontWeight={'bold'}>
         {label}
       </Typography>

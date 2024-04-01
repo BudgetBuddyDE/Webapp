@@ -1,11 +1,11 @@
-import type { TCategory } from '@budgetbuddyde/types';
-import { getCategoryFromList } from './getCategoryFromList.util';
+import type {TCategory} from '@budgetbuddyde/types';
+import {getCategoryFromList} from './getCategoryFromList.util';
 
 // Sample categories for testing
 const categories: TCategory[] = [
-  { id: 1, name: 'Category 1' },
-  { id: 2, name: 'Category 2' },
-  { id: 3, name: 'Category 3' },
+  {id: 1, name: 'Category 1'},
+  {id: 2, name: 'Category 2'},
+  {id: 3, name: 'Category 3'},
 ] as TCategory[];
 
 describe('getCategoryFromList', () => {
@@ -14,7 +14,7 @@ describe('getCategoryFromList', () => {
     const result = getCategoryFromList(categoryId, categories);
 
     // Check if the result has the expected value
-    expect(result).toEqual({ label: 'Category 2', value: 2 });
+    expect(result).toEqual({label: 'Category 2', value: 2});
   });
 
   it('should fallback to undefined if no match is found', () => {

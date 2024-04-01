@@ -1,13 +1,13 @@
 import React from 'react';
-import { useAuthContext } from '../Auth';
-import { CategoryService } from './Category.service';
-import { useCategoryStore } from './Category.store';
+import {useAuthContext} from '../Auth';
+import {CategoryService} from './Category.service';
+import {useCategoryStore} from './Category.store';
 
 let mounted = false;
 
 export function useFetchCategories() {
-  const { session, authOptions } = useAuthContext();
-  const { data, fetchedAt, fetchedBy, setFetchedData } = useCategoryStore();
+  const {session, authOptions} = useAuthContext();
+  const {data, fetchedAt, fetchedBy, setFetchedData} = useCategoryStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 
@@ -38,7 +38,7 @@ export function useFetchCategories() {
     if (!session || (fetchedBy === session.uuid && data) || loading || mounted) return;
 
     mounted = true;
-    fetchCategories(true).then((success) => {
+    fetchCategories(true).then(success => {
       if (!success) mounted = false;
       setLoading(false);
     });

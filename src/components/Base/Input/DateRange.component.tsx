@@ -1,21 +1,21 @@
 import React from 'react';
-import { Box, type SxProps, TextField, type TextFieldProps, type Theme } from '@mui/material';
-import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { useScreenSize } from '@/hooks';
+import {Box, type SxProps, TextField, type TextFieldProps, type Theme} from '@mui/material';
+import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {useScreenSize} from '@/hooks';
 
 export const DATE_RANGE_INPUT_FORMAT = 'dd.MM.yyyy';
 
-export type TDateRangeInputProps = TextFieldProps & { sx?: SxProps<Theme> };
+export type TDateRangeInputProps = TextFieldProps & {sx?: SxProps<Theme>};
 
-export const StartDateInput: React.FC<TDateRangeInputProps> = (props) => {
+export const StartDateInput: React.FC<TDateRangeInputProps> = props => {
   // 1rem is the default gap defined for the container
-  return <TextField {...props} sx={{ width: 'calc(50% - 0.5rem)', ...props.sx }} />;
+  return <TextField {...props} sx={{width: 'calc(50% - 0.5rem)', ...props.sx}} />;
 };
 
-export const EndDateInput: React.FC<TDateRangeInputProps> = (props) => {
+export const EndDateInput: React.FC<TDateRangeInputProps> = props => {
   // 1rem is the default gap defined for the container
-  return <TextField {...props} sx={{ width: 'calc(50% - 0.5rem)', ...props.sx }} />;
+  return <TextField {...props} sx={{width: 'calc(50% - 0.5rem)', ...props.sx}} />;
 };
 
 export type TDateRange = {
@@ -56,12 +56,12 @@ export const DateRange: React.FC<TDateRangeProps> = ({
     onStartDateChange: (date: Date | null) => {
       const d = date ?? new Date();
       setStartDate(d);
-      onDateChange({ startDate: d, endDate: endDate });
+      onDateChange({startDate: d, endDate: endDate});
     },
     onEndDateChange: (date: Date | null) => {
       const d = date ?? new Date();
       setEndDate(d);
-      onDateChange({ startDate: startDate, endDate: d });
+      onDateChange({startDate: startDate, endDate: d});
     },
   };
 
@@ -75,17 +75,14 @@ export const DateRange: React.FC<TDateRangeProps> = ({
           justifyContent: 'space-between',
           gap: '1rem',
           ...containerSx,
-        }}
-      >
+        }}>
         {screenSize === 'small' ? (
           <MobileDatePicker
             label={startDateLabel}
             inputFormat={dateFormat}
             value={startDate}
             onChange={handler.onStartDateChange}
-            renderInput={(params) => (
-              <StartDateInput sx={startDateSx} size={inputSize} {...params} />
-            )}
+            renderInput={params => <StartDateInput sx={startDateSx} size={inputSize} {...params} />}
           />
         ) : (
           <DesktopDatePicker
@@ -93,7 +90,7 @@ export const DateRange: React.FC<TDateRangeProps> = ({
             inputFormat={dateFormat}
             value={startDate}
             onChange={handler.onStartDateChange}
-            renderInput={(params) => <StartDateInput sx={endDateSx} size={inputSize} {...params} />}
+            renderInput={params => <StartDateInput sx={endDateSx} size={inputSize} {...params} />}
           />
         )}
 
@@ -103,7 +100,7 @@ export const DateRange: React.FC<TDateRangeProps> = ({
             inputFormat={dateFormat}
             value={endDate}
             onChange={handler.onEndDateChange}
-            renderInput={(params) => <EndDateInput sx={startDateSx} size={inputSize} {...params} />}
+            renderInput={params => <EndDateInput sx={startDateSx} size={inputSize} {...params} />}
           />
         ) : (
           <DesktopDatePicker
@@ -111,7 +108,7 @@ export const DateRange: React.FC<TDateRangeProps> = ({
             inputFormat={dateFormat}
             value={endDate}
             onChange={handler.onEndDateChange}
-            renderInput={(params) => <EndDateInput sx={endDateSx} size={inputSize} {...params} />}
+            renderInput={params => <EndDateInput sx={endDateSx} size={inputSize} {...params} />}
           />
         )}
       </Box>

@@ -1,11 +1,11 @@
 import React from 'react';
-import { LogoutRounded as LogoutIcon } from '@mui/icons-material';
-import { Box, Button, type ButtonProps, useTheme, Divider, Typography, Chip } from '@mui/material';
-import { useDrawerStore } from './Drawer.store';
-import { useScreenSize, useWindowDimensions } from '@/hooks';
-import { AuthService, useAuthContext } from '@/components/Auth';
-import { UserAvatar } from '@/components/User';
-import { useNavigate } from 'react-router-dom';
+import {LogoutRounded as LogoutIcon} from '@mui/icons-material';
+import {Box, Button, type ButtonProps, useTheme, Divider, Typography, Chip} from '@mui/material';
+import {useDrawerStore} from './Drawer.store';
+import {useScreenSize, useWindowDimensions} from '@/hooks';
+import {AuthService, useAuthContext} from '@/components/Auth';
+import {UserAvatar} from '@/components/User';
+import {useNavigate} from 'react-router-dom';
 
 export type TDrawerProfileProps = {};
 
@@ -13,12 +13,12 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const screenSize = useScreenSize();
-  const { open, toggle } = useDrawerStore();
-  const { breakpoint } = useWindowDimensions();
-  const { session } = useAuthContext();
+  const {open, toggle} = useDrawerStore();
+  const {breakpoint} = useWindowDimensions();
+  const {session} = useAuthContext();
 
   const handleSignOut = async () => {
-    await AuthService.signOut((success) => {
+    await AuthService.signOut(success => {
       if (success) {
         window.location.reload();
       }
@@ -34,7 +34,7 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
 
   if (!session) return null;
   return (
-    <Box sx={{ mt: 'auto', backgroundColor: theme.palette.action.focus }}>
+    <Box sx={{mt: 'auto', backgroundColor: theme.palette.action.focus}}>
       <Divider />
       <Box
         sx={{
@@ -43,8 +43,7 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
           justifyContent: 'space-between',
           px: 2,
           py: 1,
-        }}
-      >
+        }}>
         <Box
           sx={{
             transition: '100ms',
@@ -59,10 +58,9 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
               cursor: 'Pointer',
             },
           }}
-          onClick={handleClick}
-        >
+          onClick={handleClick}>
           <UserAvatar />
-          <Box sx={{ ml: '.5rem' }}>
+          <Box sx={{ml: '.5rem'}}>
             <Typography fontWeight="bold">
               {session.name} {session.surname}
             </Typography>
@@ -74,7 +72,7 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
           sx={{
             ml: open ? 'auto' : '-.5rem',
             ':hover': {
-              backgroundColor: (theme) => theme.palette.action.hover,
+              backgroundColor: theme => theme.palette.action.hover,
             },
           }}
         />
@@ -83,7 +81,7 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
   );
 };
 
-export const LogoutButton: React.FC<ButtonProps> = (props) => {
+export const LogoutButton: React.FC<ButtonProps> = props => {
   const theme = useTheme();
   return (
     <Button
@@ -95,9 +93,8 @@ export const LogoutButton: React.FC<ButtonProps> = (props) => {
         minHeight: 48,
         p: 0,
         ...props.sx,
-      }}
-    >
-      <LogoutIcon sx={{ color: theme.palette.text.primary }} />
+      }}>
+      <LogoutIcon sx={{color: theme.palette.text.primary}} />
     </Button>
   );
 };

@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import {create} from 'zustand';
 
 export interface IDrawerStore {
   open: boolean;
@@ -6,17 +6,17 @@ export interface IDrawerStore {
   toggle: () => void;
 }
 
-export const useDrawerStore = create<IDrawerStore>((set) => ({
+export const useDrawerStore = create<IDrawerStore>(set => ({
   open: getSavedState(),
-  set: (state) => {
-    set({ open: state });
+  set: state => {
+    set({open: state});
     saveState(state);
   },
   toggle: () =>
-    set((state) => {
+    set(state => {
       const newState = !state.open;
       saveState(newState);
-      return { open: newState };
+      return {open: newState};
     }),
 }));
 

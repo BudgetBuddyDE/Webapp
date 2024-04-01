@@ -1,4 +1,4 @@
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
+import {isRunningInProdEnv} from '@/utils/isRunningInProdEnv.util';
 import {
   ZUser,
   type TApiResponse,
@@ -10,8 +10,7 @@ import {
 } from '@budgetbuddyde/types';
 
 export class AuthService {
-  private static host =
-    (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/auth';
+  private static host = (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/auth';
   private static options: Partial<RequestInit> = {
     method: 'POST',
     headers: {
@@ -75,17 +74,14 @@ export class AuthService {
     }
   }
 
-  static async signOut(
-    cb?: (success: boolean, error: Error | null) => void
-  ): Promise<[boolean, Error | null]> {
+  static async signOut(cb?: (success: boolean, error: Error | null) => void): Promise<[boolean, Error | null]> {
     let success: boolean = false,
       error: Error | null = null;
     try {
       const response = await fetch(this.host + '/logout', this.options);
       const json = (await response.json()) as TApiResponse<string>;
       success = json.status == 200;
-      error =
-        json.status == 200 && !json.message ? null : new Error(json.message as unknown as string);
+      error = json.status == 200 && !json.message ? null : new Error(json.message as unknown as string);
     } catch (error) {
       console.error(error);
       success = false;
@@ -98,7 +94,7 @@ export class AuthService {
 
   static async requestPasswordReset(email: string): Promise<[TPasswordReset | null, Error | null]> {
     try {
-      const query = new URLSearchParams({ email });
+      const query = new URLSearchParams({email});
       const response = await fetch(this.host + '/password/request-reset?' + query.toString(), {
         ...this.options,
       });
@@ -116,7 +112,7 @@ export class AuthService {
 
   static async validatePasswordResetOtp(otp: string): Promise<[Boolean | null, Error | null]> {
     try {
-      const query = new URLSearchParams({ otp });
+      const query = new URLSearchParams({otp});
       const response = await fetch(this.host + '/password/validate-otp?' + query.toString(), {
         ...this.options,
       });
@@ -130,12 +126,9 @@ export class AuthService {
     }
   }
 
-  static async saveNewPassword(
-    otp: string,
-    newPassword: string
-  ): Promise<[TUser | null, Error | null]> {
+  static async saveNewPassword(otp: string, newPassword: string): Promise<[TUser | null, Error | null]> {
     try {
-      const query = new URLSearchParams({ otp, newPassword });
+      const query = new URLSearchParams({otp, newPassword});
       const response = await fetch(this.host + '/password/reset?' + query.toString(), {
         ...this.options,
       });

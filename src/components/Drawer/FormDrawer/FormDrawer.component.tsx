@@ -1,19 +1,10 @@
-import { useScreenSize } from '@/hooks';
-import { drawerWidth } from '@/style/theme/theme';
-import {
-  Box,
-  Drawer,
-  Typography,
-  type DrawerProps,
-  Button,
-  IconButton,
-  Alert,
-  CircularProgress,
-} from '@mui/material';
+import {useScreenSize} from '@/hooks';
+import {drawerWidth} from '@/style/theme/theme';
+import {Box, Drawer, Typography, type DrawerProps, Button, IconButton, Alert, CircularProgress} from '@mui/material';
 import React from 'react';
-import { ActionPaper } from '@/components/Base';
-import { CloseRounded, DoneRounded, ErrorRounded } from '@mui/icons-material';
-import { type TFormDrawerState } from './FormDrawer.reducer';
+import {ActionPaper} from '@/components/Base';
+import {CloseRounded, DoneRounded, ErrorRounded} from '@mui/icons-material';
+import {type TFormDrawerState} from './FormDrawer.reducer';
 
 export type TFormDrawerProps = {
   state?: TFormDrawerState;
@@ -52,14 +43,13 @@ export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = (
         elevation: 0,
         sx: {
           boxSizing: 'border-box',
-          width: { xs: 'unset', md: drawerWidth * 2 },
-          margin: { xs: 1, md: 0 },
-          mb: { xs: 2, md: 0 },
-          borderRadius: (theme) => ({ xs: `${theme.shape.borderRadius}px`, md: 0 }),
-          backgroundColor: (theme) => theme.palette.background.paper,
+          width: {xs: 'unset', md: drawerWidth * 2},
+          margin: {xs: 1, md: 0},
+          mb: {xs: 2, md: 0},
+          borderRadius: theme => ({xs: `${theme.shape.borderRadius}px`, md: 0}),
+          backgroundColor: theme => theme.palette.background.paper,
         },
-      }}
-    >
+      }}>
       <Box
         sx={{
           display: 'flex',
@@ -68,8 +58,7 @@ export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = (
           alignItems: 'center',
           p: 2,
           pb: 0,
-        }}
-      >
+        }}>
         <Typography variant="subtitle1" fontWeight="bold">
           {heading}
         </Typography>
@@ -79,28 +68,24 @@ export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = (
           </IconButton>
         </ActionPaper>
       </Box>
-      <form
-        onSubmit={onSubmit}
-        style={{ display: 'flex', flexDirection: 'column', height: 'inherit' }}
-      >
-        <Box sx={{ p: 2 }}>
+      <form onSubmit={onSubmit} style={{display: 'flex', flexDirection: 'column', height: 'inherit'}}>
+        <Box sx={{p: 2}}>
           {state && state.error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert severity="error" sx={{mb: 2}}>
               {state.error instanceof Error ? state.error.message : state.error}
             </Alert>
           )}
           {children}
         </Box>
-        <Box sx={{ mt: 'auto' }}>
+        <Box sx={{mt: 'auto'}}>
           <Box
             sx={{
               display: 'flex',
               justifyContent: 'flex-end',
               p: 2,
               pt: 0,
-            }}
-          >
-            <Button onClick={onClose} sx={{ mr: 2 }}>
+            }}>
+            <Button onClick={onClose} sx={{mr: 2}}>
               Cancel
             </Button>
 
@@ -118,8 +103,7 @@ export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = (
                     ) : null,
                     disabled: state.loading,
                   }
-                : {})}
-            >
+                : {})}>
               Save
             </Button>
           </Box>

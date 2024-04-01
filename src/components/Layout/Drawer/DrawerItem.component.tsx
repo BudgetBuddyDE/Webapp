@@ -1,15 +1,7 @@
 import React from 'react';
-import {
-  useTheme,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Tooltip,
-  alpha,
-} from '@mui/material';
-import { useDrawerStore } from './Drawer.store';
-import { useLocation, useNavigate } from 'react-router-dom';
+import {useTheme, ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip, alpha} from '@mui/material';
+import {useDrawerStore} from './Drawer.store';
+import {useLocation, useNavigate} from 'react-router-dom';
 
 export type TDrawerItemProps = {
   open: boolean;
@@ -19,14 +11,8 @@ export type TDrawerItemProps = {
   closeOnClick?: boolean;
 };
 
-export const DrawerItem: React.FC<TDrawerItemProps> = ({
-  open,
-  text,
-  path,
-  icon,
-  closeOnClick = false,
-}) => {
-  const { toggle } = useDrawerStore();
+export const DrawerItem: React.FC<TDrawerItemProps> = ({open, text, path, icon, closeOnClick = false}) => {
+  const {toggle} = useDrawerStore();
   const navigate = useNavigate();
   const theme = useTheme();
   const location = useLocation();
@@ -44,7 +30,7 @@ export const DrawerItem: React.FC<TDrawerItemProps> = ({
 
   return (
     <Tooltip key={text} title={open ? '' : text} placement="right">
-      <ListItem disablePadding sx={{ display: 'block' }}>
+      <ListItem disablePadding sx={{display: 'block'}}>
         <ListItemButton
           sx={{
             mx: 1,
@@ -56,24 +42,20 @@ export const DrawerItem: React.FC<TDrawerItemProps> = ({
             color: active ? theme.palette.primary.main : theme.palette.text.primary,
             borderRadius: `${theme.shape.borderRadius}px`,
             ':hover': {
-              backgroundColor: active
-                ? alpha(theme.palette.primary.main, 0.3)
-                : theme.palette.action.hover,
+              backgroundColor: active ? alpha(theme.palette.primary.main, 0.3) : theme.palette.action.hover,
             },
           }}
-          onClick={handler.onClick}
-        >
+          onClick={handler.onClick}>
           <ListItemIcon
             sx={{
               minWidth: 0,
               mr: open ? 3 : 'auto',
               justifyContent: 'center',
               color: 'inherit',
-            }}
-          >
+            }}>
             {icon}
           </ListItemIcon>
-          <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
+          <ListItemText primary={text} sx={{opacity: open ? 1 : 0}} />
         </ListItemButton>
       </ListItem>
     </Tooltip>

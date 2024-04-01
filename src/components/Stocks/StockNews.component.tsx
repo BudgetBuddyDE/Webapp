@@ -1,7 +1,7 @@
 import React from 'react';
-import { NewspaperRounded } from '@mui/icons-material';
-import { Box, Divider, Link, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
-import { Card, NoResults } from '@/components/Base';
+import {NewspaperRounded} from '@mui/icons-material';
+import {Box, Divider, Link, List, ListItem, ListItemButton, ListItemText} from '@mui/material';
+import {Card, NoResults} from '@/components/Base';
 
 export type TStockNewsProps = {
   news: {
@@ -11,10 +11,10 @@ export type TStockNewsProps = {
   }[];
 };
 
-export const StockNews: React.FC<TStockNewsProps> = ({ news }) => {
+export const StockNews: React.FC<TStockNewsProps> = ({news}) => {
   return (
-    <Card sx={{ p: 0 }}>
-      <Card.Header sx={{ p: 2, pb: 0 }}>
+    <Card sx={{p: 0}}>
+      <Card.Header sx={{p: 2, pb: 0}}>
         <Box>
           <Card.Title>News</Card.Title>
           <Card.Subtitle>What is currently trending?</Card.Subtitle>
@@ -39,11 +39,7 @@ export const StockNews: React.FC<TStockNewsProps> = ({ news }) => {
             ))}
           </List>
         ) : (
-          <NoResults
-            icon={<NewspaperRounded />}
-            text="There are no news available."
-            sx={{ m: 2 }}
-          />
+          <NoResults icon={<NewspaperRounded />} text="There are no news available." sx={{m: 2}} />
         )}
       </Card.Body>
     </Card>

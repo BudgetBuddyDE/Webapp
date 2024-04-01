@@ -1,13 +1,13 @@
 import React from 'react';
-import { useAuthContext } from '../../Auth';
-import { useStockStore } from '../Stock.store';
-import { StockService } from '../Stock.service';
+import {useAuthContext} from '../../Auth';
+import {useStockStore} from '../Stock.store';
+import {StockService} from '../Stock.service';
 
 let mounted = false;
 
 export function useFetchStockPositions() {
-  const { session, authOptions } = useAuthContext();
-  const { data, fetchedAt, fetchedBy, setFetchedData } = useStockStore();
+  const {session, authOptions} = useAuthContext();
+  const {data, fetchedAt, fetchedBy, setFetchedData} = useStockStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 
@@ -38,7 +38,7 @@ export function useFetchStockPositions() {
     if (!session || (fetchedBy === session.uuid && data) || loading || mounted) return;
 
     mounted = true;
-    fetchStockPositions(true).then((success) => {
+    fetchStockPositions(true).then(success => {
       if (!success) mounted = false;
       setLoading(false);
     });

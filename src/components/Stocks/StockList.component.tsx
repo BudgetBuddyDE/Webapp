@@ -1,11 +1,11 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
-import { ArrowForwardRounded } from '@mui/icons-material';
-import { Box, Button, Chip, Link } from '@mui/material';
-import { Card, ListWithIcon } from '@/components/Base';
-import { type TStockPosition } from '@budgetbuddyde/types';
-import { StockPrice } from './index';
-import { useSnackbarContext } from '../Snackbar';
+import {useNavigate} from 'react-router';
+import {ArrowForwardRounded} from '@mui/icons-material';
+import {Box, Button, Chip, Link} from '@mui/material';
+import {Card, ListWithIcon} from '@/components/Base';
+import {type TStockPosition} from '@budgetbuddyde/types';
+import {StockPrice} from './index';
+import {useSnackbarContext} from '../Snackbar';
 
 export type TStockListProps = {
   title: string;
@@ -13,9 +13,9 @@ export type TStockListProps = {
   data: TStockPosition[];
 };
 
-export const StockList: React.FC<TStockListProps> = ({ title, subtitle, data }) => {
+export const StockList: React.FC<TStockListProps> = ({title, subtitle, data}) => {
   const navigate = useNavigate();
-  const { showSnackbar } = useSnackbarContext();
+  const {showSnackbar} = useSnackbarContext();
   return (
     <Card>
       <Card.Header>
@@ -25,27 +25,22 @@ export const StockList: React.FC<TStockListProps> = ({ title, subtitle, data }) 
         </Box>
       </Card.Header>
       <Card.Body>
-        {data.map((position) => (
+        {data.map(position => (
           <ListWithIcon
             key={position.id}
             title={position.name}
             subtitle={
-              <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+              <Box sx={{display: 'flex', flexDirection: 'row'}}>
+                <Chip variant="outlined" size="small" sx={{mr: 1}} label={position.exchange.symbol} />
                 <Chip
                   variant="outlined"
                   size="small"
-                  sx={{ mr: 1 }}
-                  label={position.exchange.symbol}
-                />
-                <Chip
-                  variant="outlined"
-                  size="small"
-                  sx={{ mr: 1 }}
+                  sx={{mr: 1}}
                   label={position.isin}
-                  onClick={async (event) => {
+                  onClick={async event => {
                     event.stopPropagation();
                     await navigator.clipboard.writeText(position.isin);
-                    showSnackbar({ message: 'Copied to clipboard' });
+                    showSnackbar({message: 'Copied to clipboard'});
                   }}
                 />
               </Box>
@@ -61,7 +56,7 @@ export const StockList: React.FC<TStockListProps> = ({ title, subtitle, data }) 
           />
         ))}
       </Card.Body>
-      <Card.Footer sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <Card.Footer sx={{display: 'flex', justifyContent: 'flex-end'}}>
         <Button endIcon={<ArrowForwardRounded />} LinkComponent={Link} href="/stocks">
           View all
         </Button>

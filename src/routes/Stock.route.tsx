@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import {useParams} from 'react-router-dom';
 import Chart from 'react-apexcharts';
 import {
   Accordion,
@@ -32,11 +32,11 @@ import {
   HelpOutlineRounded,
   TimelineRounded,
 } from '@mui/icons-material';
-import { format } from 'date-fns';
-import { ActionPaper, Card, NoResults, TabPanel } from '@/components/Base';
-import { ContentGrid } from '@/components/Layout';
-import { withAuthLayout } from '@/components/Auth/Layout';
-import { Table } from '@/components/Base/Table';
+import {format} from 'date-fns';
+import {ActionPaper, Card, NoResults, TabPanel} from '@/components/Base';
+import {ContentGrid} from '@/components/Layout';
+import {withAuthLayout} from '@/components/Auth/Layout';
+import {Table} from '@/components/Base/Table';
 import {
   StockNews,
   StockPrice,
@@ -53,13 +53,13 @@ import {
   useFetchStockDetails,
   type TPriceChartPoint,
 } from '@/components/Stocks';
-import { formatBalance, getSocketIOClient } from '@/utils';
-import { SearchInput } from '@/components/Base/Search';
-import { useAuthContext } from '@/components/Auth';
-import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks/useEntityDrawer.reducer';
-import { useSnackbarContext } from '@/components/Snackbar';
-import { DeleteDialog } from '@/components/DeleteDialog.component';
-import { CircularProgress } from '@/components/Loading';
+import {formatBalance, getSocketIOClient} from '@/utils';
+import {SearchInput} from '@/components/Base/Search';
+import {useAuthContext} from '@/components/Auth';
+import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks/useEntityDrawer.reducer';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {DeleteDialog} from '@/components/DeleteDialog.component';
+import {CircularProgress} from '@/components/Loading';
 
 const NoStockMessage = () => (
   <Card>
@@ -77,10 +77,10 @@ interface IStockHandler {
 
 export const Stock = () => {
   const theme = useTheme();
-  const params = useParams<{ isin: string }>();
-  const { showSnackbar } = useSnackbarContext();
-  const { authOptions } = useAuthContext();
-  const { updateQuote } = useStockStore();
+  const params = useParams<{isin: string}>();
+  const {showSnackbar} = useSnackbarContext();
+  const {authOptions} = useAuthContext();
+  const {updateQuote} = useStockStore();
   const socket = getSocketIOClient(authOptions);
   const [keyword, setKeyword] = React.useState('');
   const [chartTimeframe, setChartTimeframe] = React.useState<TTimeframe>('1m');
@@ -88,9 +88,7 @@ export const Stock = () => {
     profit: 0,
     financial: 0,
   });
-  const { loading: loadingDetails, details: stockDetails } = useFetchStockDetails(
-    params.isin || ''
-  );
+  const {loading: loadingDetails, details: stockDetails} = useFetchStockDetails(params.isin || '');
   const {
     loading: loadingQuotes,
     quotes,
@@ -104,11 +102,11 @@ export const Stock = () => {
   } = useFetchStockPositions();
   const [showAddDrawer, dispatchAddDrawer] = React.useReducer(
     useEntityDrawer<TOpenPositionPayload>,
-    CreateEntityDrawerState<TOpenPositionPayload>()
+    CreateEntityDrawerState<TOpenPositionPayload>(),
   );
   const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
     useEntityDrawer<TUpdatePositionPayload>,
-    CreateEntityDrawerState<TUpdatePositionPayload>()
+    CreateEntityDrawerState<TUpdatePositionPayload>(),
   );
   const [showDeletePositionDialog, setShowDeletePositionDialog] = React.useState(false);
   const [deletePosition, setDeletePosition] = React.useState<TStockPosition | null>(null);
@@ -125,9 +123,7 @@ export const Stock = () => {
           colors: theme.palette.text.primary,
         },
       },
-      categories: stockDetails?.details.securityDetails?.annualFinancials
-        .map(({ date }) => date.getFullYear())
-        .reverse(),
+      categories: stockDetails?.details.securityDetails?.annualFinancials.map(({date}) => date.getFullYear()).reverse(),
     },
     dataLabels: {
       enabled: false,
@@ -173,17 +169,16 @@ export const Stock = () => {
 
   const preparedChartData: TPriceChartPoint[] = React.useMemo(() => {
     if (!quotes) return [];
-    return quotes[0].quotes.map(({ date, price }) => ({ price, date }));
+    return quotes[0].quotes.map(({date, price}) => ({price, date}));
   }, [quotes]);
 
   const displayedStockPositions = React.useMemo(() => {
-    if (keyword === '') return stockPositions.filter(({ isin }) => isin === params.isin);
+    if (keyword === '') return stockPositions.filter(({isin}) => isin === params.isin);
     const lowerKeyword = keyword.toLowerCase();
     return stockPositions.filter(
-      (position) =>
-        (position.name.toLowerCase().includes(lowerKeyword) ||
-          position.isin.toLowerCase().includes(lowerKeyword)) &&
-        position.isin === params.isin
+      position =>
+        (position.name.toLowerCase().includes(lowerKeyword) || position.isin.toLowerCase().includes(lowerKeyword)) &&
+        position.isin === params.isin,
     );
   }, [keyword, stockPositions, params]);
 
@@ -197,10 +192,7 @@ export const Stock = () => {
     },
     async onConfirmDeletePosition() {
       if (!deletePosition) return;
-      const [position, error] = await StockService.deletePosition(
-        [{ id: deletePosition.id }],
-        authOptions
-      );
+      const [position, error] = await StockService.deletePosition([{id: deletePosition.id}], authOptions);
       if (error) {
         showSnackbar({
           message: error.message,
@@ -216,7 +208,7 @@ export const Stock = () => {
         });
         return;
       }
-      showSnackbar({ message: 'Position deleted' });
+      showSnackbar({message: 'Position deleted'});
       setShowDeletePositionDialog(false);
       setDeletePosition(null);
       React.startTransition(() => {
@@ -224,9 +216,9 @@ export const Stock = () => {
       });
     },
     onAddPosition() {
-      dispatchAddDrawer({ type: 'open' });
+      dispatchAddDrawer({type: 'open'});
     },
-    onEditPosition({ bought_at, buy_in, exchange, id, isin, quantity }) {
+    onEditPosition({bought_at, buy_in, exchange, id, isin, quantity}) {
       dispatchEditDrawer({
         type: 'open',
         payload: {
@@ -245,37 +237,25 @@ export const Stock = () => {
     if (!params.isin) return;
     socket.connect();
 
-    socket.emit(
-      'stock:subscribe',
-      [{ isin: params.isin, exchange: 'langschwarz' }],
-      authOptions.uuid
-    );
+    socket.emit('stock:subscribe', [{isin: params.isin, exchange: 'langschwarz'}], authOptions.uuid);
 
     socket.on(
       `stock:update:${authOptions.uuid}`,
-      (data: {
-        exchange: string;
-        isin: string;
-        quote: { datetime: string; currency: string; price: number };
-      }) => {
+      (data: {exchange: string; isin: string; quote: {datetime: string; currency: string; price: number}}) => {
         console.log('stock:update', data);
         updateQuote(data.exchange, data.isin, data.quote.price);
-        updateQuotes((prev) => {
+        updateQuotes(prev => {
           if (!prev) return prev;
           const quotes = prev[0].quotes;
           const idx = prev[0].quotes.length - 1;
-          prev[0].quotes[idx] = { ...quotes[idx], price: data.quote.price };
+          prev[0].quotes[idx] = {...quotes[idx], price: data.quote.price};
           return prev;
         });
-      }
+      },
     );
 
     return () => {
-      socket.emit(
-        'stock:unsubscribe',
-        [{ isin: params.isin, exchange: 'langschwarz' }],
-        authOptions.uuid
-      );
+      socket.emit('stock:unsubscribe', [{isin: params.isin, exchange: 'langschwarz'}], authOptions.uuid);
       socket.disconnect();
     };
   }, [params, authOptions]);
@@ -291,11 +271,7 @@ export const Stock = () => {
           {loadingQuotes ? (
             <CircularProgress />
           ) : quotes ? (
-            <PriceChart
-              data={preparedChartData}
-              timeframe={chartTimeframe}
-              onTimeframeChange={setChartTimeframe}
-            />
+            <PriceChart data={preparedChartData} timeframe={chartTimeframe} onTimeframeChange={setChartTimeframe} />
           ) : (
             <NoResults icon={<TimelineRounded />} text="No quotes found" />
           )}
@@ -306,26 +282,12 @@ export const Stock = () => {
             isLoading={loadingStockPositions}
             title="Positions"
             data={displayedStockPositions}
-            headerCells={[
-              'Bought at',
-              'Exchange',
-              'Buy in',
-              'Price',
-              'Quantity',
-              'Value',
-              'Profit',
-              '',
-            ]}
-            renderRow={(position) => (
+            headerCells={['Bought at', 'Exchange', 'Buy in', 'Price', 'Quantity', 'Value', 'Profit', '']}
+            renderRow={position => (
               <TableRow key={position.id}>
                 <TableCell>{format(position.bought_at, 'dd.MM.yy')}</TableCell>
                 <TableCell>
-                  <Chip
-                    variant="outlined"
-                    size="small"
-                    sx={{ mr: 1 }}
-                    label={position.exchange.symbol}
-                  />
+                  <Chip variant="outlined" size="small" sx={{mr: 1}} label={position.exchange.symbol} />
                 </TableCell>
                 <TableCell>
                   <Typography>{formatBalance(position.buy_in, position.currency)}</Typography>
@@ -339,10 +301,7 @@ export const Stock = () => {
                   <Typography>{position.quantity} x</Typography>
                 </TableCell>
                 <TableCell>
-                  <StockPrice
-                    price={position.quantity * position.quote.price}
-                    currency={position.currency}
-                  />
+                  <StockPrice price={position.quantity * position.quote.price} currency={position.currency} />
                 </TableCell>
                 <TableCell>
                   <StockPrice
@@ -351,14 +310,13 @@ export const Stock = () => {
                   />
                 </TableCell>
                 <TableCell>
-                  <ActionPaper sx={{ display: 'flex', width: 'fit-content', ml: 'auto' }}>
+                  <ActionPaper sx={{display: 'flex', width: 'fit-content', ml: 'auto'}}>
                     <IconButton
                       color="primary"
                       onClick={() => {
                         setShowDeletePositionDialog(true);
                         setDeletePosition(position);
-                      }}
-                    >
+                      }}>
                       <DeleteRounded />
                     </IconButton>
 
@@ -388,13 +346,12 @@ export const Stock = () => {
                   Profit & loss statements
                 </Typography>
               </AccordionSummary>
-              <AccordionDetails sx={{ px: 0 }}>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <AccordionDetails sx={{px: 0}}>
+                <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
                   <Tabs
                     value={tabPane.profit}
-                    onChange={(_, value) => setTabPane((prev) => ({ ...prev, profit: value }))}
-                    sx={{ mx: 2 }}
-                  >
+                    onChange={(_, value) => setTabPane(prev => ({...prev, profit: value}))}
+                    sx={{mx: 2}}>
                     <Tab label="Yearly" value={0} />
                     <Tab label="Quarterly" value={1} />
                   </Tabs>
@@ -409,14 +366,14 @@ export const Stock = () => {
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
                         data: stockDetails.details.securityDetails.annualFinancials
-                          .map(({ revenue }) => revenue)
+                          .map(({revenue}) => revenue)
                           .reverse(),
                         color: theme.palette.success.main,
                       },
                       {
                         name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
                         data: stockDetails.details.securityDetails.annualFinancials
-                          .map(({ netIncome }) => netIncome)
+                          .map(({netIncome}) => netIncome)
                           .reverse(),
                         color: theme.palette.warning.light,
                       },
@@ -433,14 +390,14 @@ export const Stock = () => {
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
                         data: stockDetails.details.securityDetails.quarterlyFinancials
-                          .map(({ revenue }) => revenue)
+                          .map(({revenue}) => revenue)
                           .reverse(),
                         color: theme.palette.success.main,
                       },
                       {
                         name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
                         data: stockDetails.details.securityDetails.quarterlyFinancials
-                          .map(({ netIncome }) => netIncome)
+                          .map(({netIncome}) => netIncome)
                           .reverse(),
                         color: theme.palette.warning.light,
                       },
@@ -456,13 +413,12 @@ export const Stock = () => {
                   Financial Statements
                 </Typography>
               </AccordionSummary>
-              <AccordionDetails sx={{ px: 0 }}>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <AccordionDetails sx={{px: 0}}>
+                <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
                   <Tabs
                     value={tabPane.financial}
-                    onChange={(_, value) => setTabPane((prev) => ({ ...prev, financial: value }))}
-                    sx={{ mx: 2 }}
-                  >
+                    onChange={(_, value) => setTabPane(prev => ({...prev, financial: value}))}
+                    sx={{mx: 2}}>
                     <Tab label="Yearly" value={0} />
                     <Tab label="Quarterly" value={1} />
                   </Tabs>
@@ -477,28 +433,26 @@ export const Stock = () => {
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
                         data: stockDetails.details.securityDetails.annualFinancials
-                          .map(({ revenue }) => revenue)
+                          .map(({revenue}) => revenue)
                           .reverse(),
                         color: theme.palette.success.main,
                       },
                       {
                         name: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
                         data: stockDetails.details.securityDetails.annualFinancials
-                          .map(({ grossProfit }) => grossProfit)
+                          .map(({grossProfit}) => grossProfit)
                           .reverse(),
                         color: theme.palette.primary.main,
                       },
                       {
                         name: `EBITDA (${stockDetails.details.securityDetails.currency})`,
-                        data: stockDetails.details.securityDetails.annualFinancials
-                          .map(({ ebitda }) => ebitda)
-                          .reverse(),
+                        data: stockDetails.details.securityDetails.annualFinancials.map(({ebitda}) => ebitda).reverse(),
                         color: theme.palette.primary.light,
                       },
                       {
                         name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
                         data: stockDetails.details.securityDetails.annualFinancials
-                          .map(({ netIncome }) => netIncome)
+                          .map(({netIncome}) => netIncome)
                           .reverse(),
                         color: theme.palette.warning.light,
                       },
@@ -515,28 +469,28 @@ export const Stock = () => {
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
                         data: stockDetails.details.securityDetails.quarterlyFinancials
-                          .map(({ revenue }) => revenue)
+                          .map(({revenue}) => revenue)
                           .reverse(),
                         color: theme.palette.success.main,
                       },
                       {
                         name: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
                         data: stockDetails.details.securityDetails.quarterlyFinancials
-                          .map(({ grossProfit }) => grossProfit)
+                          .map(({grossProfit}) => grossProfit)
                           .reverse(),
                         color: theme.palette.primary.main,
                       },
                       {
                         name: `EBITDA (${stockDetails.details.securityDetails.currency})`,
                         data: stockDetails.details.securityDetails.quarterlyFinancials
-                          .map(({ ebitda }) => ebitda)
+                          .map(({ebitda}) => ebitda)
                           .reverse(),
                         color: theme.palette.primary.light,
                       },
                       {
                         name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
                         data: stockDetails.details.securityDetails.quarterlyFinancials
-                          .map(({ netIncome }) => netIncome)
+                          .map(({netIncome}) => netIncome)
                           .reverse(),
                         color: theme.palette.warning.light,
                       },
@@ -605,7 +559,7 @@ export const Stock = () => {
             <CircularProgress />
           ) : stockDetails ? (
             <StockNews
-              news={stockDetails.details.news.map(({ title, description, url }) => ({
+              news={stockDetails.details.news.map(({title, description, url}) => ({
                 heading: title,
                 summary: description,
                 link: url,
@@ -617,15 +571,9 @@ export const Stock = () => {
         </Grid>
       </Grid>
 
-      <AddStockPositionDrawer
-        {...showAddDrawer}
-        onClose={() => dispatchAddDrawer({ type: 'close' })}
-      />
+      <AddStockPositionDrawer {...showAddDrawer} onClose={() => dispatchAddDrawer({type: 'close'})} />
 
-      <EditStockPositionDrawer
-        {...showEditDrawer}
-        onClose={() => dispatchEditDrawer({ type: 'close' })}
-      />
+      <EditStockPositionDrawer {...showEditDrawer} onClose={() => dispatchEditDrawer({type: 'close'})} />
 
       <DeleteDialog
         open={showDeletePositionDialog}

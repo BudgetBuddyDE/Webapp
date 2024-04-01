@@ -1,19 +1,19 @@
 import React from 'react';
-import { Box, Divider, List, ListItem, ListItemText } from '@mui/material';
-import { format } from 'date-fns';
-import { EventBusyRounded } from '@mui/icons-material';
-import { type TDividend } from '@budgetbuddyde/types';
-import { Card, NoResults } from '../Base';
-import { StockPrice } from './StockPrice.component';
+import {Box, Divider, List, ListItem, ListItemText} from '@mui/material';
+import {format} from 'date-fns';
+import {EventBusyRounded} from '@mui/icons-material';
+import {type TDividend} from '@budgetbuddyde/types';
+import {Card, NoResults} from '../Base';
+import {StockPrice} from './StockPrice.component';
 
 export type TDividendListProps = {
   dividends: TDividend[];
 };
 
-export const DividendList: React.FC<TDividendListProps> = ({ dividends }) => {
+export const DividendList: React.FC<TDividendListProps> = ({dividends}) => {
   return (
-    <Card sx={{ p: 0 }}>
-      <Card.Header sx={{ p: 2, pb: 0 }}>
+    <Card sx={{p: 0}}>
+      <Card.Header sx={{p: 2, pb: 0}}>
         <Box>
           <Card.Title>Dividends</Card.Title>
         </Box>
@@ -29,13 +29,10 @@ export const DividendList: React.FC<TDividendListProps> = ({ dividends }) => {
                     <Box>
                       <StockPrice price={dividend.price} currency={dividend.currency} />
                     </Box>
-                  }
-                >
+                  }>
                   <ListItemText
                     primary={format(dividend.paymentDate, 'dd.MM')}
-                    secondary={
-                      <React.Fragment>Ex-Date: {format(dividend.exDate, 'dd.MM')}</React.Fragment>
-                    }
+                    secondary={<React.Fragment>Ex-Date: {format(dividend.exDate, 'dd.MM')}</React.Fragment>}
                   />
                 </ListItem>
                 {idx + 1 !== arr.length && <Divider />}
@@ -43,11 +40,7 @@ export const DividendList: React.FC<TDividendListProps> = ({ dividends }) => {
             ))}
           </List>
         ) : (
-          <NoResults
-            icon={<EventBusyRounded />}
-            text="No dividend information found."
-            sx={{ m: 2 }}
-          />
+          <NoResults icon={<EventBusyRounded />} text="No dividend information found." sx={{m: 2}} />
         )}
       </Card.Body>
     </Card>

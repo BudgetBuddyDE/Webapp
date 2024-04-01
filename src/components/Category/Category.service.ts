@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import {z} from 'zod';
 import {
   ZCategory,
   type TApiResponse,
@@ -10,15 +10,14 @@ import {
   ZDeleteCategoryResponsePayload,
   type TTransaction,
 } from '@budgetbuddyde/types';
-import { prepareRequestOptions } from '@/utils';
-import { type IAuthContext } from '../Auth';
-import { type TCategoryInputOption } from './Autocomplete';
-import { subDays } from 'date-fns';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
+import {prepareRequestOptions} from '@/utils';
+import {type IAuthContext} from '../Auth';
+import {type TCategoryInputOption} from './Autocomplete';
+import {subDays} from 'date-fns';
+import {isRunningInProdEnv} from '@/utils/isRunningInProdEnv.util';
 
 export class CategoryService {
-  private static host =
-    (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/category';
+  private static host = (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/category';
 
   static async getCategoriesByUuid({
     uuid,
@@ -28,7 +27,7 @@ export class CategoryService {
       const query = new URLSearchParams();
       query.append('uuid', uuid);
       const response = await fetch(this.host + '?' + query.toString(), {
-        ...prepareRequestOptions({ uuid, password }),
+        ...prepareRequestOptions({uuid, password}),
       });
       const json = (await response.json()) as TApiResponse<TCategory[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
@@ -44,7 +43,7 @@ export class CategoryService {
 
   static async create(
     category: TCreateCategoryPayload,
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TCategory | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -66,7 +65,7 @@ export class CategoryService {
 
   static async update(
     category: TUpdateCategoryPayload,
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TCategory | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -88,7 +87,7 @@ export class CategoryService {
 
   static async delete(
     category: TDeleteCategoryPayload,
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TDeleteCategoryResponsePayload | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -118,16 +117,16 @@ export class CategoryService {
   static sortAutocompleteOptionsByTransactionUsage(
     categories: TCategory[],
     transactions: TTransaction[],
-    days: number = 30
+    days: number = 30,
   ): TCategoryInputOption[] {
     const uniqueCatgegories = categories;
     const now = new Date();
     const startDate = subDays(now, days);
-    const categoryFrequencyMap: { [categoryId: string]: number } = {};
+    const categoryFrequencyMap: {[categoryId: string]: number} = {};
 
-    let pastNTransactions = transactions.filter(({ processedAt }) => processedAt >= startDate);
+    let pastNTransactions = transactions.filter(({processedAt}) => processedAt >= startDate);
     if (pastNTransactions.length < 1) pastNTransactions = transactions.slice(0, 50);
-    pastNTransactions.forEach(({ category: { id }, processedAt }) => {
+    pastNTransactions.forEach(({category: {id}, processedAt}) => {
       if (processedAt >= startDate && processedAt <= now) {
         categoryFrequencyMap[id] = (categoryFrequencyMap[id] || 0) + 1;
       }
@@ -135,11 +134,11 @@ export class CategoryService {
 
     return this.getAutocompleteOptions(
       uniqueCatgegories
-        .map((category) => ({
+        .map(category => ({
           ...category,
           frequency: categoryFrequencyMap[category.id] || -1,
         }))
-        .sort((a, b) => b.frequency - a.frequency)
+        .sort((a, b) => b.frequency - a.frequency),
     );
   }
 
@@ -149,7 +148,7 @@ export class CategoryService {
    * @returns An array of autocomplete options.
    */
   static getAutocompleteOptions(categories: TCategory[]): TCategoryInputOption[] {
-    return categories.map(({ id, name }) => ({
+    return categories.map(({id, name}) => ({
       label: name,
       value: id,
     }));
@@ -164,9 +163,8 @@ export class CategoryService {
   static filter(categories: TCategory[], keyword: string): TCategory[] {
     const lowerKeyword = keyword.toLowerCase();
     return categories.filter(
-      ({ name, description }) =>
-        name.toLowerCase().includes(lowerKeyword) ||
-        description?.toLowerCase().includes(lowerKeyword)
+      ({name, description}) =>
+        name.toLowerCase().includes(lowerKeyword) || description?.toLowerCase().includes(lowerKeyword),
     );
   }
 }

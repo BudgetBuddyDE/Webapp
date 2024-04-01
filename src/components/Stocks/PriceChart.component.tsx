@@ -1,12 +1,12 @@
 import React from 'react';
-import { type TTimeframe } from '@budgetbuddyde/types';
+import {type TTimeframe} from '@budgetbuddyde/types';
 import Chart from 'react-apexcharts';
-import { ParentSize } from '@visx/responsive';
-import { Box, useTheme } from '@mui/material';
-import { Card } from '@/components/Base';
-import { Timeframe } from './Timeframe.component';
-import { formatBalance } from '@/utils';
-import { useScreenSize } from '@/hooks';
+import {ParentSize} from '@visx/responsive';
+import {Box, useTheme} from '@mui/material';
+import {Card} from '@/components/Base';
+import {Timeframe} from './Timeframe.component';
+import {formatBalance} from '@/utils';
+import {useScreenSize} from '@/hooks';
 
 export type TPriceChartPoint = {
   date: Date | string;
@@ -19,13 +19,13 @@ export type TPriceChartProps = {
   data: TPriceChartPoint[];
 };
 
-export const PriceChart: React.FC<TPriceChartProps> = ({ onTimeframeChange, data }) => {
+export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, data}) => {
   const theme = useTheme();
   const screenSize = useScreenSize();
 
   return (
-    <Card sx={{ p: 0 }}>
-      <Card.Header sx={{ p: 2, pb: 0 }}>
+    <Card sx={{p: 0}}>
+      <Card.Header sx={{p: 2, pb: 0}}>
         <Box>
           <Card.Title>Price</Card.Title>
         </Box>
@@ -34,14 +34,13 @@ export const PriceChart: React.FC<TPriceChartProps> = ({ onTimeframeChange, data
           sx={{
             display: 'flex',
             flexDirection: 'row',
-          }}
-        >
+          }}>
           {onTimeframeChange && <Timeframe onChange={onTimeframeChange} />}
         </Card.HeaderActions>
       </Card.Header>
-      <Card.Body sx={{ px: 1, pb: 1 }}>
+      <Card.Body sx={{px: 1, pb: 1}}>
         <ParentSize>
-          {({ width }) => (
+          {({width}) => (
             <Chart
               width={width}
               height={width * (screenSize !== 'small' ? 0.5 : 0.75)}
@@ -109,7 +108,7 @@ export const PriceChart: React.FC<TPriceChartProps> = ({ onTimeframeChange, data
               series={[
                 {
                   name: 'Price',
-                  data: data.map(({ date, price }) => [new Date(date).getTime(), price]),
+                  data: data.map(({date, price}) => [new Date(date).getTime(), price]),
                 },
               ]}
             />

@@ -1,4 +1,4 @@
-import { DashboardViewIconMapping } from '@/routes/Dashboard';
+import {DashboardViewIconMapping} from '@/routes/Dashboard';
 import {
   CompareArrowsRounded as CompareArrowsIcon,
   LabelRounded as LabelIcon,

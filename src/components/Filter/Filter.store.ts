@@ -1,7 +1,7 @@
-import { TCategory, TPaymentMethod } from '@budgetbuddyde/types';
-import { getFirstDayOfMonth, getLastDayOfMonth } from '@/utils';
-import { subMonths } from 'date-fns';
-import { create } from 'zustand';
+import {TCategory, TPaymentMethod} from '@budgetbuddyde/types';
+import {getFirstDayOfMonth, getLastDayOfMonth} from '@/utils';
+import {subMonths} from 'date-fns';
+import {create} from 'zustand';
 
 export type TFilters = {
   keyword: string | null;
@@ -31,10 +31,10 @@ export interface IFilterStore {
   clearFilters: () => void;
 }
 
-export const useFilterStore = create<IFilterStore>((set) => ({
+export const useFilterStore = create<IFilterStore>(set => ({
   show: false,
   filters: DEFAULT_FILTERS,
-  toggleVisibility: () => set(({ show }) => ({ show: !show })),
-  setFilters: (filters: TFilters) => set({ filters: filters }),
-  clearFilters: () => set({ filters: DEFAULT_FILTERS }),
+  toggleVisibility: () => set(({show}) => ({show: !show})),
+  setFilters: (filters: TFilters) => set({filters: filters}),
+  clearFilters: () => set({filters: DEFAULT_FILTERS}),
 }));

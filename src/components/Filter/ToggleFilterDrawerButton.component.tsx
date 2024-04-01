@@ -1,9 +1,9 @@
-import { TuneRounded } from '@mui/icons-material';
-import { IconButton, Tooltip } from '@mui/material';
-import { useFilterStore } from '.';
+import {TuneRounded} from '@mui/icons-material';
+import {IconButton, Tooltip} from '@mui/material';
+import {useFilterStore} from '.';
 
 export const ToggleFilterDrawerButton = () => {
-  const { toggleVisibility } = useFilterStore();
+  const {toggleVisibility} = useFilterStore();
   return (
     <Tooltip title="Open filters">
       <IconButton aria-label="apply-filters" color="primary" onClick={() => toggleVisibility()}>

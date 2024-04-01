@@ -1,13 +1,13 @@
 import React from 'react';
-import { useAuthContext } from '../Auth';
-import { useSubscriptionStore } from './Subscription.store';
-import { SubscriptionService } from './Subscription.service';
+import {useAuthContext} from '../Auth';
+import {useSubscriptionStore} from './Subscription.store';
+import {SubscriptionService} from './Subscription.service';
 
 let mounted = false;
 
 export function useFetchSubscriptions() {
-  const { session, authOptions } = useAuthContext();
-  const { data, fetchedAt, fetchedBy, setFetchedData } = useSubscriptionStore();
+  const {session, authOptions} = useAuthContext();
+  const {data, fetchedAt, fetchedBy, setFetchedData} = useSubscriptionStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 
@@ -16,9 +16,7 @@ export function useFetchSubscriptions() {
     try {
       if (!session) return false;
       if (withLoading) setLoading(true);
-      const [fetchedSubscriptions, error] = await SubscriptionService.getSubscriptionsByUuid(
-        authOptions
-      );
+      const [fetchedSubscriptions, error] = await SubscriptionService.getSubscriptionsByUuid(authOptions);
       if (error) {
         setError(error);
         return false;
@@ -40,7 +38,7 @@ export function useFetchSubscriptions() {
     if (!session || (fetchedBy === session.uuid && data) || loading || mounted) return;
 
     mounted = true;
-    fetchSubscriptions(true).then((success) => {
+    fetchSubscriptions(true).then(success => {
       if (!success) mounted = false;
       setLoading(false);
     });

@@ -1,8 +1,8 @@
-import { z } from 'zod';
-import { prepareRequestOptions } from '@/utils';
-import { type IAuthContext } from '../Auth';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
-import { ApiResponse, type TApiResponse, type TServiceResponse } from '@budgetbuddyde/types';
+import {z} from 'zod';
+import {prepareRequestOptions} from '@/utils';
+import {type IAuthContext} from '../Auth';
+import {isRunningInProdEnv} from '@/utils/isRunningInProdEnv.util';
+import {ApiResponse, type TApiResponse, type TServiceResponse} from '@budgetbuddyde/types';
 import {
   ZDividendDetails,
   ZAssetSearchResult,
@@ -27,12 +27,10 @@ import {
   type TDividendDetails,
   type TAssetDetails,
 } from '@budgetbuddyde/types';
-import { type TSelectStockExchangeOption } from './SelectStockExchange.component';
+import {type TSelectStockExchangeOption} from './SelectStockExchange.component';
 
 export class StockService {
-  private static host = isRunningInProdEnv()
-    ? (process.env.STOCK_SERVICE_HOST as string)
-    : '/stock_service';
+  private static host = isRunningInProdEnv() ? (process.env.STOCK_SERVICE_HOST as string) : '/stock_service';
 
   /**
    * Retrieves a stock exchange input option from a list of stock exchanges based on the exchange ticker.
@@ -43,9 +41,9 @@ export class StockService {
    */
   static getStockExchangeInputOptionFromList(
     exchangeTicker: string,
-    stockExchanges: TSelectStockExchangeOption[]
+    stockExchanges: TSelectStockExchangeOption[],
   ): TSelectStockExchangeOption | undefined {
-    const match = stockExchanges.find((se) => se.ticker === exchangeTicker);
+    const match = stockExchanges.find(se => se.ticker === exchangeTicker);
     if (!match) return undefined;
     return match;
   }
@@ -62,20 +60,7 @@ export class StockService {
       if (!upcomingDividends) return [];
       return upcomingDividends
         .map(
-          (
-            {
-              date,
-              currency,
-              exDate,
-              isEstimated,
-              paymentDate,
-              price,
-              originalCurrency,
-              originalPrice,
-              type,
-            },
-            index
-          ) => {
+          ({date, currency, exDate, isEstimated, paymentDate, price, originalCurrency, originalPrice, type}, index) => {
             return {
               companyInfo,
               dividend: {
@@ -90,7 +75,7 @@ export class StockService {
               },
               key: `${date}-${index}`,
             };
-          }
+          },
         )
         .reverse();
     });
@@ -103,7 +88,7 @@ export class StockService {
    */
   static async getAssetDetails(
     isin: string,
-    authOptions: IAuthContext['authOptions']
+    authOptions: IAuthContext['authOptions'],
   ): Promise<TServiceResponse<TAssetDetails>> {
     try {
       const response = await fetch(`${this.host}/v1/asset/details/${isin}`, {
@@ -129,7 +114,7 @@ export class StockService {
    */
   static async openPositions(
     payload: TOpenPositionPayload[],
-    authOptions: IAuthContext['authOptions']
+    authOptions: IAuthContext['authOptions'],
   ): Promise<TServiceResponse<TStockPosition[]>> {
     try {
       const response = await fetch(this.host + '/v1/asset/position', {
@@ -154,9 +139,7 @@ export class StockService {
    * @param authOptions - The authentication options for the request.
    * @returns A promise that resolves to a tuple containing the stock positions and any potential error.
    */
-  static async getPositions(
-    authOptions: IAuthContext['authOptions']
-  ): Promise<TServiceResponse<TStockPosition[]>> {
+  static async getPositions(authOptions: IAuthContext['authOptions']): Promise<TServiceResponse<TStockPosition[]>> {
     try {
       const response = await fetch(this.host + '/v1/asset/position', {
         ...prepareRequestOptions(authOptions),
@@ -181,7 +164,7 @@ export class StockService {
    */
   static async updatePositions(
     payload: TUpdatePositionPayload[],
-    authOptions: IAuthContext['authOptions']
+    authOptions: IAuthContext['authOptions'],
   ): Promise<TServiceResponse<TMaterializedStockPositionTable[]>> {
     try {
       const response = await fetch(this.host + '/v1/asset/position', {
@@ -210,7 +193,7 @@ export class StockService {
    */
   static async deletePosition(
     payload: TClosePositionPayload[],
-    authOptions: IAuthContext['authOptions']
+    authOptions: IAuthContext['authOptions'],
   ): Promise<TServiceResponse<TStockPositionTable[]>> {
     try {
       const response = await fetch(this.host + '/v1/asset/position/', {
@@ -239,7 +222,7 @@ export class StockService {
   static async getQuote(
     asset: string,
     exchange: string,
-    authOptions: IAuthContext['authOptions']
+    authOptions: IAuthContext['authOptions'],
   ): Promise<TServiceResponse<TStockQuote>> {
     try {
       const query = new URLSearchParams();
@@ -273,11 +256,11 @@ export class StockService {
     assets: string[],
     exchange: string,
     timeframe: TTimeframe,
-    authOptions: IAuthContext['authOptions']
+    authOptions: IAuthContext['authOptions'],
   ): Promise<TServiceResponse<TAssetChartQuote[]>> {
     try {
       const query = new URLSearchParams();
-      assets.forEach((asset) => query.append('assets', asset));
+      assets.forEach(asset => query.append('assets', asset));
       query.append('exchange', exchange);
       query.append('timeframe', timeframe);
 
@@ -303,7 +286,7 @@ export class StockService {
    */
   static async searchAsset(
     term: string,
-    authOptions: IAuthContext['authOptions']
+    authOptions: IAuthContext['authOptions'],
   ): Promise<TServiceResponse<TAssetSearchResult[]>> {
     try {
       const query = new URLSearchParams();
@@ -328,9 +311,7 @@ export class StockService {
    * @param authOptions - The authentication options.
    * @returns A promise that resolves to a tuple containing the stock exchanges data and any potential error.
    */
-  static async getExchanges(
-    _authOptions: IAuthContext['authOptions']
-  ): Promise<TServiceResponse<TStockExchanges>> {
+  static async getExchanges(_authOptions: IAuthContext['authOptions']): Promise<TServiceResponse<TStockExchanges>> {
     return [null, new Error('Not implemented')];
     // try {
     //   const response = await fetch(this.host + '/v1/asset/exchanges', {
@@ -356,11 +337,11 @@ export class StockService {
    */
   static async getDividends(
     assets: string[],
-    authOptions: IAuthContext['authOptions']
+    authOptions: IAuthContext['authOptions'],
   ): Promise<TServiceResponse<TDividendDetailList['dividendDetails']>> {
     try {
       const query = new URLSearchParams();
-      assets.forEach((asset) => query.append('assets', asset));
+      assets.forEach(asset => query.append('assets', asset));
 
       const response = await fetch(this.host + '/v1/dividend?' + query.toString(), {
         ...prepareRequestOptions(authOptions),

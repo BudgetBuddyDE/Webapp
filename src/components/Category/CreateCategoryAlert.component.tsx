@@ -1,11 +1,11 @@
 import React from 'react';
-import { Alert, type AlertProps, AlertTitle, type AlertTitleProps } from '@mui/material';
+import {Alert, type AlertProps, AlertTitle, type AlertTitleProps} from '@mui/material';
 
 export type CreateCategoryAlertProps = AlertProps & {
   alerTitle?: AlertTitleProps;
 };
 
-export const CreateCategoryAlert: React.FC<CreateCategoryAlertProps> = (props) => {
+export const CreateCategoryAlert: React.FC<CreateCategoryAlertProps> = props => {
   return (
     <Alert severity="info" {...props}>
       <AlertTitle {...props.alerTitle}>Info</AlertTitle>

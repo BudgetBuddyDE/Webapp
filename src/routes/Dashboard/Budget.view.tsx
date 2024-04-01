@@ -1,35 +1,27 @@
 import React from 'react';
-import {
-  BudgetList,
-  BudgetProgressWrapper,
-  StatsWrapper,
-  useFetchBudgetProgress,
-} from '@/components/Budget';
-import { CategorySpendingsChart, CategoryIncomeChart } from '@/components/Category';
-import { Grid } from '@mui/material';
-import { DailyTransactionChart } from '@/components/Transaction';
-import { CircularProgress } from '@/components/Loading';
-import {
-  MonthlyBalanceChartCard,
-  MonthlyBalanceWidget,
-} from '@/components/Transaction/MonthlyBalance';
+import {BudgetList, BudgetProgressWrapper, StatsWrapper, useFetchBudgetProgress} from '@/components/Budget';
+import {CategorySpendingsChart, CategoryIncomeChart} from '@/components/Category';
+import {Grid} from '@mui/material';
+import {DailyTransactionChart} from '@/components/Transaction';
+import {CircularProgress} from '@/components/Loading';
+import {MonthlyBalanceChartCard, MonthlyBalanceWidget} from '@/components/Transaction/MonthlyBalance';
 
 export const DATE_RANGE_INPUT_FORMAT = 'dd.MM';
 export type TChartContentType = 'INCOME' | 'SPENDINGS';
 export const ChartContentTypes = [
-  { type: 'INCOME' as TChartContentType, label: 'Income' },
-  { type: 'SPENDINGS' as TChartContentType, label: 'Spendings' },
+  {type: 'INCOME' as TChartContentType, label: 'Income'},
+  {type: 'SPENDINGS' as TChartContentType, label: 'Spendings'},
 ];
 
 export const BudgetView = () => {
-  const { budgetProgress, loading: loadingBudgetProgress } = useFetchBudgetProgress();
+  const {budgetProgress, loading: loadingBudgetProgress} = useFetchBudgetProgress();
 
   return (
     <React.Fragment>
       <Grid item xs={12} md={12} lg={5} xl={5}>
         <DailyTransactionChart />
 
-        <MonthlyBalanceWidget cardPros={{ sx: { my: 3 } }} />
+        <MonthlyBalanceWidget cardPros={{sx: {my: 3}}} />
 
         <MonthlyBalanceChartCard />
       </Grid>
@@ -43,7 +35,7 @@ export const BudgetView = () => {
           {loadingBudgetProgress ? (
             <CircularProgress />
           ) : (
-            <BudgetProgressWrapper data={budgetProgress} cardProps={{ sx: { mt: 2 } }} />
+            <BudgetProgressWrapper data={budgetProgress} cardProps={{sx: {mt: 2}}} />
           )}
         </Grid>
 

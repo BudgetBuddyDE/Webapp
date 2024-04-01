@@ -1,12 +1,7 @@
 import React from 'react';
-import {
-  CompareArrowsRounded,
-  MoreVertRounded,
-  PauseRounded,
-  PlayArrowRounded,
-} from '@mui/icons-material';
-import { IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
-import type { TSubscription } from '@budgetbuddyde/types';
+import {CompareArrowsRounded, MoreVertRounded, PauseRounded, PlayArrowRounded} from '@mui/icons-material';
+import {IconButton, ListItemIcon, ListItemText, Menu, MenuItem} from '@mui/material';
+import type {TSubscription} from '@budgetbuddyde/types';
 
 export type TSubscriptionActionMenuProps = {
   subscription: TSubscription;
@@ -47,11 +42,7 @@ export const SubscriptionActionMenu: React.FC<TSubscriptionActionMenuProps> = ({
       <Menu anchorEl={anchorEl} open={open} onClose={handler.onClose} elevation={0}>
         <MenuItem onClick={handler.toggleExecutionState}>
           <ListItemIcon>
-            {subscription.paused ? (
-              <PlayArrowRounded fontSize="small" />
-            ) : (
-              <PauseRounded fontSize="small" />
-            )}
+            {subscription.paused ? <PlayArrowRounded fontSize="small" /> : <PauseRounded fontSize="small" />}
           </ListItemIcon>
           <ListItemText>{subscription.paused ? 'Resume' : 'Pause'}</ListItemText>
         </MenuItem>

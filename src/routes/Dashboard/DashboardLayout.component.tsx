@@ -1,35 +1,27 @@
 import React from 'react';
-import { Grid, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { withAuthLayout } from '@/components/Auth/Layout';
-import { useAuthContext } from '@/components/Auth';
-import { ContentGrid } from '@/components/Layout';
-import {
-  type TDashboardView,
-  DashboardViewMapping,
-  DashboardViewDescriptionMapping,
-} from './index';
-import { ActionPaper } from '@/components/Base';
+import {Grid, ToggleButton, ToggleButtonGroup} from '@mui/material';
+import {Outlet, useLocation, useNavigate} from 'react-router-dom';
+import {withAuthLayout} from '@/components/Auth/Layout';
+import {useAuthContext} from '@/components/Auth';
+import {ContentGrid} from '@/components/Layout';
+import {type TDashboardView, DashboardViewMapping, DashboardViewDescriptionMapping} from './index';
+import {ActionPaper} from '@/components/Base';
 
 export type TDashboardLayoutProps = React.PropsWithChildren<{
   useOutletInsteadOfChildren?: boolean;
 }>;
 
-const DashboardLayout: React.FC<TDashboardLayoutProps> = ({
-  children,
-  useOutletInsteadOfChildren = false,
-}) => {
-  const { session } = useAuthContext();
+const DashboardLayout: React.FC<TDashboardLayoutProps> = ({children, useOutletInsteadOfChildren = false}) => {
+  const {session} = useAuthContext();
   const location = useLocation();
   const navigate = useNavigate();
 
   return (
     <ContentGrid
       title={`Welcome, ${session?.name}`}
-      description={DashboardViewDescriptionMapping[DashboardViewMapping[location.pathname]]}
-    >
+      description={DashboardViewDescriptionMapping[DashboardViewMapping[location.pathname]]}>
       <Grid item xs={12}>
-        <ActionPaper sx={{ width: 'min-content' }}>
+        <ActionPaper sx={{width: 'min-content'}}>
           <ToggleButtonGroup
             size="small"
             color="primary"
@@ -39,8 +31,7 @@ const DashboardLayout: React.FC<TDashboardLayoutProps> = ({
               if (location.pathname === newPath) return;
               navigate(newPath);
             }}
-            exclusive
-          >
+            exclusive>
             {Object.entries(DashboardViewMapping).map(([path, view]: [string, TDashboardView]) => (
               <ToggleButton key={path} value={path}>
                 {view.substring(0, 1).toUpperCase() + view.substring(1)}

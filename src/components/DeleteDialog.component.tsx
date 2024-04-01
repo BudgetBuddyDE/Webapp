@@ -8,14 +8,14 @@ import {
   Slide,
   type DialogProps as MuiDialogProps,
 } from '@mui/material';
-import { type TransitionProps } from '@mui/material/transitions';
+import {type TransitionProps} from '@mui/material/transitions';
 import React from 'react';
 
 export const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement<any, any>;
   },
-  ref: React.Ref<unknown>
+  ref: React.Ref<unknown>,
 ) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -59,7 +59,7 @@ export const DeleteDialog: React.FC<TDeleteDialogProps> = ({
         if (onClose) onClose(event, reason);
       }}
       maxWidth={maxWidth}
-      PaperProps={{ elevation: 0 }}
+      PaperProps={{elevation: 0}}
       {...transitionProps}
       TransitionComponent={
         withTransition
@@ -67,8 +67,7 @@ export const DeleteDialog: React.FC<TDeleteDialogProps> = ({
             ? Transition
             : transitionProps.TransitionComponent
           : undefined
-      }
-    >
+      }>
       <DialogTitle variant="h2" textAlign="center">
         Attention
       </DialogTitle>

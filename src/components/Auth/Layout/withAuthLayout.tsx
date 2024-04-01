@@ -1,9 +1,9 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { FullPageLoader } from '@/components/Loading';
-import { useAuthContext } from '../Auth.context';
-import { AuthLayout } from './Auth.layout';
-import { NotVerified } from './NotVerified.component';
+import {Navigate, useLocation} from 'react-router-dom';
+import {FullPageLoader} from '@/components/Loading';
+import {useAuthContext} from '../Auth.context';
+import {AuthLayout} from './Auth.layout';
+import {NotVerified} from './NotVerified.component';
 
 /**
  * **IMPORTANT**
@@ -11,9 +11,9 @@ import { NotVerified } from './NotVerified.component';
  * Need to be wrapped by the **AuthProvider** from **src/core/Auth/Auth.context**
  */
 export function withAuthLayout<P extends object>(Component: React.ComponentType<P>) {
-  return function WrappedComponent(props: P & { isAuthenticated?: boolean }) {
-    const { pathname } = useLocation();
-    const { loading, session } = useAuthContext();
+  return function WrappedComponent(props: P & {isAuthenticated?: boolean}) {
+    const {pathname} = useLocation();
+    const {loading, session} = useAuthContext();
 
     const loginRedirectUrl = React.useMemo(() => {
       const query = new URLSearchParams({
@@ -25,8 +25,6 @@ export function withAuthLayout<P extends object>(Component: React.ComponentType<
     if (loading) return <FullPageLoader />;
 
     if (!session) return <Navigate to={loginRedirectUrl} />;
-    return (
-      <AuthLayout>{session.isVerified ? <Component {...props} /> : <NotVerified />}</AuthLayout>
-    );
+    return <AuthLayout>{session.isVerified ? <Component {...props} /> : <NotVerified />}</AuthLayout>;
   };
 }

@@ -1,15 +1,6 @@
 import React from 'react';
-import {
-  Box,
-  Button,
-  Skeleton,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Typography,
-} from '@mui/material';
-import { ActionPaper, Card, NoResults } from '../index';
+import {Box, Button, Skeleton, TableBody, TableCell, TableHead, TableRow, Typography} from '@mui/material';
+import {ActionPaper, Card, NoResults} from '../index';
 import {
   type IPaginationHandler,
   InitialPaginationState,
@@ -17,11 +8,11 @@ import {
   usePagination,
   PaginationReducer,
 } from '../Pagination';
-import { TableContainer } from './TableContainer.component';
-import { CircularProgress } from '@/components/Loading';
-import { type ISelectionHandler, SelectAll } from '../Select';
-import { DeleteRounded } from '@mui/icons-material';
-import { AppConfig } from '@/app.config';
+import {TableContainer} from './TableContainer.component';
+import {CircularProgress} from '@/components/Loading';
+import {type ISelectionHandler, SelectAll} from '../Select';
+import {DeleteRounded} from '@mui/icons-material';
+import {AppConfig} from '@/app.config';
 
 export type TTableProps<T> = {
   title?: string;
@@ -39,7 +30,7 @@ export type TTableProps<T> = {
       onDelete?: () => void;
       amountOfSelectedEntities: number;
     }
-  | { withSelection?: false }
+  | {withSelection?: false}
 );
 
 interface ITableHandler {
@@ -64,10 +55,10 @@ export const Table = <T,>({
   const handler: ITableHandler = {
     pagination: {
       onPageChange(newPage) {
-        dispatch({ type: 'CHANGE_PAGE', page: newPage });
+        dispatch({type: 'CHANGE_PAGE', page: newPage});
       },
       onRowsPerPageChange(rowsPerPage) {
-        dispatch({ type: 'CHANGE_ROWS_PER_PAGE', rowsPerPage: rowsPerPage });
+        dispatch({type: 'CHANGE_ROWS_PER_PAGE', rowsPerPage: rowsPerPage});
       },
     },
   };
@@ -81,21 +72,18 @@ export const Table = <T,>({
   }, [props, data]);
 
   return (
-    <Card sx={{ p: 0 }}>
+    <Card sx={{p: 0}}>
       {(title || subtitle) && (
-        <Card.Header sx={{ px: 2, pt: 2 }}>
+        <Card.Header sx={{px: 2, pt: 2}}>
           <Box>
             {title && <Card.Title>{title || 'Table'}</Card.Title>}
             {subtitle && <Card.Subtitle>{subtitle}</Card.Subtitle>}
           </Box>
           {tableActions && (
-            <Card.HeaderActions sx={{ mt: { xs: 1, md: 0 }, width: { md: 'unset' } }}>
-              <ActionPaper sx={{ display: 'flex', flexDirection: 'row' }}>
+            <Card.HeaderActions sx={{mt: {xs: 1, md: 0}, width: {md: 'unset'}}}>
+              <ActionPaper sx={{display: 'flex', flexDirection: 'row'}}>
                 {isLoading ? (
-                  <Skeleton
-                    variant="rounded"
-                    sx={{ width: { xs: '5rem', md: '10rem' }, height: '2.3rem' }}
-                  />
+                  <Skeleton variant="rounded" sx={{width: {xs: '5rem', md: '10rem'}, height: '2.3rem'}} />
                 ) : (
                   tableActions
                 )}
@@ -104,21 +92,20 @@ export const Table = <T,>({
           )}
         </Card.Header>
       )}
-      <Card.Body sx={{ px: 0 }}>
+      <Card.Body sx={{px: 0}}>
         {isLoading ? (
           <CircularProgress />
         ) : currentPageData.length > 0 ? (
           <React.Fragment>
             {props.withSelection && props.amountOfSelectedEntities > 0 && (
-              <Box sx={{ px: 2, pt: 1.5 }}>
+              <Box sx={{px: 2, pt: 1.5}}>
                 {props.onDelete && (
                   <Button
                     startIcon={<DeleteRounded />}
                     onClick={() => {
                       if (props.onDelete) props.onDelete();
                     }}
-                    sx={{ mr: 1 }}
-                  >
+                    sx={{mr: 1}}>
                     Delete
                   </Button>
                 )}
@@ -131,32 +118,27 @@ export const Table = <T,>({
                   {props.withSelection && (
                     <SelectAll
                       checked={checked}
-                      indeterminate={
-                        props.amountOfSelectedEntities > 0 &&
-                        props.amountOfSelectedEntities < data.length
-                      }
+                      indeterminate={props.amountOfSelectedEntities > 0 && props.amountOfSelectedEntities < data.length}
                       onChange={(_event, checked) => {
                         const indeterminate =
-                          props.amountOfSelectedEntities > 0 &&
-                          props.amountOfSelectedEntities < data.length;
+                          props.amountOfSelectedEntities > 0 && props.amountOfSelectedEntities < data.length;
                         props.onSelectAll(indeterminate ? false : checked);
                       }}
                       wrapWithTableCell
                     />
                   )}
 
-                  {headerCells.map((headerCell) =>
+                  {headerCells.map(headerCell =>
                     renderHeaderCell ? (
                       renderHeaderCell(headerCell)
                     ) : (
                       <TableCell
                         key={headerCell.replaceAll(' ', '_').toLowerCase()}
                         size={AppConfig.table.cellSize}
-                        sx={{ whiteSpace: 'nowrap' }}
-                      >
+                        sx={{whiteSpace: 'nowrap'}}>
                         <Typography fontWeight={'bold'}>{headerCell}</Typography>
                       </TableCell>
-                    )
+                    ),
                   )}
                 </TableRow>
               </TableHead>
@@ -164,10 +146,10 @@ export const Table = <T,>({
             </TableContainer>
           </React.Fragment>
         ) : (
-          <NoResults sx={{ mx: 2, mt: 2 }} />
+          <NoResults sx={{mx: 2, mt: 2}} />
         )}
       </Card.Body>
-      <Card.Footer sx={{ p: 2 }}>
+      <Card.Footer sx={{p: 2}}>
         <Pagination
           {...state}
           count={data.length}

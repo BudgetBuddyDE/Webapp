@@ -4,8 +4,8 @@ export type TPaginationState = {
 };
 
 export type TPaginationAction =
-  | { type: 'CHANGE_PAGE'; page: number }
-  | { type: 'CHANGE_ROWS_PER_PAGE'; rowsPerPage: number };
+  | {type: 'CHANGE_PAGE'; page: number}
+  | {type: 'CHANGE_ROWS_PER_PAGE'; rowsPerPage: number};
 
 export function PaginationReducer(state: TPaginationState, action: TPaginationAction) {
   switch (action.type) {

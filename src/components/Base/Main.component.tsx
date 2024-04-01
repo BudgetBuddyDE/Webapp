@@ -1,6 +1,6 @@
-import { styled } from '@mui/material';
+import {styled} from '@mui/material';
 
-export const Main = styled('main')(({ theme }) => ({
+export const Main = styled('main')(({theme}) => ({
   transition: theme.transitions.create('margin', {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,

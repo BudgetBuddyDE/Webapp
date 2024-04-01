@@ -1,13 +1,13 @@
 import React from 'react';
-import { Group } from '@visx/group';
-import { BarGroup } from '@visx/shape';
-import { AxisBottom } from '@visx/axis';
-import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
-import { Tooltip, useTheme } from '@mui/material';
-import { format, isSameYear } from 'date-fns';
-import { type TMonthlyBalance } from '@budgetbuddyde/types';
-import { DateService } from '@/services';
-import { formatBalance } from '@/utils';
+import {Group} from '@visx/group';
+import {BarGroup} from '@visx/shape';
+import {AxisBottom} from '@visx/axis';
+import {scaleBand, scaleLinear, scaleOrdinal} from '@visx/scale';
+import {Tooltip, useTheme} from '@mui/material';
+import {format, isSameYear} from 'date-fns';
+import {type TMonthlyBalance} from '@budgetbuddyde/types';
+import {DateService} from '@/services';
+import {formatBalance} from '@/utils';
 
 export type TMontlyBalanceChartProps = {
   data: TMonthlyBalance[];
@@ -16,12 +16,7 @@ export type TMontlyBalanceChartProps = {
   onSelectBarGroup?: (data: TMonthlyBalance | null) => void;
 };
 
-export const MonthlyBalanceChart: React.FC<TMontlyBalanceChartProps> = ({
-  data,
-  width,
-  height,
-  onSelectBarGroup,
-}) => {
+export const MonthlyBalanceChart: React.FC<TMontlyBalanceChartProps> = ({data, width, height, onSelectBarGroup}) => {
   const theme = useTheme();
   const [_, setSelectedBarGroup] = React.useState<TMonthlyBalance | null>(null);
   const VERTICAL_MARGIN = 60;
@@ -32,9 +27,7 @@ export const MonthlyBalanceChart: React.FC<TMontlyBalanceChartProps> = ({
     },
     formatDate(date: Date | string) {
       const dateObj = typeof date === 'string' ? new Date(date) : date;
-      return `${DateService.shortMonthName(dateObj)} ${
-        isSameYear(dateObj, new Date()) ? '' : format(dateObj, 'yy')
-      }`;
+      return `${DateService.shortMonthName(dateObj)} ${isSameYear(dateObj, new Date()) ? '' : format(dateObj, 'yy')}`;
     },
     onMouseEnter(bar: TMonthlyBalance) {
       if (!onSelectBarGroup) return;
@@ -81,14 +74,10 @@ export const MonthlyBalanceChart: React.FC<TMontlyBalanceChartProps> = ({
 
   const valueScale = React.useMemo(() => {
     const min: number = Math.min(
-      ...data.map((d) =>
-        Math.min(...dataKeys.map((key) => Number(d[key as keyof TMonthlyBalance])))
-      )
+      ...data.map(d => Math.min(...dataKeys.map(key => Number(d[key as keyof TMonthlyBalance])))),
     );
     const max: number = Math.max(
-      ...data.map((d) =>
-        Math.max(...dataKeys.map((key) => Number(d[key as keyof TMonthlyBalance])))
-      )
+      ...data.map(d => Math.max(...dataKeys.map(key => Number(d[key as keyof TMonthlyBalance])))),
     );
     return scaleLinear<number>({
       range: [innerHeight, 0],
@@ -115,21 +104,16 @@ export const MonthlyBalanceChart: React.FC<TMontlyBalanceChartProps> = ({
           x0Scale={dateScale}
           x1Scale={cityScale}
           yScale={valueScale}
-          color={colorScale}
-        >
-          {(barGroups) =>
-            barGroups.map((barGroup) => (
+          color={colorScale}>
+          {barGroups =>
+            barGroups.map(barGroup => (
               <Group
                 key={`bar-group-${barGroup.index}-${barGroup.x0}`}
                 left={barGroup.x0}
                 onMouseEnter={() => helper.onMouseEnter(data[barGroup.index])}
-                onMouseLeave={() => helper.onMouseLeave()}
-              >
+                onMouseLeave={() => helper.onMouseLeave()}>
                 {barGroup.bars.map((bar, idx) => (
-                  <Tooltip
-                    title={`${idx === 0 ? 'Income' : 'Expenses'} ${formatBalance(bar.value)}`}
-                    placement={'top'}
-                  >
+                  <Tooltip title={`${idx === 0 ? 'Income' : 'Expenses'} ${formatBalance(bar.value)}`} placement={'top'}>
                     <rect
                       key={`bar-group-bar-${barGroup.index}-${bar.index}-${bar.value}-${bar.key}`}
                       x={bar.x}

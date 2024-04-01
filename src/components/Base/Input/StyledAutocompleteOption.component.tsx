@@ -1,5 +1,5 @@
 import React from 'react';
-import { alpha, useTheme } from '@mui/material';
+import {alpha, useTheme} from '@mui/material';
 
 export type StyledAutocompleteOptionProps = React.HTMLAttributes<HTMLLIElement> &
   React.PropsWithChildren<{
@@ -21,8 +21,7 @@ export const StyledAutocompleteOption: React.FC<StyledAutocompleteOptionProps> =
         marginRight: theme.spacing(0.5),
         backgroundColor: selected ? alpha(theme.palette.primary.main, 0.2) : undefined,
         ...elementProps.style,
-      }}
-    >
+      }}>
       {children}
     </li>
   );

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import {z} from 'zod';
 import {
   type TTransactionFile,
   type TApiResponse,
@@ -7,9 +7,9 @@ import {
   type TServiceResponse,
   ZTransactionFile,
 } from '@budgetbuddyde/types';
-import { prepareRequestOptions } from '@/utils';
-import { type IAuthContext } from '@/components/Auth';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
+import {prepareRequestOptions} from '@/utils';
+import {type IAuthContext} from '@/components/Auth';
+import {isRunningInProdEnv} from '@/utils/isRunningInProdEnv.util';
 
 const ZDetachResponse = z.object({
   path: z.string(),
@@ -21,14 +21,11 @@ export class FileService {
   private static host = isRunningInProdEnv() ? (process.env.FILE_SERVICE_HOST as string) : '/file';
   private static serviceUrl = process.env.FILE_SERVICE_HOST;
 
-  static getFileUrl(file: TFile, { uuid }: IAuthContext['authOptions']): string {
+  static getFileUrl(file: TFile, {uuid}: IAuthContext['authOptions']): string {
     return `${this.serviceUrl}/static/${uuid}/${file.name}`;
   }
 
-  static getAuthentificatedFileLink(
-    fileUrl: string,
-    { uuid, password }: IAuthContext['authOptions']
-  ) {
+  static getAuthentificatedFileLink(fileUrl: string, {uuid, password}: IAuthContext['authOptions']) {
     const query = new URLSearchParams();
     query.append('bearer', `${uuid}.${password}`);
     return `${fileUrl}?${query.toString()}`;
@@ -48,13 +45,13 @@ export class FileService {
   static async attachFilesToTransaction(
     transactionId: TTransaction['id'],
     files: File[],
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<TServiceResponse<TTransactionFile[]>> {
     if (files.length === 0) return [null, new Error('No files to upload')];
     const query = new URLSearchParams();
     query.append('transactionId', transactionId.toString());
     const formData = new FormData();
-    files.forEach((file) => formData.append('files', file, file.name));
+    files.forEach(file => formData.append('files', file, file.name));
     try {
       const requestOptions = prepareRequestOptions(user);
       const requestHeaders = new Headers(requestOptions.headers);
@@ -79,12 +76,12 @@ export class FileService {
   static async detachFilesFromTransaction(
     transactionId: TTransaction['id'],
     files: TTransactionFile['uuid'][],
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<TServiceResponse<TDetachResponse>> {
     try {
       const query = new URLSearchParams();
       query.append('transactionId', transactionId.toString());
-      files.forEach((file) => query.append('files', file));
+      files.forEach(file => query.append('files', file));
 
       const response = await fetch(`${this.host}/transaction/delete?${query.toString()}`, {
         method: 'DELETE',
@@ -92,7 +89,7 @@ export class FileService {
           ...prepareRequestOptions(user).headers,
         },
       });
-      const json = (await response.json()) as TApiResponse<{ path: string; files: TFile[] }>;
+      const json = (await response.json()) as TApiResponse<{path: string; files: TFile[]}>;
       if (json.status !== 200) return [null, new Error(json.message!)];
 
       const parsingResult = ZDetachResponse.safeParse(json.data);

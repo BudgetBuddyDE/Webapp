@@ -1,13 +1,13 @@
-import { Grid } from '@mui/material';
+import {Grid} from '@mui/material';
 import React from 'react';
-import { StatsCard, type TStatsCardProps } from './StatsCard.component';
-import { AddRounded, RemoveRounded, BalanceRounded } from '@mui/icons-material';
-import { type IBaseStore, TransactionService, useTransactionStore } from '@/components/Transaction';
-import { type TUser } from '@budgetbuddyde/types';
-import { create } from 'zustand';
-import { useAuthContext } from '@/components/Auth';
-import { useSubscriptionStore } from '@/components/Subscription';
-import { formatBalance } from '@/utils';
+import {StatsCard, type TStatsCardProps} from './StatsCard.component';
+import {AddRounded, RemoveRounded, BalanceRounded} from '@mui/icons-material';
+import {type IBaseStore, TransactionService, useTransactionStore} from '@/components/Transaction';
+import {type TUser} from '@budgetbuddyde/types';
+import {create} from 'zustand';
+import {useAuthContext} from '@/components/Auth';
+import {useSubscriptionStore} from '@/components/Subscription';
+import {formatBalance} from '@/utils';
 
 export type TDashboardStats = {
   earnings: number;
@@ -23,7 +23,7 @@ export interface IDashboardStatsStore extends IBaseStore<TDashboardStats> {
   setFetchedData: (data: TDashboardStats, fetchedBy: TUser['uuid'] | null) => void;
 }
 
-export const useDashboardStatsStore = create<IDashboardStatsStore>((set) => ({
+export const useDashboardStatsStore = create<IDashboardStatsStore>(set => ({
   data: {
     earnings: 0,
     upcoming_earnings: 0,
@@ -33,9 +33,8 @@ export const useDashboardStatsStore = create<IDashboardStatsStore>((set) => ({
   },
   fetchedBy: null,
   fetchedAt: null,
-  set: (data) => set({ data: data }),
-  setFetchedData: (data, fetchedBy) =>
-    set({ data: data, fetchedBy: fetchedBy, fetchedAt: new Date() }),
+  set: data => set({data: data}),
+  setFetchedData: (data, fetchedBy) => set({data: data, fetchedBy: fetchedBy, fetchedAt: new Date()}),
   clear: () =>
     set({
       data: {
@@ -53,8 +52,8 @@ export const useDashboardStatsStore = create<IDashboardStatsStore>((set) => ({
 export type TDashboardStatsWrapperProps = {};
 
 export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () => {
-  const { session, authOptions } = useAuthContext();
-  const { data: fetchedStats, setFetchedData, fetchedBy } = useDashboardStatsStore();
+  const {session, authOptions} = useAuthContext();
+  const {data: fetchedStats, setFetchedData, fetchedBy} = useDashboardStatsStore();
   const [loading, setLoading] = React.useState(false);
 
   const stats: TStatsCardProps[] = React.useMemo(() => {
@@ -64,18 +63,14 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
         label: 'Income',
         value: formatBalance(fetchedStats.earnings),
         valueInformation:
-          fetchedStats.upcoming_earnings > 0
-            ? `Upcoming ${formatBalance(fetchedStats.upcoming_earnings)}`
-            : undefined,
+          fetchedStats.upcoming_earnings > 0 ? `Upcoming ${formatBalance(fetchedStats.upcoming_earnings)}` : undefined,
       },
       {
         icon: <RemoveRounded />,
         label: 'Spendings',
         value: formatBalance(fetchedStats.expenses),
         valueInformation:
-          fetchedStats.upcoming_expenses > 0
-            ? `Upcoming ${formatBalance(fetchedStats.upcoming_expenses)}`
-            : undefined,
+          fetchedStats.upcoming_expenses > 0 ? `Upcoming ${formatBalance(fetchedStats.upcoming_expenses)}` : undefined,
       },
       {
         icon: <BalanceRounded />,
@@ -125,8 +120,7 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
           item
           xs={idx == list.length - 1 ? 12 : 6}
           md={4}
-          sx={{ height: 'unset' }}
-        >
+          sx={{height: 'unset'}}>
           <StatsCard isLoading={loading} {...props} />
         </Grid>
       ))}

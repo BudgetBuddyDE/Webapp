@@ -7,7 +7,7 @@ import {
   type Theme,
   createFilterOptions,
 } from '@mui/material';
-import { StyledAutocompleteOption } from './StyledAutocompleteOption.component';
+import {StyledAutocompleteOption} from './StyledAutocompleteOption.component';
 
 export type TAutocompleteOption = {
   label: string;
@@ -28,19 +28,17 @@ const filter = createFilterOptions<TAutocompleteOption>();
 
 export function applyReceiverOptionsFilter(
   options: TAutocompleteOption[],
-  state: FilterOptionsState<TAutocompleteOption>
+  state: FilterOptionsState<TAutocompleteOption>,
 ): TAutocompleteOption[] {
   if (state.inputValue.length < 1) return options;
   const filtered = filter(options, state);
-  const matches = filtered.filter((option) =>
-    option.label.toLowerCase().includes(state.inputValue.toLowerCase())
-  );
+  const matches = filtered.filter(option => option.label.toLowerCase().includes(state.inputValue.toLowerCase()));
   if (matches.length > 0) {
-    const completeMatch = matches.find((match) => match.label === state.inputValue);
+    const completeMatch = matches.find(match => match.label === state.inputValue);
     return completeMatch
       ? [completeMatch]
-      : [{ label: `Create "${state.inputValue}"`, value: state.inputValue }, ...matches];
-  } else return [{ label: `Create "${state.inputValue}"`, value: state.inputValue }];
+      : [{label: `Create "${state.inputValue}"`, value: state.inputValue}, ...matches];
+  } else return [{label: `Create "${state.inputValue}"`, value: state.inputValue}];
 }
 
 /**
@@ -57,7 +55,7 @@ export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
   required = false,
 }) => {
   const [value, setValue] = React.useState<TAutocompleteOption | null>(
-    defaultValue ? { label: defaultValue, value: defaultValue } : null
+    defaultValue ? {label: defaultValue, value: defaultValue} : null,
   );
 
   React.useEffect(() => onValueChange(value?.value || ''), [value, onValueChange]);
@@ -84,7 +82,7 @@ export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
         }
       }}
       filterOptions={applyReceiverOptionsFilter}
-      getOptionLabel={(option) => {
+      getOptionLabel={option => {
         // Value selected with enter, right from the input
         if (typeof option === 'string') {
           return option;
@@ -96,12 +94,12 @@ export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
         // Regular option
         return option.label;
       }}
-      renderOption={(props, option, { selected }) => (
+      renderOption={(props, option, {selected}) => (
         <StyledAutocompleteOption {...props} selected={selected}>
           {option.label}
         </StyledAutocompleteOption>
       )}
-      renderInput={(params) => <TextField {...params} label={label} required={required} />}
+      renderInput={params => <TextField {...params} label={label} required={required} />}
       isOptionEqualToValue={(option, value) => {
         return option.value == value.value && option.label == value.label;
       }}

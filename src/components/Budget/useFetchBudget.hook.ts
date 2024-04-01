@@ -1,13 +1,13 @@
 import React from 'react';
-import { useAuthContext } from '../Auth';
-import { useBudgetStore } from './Budget.store';
-import { BudgetService } from './Budget.service';
+import {useAuthContext} from '../Auth';
+import {useBudgetStore} from './Budget.store';
+import {BudgetService} from './Budget.service';
 
 let mounted = false;
 
 export function useFetchBudget() {
-  const { session, authOptions } = useAuthContext();
-  const { data, fetchedAt, fetchedBy, setFetchedData } = useBudgetStore();
+  const {session, authOptions} = useAuthContext();
+  const {data, fetchedAt, fetchedBy, setFetchedData} = useBudgetStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 
@@ -38,7 +38,7 @@ export function useFetchBudget() {
     if (!session || (fetchedBy === session.uuid && data) || loading || mounted) return;
 
     mounted = true;
-    fetchBudget(true).then((success) => {
+    fetchBudget(true).then(success => {
       if (!success) mounted = false;
       setLoading(false);
     });

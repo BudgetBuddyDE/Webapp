@@ -1,25 +1,25 @@
 import React from 'react';
-import { AppRegistrationRounded, HomeRounded } from '@mui/icons-material';
-import { Box, Button, Divider, Grid, Link, TextField } from '@mui/material';
-import { AuthService, useAuthContext } from '@/components/Auth';
-import { useSnackbarContext } from '@/components/Snackbar';
-import { Card, PasswordInput } from '@/components/Base';
-import { StackedIconButton } from '@/components/StackedIconButton.component';
-import { AppLogo } from '@/components/AppLogo.component';
-import { withUnauthentificatedLayout } from '@/components/Auth/Layout';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { type TSignInPayload, ZSignInPayload } from '@budgetbuddyde/types';
+import {AppRegistrationRounded, HomeRounded} from '@mui/icons-material';
+import {Box, Button, Divider, Grid, Link, TextField} from '@mui/material';
+import {AuthService, useAuthContext} from '@/components/Auth';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {Card, PasswordInput} from '@/components/Base';
+import {StackedIconButton} from '@/components/StackedIconButton.component';
+import {AppLogo} from '@/components/AppLogo.component';
+import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
+import {useLocation, useNavigate} from 'react-router-dom';
+import {type TSignInPayload, ZSignInPayload} from '@budgetbuddyde/types';
 
 const SignIn = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { session, setSession } = useAuthContext();
-  const { showSnackbar } = useSnackbarContext();
+  const {session, setSession} = useAuthContext();
+  const {showSnackbar} = useSnackbarContext();
   const [form, setForm] = React.useState<Record<string, string>>({});
 
   const formHandler = {
     inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+      setForm(prev => ({...prev, [event.target.name]: event.target.value}));
     },
     formSubmit: React.useCallback(
       async (event: React.FormEvent<HTMLFormElement>) => {
@@ -34,7 +34,7 @@ const SignIn = () => {
           if (error) throw error;
           if (!session) throw new Error('No session returned');
           setSession(session);
-          showSnackbar({ message: 'Authentification successfull' });
+          showSnackbar({message: 'Authentification successfull'});
           if (location.search) {
             const query = new URLSearchParams(location.search.substring(1));
             if (query.get('callbackUrl')) navigate(query.get('callbackUrl')!);
@@ -48,7 +48,7 @@ const SignIn = () => {
           });
         }
       },
-      [form, setSession, showSnackbar, navigate, location]
+      [form, setSession, showSnackbar, navigate, location],
     ),
   };
 
@@ -61,12 +61,11 @@ const SignIn = () => {
   return (
     <Box
       sx={{
-        width: { xs: '90%', md: '40%', lg: '30%', xl: '25%' },
+        width: {xs: '90%', md: '40%', lg: '30%', xl: '25%'},
         maxWidth: '480px',
         mx: 'auto',
-      }}
-    >
-      <Card sx={{ py: 3, px: 4 }}>
+      }}>
+      <Card sx={{py: 3, px: 4}}>
         <Box display="flex" flexDirection="column">
           <AppLogo
             style={{
@@ -80,7 +79,7 @@ const SignIn = () => {
         </Box>
 
         <form onSubmit={formHandler.formSubmit}>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
+          <Grid container spacing={2} sx={{mt: 1}}>
             <Grid item xs={12} md={12}>
               <TextField
                 variant="outlined"
@@ -95,27 +94,26 @@ const SignIn = () => {
             </Grid>
 
             <Grid item xs={12} md={12}>
-              <PasswordInput outlinedInputProps={{ onChange: formHandler.inputChange }} />
+              <PasswordInput outlinedInputProps={{onChange: formHandler.inputChange}} />
 
               <Link
                 tabIndex={-1}
                 variant="caption"
                 href="/request-password-reset"
-                sx={{ textDecoration: 'none', mt: 0.5 }}
-                component={Button}
-              >
+                sx={{textDecoration: 'none', mt: 0.5}}
+                component={Button}>
                 Forgot password?
               </Link>
             </Grid>
           </Grid>
-          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-            <Button type="submit" variant="contained" sx={{ mt: 3 }}>
+          <Box sx={{display: 'flex', justifyContent: 'center'}}>
+            <Button type="submit" variant="contained" sx={{mt: 3}}>
               Sign in
             </Button>
           </Box>
         </form>
 
-        <Divider sx={{ my: 3 }} />
+        <Divider sx={{my: 3}} />
 
         <Grid container spacing={1} justifyContent="center">
           {session && (
@@ -123,9 +121,8 @@ const SignIn = () => {
               <StackedIconButton
                 size="large"
                 startIcon={<HomeRounded />}
-                sx={{ width: '100%' }}
-                onClick={() => navigate('/')}
-              >
+                sx={{width: '100%'}}
+                onClick={() => navigate('/')}>
                 Dashboard
               </StackedIconButton>
             </Grid>
@@ -134,12 +131,11 @@ const SignIn = () => {
             <StackedIconButton
               size="large"
               startIcon={<AppRegistrationRounded />}
-              sx={{ width: '100%' }}
+              sx={{width: '100%'}}
               onClick={() => {
                 console.log('test');
                 navigate('/sign-up');
-              }}
-            >
+              }}>
               Sign up
             </StackedIconButton>
           </Grid>

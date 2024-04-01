@@ -1,6 +1,6 @@
-import { Box, styled } from '@mui/material';
+import {Box, styled} from '@mui/material';
 
-export const FabContainer = styled(Box)(({ theme }) => ({
+export const FabContainer = styled(Box)(({theme}) => ({
   display: 'flex',
   [theme.breakpoints.up('md')]: {
     display: 'none',

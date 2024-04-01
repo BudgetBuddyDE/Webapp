@@ -1,12 +1,12 @@
 import React from 'react';
-import { Chip, type ChipProps } from '@mui/material';
-import type { TCategory } from '@budgetbuddyde/types';
-import { useFilterStore } from '../Filter';
+import {Chip, type ChipProps} from '@mui/material';
+import type {TCategory} from '@budgetbuddyde/types';
+import {useFilterStore} from '../Filter';
 
-export type TCategoryChipProps = ChipProps & { category: TCategory };
+export type TCategoryChipProps = ChipProps & {category: TCategory};
 
-export const CategoryChip: React.FC<TCategoryChipProps> = ({ category, ...otherProps }) => {
-  const { filters, setFilters } = useFilterStore();
+export const CategoryChip: React.FC<TCategoryChipProps> = ({category, ...otherProps}) => {
+  const {filters, setFilters} = useFilterStore();
 
   const handleChipClick = () => {
     if (!filters.categories) {
@@ -26,18 +26,14 @@ export const CategoryChip: React.FC<TCategoryChipProps> = ({ category, ...otherP
     if (!filters.categories || !filters.categories.includes(category.id)) return;
     setFilters({
       ...filters,
-      categories: filters.categories.filter((id) => id !== category.id),
+      categories: filters.categories.filter(id => id !== category.id),
     });
   };
 
   return (
     <Chip
       onClick={handleChipClick}
-      onDelete={
-        filters.categories && filters.categories.includes(category.id)
-          ? handleChipDelete
-          : undefined
-      }
+      onDelete={filters.categories && filters.categories.includes(category.id) ? handleChipDelete : undefined}
       label={category.name}
       variant="outlined"
       {...otherProps}

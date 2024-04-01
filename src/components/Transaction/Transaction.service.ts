@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import {z} from 'zod';
 import {
   ZTransaction,
   type EDailyTransactionType,
@@ -17,19 +17,18 @@ import {
   type TMonthlyBalance,
   ZMonthlyBalance,
 } from '@budgetbuddyde/types';
-import { format, isSameMonth, subDays } from 'date-fns';
-import { prepareRequestOptions } from '@/utils';
-import { type IAuthContext } from '../Auth';
-import { type TDashboardStats } from '@/components/DashboardStatsWrapper.component';
-import { FileService } from '@/services/File.service';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
+import {format, isSameMonth, subDays} from 'date-fns';
+import {prepareRequestOptions} from '@/utils';
+import {type IAuthContext} from '../Auth';
+import {type TDashboardStats} from '@/components/DashboardStatsWrapper.component';
+import {FileService} from '@/services/File.service';
+import {isRunningInProdEnv} from '@/utils/isRunningInProdEnv.util';
 
 /**
  * Service for managing transactions.
  */
 export class TransactionService {
-  private static host =
-    (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/transaction';
+  private static host = (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/transaction';
 
   /**
    * Retrieves transactions by UUID.
@@ -45,7 +44,7 @@ export class TransactionService {
       const query = new URLSearchParams();
       query.append('uuid', uuid);
       const response = await fetch(this.host + '?' + query.toString(), {
-        ...prepareRequestOptions({ uuid, password }),
+        ...prepareRequestOptions({uuid, password}),
       });
       const json = (await response.json()) as TApiResponse<TTransaction[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
@@ -71,7 +70,7 @@ export class TransactionService {
     startDate: Date,
     endDate: Date,
     requestedData: EDailyTransactionType,
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TDailyTransaction[] | null, Error | null]> {
     try {
       const query = new URLSearchParams();
@@ -98,9 +97,7 @@ export class TransactionService {
    * @param user - The user's authentication options.
    * @returns A promise that resolves to an array of monthly balance data or an error.
    */
-  static async getMonthlyBalance(
-    user: IAuthContext['authOptions']
-  ): Promise<[TMonthlyBalance[] | null, Error | null]> {
+  static async getMonthlyBalance(user: IAuthContext['authOptions']): Promise<[TMonthlyBalance[] | null, Error | null]> {
     try {
       const response = await fetch(this.host + '/monthly-balance', {
         ...prepareRequestOptions(user),
@@ -124,7 +121,7 @@ export class TransactionService {
    */
   static async getDashboardStats(
     user: IAuthContext['authOptions'],
-    requestOptions?: RequestInit
+    requestOptions?: RequestInit,
   ): Promise<[TDashboardStats | null, Error | null]> {
     try {
       const response = await fetch(this.host + '/stats', {
@@ -149,26 +146,26 @@ export class TransactionService {
    * @returns An array of unique receivers sorted by frequency of occurrence.
    */
   static getUniqueReceivers(transactions: TTransaction[], days: number = 30): string[] {
-    const uniqueReceivers = Array.from(new Set(transactions.map(({ receiver }) => receiver)));
+    const uniqueReceivers = Array.from(new Set(transactions.map(({receiver}) => receiver)));
     const now = new Date();
     const startDate = subDays(now, days);
-    const receiverFrequencyMap: { [receiver: string]: number } = {};
+    const receiverFrequencyMap: {[receiver: string]: number} = {};
 
-    let pastNTransactions = transactions.filter(({ processedAt }) => processedAt >= startDate);
+    let pastNTransactions = transactions.filter(({processedAt}) => processedAt >= startDate);
     if (pastNTransactions.length < 1) pastNTransactions = transactions.slice(0, 50);
-    pastNTransactions.forEach(({ receiver, processedAt }) => {
+    pastNTransactions.forEach(({receiver, processedAt}) => {
       if (processedAt >= startDate && processedAt <= now) {
         receiverFrequencyMap[receiver] = (receiverFrequencyMap[receiver] || 0) + 1;
       }
     });
 
     return uniqueReceivers
-      .map((receiver) => ({
+      .map(receiver => ({
         receiver,
         frequency: receiverFrequencyMap[receiver] || -1,
       }))
       .sort((a, b) => b.frequency - a.frequency)
-      .map(({ receiver }) => receiver);
+      .map(({receiver}) => receiver);
   }
 
   /**
@@ -178,7 +175,7 @@ export class TransactionService {
    */
   static async create(
     transaction: TCreateTransactionPayload[],
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TTransaction[] | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -206,7 +203,7 @@ export class TransactionService {
    */
   static async update(
     transaction: TUpdateTransactionPayload,
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TTransaction | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -234,7 +231,7 @@ export class TransactionService {
    */
   static async delete(
     transaction: TDeleteTransactionPayload,
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TDeleteTransactionResponsePayload | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -265,8 +262,7 @@ export class TransactionService {
     const now = new Date();
     const num = transactions
       .filter(
-        ({ transferAmount, processedAt }) =>
-          transferAmount > 0 && processedAt <= now && isSameMonth(processedAt, now)
+        ({transferAmount, processedAt}) => transferAmount > 0 && processedAt <= now && isSameMonth(processedAt, now),
       )
       .reduce((prev, cur) => prev + cur.transferAmount, 0);
     return Number(num.toFixed(2));
@@ -283,8 +279,7 @@ export class TransactionService {
     const now = new Date();
     const num = transactions
       .filter(
-        ({ processedAt, transferAmount }) =>
-          isSameMonth(processedAt, now) && processedAt > now && transferAmount > 0
+        ({processedAt, transferAmount}) => isSameMonth(processedAt, now) && processedAt > now && transferAmount > 0,
       )
       .reduce((prev, cur) => prev + cur.transferAmount, 0);
     return Number(num.toFixed(2));
@@ -314,7 +309,7 @@ export class TransactionService {
    */
   static transformTransactionFileToCreatePayload(
     file: TTransactionFile,
-    transactionId: TTransaction['id']
+    transactionId: TTransaction['id'],
   ): TCreateTransactionFilePayload {
     return {
       transactionId,
@@ -333,7 +328,7 @@ export class TransactionService {
   static transformTFileToCreatePayload(
     file: TFile,
     transactionId: TTransaction['id'],
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): TCreateTransactionFilePayload {
     return {
       transactionId,

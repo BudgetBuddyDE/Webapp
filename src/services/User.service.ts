@@ -1,20 +1,14 @@
-import { IAuthContext } from '@/components/Auth';
-import {
-  type TApiResponse,
-  type TUpdateUserPayload,
-  ZUser,
-  type TUser,
-} from '@budgetbuddyde/types';
-import { prepareRequestOptions } from '@/utils';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
+import {IAuthContext} from '@/components/Auth';
+import {type TApiResponse, type TUpdateUserPayload, ZUser, type TUser} from '@budgetbuddyde/types';
+import {prepareRequestOptions} from '@/utils';
+import {isRunningInProdEnv} from '@/utils/isRunningInProdEnv.util';
 
 export class UserService {
-  private static host =
-    (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/user';
+  private static host = (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/user';
 
   static async update(
     user: TUpdateUserPayload,
-    authOptions: IAuthContext['authOptions']
+    authOptions: IAuthContext['authOptions'],
   ): Promise<[TUser | null, Error | null]> {
     try {
       const response = await fetch(this.host, {

@@ -1,9 +1,9 @@
-import { debounce } from 'lodash';
+import {debounce} from 'lodash';
 import React from 'react';
-import { SearchRounded as SearchIcon } from '@mui/icons-material';
-import { InputBase, type SxProps, type Theme, alpha, styled } from '@mui/material';
+import {SearchRounded as SearchIcon} from '@mui/icons-material';
+import {InputBase, type SxProps, type Theme, alpha, styled} from '@mui/material';
 
-const Search = styled('div')(({ theme }) => ({
+const Search = styled('div')(({theme}) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
   backgroundColor: alpha(theme.palette.common.white, 0.15),
@@ -17,7 +17,7 @@ const Search = styled('div')(({ theme }) => ({
   },
 }));
 
-const SearchIconWrapper = styled('div')(({ theme }) => ({
+const SearchIconWrapper = styled('div')(({theme}) => ({
   padding: theme.spacing(0, 2),
   height: '100%',
   position: 'absolute',
@@ -27,7 +27,7 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
   justifyContent: 'center',
 }));
 
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
+const StyledInputBase = styled(InputBase)(({theme}) => ({
   color: 'inherit',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
@@ -49,11 +49,7 @@ export type TSearchInputProps = {
   onSearch: (text: string) => void;
 };
 
-export const SearchInput: React.FC<TSearchInputProps> = ({
-  placeholder = 'Search…',
-  onSearch,
-  sx,
-}) => {
+export const SearchInput: React.FC<TSearchInputProps> = ({placeholder = 'Search…', onSearch, sx}) => {
   return (
     <Search sx={sx}>
       <SearchIconWrapper>
@@ -61,8 +57,8 @@ export const SearchInput: React.FC<TSearchInputProps> = ({
       </SearchIconWrapper>
       <StyledInputBase
         placeholder={placeholder}
-        inputProps={{ 'aria-label': 'search' }}
-        onChange={debounce((e) => onSearch(e.target.value), 150)}
+        inputProps={{'aria-label': 'search'}}
+        onChange={debounce(e => onSearch(e.target.value), 150)}
       />
     </Search>
   );

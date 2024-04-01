@@ -1,9 +1,9 @@
 import React from 'react';
-import { format } from 'date-fns';
-import { Box, Chip, IconButton, type ChipProps } from '@mui/material';
-import { AddRounded as AddIcon, ReceiptRounded as ReceiptIcon } from '@mui/icons-material';
-import type { TTransaction } from '@budgetbuddyde/types';
-import { Card, ListWithIcon, NoResults, TCardProps } from '@/components/Base';
+import {format} from 'date-fns';
+import {Box, Chip, IconButton, type ChipProps} from '@mui/material';
+import {AddRounded as AddIcon, ReceiptRounded as ReceiptIcon} from '@mui/icons-material';
+import type {TTransaction} from '@budgetbuddyde/types';
+import {Card, ListWithIcon, NoResults, TCardProps} from '@/components/Base';
 
 export type TTransactionListProps = {
   title: string;
@@ -25,17 +25,15 @@ export const TransactionList: React.FC<TTransactionListProps> = ({
   const chipProps: ChipProps = {
     variant: 'outlined',
     size: 'small',
-    sx: { mr: 1 },
+    sx: {mr: 1},
   };
 
   return (
     <Card {...cardProps}>
-      <Card.Header sx={{ mb: 1 }}>
+      <Card.Header sx={{mb: 1}}>
         <Box>
           <Card.Title>{title}</Card.Title>
-          {subtitle !== undefined && subtitle.length > 0 && (
-            <Card.Subtitle>{subtitle}</Card.Subtitle>
-          )}
+          {subtitle !== undefined && subtitle.length > 0 && <Card.Subtitle>{subtitle}</Card.Subtitle>}
         </Box>
         {onAddTransaction && (
           <Card.HeaderActions>
@@ -47,18 +45,14 @@ export const TransactionList: React.FC<TTransactionListProps> = ({
       </Card.Header>
       <Card.Body>
         {data.length > 0 ? (
-          data.map((transaction) => (
+          data.map(transaction => (
             <ListWithIcon
               key={transaction.id}
               icon={<ReceiptIcon />}
               title={transaction.receiver}
               subtitle={
                 <Box>
-                  <Chip
-                    label={format(new Date(transaction.processedAt), 'dd.MM')}
-                    sx={{ mr: 1 }}
-                    {...chipProps}
-                  />
+                  <Chip label={format(new Date(transaction.processedAt), 'dd.MM')} sx={{mr: 1}} {...chipProps} />
                   <Chip label={transaction.category.name} {...chipProps} />
                 </Box>
               }

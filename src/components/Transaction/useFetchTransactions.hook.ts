@@ -1,13 +1,13 @@
 import React from 'react';
-import { useAuthContext } from '../Auth';
-import { useTransactionStore } from './Transaction.store';
-import { TransactionService } from './Transaction.service';
+import {useAuthContext} from '../Auth';
+import {useTransactionStore} from './Transaction.store';
+import {TransactionService} from './Transaction.service';
 
 let mounted = false;
 
 export function useFetchTransactions() {
-  const { session, authOptions } = useAuthContext();
-  const { data, fetchedAt, fetchedBy, setFetchedData } = useTransactionStore();
+  const {session, authOptions} = useAuthContext();
+  const {data, fetchedAt, fetchedBy, setFetchedData} = useTransactionStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 
@@ -16,9 +16,7 @@ export function useFetchTransactions() {
     try {
       if (!session) return false;
       if (withLoading) setLoading(true);
-      const [fetchedTransactions, error] = await TransactionService.getTransactionsByUuid(
-        authOptions
-      );
+      const [fetchedTransactions, error] = await TransactionService.getTransactionsByUuid(authOptions);
       if (error) {
         setError(error);
         return false;
@@ -40,7 +38,7 @@ export function useFetchTransactions() {
     if (!session || (fetchedBy === session.uuid && data) || loading || mounted) return;
 
     mounted = true;
-    fetchTransactions(true).then((success) => {
+    fetchTransactions(true).then(success => {
       if (!success) mounted = false;
       setLoading(false);
     });

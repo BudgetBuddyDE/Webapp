@@ -1,14 +1,8 @@
 import React from 'react';
-import { SavingsRounded as SavingsIcon } from '@mui/icons-material';
-import {
-  Box,
-  Typography,
-  type BoxProps,
-  type IconProps,
-  type TypographyProps,
-} from '@mui/material';
-import { Link } from 'react-router-dom';
-import { AppConfig } from '@/app.config';
+import {SavingsRounded as SavingsIcon} from '@mui/icons-material';
+import {Box, Typography, type BoxProps, type IconProps, type TypographyProps} from '@mui/material';
+import {Link} from 'react-router-dom';
+import {AppConfig} from '@/app.config';
 
 export type TBrandProps = {
   boxStyle?: BoxProps['sx'];
@@ -17,12 +11,7 @@ export type TBrandProps = {
   asLink?: boolean;
 };
 
-export const Brand: React.FC<TBrandProps> = ({
-  boxStyle,
-  iconStyle,
-  typographyStyle,
-  asLink = false,
-}) => {
+export const Brand: React.FC<TBrandProps> = ({boxStyle, iconStyle, typographyStyle, asLink = false}) => {
   const baseProps: TypographyProps = {
     variant: 'h5',
     noWrap: true,
@@ -35,8 +24,8 @@ export const Brand: React.FC<TBrandProps> = ({
   };
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', ...boxStyle }}>
-      <SavingsIcon sx={{ mr: 1, ...iconStyle }} />
+    <Box sx={{display: 'flex', alignItems: 'center', ...boxStyle}}>
+      <SavingsIcon sx={{mr: 1, ...iconStyle}} />
       {asLink ? (
         <Typography component={Link} to="/" {...baseProps}>
           {AppConfig.appName}

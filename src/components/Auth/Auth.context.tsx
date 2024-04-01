@@ -1,6 +1,6 @@
 import React from 'react';
-import { TSession, TUser } from '@budgetbuddyde/types';
-import { AuthService } from './Auth.service';
+import {TSession, TUser} from '@budgetbuddyde/types';
+import {AuthService} from './Auth.service';
 
 export interface IAuthContext {
   loading: boolean;
@@ -21,12 +21,12 @@ export function useAuthContext() {
 
 export type AuthProviderProps = React.PropsWithChildren;
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
   const [loading, setLoading] = React.useState(true);
   const [session, setSession] = React.useState<IAuthContext['session']>(null);
 
   const authOptions: Pick<TUser, 'uuid' | 'password'> = React.useMemo(() => {
-    if (!session) return { uuid: '', password: '' };
+    if (!session) return {uuid: '', password: ''};
     return {
       uuid: session.uuid,
       password: session.password,
@@ -45,10 +45,5 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     retrieveCurrentSession();
   }, []);
 
-  return (
-    <AuthContext.Provider
-      value={{ loading, session, setSession, authOptions }}
-      children={children}
-    />
-  );
+  return <AuthContext.Provider value={{loading, session, setSession, authOptions}} children={children} />;
 };

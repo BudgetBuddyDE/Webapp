@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import {
   Alert,
   AlertTitle,
@@ -12,12 +12,12 @@ import {
   Typography,
   createFilterOptions,
 } from '@mui/material';
-import { useFetchPaymentMethods } from '../useFetchPaymentMethods.hook';
-import { CreatePaymentMethodAlert } from '../CreatePaymentMethodAlert.component';
-import { StyledAutocompleteOption } from '@/components/Base';
-import { getNameFromLabel } from '@/components/Category';
-import { PaymentMethodService } from '../PaymentMethod.service';
-import { useFetchTransactions } from '@/components/Transaction';
+import {useFetchPaymentMethods} from '../useFetchPaymentMethods.hook';
+import {CreatePaymentMethodAlert} from '../CreatePaymentMethodAlert.component';
+import {StyledAutocompleteOption} from '@/components/Base';
+import {getNameFromLabel} from '@/components/Category';
+import {PaymentMethodService} from '../PaymentMethod.service';
+import {useFetchTransactions} from '@/components/Transaction';
 
 export type TPaymentMethodInputOption = {
   label: string;
@@ -27,10 +27,7 @@ export type TPaymentMethodInputOption = {
 
 export type PaymentMethodAutocompleteProps = {
   defaultValue?: TPaymentMethodInputOption | null;
-  onChange: (
-    event: React.SyntheticEvent<Element, Event>,
-    value: TPaymentMethodInputOption | null
-  ) => void;
+  onChange: (event: React.SyntheticEvent<Element, Event>, value: TPaymentMethodInputOption | null) => void;
   sx?: SxProps<Theme>;
   required?: boolean;
 };
@@ -40,19 +37,17 @@ export const PaymentMethodLabelSeperator = '•';
 
 export function applyPaymentMethodOptionsFilter(
   options: TPaymentMethodInputOption[],
-  state: FilterOptionsState<TPaymentMethodInputOption>
+  state: FilterOptionsState<TPaymentMethodInputOption>,
 ): TPaymentMethodInputOption[] {
   if (state.inputValue.length < 1) return options;
   const filtered = filter(options, state);
-  const matches = filtered.filter((option) =>
-    option.label.toLowerCase().includes(state.inputValue.toLowerCase())
-  );
+  const matches = filtered.filter(option => option.label.toLowerCase().includes(state.inputValue.toLowerCase()));
   if (matches.length > 0) {
-    const completeMatch = matches.find((match) => match.label === state.inputValue);
+    const completeMatch = matches.find(match => match.label === state.inputValue);
     return completeMatch
       ? [completeMatch]
-      : [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }, ...matches];
-  } else return [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }];
+      : [{shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1}, ...matches];
+  } else return [{shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1}];
 }
 
 export const PaymentMethodAutocomplete: React.FC<PaymentMethodAutocompleteProps> = ({
@@ -63,25 +58,15 @@ export const PaymentMethodAutocomplete: React.FC<PaymentMethodAutocompleteProps>
 }) => {
   const id = React.useId();
   const navigate = useNavigate();
-  const { loading: loadingTransactions, transactions } = useFetchTransactions();
-  const {
-    loading: loadingPaymentMethods,
-    paymentMethods,
-    error: paymentMethodError,
-  } = useFetchPaymentMethods();
+  const {loading: loadingTransactions, transactions} = useFetchTransactions();
+  const {loading: loadingPaymentMethods, paymentMethods, error: paymentMethodError} = useFetchPaymentMethods();
 
   const options: TPaymentMethodInputOption[] = React.useMemo(() => {
-    return PaymentMethodService.sortAutocompleteOptionsByTransactionUsage(
-      paymentMethods,
-      transactions
-    );
+    return PaymentMethodService.sortAutocompleteOptionsByTransactionUsage(paymentMethods, transactions);
   }, [paymentMethods, transactions]);
 
   if (paymentMethodError) {
-    console.log(
-      'PaymentMethodAutocomplete.component.tsx: paymentMethodError: ',
-      paymentMethodError
-    );
+    console.log('PaymentMethodAutocomplete.component.tsx: paymentMethodError: ', paymentMethodError);
     return (
       <Alert severity="error">
         <AlertTitle>Error</AlertTitle>
@@ -99,23 +84,23 @@ export const PaymentMethodAutocomplete: React.FC<PaymentMethodAutocompleteProps>
       onChange={(event, value) => {
         if (!value) return;
         const paymentMethodExists = paymentMethods.some(
-          (pm) => pm.name === value.label.split(PaymentMethodLabelSeperator)[0].trimEnd()
+          pm => pm.name === value.label.split(PaymentMethodLabelSeperator)[0].trimEnd(),
         );
         if (paymentMethodExists) return onChange(event, value);
         const queryParams = new URLSearchParams({
           create: 'true',
           paymentMethod: getNameFromLabel(value.label),
         });
-        navigate('/payment-methods?' + queryParams.toString(), { replace: true });
+        navigate('/payment-methods?' + queryParams.toString(), {replace: true});
       }}
       filterOptions={applyPaymentMethodOptionsFilter}
-      renderOption={(props, option, { selected }) => (
+      renderOption={(props, option, {selected}) => (
         <StyledAutocompleteOption {...props} selected={selected}>
           {option.label}
         </StyledAutocompleteOption>
       )}
       defaultValue={defaultValue}
-      renderInput={(params) => (
+      renderInput={params => (
         <TextField
           {...params}
           label="Payment Method"

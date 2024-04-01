@@ -1,46 +1,37 @@
 import React from 'react';
-import { ActionPaper, Linkify } from '@/components/Base';
-import { AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
-import { useAuthContext } from '@/components/Auth';
-import { withAuthLayout } from '@/components/Auth/Layout';
-import { useSnackbarContext } from '@/components/Snackbar';
+import {ActionPaper, Linkify} from '@/components/Base';
+import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
+import {useAuthContext} from '@/components/Auth';
+import {withAuthLayout} from '@/components/Auth/Layout';
+import {useSnackbarContext} from '@/components/Snackbar';
 import {
   CreateTransactionDrawer,
   EditTransactionDrawer,
   TransactionService,
   useFetchTransactions,
 } from '@/components/Transaction';
-import {
-  Avatar,
-  AvatarGroup,
-  Checkbox,
-  Grid,
-  IconButton,
-  TableCell,
-  TableRow,
-  Typography,
-} from '@mui/material';
+import {Avatar, AvatarGroup, Checkbox, Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
 import {
   type TCreateTransactionPayload,
   type TUpdateTransactionPayload,
   type TTransaction,
   type TTransactionFile,
 } from '@budgetbuddyde/types';
-import { DeleteDialog } from '@/components/DeleteDialog.component';
-import { SearchInput } from '@/components/Base/Search';
-import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
-import { Table } from '@/components/Base/Table';
-import { AppConfig } from '@/app.config';
-import { format } from 'date-fns';
-import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
-import { ToggleFilterDrawerButton, useFilterStore } from '@/components/Filter';
-import { filterTransactions } from '@/utils/filter.util';
-import { CategoryChip } from '@/components/Category';
-import { PaymentMethodChip } from '@/components/PaymentMethod';
-import { type ISelectionHandler } from '@/components/Base/Select';
-import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
-import { FileService } from '@/services/File.service';
-import { ImageViewDialog } from '@/components/ImageViewDialog.component';
+import {DeleteDialog} from '@/components/DeleteDialog.component';
+import {SearchInput} from '@/components/Base/Search';
+import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
+import {Table} from '@/components/Base/Table';
+import {AppConfig} from '@/app.config';
+import {format} from 'date-fns';
+import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
+import {ToggleFilterDrawerButton, useFilterStore} from '@/components/Filter';
+import {filterTransactions} from '@/utils/filter.util';
+import {CategoryChip} from '@/components/Category';
+import {PaymentMethodChip} from '@/components/PaymentMethod';
+import {type ISelectionHandler} from '@/components/Base/Select';
+import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
+import {FileService} from '@/services/File.service';
+import {ImageViewDialog} from '@/components/ImageViewDialog.component';
 
 interface ITransactionsHandler {
   onSearch: (keyword: string) => void;
@@ -51,21 +42,17 @@ interface ITransactionsHandler {
 }
 
 export const Transactions = () => {
-  const { showSnackbar } = useSnackbarContext();
-  const { authOptions } = useAuthContext();
-  const { filters } = useFilterStore();
-  const {
-    transactions,
-    loading: loadingTransactions,
-    refresh: refreshTransactions,
-  } = useFetchTransactions();
+  const {showSnackbar} = useSnackbarContext();
+  const {authOptions} = useAuthContext();
+  const {filters} = useFilterStore();
+  const {transactions, loading: loadingTransactions, refresh: refreshTransactions} = useFetchTransactions();
   const [showCreateDrawer, dispatchCreateDrawer] = React.useReducer(
     useEntityDrawer<TCreateTransactionPayload>,
-    CreateEntityDrawerState<TCreateTransactionPayload>()
+    CreateEntityDrawerState<TCreateTransactionPayload>(),
   );
   const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
     useEntityDrawer<TUpdateTransactionPayload>,
-    CreateEntityDrawerState<TUpdateTransactionPayload>()
+    CreateEntityDrawerState<TUpdateTransactionPayload>(),
   );
   const [showDeleteTransactionDialog, setShowDeleteTransactionDialog] = React.useState(false);
   const [deleteTransactions, setDeleteTransactions] = React.useState<TTransaction[]>([]);
@@ -78,26 +65,26 @@ export const Transactions = () => {
   const [imageDialog, setImageDialog] = React.useState<{
     open: boolean;
     image: TTransactionFile | null;
-  }>({ open: false, image: null });
+  }>({open: false, image: null});
 
   const handler: ITransactionsHandler = {
     onSearch(keyword) {
       setKeyword(keyword.toLowerCase());
     },
     onEditTransaction(transaction) {
-      dispatchEditDrawer({ type: 'open', payload: transaction });
+      dispatchEditDrawer({type: 'open', payload: transaction});
     },
     async onConfirmTransactionDelete() {
       try {
         if (deleteTransactions.length === 0) return;
         const [deletedItem, error] = await TransactionService.delete(
-          deleteTransactions.map(({ id }) => ({ transactionId: id })),
-          authOptions
+          deleteTransactions.map(({id}) => ({transactionId: id})),
+          authOptions,
         );
-        if (error) return showSnackbar({ message: error.message });
+        if (error) return showSnackbar({message: error.message});
 
         if (!deletedItem) {
-          return showSnackbar({ message: "Couldn't delete the transaction" });
+          return showSnackbar({message: "Couldn't delete the transaction"});
         }
 
         setShowDeleteTransactionDialog(false);
@@ -105,7 +92,7 @@ export const Transactions = () => {
         React.startTransition(() => {
           refreshTransactions();
         });
-        showSnackbar({ message: `Deleted the transaction` });
+        showSnackbar({message: `Deleted the transaction`});
         setSelectedTransactions([]);
       } catch (error) {
         console.error(error);
@@ -121,11 +108,11 @@ export const Transactions = () => {
       },
       onSelect(entity) {
         if (this.isSelected(entity)) {
-          setSelectedTransactions((prev) => prev.filter(({ id }) => id !== entity.id));
-        } else setSelectedTransactions((prev) => [...prev, entity]);
+          setSelectedTransactions(prev => prev.filter(({id}) => id !== entity.id));
+        } else setSelectedTransactions(prev => [...prev, entity]);
       },
       isSelected(entity) {
-        return selectedTransactions.find((elem) => elem.id === entity.id) !== undefined;
+        return selectedTransactions.find(elem => elem.id === entity.id) !== undefined;
       },
       onDeleteMultiple() {
         setShowDeleteTransactionDialog(true);
@@ -152,14 +139,13 @@ export const Transactions = () => {
             'Attached Files',
             '',
           ]}
-          renderRow={(transaction) => (
+          renderRow={transaction => (
             <TableRow
               key={transaction.id}
               sx={{
-                '&:last-child td, &:last-child th': { border: 0 },
+                '&:last-child td, &:last-child th': {border: 0},
                 whiteSpace: 'nowrap',
-              }}
-            >
+              }}>
               <TableCell size={AppConfig.table.cellSize}>
                 <Checkbox
                   checked={handler.selection.isSelected(transaction)}
@@ -169,7 +155,7 @@ export const Transactions = () => {
               <TableCell size={AppConfig.table.cellSize}>
                 <Typography fontWeight="bolder">{`${format(
                   new Date(transaction.processedAt),
-                  'dd.MM.yy'
+                  'dd.MM.yy',
                 )}`}</Typography>
               </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
@@ -194,14 +180,14 @@ export const Transactions = () => {
               </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
                 <AvatarGroup max={4} variant="rounded">
-                  {transaction.attachedFiles.map((file) => (
+                  {transaction.attachedFiles.map(file => (
                     <Avatar
                       key={file.uuid}
                       variant="rounded"
                       alt={file.fileName}
                       src={FileService.getAuthentificatedFileLink(file.location, authOptions)}
                       sx={{
-                        backgroundColor: (theme) => theme.palette.background.default,
+                        backgroundColor: theme => theme.palette.background.default,
                         ':hover': {
                           zIndex: 1,
                           transform: 'scale(1.1)',
@@ -214,10 +200,7 @@ export const Transactions = () => {
                           open: true,
                           image: {
                             ...file,
-                            location: FileService.getAuthentificatedFileLink(
-                              file.location,
-                              authOptions
-                            ),
+                            location: FileService.getAuthentificatedFileLink(file.location, authOptions),
                           },
                         })
                       }
@@ -226,19 +209,13 @@ export const Transactions = () => {
                 </AvatarGroup>
               </TableCell>
               <TableCell align="right" size={AppConfig.table.cellSize}>
-                <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
+                <ActionPaper sx={{width: 'fit-content', ml: 'auto'}}>
                   <IconButton
                     color="primary"
-                    onClick={() =>
-                      handler.onEditTransaction(TransactionService.toUpdatePayload(transaction))
-                    }
-                  >
+                    onClick={() => handler.onEditTransaction(TransactionService.toUpdatePayload(transaction))}>
                     <EditRounded />
                   </IconButton>
-                  <IconButton
-                    color="primary"
-                    onClick={() => handler.onTransactionDelete(transaction)}
-                  >
+                  <IconButton color="primary" onClick={() => handler.onTransactionDelete(transaction)}>
                     <DeleteRounded />
                   </IconButton>
                 </ActionPaper>
@@ -251,7 +228,7 @@ export const Transactions = () => {
 
               <SearchInput onSearch={handler.onSearch} />
 
-              <IconButton color="primary" onClick={() => dispatchCreateDrawer({ type: 'open' })}>
+              <IconButton color="primary" onClick={() => dispatchCreateDrawer({type: 'open'})}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
             </React.Fragment>
@@ -265,14 +242,11 @@ export const Transactions = () => {
         />
       </Grid>
 
-      <CreateTransactionDrawer
-        {...showCreateDrawer}
-        onClose={() => dispatchCreateDrawer({ type: 'close' })}
-      />
+      <CreateTransactionDrawer {...showCreateDrawer} onClose={() => dispatchCreateDrawer({type: 'close'})} />
 
       <EditTransactionDrawer
         {...showEditDrawer}
-        onClose={() => dispatchEditDrawer({ type: 'close' })}
+        onClose={() => dispatchEditDrawer({type: 'close'})}
         // open={showEditTransactionDrawer}
         // onChangeOpen={(isOpen) => {
         //   setShowEditTransactionDrawer(isOpen);
@@ -297,13 +271,13 @@ export const Transactions = () => {
 
       <FabContainer>
         <OpenFilterDrawerFab />
-        <AddFab onClick={() => dispatchCreateDrawer({ type: 'open' })} />
+        <AddFab onClick={() => dispatchCreateDrawer({type: 'open'})} />
       </FabContainer>
 
       <ImageViewDialog
         dialogProps={{
           open: imageDialog.open,
-          onClose: () => setImageDialog({ open: false, image: null }),
+          onClose: () => setImageDialog({open: false, image: null}),
         }}
         image={imageDialog.image}
         withTransition

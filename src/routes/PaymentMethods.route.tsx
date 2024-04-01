@@ -1,8 +1,8 @@
 import React from 'react';
-import { ActionPaper, Linkify } from '@/components/Base';
-import { AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
-import { useAuthContext } from '@/components/Auth';
-import { withAuthLayout } from '@/components/Auth/Layout';
+import {ActionPaper, Linkify} from '@/components/Base';
+import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
+import {useAuthContext} from '@/components/Auth';
+import {withAuthLayout} from '@/components/Auth/Layout';
 import {
   CreatePaymentMethodDrawer,
   EditPaymentMethodDrawer,
@@ -12,19 +12,19 @@ import {
   type TEditPaymentMethodDrawerPayload,
   useFetchPaymentMethods,
 } from '@/components/PaymentMethod';
-import { useSnackbarContext } from '@/components/Snackbar';
-import type { TPaymentMethod } from '@budgetbuddyde/types';
-import { Checkbox, Grid, IconButton, TableCell, TableRow, Typography } from '@mui/material';
-import { DeleteDialog } from '@/components/DeleteDialog.component';
-import { SearchInput } from '@/components/Base/Search';
-import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
-import { Table } from '@/components/Base/Table';
-import { AppConfig } from '@/app.config';
-import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
-import { useEntityDrawer, CreateEntityDrawerState } from '@/hooks';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { type ISelectionHandler } from '@/components/Base/Select';
-import { ToggleFilterDrawerButton } from '@/components/Filter';
+import {useSnackbarContext} from '@/components/Snackbar';
+import type {TPaymentMethod} from '@budgetbuddyde/types';
+import {Checkbox, Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
+import {DeleteDialog} from '@/components/DeleteDialog.component';
+import {SearchInput} from '@/components/Base/Search';
+import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
+import {Table} from '@/components/Base/Table';
+import {AppConfig} from '@/app.config';
+import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
+import {useEntityDrawer, CreateEntityDrawerState} from '@/hooks';
+import {useNavigate, useLocation} from 'react-router-dom';
+import {type ISelectionHandler} from '@/components/Base/Select';
+import {ToggleFilterDrawerButton} from '@/components/Filter';
 
 interface IPaymentMethodsHandler {
   onSearch: (keyword: string) => void;
@@ -38,20 +38,16 @@ interface IPaymentMethodsHandler {
 export const PaymentMethods = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const {
-    paymentMethods,
-    loading: loadingPaymentMethods,
-    refresh: refreshPaymentMethods,
-  } = useFetchPaymentMethods();
-  const { showSnackbar } = useSnackbarContext();
-  const { authOptions } = useAuthContext();
+  const {paymentMethods, loading: loadingPaymentMethods, refresh: refreshPaymentMethods} = useFetchPaymentMethods();
+  const {showSnackbar} = useSnackbarContext();
+  const {authOptions} = useAuthContext();
   const [showCreateDrawer, dispatchCreateDrawer] = React.useReducer(
     useEntityDrawer<TCreatePaymentMethodDrawerPayload>,
-    CreateEntityDrawerState<TCreatePaymentMethodDrawerPayload>()
+    CreateEntityDrawerState<TCreatePaymentMethodDrawerPayload>(),
   );
   const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
     useEntityDrawer<TEditPaymentMethodDrawerPayload>,
-    CreateEntityDrawerState<TEditPaymentMethodDrawerPayload>()
+    CreateEntityDrawerState<TEditPaymentMethodDrawerPayload>(),
   );
   const [showDeletePaymentMethodDialog, setShowDeletePaymentMethodDialog] = React.useState(false);
   const [deletePaymentMethods, setDeletePaymentMethods] = React.useState<TPaymentMethod[]>([]);
@@ -68,29 +64,29 @@ export const PaymentMethods = () => {
       setKeyword(keyword.toLowerCase());
     },
     onCreatePaymentMethod(payload?: TCreatePaymentMethodDrawerPayload) {
-      dispatchCreateDrawer({ type: 'open', payload });
+      dispatchCreateDrawer({type: 'open', payload});
     },
     onEditPaymentMethod(paymentMethod) {
-      dispatchEditDrawer({ type: 'open', payload: paymentMethod });
+      dispatchEditDrawer({type: 'open', payload: paymentMethod});
     },
     async onConfirmPaymentMethodDelete() {
       try {
         if (deletePaymentMethods.length === 0) return;
         const [deletedItem, error] = await PaymentMethodService.delete(
-          deletePaymentMethods.map(({ id }) => ({ paymentMethodId: id })),
-          authOptions
+          deletePaymentMethods.map(({id}) => ({paymentMethodId: id})),
+          authOptions,
         );
         if (error) {
-          return showSnackbar({ message: error.message });
+          return showSnackbar({message: error.message});
         }
         if (!deletedItem) {
-          return showSnackbar({ message: "Couldn't delete the payment-method" });
+          return showSnackbar({message: "Couldn't delete the payment-method"});
         }
 
         setShowDeletePaymentMethodDialog(false);
         setDeletePaymentMethods([]);
         refreshPaymentMethods(); // FIXME: Wrap inside startTransition
-        showSnackbar({ message: `Payment-method we're deleted` });
+        showSnackbar({message: `Payment-method we're deleted`});
         setSelectedPaymentMethods([]);
       } catch (error) {
         console.error(error);
@@ -106,11 +102,11 @@ export const PaymentMethods = () => {
       },
       onSelect(entity) {
         if (this.isSelected(entity)) {
-          setSelectedPaymentMethods((prev) => prev.filter(({ id }) => id !== entity.id));
-        } else setSelectedPaymentMethods((prev) => [...prev, entity]);
+          setSelectedPaymentMethods(prev => prev.filter(({id}) => id !== entity.id));
+        } else setSelectedPaymentMethods(prev => [...prev, entity]);
       },
       isSelected(entity) {
-        return selectedPaymentMethods.find((elem) => elem.id === entity.id) !== undefined;
+        return selectedPaymentMethods.find(elem => elem.id === entity.id) !== undefined;
       },
       onDeleteMultiple() {
         setShowDeletePaymentMethodDialog(true);
@@ -141,14 +137,13 @@ export const PaymentMethods = () => {
           subtitle="Manage your payment methods"
           data={displayedPaymentMethods}
           headerCells={['Name', 'Address', 'Provider', 'Description', '']}
-          renderRow={(paymentMethod) => (
+          renderRow={paymentMethod => (
             <TableRow
               key={paymentMethod.id}
               sx={{
-                '&:last-child td, &:last-child th': { border: 0 },
+                '&:last-child td, &:last-child th': {border: 0},
                 whiteSpace: 'nowrap',
-              }}
-            >
+              }}>
               <TableCell>
                 <Checkbox
                   checked={handler.selection.isSelected(paymentMethod)}
@@ -169,17 +164,11 @@ export const PaymentMethods = () => {
                 <Linkify>{paymentMethod.description ?? 'No Description'}</Linkify>
               </TableCell>
               <TableCell align="right" size={AppConfig.table.cellSize}>
-                <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
-                  <IconButton
-                    color="primary"
-                    onClick={() => handler.onEditPaymentMethod(paymentMethod)}
-                  >
+                <ActionPaper sx={{width: 'fit-content', ml: 'auto'}}>
+                  <IconButton color="primary" onClick={() => handler.onEditPaymentMethod(paymentMethod)}>
                     <EditRounded />
                   </IconButton>
-                  <IconButton
-                    color="primary"
-                    onClick={() => handler.onPaymentMethodDelete(paymentMethod)}
-                  >
+                  <IconButton color="primary" onClick={() => handler.onPaymentMethodDelete(paymentMethod)}>
                     <DeleteRounded />
                   </IconButton>
                 </ActionPaper>
@@ -209,15 +198,12 @@ export const PaymentMethods = () => {
       <CreatePaymentMethodDrawer
         {...showCreateDrawer}
         onClose={() => {
-          navigate(location.pathname, { replace: true });
-          dispatchCreateDrawer({ type: 'close' });
+          navigate(location.pathname, {replace: true});
+          dispatchCreateDrawer({type: 'close'});
         }}
       />
 
-      <EditPaymentMethodDrawer
-        {...showEditDrawer}
-        onClose={() => dispatchEditDrawer({ type: 'close' })}
-      />
+      <EditPaymentMethodDrawer {...showEditDrawer} onClose={() => dispatchEditDrawer({type: 'close'})} />
 
       <DeleteDialog
         open={showDeletePaymentMethodDialog}

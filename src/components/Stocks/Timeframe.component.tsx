@@ -1,13 +1,13 @@
 import React from 'react';
-import { ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { type TTimeframe } from '@budgetbuddyde/types';
+import {ToggleButton, ToggleButtonGroup} from '@mui/material';
+import {type TTimeframe} from '@budgetbuddyde/types';
 
 export type TTimeframeProps = {
   onChange: (timeframe: TTimeframe) => void;
   defaultValue?: TTimeframe;
 };
 
-export const Timeframe: React.FC<TTimeframeProps> = ({ defaultValue, onChange }) => {
+export const Timeframe: React.FC<TTimeframeProps> = ({defaultValue, onChange}) => {
   const [timeframe, setTimeframe] = React.useState<TTimeframe>(defaultValue || '1m');
   return (
     <ToggleButtonGroup
@@ -20,9 +20,8 @@ export const Timeframe: React.FC<TTimeframeProps> = ({ defaultValue, onChange })
         setTimeframe(value);
         onChange(value);
       }}
-      exclusive
-    >
-      {['1W', '1M', '3M', '1Y', '5Y', 'YTD'].map((timeframe) => (
+      exclusive>
+      {['1W', '1M', '3M', '1Y', '5Y', 'YTD'].map(timeframe => (
         <ToggleButton key={timeframe} value={timeframe.toLowerCase()}>
           {timeframe}
         </ToggleButton>

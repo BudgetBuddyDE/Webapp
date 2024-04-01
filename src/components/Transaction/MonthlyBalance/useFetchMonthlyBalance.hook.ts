@@ -1,13 +1,13 @@
 import React from 'react';
-import { useAuthContext } from '@/components/Auth';
-import { useMonthlyBalanceStore } from './MonthlyBalance.store';
-import { TransactionService } from '../Transaction.service';
+import {useAuthContext} from '@/components/Auth';
+import {useMonthlyBalanceStore} from './MonthlyBalance.store';
+import {TransactionService} from '../Transaction.service';
 
 let mounted = false;
 
 export function useFetchMonthlyBalance() {
-  const { session, authOptions } = useAuthContext();
-  const { data, fetchedAt, fetchedBy, setFetchedData } = useMonthlyBalanceStore();
+  const {session, authOptions} = useAuthContext();
+  const {data, fetchedAt, fetchedBy, setFetchedData} = useMonthlyBalanceStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 
@@ -38,7 +38,7 @@ export function useFetchMonthlyBalance() {
     if (!session || (fetchedBy === session.uuid && data) || loading || mounted) return;
 
     mounted = true;
-    fetchBalances(true).then((success) => {
+    fetchBalances(true).then(success => {
       if (!success) mounted = false;
       setLoading(false);
     });

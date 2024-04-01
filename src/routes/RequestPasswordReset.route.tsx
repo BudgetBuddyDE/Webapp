@@ -1,19 +1,19 @@
-import { withUnauthentificatedLayout } from '@/components/Auth/Layout';
-import { Card } from '@/components/Base';
-import { Button, CircularProgress, Divider, Grid, TextField, Typography } from '@mui/material';
-import { AppRegistrationRounded, HomeRounded, SendRounded } from '@mui/icons-material';
-import { AppLogo } from '@/components/AppLogo.component';
-import { AuthService, useAuthContext } from '@/components/Auth';
-import { StackedIconButton } from '@/components/StackedIconButton.component';
-import { useNavigate } from 'react-router-dom';
-import { useSnackbarContext } from '@/components/Snackbar';
+import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
+import {Card} from '@/components/Base';
+import {Button, CircularProgress, Divider, Grid, TextField, Typography} from '@mui/material';
+import {AppRegistrationRounded, HomeRounded, SendRounded} from '@mui/icons-material';
+import {AppLogo} from '@/components/AppLogo.component';
+import {AuthService, useAuthContext} from '@/components/Auth';
+import {StackedIconButton} from '@/components/StackedIconButton.component';
+import {useNavigate} from 'react-router-dom';
+import {useSnackbarContext} from '@/components/Snackbar';
 import React from 'react';
-import { ZEmail } from '@budgetbuddyde/types';
+import {ZEmail} from '@budgetbuddyde/types';
 
 const RequestPasswordReset = () => {
   const navigate = useNavigate();
-  const { session } = useAuthContext();
-  const { showSnackbar } = useSnackbarContext();
+  const {session} = useAuthContext();
+  const {showSnackbar} = useSnackbarContext();
   const [loading, setLoading] = React.useState(false);
   const [email, setEmail] = React.useState('');
 
@@ -30,7 +30,7 @@ const RequestPasswordReset = () => {
         if (error) throw error;
         if (process.env.NODE_ENV === 'development') console.log(resetToken);
 
-        showSnackbar({ message: 'Password reset email sent' });
+        showSnackbar({message: 'Password reset email sent'});
       } catch (error) {
         console.error(error);
         showSnackbar({
@@ -50,14 +50,13 @@ const RequestPasswordReset = () => {
   return (
     <Card
       sx={{
-        width: { xs: '90%', md: '40%', lg: '30%', xl: '25%' },
+        width: {xs: '90%', md: '40%', lg: '30%', xl: '25%'},
         maxWidth: '480px',
         mx: 'auto',
         px: 4,
         py: 2,
         textAlign: 'center',
-      }}
-    >
+      }}>
       <Card.Header>
         <AppLogo
           style={{
@@ -70,7 +69,7 @@ const RequestPasswordReset = () => {
         />
       </Card.Header>
       <Card.Body>
-        <Typography variant="h2" sx={{ my: 1 }}>
+        <Typography variant="h2" sx={{my: 1}}>
           Reset Password
         </Typography>
 
@@ -84,24 +83,23 @@ const RequestPasswordReset = () => {
             fullWidth
             required
             autoFocus
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             disabled={loading}
           />
 
           <Button
             type="submit"
             variant="contained"
-            sx={{ mt: 2 }}
+            sx={{mt: 2}}
             endIcon={loading ? <CircularProgress size={18} color="primary" /> : <SendRounded />}
-            disabled={loading}
-          >
+            disabled={loading}>
             Request reset
           </Button>
         </form>
       </Card.Body>
 
       <Card.Footer>
-        <Divider sx={{ my: 3 }} />
+        <Divider sx={{my: 3}} />
 
         <Grid container spacing={1} justifyContent="center">
           {session && (
@@ -109,9 +107,8 @@ const RequestPasswordReset = () => {
               <StackedIconButton
                 size="large"
                 startIcon={<HomeRounded />}
-                sx={{ width: '100%' }}
-                onClick={() => navigate('/')}
-              >
+                sx={{width: '100%'}}
+                onClick={() => navigate('/')}>
                 Dashboard
               </StackedIconButton>
             </Grid>
@@ -120,12 +117,11 @@ const RequestPasswordReset = () => {
             <StackedIconButton
               size="large"
               startIcon={<AppRegistrationRounded />}
-              sx={{ width: '100%' }}
+              sx={{width: '100%'}}
               onClick={() => {
                 console.log('test');
                 navigate('/sign-up');
-              }}
-            >
+              }}>
               Sign up
             </StackedIconButton>
           </Grid>

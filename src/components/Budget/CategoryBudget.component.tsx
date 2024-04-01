@@ -1,10 +1,10 @@
 import React from 'react';
-import { Delete as DeleteIcon, Edit as EditIcon, Label as LabelIcon } from '@mui/icons-material';
-import { Box, IconButton, Tooltip, Typography } from '@mui/material';
-import type { TBudget, TBudgetProgress, TDeleteBudgetPayload } from '@budgetbuddyde/types';
-import { Icon } from '@/components/Icon.component';
-import { ActionPaper } from '@/components/Base';
-import { formatBalance } from '@/utils';
+import {Delete as DeleteIcon, Edit as EditIcon, Label as LabelIcon} from '@mui/icons-material';
+import {Box, IconButton, Tooltip, Typography} from '@mui/material';
+import type {TBudget, TBudgetProgress, TDeleteBudgetPayload} from '@budgetbuddyde/types';
+import {Icon} from '@/components/Icon.component';
+import {ActionPaper} from '@/components/Base';
+import {formatBalance} from '@/utils';
 
 export type TCategoryBudgetProps = {
   budget: TBudgetProgress;
@@ -13,18 +13,13 @@ export type TCategoryBudgetProps = {
   onDelete?: (budget: TDeleteBudgetPayload) => void;
 };
 
-export const CategoryBudget: React.FC<TCategoryBudgetProps> = ({
-  budget,
-  icon = <LabelIcon />,
-  onEdit,
-  onDelete,
-}) => {
+export const CategoryBudget: React.FC<TCategoryBudgetProps> = ({budget, icon = <LabelIcon />, onEdit, onDelete}) => {
   const handler = {
     onEdit() {
       if (onEdit) onEdit(budget);
     },
     onDelete() {
-      if (onDelete) onDelete([{ budgetId: budget.id }]);
+      if (onDelete) onDelete([{budgetId: budget.id}]);
     },
   };
 
@@ -36,8 +31,7 @@ export const CategoryBudget: React.FC<TCategoryBudgetProps> = ({
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-        }}
-      >
+        }}>
         <Box
           sx={{
             display: 'flex',
@@ -46,44 +40,38 @@ export const CategoryBudget: React.FC<TCategoryBudgetProps> = ({
             alignItems: 'center',
             justifyContent: 'space-between',
             mr: 2,
-          }}
-        >
-          <Icon icon={icon} sx={{ mr: 1 }} />
-          <Box sx={{ mr: 1 }}>
+          }}>
+          <Icon icon={icon} sx={{mr: 1}} />
+          <Box sx={{mr: 1}}>
             <Typography variant="subtitle1" fontWeight="bold">
               {budget.category.name}
             </Typography>
-            <Typography variant="subtitle2">
-              {budget.category.description || 'No description'}
-            </Typography>
+            <Typography variant="subtitle2">{budget.category.description || 'No description'}</Typography>
           </Box>
           <Box
             sx={{
               ml: 'auto',
               display: 'flex',
-              flexDirection: { xs: 'column', md: 'row' },
+              flexDirection: {xs: 'column', md: 'row'},
               alignItems: 'baseline',
               columnGap: 0.5,
-            }}
-          >
+            }}>
             <Tooltip
               title={
                 budget.budget > Math.abs(budget.amount_spent)
                   ? "You'r still in budget"
                   : "You've spent a little too much"
-              }
-            >
+              }>
               <Typography
                 sx={{
                   ml: 'auto',
                   fontWeight: 'bold',
                   fontSize: '90%',
-                  color: (theme) =>
+                  color: theme =>
                     budget.budget >= Math.abs(budget.amount_spent)
                       ? theme.palette.success.main
                       : theme.palette.error.main,
-                }}
-              >
+                }}>
                 {formatBalance(Math.abs(budget.amount_spent))}
               </Typography>
             </Tooltip>

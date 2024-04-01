@@ -1,23 +1,13 @@
 import React from 'react';
-import { format } from 'date-fns';
-import { AddRounded, ArrowForwardRounded, DeleteRounded } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import { Table } from '@/components/Base/Table';
-import { ContentGrid } from '@/components/Layout';
-import { withAuthLayout } from '@/components/Auth/Layout';
-import {
-  Box,
-  Button,
-  Chip,
-  Grid,
-  IconButton,
-  TableCell,
-  TableRow,
-  Tooltip,
-  Typography,
-} from '@mui/material';
-import { type TOpenPositionPayload, type TStockPosition } from '@budgetbuddyde/types';
-import { useSnackbarContext } from '@/components/Snackbar';
+import {format} from 'date-fns';
+import {AddRounded, ArrowForwardRounded, DeleteRounded} from '@mui/icons-material';
+import {useNavigate} from 'react-router-dom';
+import {Table} from '@/components/Base/Table';
+import {ContentGrid} from '@/components/Layout';
+import {withAuthLayout} from '@/components/Auth/Layout';
+import {Box, Button, Chip, Grid, IconButton, TableCell, TableRow, Tooltip, Typography} from '@mui/material';
+import {type TOpenPositionPayload, type TStockPosition} from '@budgetbuddyde/types';
+import {useSnackbarContext} from '@/components/Snackbar';
 import {
   AddStockPositionDrawer,
   PortfolioDiversityChart,
@@ -26,14 +16,14 @@ import {
   StockService,
   useStockStore,
 } from '@/components/Stocks';
-import { AppConfig } from '@/app.config';
-import { formatBalance, getSocketIOClient } from '@/utils';
-import { ActionPaper } from '@/components/Base';
-import { SearchInput } from '@/components/Base/Search';
-import { CircularProgress } from '@/components/Loading';
-import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
-import { DeleteDialog } from '@/components/DeleteDialog.component';
-import { useAuthContext } from '@/components/Auth';
+import {AppConfig} from '@/app.config';
+import {formatBalance, getSocketIOClient} from '@/utils';
+import {ActionPaper} from '@/components/Base';
+import {SearchInput} from '@/components/Base/Search';
+import {CircularProgress} from '@/components/Loading';
+import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
+import {DeleteDialog} from '@/components/DeleteDialog.component';
+import {useAuthContext} from '@/components/Auth';
 
 interface IStocksHandler {
   onSearch: (keyword: string) => void;
@@ -44,10 +34,10 @@ interface IStocksHandler {
 
 export const Stocks = () => {
   const navigate = useNavigate();
-  const { authOptions } = useAuthContext();
-  const { updateQuote } = useStockStore();
+  const {authOptions} = useAuthContext();
+  const {updateQuote} = useStockStore();
   const socket = getSocketIOClient(authOptions);
-  const { showSnackbar } = useSnackbarContext();
+  const {showSnackbar} = useSnackbarContext();
   const [showDeletePositionDialog, setShowDeletePositionDialog] = React.useState(false);
   const [deletePosition, setDeletePosition] = React.useState<TStockPosition | null>(null);
   const {
@@ -57,7 +47,7 @@ export const Stocks = () => {
   } = useFetchStockPositions();
   const [showAddDrawer, dispatchAddDrawer] = React.useReducer(
     useEntityDrawer<TOpenPositionPayload>,
-    CreateEntityDrawerState<TOpenPositionPayload>()
+    CreateEntityDrawerState<TOpenPositionPayload>(),
   );
   const [keyword, setKeyword] = React.useState('');
 
@@ -65,9 +55,8 @@ export const Stocks = () => {
     if (keyword === '') return stockPositions;
     const lowerKeyword = keyword.toLowerCase();
     return stockPositions.filter(
-      (position) =>
-        position.name.toLowerCase().includes(lowerKeyword) ||
-        position.isin.toLowerCase().includes(lowerKeyword)
+      position =>
+        position.name.toLowerCase().includes(lowerKeyword) || position.isin.toLowerCase().includes(lowerKeyword),
     );
   }, [keyword, stockPositions]);
 
@@ -79,10 +68,7 @@ export const Stocks = () => {
     async onConfirmDeletePosition() {
       if (!deletePosition) return;
 
-      const [position, error] = await StockService.deletePosition(
-        [{ id: deletePosition.id }],
-        authOptions
-      );
+      const [position, error] = await StockService.deletePosition([{id: deletePosition.id}], authOptions);
       if (error) {
         showSnackbar({
           message: error.message,
@@ -99,7 +85,7 @@ export const Stocks = () => {
         return;
       }
 
-      showSnackbar({ message: 'Position deleted' });
+      showSnackbar({message: 'Position deleted'});
       setShowDeletePositionDialog(false);
       setDeletePosition(null);
       React.startTransition(() => {
@@ -110,13 +96,13 @@ export const Stocks = () => {
       setKeyword(keyword);
     },
     onAddPosition() {
-      dispatchAddDrawer({ type: 'open' });
+      dispatchAddDrawer({type: 'open'});
     },
   };
 
   React.useLayoutEffect(() => {
-    const subscribedAssets: { isin: string; exchange: string }[] = [
-      ...new Set(stockPositions.map(({ isin, exchange: { exchange } }) => ({ isin, exchange }))),
+    const subscribedAssets: {isin: string; exchange: string}[] = [
+      ...new Set(stockPositions.map(({isin, exchange: {exchange}}) => ({isin, exchange}))),
     ];
 
     socket.connect();
@@ -125,14 +111,10 @@ export const Stocks = () => {
 
     socket.on(
       `stock:update:${authOptions.uuid}`,
-      (data: {
-        exchange: string;
-        isin: string;
-        quote: { datetime: string; currency: string; price: number };
-      }) => {
+      (data: {exchange: string; isin: string; quote: {datetime: string; currency: string; price: number}}) => {
         console.log('stock:update', data);
         updateQuote(data.exchange, data.isin, data.quote.price);
-      }
+      },
     );
 
     return () => {
@@ -147,17 +129,8 @@ export const Stocks = () => {
         <Table<TStockPosition>
           title="Positions"
           data={displayedStockPositions}
-          headerCells={[
-            'Bought at',
-            'Name',
-            'Buy in',
-            'Price',
-            'Quantity',
-            'Value',
-            'Profit (+/-)',
-            '',
-          ]}
-          renderRow={(position) => (
+          headerCells={['Bought at', 'Name', 'Buy in', 'Price', 'Quantity', 'Value', 'Profit (+/-)', '']}
+          renderRow={position => (
             <TableRow key={position.id}>
               <TableCell size={AppConfig.table.cellSize}>
                 <Typography>{format(new Date(position.bought_at), 'dd.MM.yy')}</Typography>
@@ -167,32 +140,26 @@ export const Stocks = () => {
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
-                    borderRadius: (theme) => theme.shape.borderRadius + 'px',
+                    borderRadius: theme => theme.shape.borderRadius + 'px',
                     ':hover': {
-                      backgroundColor: (theme) => theme.palette.action.hover,
+                      backgroundColor: theme => theme.palette.action.hover,
                       cursor: 'Pointer',
                     },
                   }}
-                  onClick={() => navigate('/stocks/' + position.isin)}
-                >
+                  onClick={() => navigate('/stocks/' + position.isin)}>
                   <Box>
                     <Typography>{position.name}</Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                    <Box sx={{display: 'flex', flexDirection: 'row'}}>
+                      <Chip variant="outlined" size="small" sx={{mr: 1}} label={position.exchange.symbol} />
                       <Chip
                         variant="outlined"
                         size="small"
-                        sx={{ mr: 1 }}
-                        label={position.exchange.symbol}
-                      />
-                      <Chip
-                        variant="outlined"
-                        size="small"
-                        sx={{ mr: 1 }}
+                        sx={{mr: 1}}
                         label={position.isin}
-                        onClick={async (event) => {
+                        onClick={async event => {
                           event.stopPropagation();
                           await navigator.clipboard.writeText(position.isin);
-                          showSnackbar({ message: 'Copied to clipboard' });
+                          showSnackbar({message: 'Copied to clipboard'});
                         }}
                       />
                     </Box>
@@ -203,9 +170,7 @@ export const Stocks = () => {
                 <Typography>{formatBalance(position.buy_in, position.currency)}</Typography>
               </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
-                <Tooltip
-                  title={'As of ' + format(new Date(position.quote.datetime), 'dd.MM HH:mm:ss')}
-                >
+                <Tooltip title={'As of ' + format(new Date(position.quote.datetime), 'dd.MM HH:mm:ss')}>
                   <StockPrice
                     price={position.quote.price}
                     currency={position.currency}
@@ -231,14 +196,13 @@ export const Stocks = () => {
                 />
               </TableCell>
               <TableCell align="right" size={AppConfig.table.cellSize}>
-                <ActionPaper sx={{ display: 'flex', width: 'fit-content', ml: 'auto' }}>
+                <ActionPaper sx={{display: 'flex', width: 'fit-content', ml: 'auto'}}>
                   <IconButton
                     color="primary"
                     onClick={() => {
                       setShowDeletePositionDialog(true);
                       setDeletePosition(position);
-                    }}
-                  >
+                    }}>
                     <DeleteRounded />
                   </IconButton>
 
@@ -261,11 +225,7 @@ export const Stocks = () => {
       </Grid>
 
       <Grid item xs={12} md={3}>
-        {loadingStockPositions ? (
-          <CircularProgress />
-        ) : (
-          <PortfolioDiversityChart positions={stockPositions} />
-        )}
+        {loadingStockPositions ? <CircularProgress /> : <PortfolioDiversityChart positions={stockPositions} />}
       </Grid>
 
       <DeleteDialog
@@ -276,10 +236,7 @@ export const Stocks = () => {
         withTransition
       />
 
-      <AddStockPositionDrawer
-        {...showAddDrawer}
-        onClose={() => dispatchAddDrawer({ type: 'close' })}
-      />
+      <AddStockPositionDrawer {...showAddDrawer} onClose={() => dispatchAddDrawer({type: 'close'})} />
     </ContentGrid>
   );
 };

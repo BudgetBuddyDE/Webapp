@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import {
   Alert,
   AlertTitle,
@@ -12,9 +12,9 @@ import {
   Typography,
   createFilterOptions,
 } from '@mui/material';
-import { CategoryService, CreateCategoryAlert, useFetchCategories } from '../';
-import { StyledAutocompleteOption } from '@/components/Base';
-import { useFetchTransactions } from '@/components/Transaction';
+import {CategoryService, CreateCategoryAlert, useFetchCategories} from '../';
+import {StyledAutocompleteOption} from '@/components/Base';
+import {useFetchTransactions} from '@/components/Transaction';
 
 export type TCategoryInputOption = {
   label: string;
@@ -24,10 +24,7 @@ export type TCategoryInputOption = {
 
 export type TCategoryAutocompleteProps = {
   defaultValue?: TCategoryInputOption | null;
-  onChange: (
-    event: React.SyntheticEvent<Element, Event>,
-    value: TCategoryInputOption | null
-  ) => void;
+  onChange: (event: React.SyntheticEvent<Element, Event>, value: TCategoryInputOption | null) => void;
   sx?: SxProps<Theme>;
   required?: boolean;
 };
@@ -41,19 +38,17 @@ const filter = createFilterOptions<TCategoryInputOption>();
  */
 export function applyCategoryOptionsFilter(
   options: TCategoryInputOption[],
-  state: FilterOptionsState<TCategoryInputOption>
+  state: FilterOptionsState<TCategoryInputOption>,
 ): TCategoryInputOption[] {
   if (state.inputValue.length < 1) return options;
   const filtered = filter(options, state);
-  const matches = filtered.filter((option) =>
-    option.label.toLowerCase().includes(state.inputValue.toLowerCase())
-  );
+  const matches = filtered.filter(option => option.label.toLowerCase().includes(state.inputValue.toLowerCase()));
   if (matches.length > 0) {
-    const completeMatch = matches.find((match) => match.label === state.inputValue);
+    const completeMatch = matches.find(match => match.label === state.inputValue);
     return completeMatch
       ? [completeMatch]
-      : [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }, ...matches];
-  } else return [{ shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1 }];
+      : [{shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1}, ...matches];
+  } else return [{shouldCreate: true, label: `Create "${state.inputValue}"`, value: -1}];
 }
 
 /**
@@ -75,8 +70,8 @@ export const CategoryAutocomplete: React.FC<TCategoryAutocompleteProps> = ({
 }) => {
   const id = React.useId();
   const navigate = useNavigate();
-  const { loading: loadingTransactions, transactions } = useFetchTransactions();
-  const { loading: loadingCategories, categories, error: categoryError } = useFetchCategories();
+  const {loading: loadingTransactions, transactions} = useFetchTransactions();
+  const {loading: loadingCategories, categories, error: categoryError} = useFetchCategories();
 
   const options: TCategoryInputOption[] = React.useMemo(() => {
     return CategoryService.sortAutocompleteOptionsByTransactionUsage(categories, transactions);
@@ -100,22 +95,22 @@ export const CategoryAutocomplete: React.FC<TCategoryAutocompleteProps> = ({
       options={options}
       onChange={(event, value, _details) => {
         if (!value) return;
-        const categoryNameExists = categories.some((category) => category.name === value.label);
+        const categoryNameExists = categories.some(category => category.name === value.label);
         if (categoryNameExists) return onChange(event, value);
         const queryParams = new URLSearchParams({
           create: 'true',
           category: getNameFromLabel(value.label),
         });
-        navigate('/categories?' + queryParams.toString(), { replace: true });
+        navigate('/categories?' + queryParams.toString(), {replace: true});
       }}
       filterOptions={applyCategoryOptionsFilter}
-      renderOption={(props, option, { selected }) => (
+      renderOption={(props, option, {selected}) => (
         <StyledAutocompleteOption {...props} selected={selected}>
           {option.label}
         </StyledAutocompleteOption>
       )}
       defaultValue={defaultValue}
-      renderInput={(params) => (
+      renderInput={params => (
         <TextField
           {...params}
           label="Category"

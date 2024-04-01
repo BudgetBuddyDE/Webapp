@@ -1,11 +1,10 @@
 import React from 'react';
-import { useAuthContext } from '@/components/Auth';
-import { StockService } from '../Stock.service';
+import {useAuthContext} from '@/components/Auth';
+import {StockService} from '../Stock.service';
 
 export function useFetchStockDetails(isin: string) {
-  const { session, authOptions } = useAuthContext();
-  const [details, setDetails] =
-    React.useState<Awaited<ReturnType<typeof StockService.getAssetDetails>>[0]>(null);
+  const {session, authOptions} = useAuthContext();
+  const [details, setDetails] = React.useState<Awaited<ReturnType<typeof StockService.getAssetDetails>>[0]>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 

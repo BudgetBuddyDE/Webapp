@@ -1,6 +1,6 @@
-import { type TableCellProps, type Theme } from '@mui/material';
+import {type TableCellProps, type Theme} from '@mui/material';
 import BlueTheme from '@/style/theme/theme';
-import { version } from '../package.json';
+import {version} from '../package.json';
 
 export type TAppConfig = {
   production: boolean;

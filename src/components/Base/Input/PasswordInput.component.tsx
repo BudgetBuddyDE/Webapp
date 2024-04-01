@@ -1,4 +1,4 @@
-import { VisibilityOffRounded, VisibilityRounded } from '@mui/icons-material';
+import {VisibilityOffRounded, VisibilityRounded} from '@mui/icons-material';
 import {
   FormControl,
   type FormControlProps,
@@ -37,10 +37,9 @@ export const PasswordInput: React.FC<TPasswordInputProps> = ({
           <InputAdornment position="end">
             <IconButton
               aria-label="toggle password visibility"
-              onClick={() => setShowPassword((prev) => !prev)}
-              sx={{ mr: 0 }}
-              edge="end"
-            >
+              onClick={() => setShowPassword(prev => !prev)}
+              sx={{mr: 0}}
+              edge="end">
               {showPassword ? <VisibilityOffRounded /> : <VisibilityRounded />}
             </IconButton>
           </InputAdornment>

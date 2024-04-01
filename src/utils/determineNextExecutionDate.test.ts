@@ -1,5 +1,5 @@
-import { addMonths, isSameDay } from 'date-fns';
-import { determineNextExecutionDate } from './determineNextExecutionDate.util';
+import {addMonths, isSameDay} from 'date-fns';
+import {determineNextExecutionDate} from './determineNextExecutionDate.util';
 
 describe('determineNextExecutionDate', () => {
   it('should return the correct next execution date for the same month', () => {
@@ -28,10 +28,10 @@ describe('determineNextExecutionDate', () => {
   });
 
   it('should return the correct next execution date when executeAt is at the end of the month', () => {
-    const now = new Date("2023-10-31"); // October 31, 2023
+    const now = new Date('2023-10-31'); // October 31, 2023
     const executeAt = now.getDate(); // a date in the next month
     const result = determineNextExecutionDate(executeAt, now);
-    const expected = new Date("2023-11-30"); // November 30, 2023
+    const expected = new Date('2023-11-30'); // November 30, 2023
     expect(isSameDay(result, expected)).toBeTruthy();
   });
 });

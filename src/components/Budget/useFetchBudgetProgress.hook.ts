@@ -1,14 +1,14 @@
 import React from 'react';
-import { useAuthContext } from '../Auth';
-import { BudgetService } from './Budget.service';
-import { useBudgetProgressStore } from './BudgetProgress.store';
-import { useTransactionStore } from '../Transaction';
+import {useAuthContext} from '../Auth';
+import {BudgetService} from './Budget.service';
+import {useBudgetProgressStore} from './BudgetProgress.store';
+import {useTransactionStore} from '../Transaction';
 
 let mounted = false;
 
 export function useFetchBudgetProgress() {
-  const { session, authOptions } = useAuthContext();
-  const { data, fetchedAt, fetchedBy, setFetchedData } = useBudgetProgressStore();
+  const {session, authOptions} = useAuthContext();
+  const {data, fetchedAt, fetchedBy, setFetchedData} = useBudgetProgressStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 
@@ -46,7 +46,7 @@ export function useFetchBudgetProgress() {
     if (!session || (fetchedBy === session.uuid && data) || loading || mounted) return;
 
     mounted = true;
-    fetchBudgetProgress(true).then((success) => {
+    fetchBudgetProgress(true).then(success => {
       if (!success) mounted = false;
       setLoading(false);
     });

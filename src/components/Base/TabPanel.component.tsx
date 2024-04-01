@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, type BoxProps } from '@mui/material';
+import {Box, type BoxProps} from '@mui/material';
 
 export type TTabPanelProps = React.PropsWithChildren<
   {
@@ -28,15 +28,14 @@ export type TTabPanelProps = React.PropsWithChildren<
  * @param {BoxProps} props.boxProps - Additional props to be spread on the Box component.
  * @returns {React.ReactElement} The rendered TabPanel component.
  */
-export const TabPanel: React.FC<TTabPanelProps> = ({ children, idx, value, ...boxProps }) => {
+export const TabPanel: React.FC<TTabPanelProps> = ({children, idx, value, ...boxProps}) => {
   return (
     <Box
       role="tabpanel"
       hidden={value !== idx}
       id={`tab-panel-${idx}`}
       aria-labelledby={`tab-panel-${idx}`}
-      {...boxProps}
-    >
+      {...boxProps}>
       {value === idx && children}
     </Box>
   );

@@ -1,10 +1,10 @@
-import { AppConfig } from '@/app.config';
-import { ActionPaper, Linkify } from '@/components/Base';
-import { Table } from '@/components/Base/Table';
-import { DeleteDialog } from '@/components/DeleteDialog.component';
-import { AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab } from '@/components/Layout';
-import { useAuthContext } from '@/components/Auth';
-import { withAuthLayout } from '@/components/Auth/Layout';
+import {AppConfig} from '@/app.config';
+import {ActionPaper, Linkify} from '@/components/Base';
+import {Table} from '@/components/Base/Table';
+import {DeleteDialog} from '@/components/DeleteDialog.component';
+import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
+import {useAuthContext} from '@/components/Auth';
+import {withAuthLayout} from '@/components/Auth/Layout';
 import {
   CategoryAnalytics,
   CategoryChip,
@@ -16,18 +16,18 @@ import {
   type TEditCategoryDrawerPayload,
   useFetchCategories,
 } from '@/components/Category';
-import { CategoryIncomeChart } from '@/components/Category/Chart/IncomeChart.component';
-import { useSnackbarContext } from '@/components/Snackbar';
-import { DescriptionTableCellStyle } from '@/style/DescriptionTableCell.style';
-import type { TCategory } from '@budgetbuddyde/types';
-import { AddRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
-import { Checkbox, Grid, IconButton, TableCell, TableRow } from '@mui/material';
-import { CreateEntityDrawerState, useEntityDrawer } from '@/hooks';
+import {CategoryIncomeChart} from '@/components/Category/Chart/IncomeChart.component';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
+import type {TCategory} from '@budgetbuddyde/types';
+import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
+import {Checkbox, Grid, IconButton, TableCell, TableRow} from '@mui/material';
+import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { SearchInput } from '@/components/Base/Search';
-import { type ISelectionHandler } from '@/components/Base/Select';
-import { ToggleFilterDrawerButton } from '@/components/Filter';
+import {useLocation, useNavigate} from 'react-router-dom';
+import {SearchInput} from '@/components/Base/Search';
+import {type ISelectionHandler} from '@/components/Base/Select';
+import {ToggleFilterDrawerButton} from '@/components/Filter';
 
 interface ICategoriesHandler {
   onSearch: (keyword: string) => void;
@@ -41,20 +41,16 @@ interface ICategoriesHandler {
 export const Categories = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const {
-    categories,
-    refresh: refreshCategories,
-    loading: loadingCategories,
-  } = useFetchCategories();
-  const { showSnackbar } = useSnackbarContext();
-  const { authOptions } = useAuthContext();
+  const {categories, refresh: refreshCategories, loading: loadingCategories} = useFetchCategories();
+  const {showSnackbar} = useSnackbarContext();
+  const {authOptions} = useAuthContext();
   const [showCreateDrawer, dispatchCreateDrawer] = React.useReducer(
     useEntityDrawer<TCreateCategoryDrawerPayload>,
-    CreateEntityDrawerState<TCreateCategoryDrawerPayload>()
+    CreateEntityDrawerState<TCreateCategoryDrawerPayload>(),
   );
   const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
     useEntityDrawer<TEditCategoryDrawerPayload>,
-    CreateEntityDrawerState<TEditCategoryDrawerPayload>()
+    CreateEntityDrawerState<TEditCategoryDrawerPayload>(),
   );
   const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] = React.useState(false);
   const [deleteCategories, setDeleteCategories] = React.useState<TCategory[]>([]);
@@ -71,29 +67,29 @@ export const Categories = () => {
       setKeyword(keyword.toLowerCase());
     },
     onCreateCategory(payload) {
-      dispatchCreateDrawer({ type: 'open', payload });
+      dispatchCreateDrawer({type: 'open', payload});
     },
     onEditCategory(category) {
-      dispatchEditDrawer({ type: 'open', payload: category });
+      dispatchEditDrawer({type: 'open', payload: category});
     },
     async onConfirmCategoryDelete() {
       try {
         if (deleteCategories.length === 0) return;
         const [deletedItem, error] = await CategoryService.delete(
-          deleteCategories.map(({ id }) => ({ categoryId: id })),
-          authOptions
+          deleteCategories.map(({id}) => ({categoryId: id})),
+          authOptions,
         );
         if (error) {
-          return showSnackbar({ message: error.message });
+          return showSnackbar({message: error.message});
         }
         if (!deletedItem) {
-          return showSnackbar({ message: "Couldn't delete the category" });
+          return showSnackbar({message: "Couldn't delete the category"});
         }
 
         setShowDeleteCategoryDialog(false);
         setDeleteCategories([]);
         refreshCategories(); // FIXME: Wrap inside startTransition
-        showSnackbar({ message: `Categories we're deleted` });
+        showSnackbar({message: `Categories we're deleted`});
         setSelectedCategories([]);
       } catch (error) {
         console.error(error);
@@ -109,11 +105,11 @@ export const Categories = () => {
       },
       onSelect(entity) {
         if (this.isSelected(entity)) {
-          setSelectedCategories((prev) => prev.filter(({ id }) => id !== entity.id));
-        } else setSelectedCategories((prev) => [...prev, entity]);
+          setSelectedCategories(prev => prev.filter(({id}) => id !== entity.id));
+        } else setSelectedCategories(prev => [...prev, entity]);
       },
       isSelected(entity) {
-        return selectedCategories.find((elem) => elem.id === entity.id) !== undefined;
+        return selectedCategories.find(elem => elem.id === entity.id) !== undefined;
       },
       onDeleteMultiple() {
         setShowDeleteCategoryDialog(true);
@@ -143,14 +139,13 @@ export const Categories = () => {
           subtitle="Manage your categories"
           data={displayedCategories}
           headerCells={['Name', 'Description', '']}
-          renderRow={(category) => (
+          renderRow={category => (
             <TableRow
               key={category.id}
               sx={{
-                '&:last-child td, &:last-child th': { border: 0 },
+                '&:last-child td, &:last-child th': {border: 0},
                 whiteSpace: 'nowrap',
-              }}
-            >
+              }}>
               <TableCell>
                 <Checkbox
                   checked={handler.selection.isSelected(category)}
@@ -164,7 +159,7 @@ export const Categories = () => {
                 <Linkify>{category.description ?? 'No Description'}</Linkify>
               </TableCell>
               <TableCell align="right" size={AppConfig.table.cellSize}>
-                <ActionPaper sx={{ width: 'fit-content', ml: 'auto' }}>
+                <ActionPaper sx={{width: 'fit-content', ml: 'auto'}}>
                   <IconButton color="primary" onClick={() => handler.onEditCategory(category)}>
                     <EditRounded />
                   </IconButton>
@@ -195,7 +190,7 @@ export const Categories = () => {
         />
       </Grid>
 
-      <Grid container item xs={12} md={12} lg={4} xl={4} spacing={3} sx={{ height: 'max-content' }}>
+      <Grid container item xs={12} md={12} lg={4} xl={4} spacing={3} sx={{height: 'max-content'}}>
         <Grid item xs={12} md={12}>
           <CategoryAnalytics />
         </Grid>
@@ -214,15 +209,12 @@ export const Categories = () => {
       <CreateCategoryDrawer
         {...showCreateDrawer}
         onClose={() => {
-          navigate(location.pathname, { replace: true });
-          dispatchCreateDrawer({ type: 'close' });
+          navigate(location.pathname, {replace: true});
+          dispatchCreateDrawer({type: 'close'});
         }}
       />
 
-      <EditCategoryDrawer
-        {...showEditDrawer}
-        onClose={() => dispatchEditDrawer({ type: 'close' })}
-      />
+      <EditCategoryDrawer {...showEditDrawer} onClose={() => dispatchEditDrawer({type: 'close'})} />
 
       <DeleteDialog
         open={showDeleteCategoryDialog}

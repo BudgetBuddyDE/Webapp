@@ -1,26 +1,17 @@
 import React from 'react';
-import {
-  Box,
-  Chip,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  Rating,
-  Typography,
-} from '@mui/material';
-import { StarRounded } from '@mui/icons-material';
-import { Card, NoResults } from '@/components/Base';
-import { type TAssetDetails } from '@budgetbuddyde/types';
+import {Box, Chip, Divider, List, ListItem, ListItemText, Rating, Typography} from '@mui/material';
+import {StarRounded} from '@mui/icons-material';
+import {Card, NoResults} from '@/components/Base';
+import {type TAssetDetails} from '@budgetbuddyde/types';
 
 export type TStockRatingProps = {
   ratings: TAssetDetails['details']['scorings'];
 };
 
-export const StockRating: React.FC<TStockRatingProps> = ({ ratings }) => {
+export const StockRating: React.FC<TStockRatingProps> = ({ratings}) => {
   return (
-    <Card sx={{ p: 0 }}>
-      <Card.Header sx={{ p: 2, pb: 0 }}>
+    <Card sx={{p: 0}}>
+      <Card.Header sx={{p: 2, pb: 0}}>
         <Box>
           <Card.Title>Ratings</Card.Title>
           <Card.Subtitle>There are {ratings.length} published ratings</Card.Subtitle>
@@ -47,11 +38,7 @@ export const StockRating: React.FC<TStockRatingProps> = ({ ratings }) => {
             ))}
           </List>
         ) : (
-          <NoResults
-            icon={<StarRounded />}
-            text="There are no public ratings available."
-            sx={{ m: 2 }}
-          />
+          <NoResults icon={<StarRounded />} text="There are no public ratings available." sx={{m: 2}} />
         )}
       </Card.Body>
     </Card>

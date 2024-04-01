@@ -1,10 +1,10 @@
-import { useState, useMemo } from 'react';
-import { alpha, useTheme } from '@mui/material';
-import { Bar } from '@visx/shape';
-import { scaleBand, scaleLinear } from '@visx/scale';
-import { AxisBottom } from '@visx/axis';
-import { Group } from '@visx/group';
-import { format } from 'date-fns';
+import {useState, useMemo} from 'react';
+import {alpha, useTheme} from '@mui/material';
+import {Bar} from '@visx/shape';
+import {scaleBand, scaleLinear} from '@visx/scale';
+import {AxisBottom} from '@visx/axis';
+import {Group} from '@visx/group';
+import {format} from 'date-fns';
 export type TBarChartData = {
   label: string;
   value: number;
@@ -78,10 +78,7 @@ export const BarChart: React.FC<TBarChartProps> = ({
     return scaleLinear<number>({
       range: [innerHeight - innerHeight * 0.1, VERTICAL_MARGIN],
       round: true,
-      domain: [
-        Math.min(...data.map(helper.getValue)) - 1,
-        Math.max(...data.map(helper.getValue)) + 1,
-      ],
+      domain: [Math.min(...data.map(helper.getValue)) - 1, Math.max(...data.map(helper.getValue)) + 1],
     });
   }, [data, innerHeight]);
 
@@ -89,7 +86,7 @@ export const BarChart: React.FC<TBarChartProps> = ({
   return (
     <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`}>
       <Group>
-        {data.map((d) => {
+        {data.map(d => {
           const xValue = helper.getDate(d);
           const barWidth = xScale.bandwidth();
           const barHeight = innerHeight - (yScale(helper.getValue(d)) ?? 0);
@@ -108,7 +105,7 @@ export const BarChart: React.FC<TBarChartProps> = ({
                   : theme.palette.primary.main
               }
               rx={theme.shape.borderRadius * 0.5}
-              style={{ transition: 'all 0.2s ease-in-out' }}
+              style={{transition: 'all 0.2s ease-in-out'}}
               onMouseEnter={() => helper.onMouseEnter(d)}
               onMouseLeave={() => helper.onMouseLeave()}
             />

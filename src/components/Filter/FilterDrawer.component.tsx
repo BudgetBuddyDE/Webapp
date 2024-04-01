@@ -1,6 +1,6 @@
 import React from 'react';
-import { DEFAULT_FILTERS, useFilterStore } from './Filter.store';
-import { FormDrawer } from '@/components/Drawer';
+import {DEFAULT_FILTERS, useFilterStore} from './Filter.store';
+import {FormDrawer} from '@/components/Drawer';
 import {
   Box,
   Button,
@@ -13,10 +13,10 @@ import {
   Select,
   type SelectChangeEvent,
 } from '@mui/material';
-import { DateRange, TDateRangeProps } from '@/components/Base';
-import { CreateCategoryAlert, useFetchCategories } from '../Category';
-import type { TCategory, TPaymentMethod } from '@budgetbuddyde/types';
-import { CreatePaymentMethodAlert, useFetchPaymentMethods } from '../PaymentMethod';
+import {DateRange, TDateRangeProps} from '@/components/Base';
+import {CreateCategoryAlert, useFetchCategories} from '../Category';
+import type {TCategory, TPaymentMethod} from '@budgetbuddyde/types';
+import {CreatePaymentMethodAlert, useFetchPaymentMethods} from '../PaymentMethod';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -45,44 +45,40 @@ interface IFilterDrawerHandler {
 export type TFilterDrawerProps = {};
 
 export const FilterDrawer: React.FC<TFilterDrawerProps> = ({}) => {
-  const { categories, loading: loadingCategories } = useFetchCategories();
-  const { paymentMethods, loading: loadingPaymentMethods } = useFetchPaymentMethods();
-  const { show: showFilterDrawer, filters, setFilters, toggleVisibility } = useFilterStore();
+  const {categories, loading: loadingCategories} = useFetchCategories();
+  const {paymentMethods, loading: loadingPaymentMethods} = useFetchPaymentMethods();
+  const {show: showFilterDrawer, filters, setFilters, toggleVisibility} = useFilterStore();
   const [unappliedFilters, setUnappliedFilters] = React.useState(filters);
 
   const handler: IFilterDrawerHandler = {
     onDateRangeChange(dateRange) {
-      setUnappliedFilters((prev) => ({ ...prev, ...dateRange }));
+      setUnappliedFilters(prev => ({...prev, ...dateRange}));
     },
     onCategoriesChange(event) {
       const value = event.target.value;
       const selectedCategories: TCategory['id'][] = Array.isArray(value) ? value : [Number(value)];
-      setUnappliedFilters((prev) => ({ ...prev, categories: selectedCategories }));
+      setUnappliedFilters(prev => ({...prev, categories: selectedCategories}));
     },
     onRemoveCategory(categoryId) {
       if (!unappliedFilters.categories) return;
-      const updatedCategories = unappliedFilters.categories.filter((id) => id !== categoryId);
-      setUnappliedFilters((prev) => ({ ...prev, categories: updatedCategories }));
+      const updatedCategories = unappliedFilters.categories.filter(id => id !== categoryId);
+      setUnappliedFilters(prev => ({...prev, categories: updatedCategories}));
     },
     onPaymentMethodsChange(event) {
       const value = event.target.value;
-      const selectedPaymentMethods: TPaymentMethod['id'][] = Array.isArray(value)
-        ? value
-        : [Number(value)];
-      setUnappliedFilters((prev) => ({ ...prev, paymentMethods: selectedPaymentMethods }));
+      const selectedPaymentMethods: TPaymentMethod['id'][] = Array.isArray(value) ? value : [Number(value)];
+      setUnappliedFilters(prev => ({...prev, paymentMethods: selectedPaymentMethods}));
     },
     onRemovePaymentMethod(paymentMethodId) {
       if (!unappliedFilters.paymentMethods) return;
-      const updatedPaymentMethods = unappliedFilters.paymentMethods.filter(
-        (id) => id !== paymentMethodId
-      );
-      setUnappliedFilters((prev) => ({ ...prev, paymentMethods: updatedPaymentMethods }));
+      const updatedPaymentMethods = unappliedFilters.paymentMethods.filter(id => id !== paymentMethodId);
+      setUnappliedFilters(prev => ({...prev, paymentMethods: updatedPaymentMethods}));
     },
     onPriceFromChange(event) {
-      setUnappliedFilters((prev) => ({ ...prev, priceFrom: Number(event.target.value) }));
+      setUnappliedFilters(prev => ({...prev, priceFrom: Number(event.target.value)}));
     },
     onPriceToChange(event) {
-      setUnappliedFilters((prev) => ({ ...prev, priceTo: Number(event.target.value) }));
+      setUnappliedFilters(prev => ({...prev, priceTo: Number(event.target.value)}));
     },
     onResetFilters() {
       setUnappliedFilters(DEFAULT_FILTERS);
@@ -107,9 +103,8 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = ({}) => {
       onClose={handler.onClose}
       onSubmit={handler.onSubmit}
       heading="Filters"
-      closeOnBackdropClick
-    >
-      <Box sx={{ mb: 2 }}>
+      closeOnBackdropClick>
+      <Box sx={{mb: 2}}>
         <DateRange
           onDateChange={handler.onDateRangeChange}
           defaultStartDate={unappliedFilters.startDate ?? new Date()}
@@ -118,7 +113,7 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = ({}) => {
       </Box>
 
       {!loadingCategories && categories.length > 0 ? (
-        <FormControl fullWidth sx={{ mb: 2 }}>
+        <FormControl fullWidth sx={{mb: 2}}>
           <InputLabel id="filter-category-label">Category</InputLabel>
           <Select
             labelId="filter-category-label"
@@ -126,10 +121,10 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = ({}) => {
             value={unappliedFilters.categories ?? []}
             onChange={handler.onCategoriesChange}
             input={<OutlinedInput id="filter-category" label="Category" />}
-            renderValue={(selected) => (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {selected.map((categoryId) => {
-                  const matchedCategory = categories.find((category) => category.id === categoryId);
+            renderValue={selected => (
+              <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 0.5}}>
+                {selected.map(categoryId => {
+                  const matchedCategory = categories.find(category => category.id === categoryId);
                   if (!matchedCategory) return null;
                   return (
                     <Chip
@@ -137,31 +132,25 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = ({}) => {
                       label={matchedCategory.name}
                       onDelete={() => handler.onRemoveCategory(categoryId)}
                       // In order to make chips deletable we need to cancel the mouse-down event
-                      onMouseDown={(event) => event.stopPropagation()}
+                      onMouseDown={event => event.stopPropagation()}
                     />
                   );
                 })}
               </Box>
             )}
-            MenuProps={MenuProps}
-          >
-            {categories.map((category) => {
+            MenuProps={MenuProps}>
+            {categories.map(category => {
               const selected =
-                Array.isArray(unappliedFilters.categories) &&
-                unappliedFilters.categories.includes(category.id);
+                Array.isArray(unappliedFilters.categories) && unappliedFilters.categories.includes(category.id);
               return (
                 <MenuItem
                   key={category.id}
                   value={category.id}
                   sx={{
-                    fontWeight: (theme) =>
-                      selected
-                        ? theme.typography.fontWeightBold
-                        : theme.typography.fontWeightRegular,
-                    backgroundColor: (theme) =>
-                      selected ? theme.palette.action.selected : 'unset',
-                  }}
-                >
+                    fontWeight: theme =>
+                      selected ? theme.typography.fontWeightBold : theme.typography.fontWeightRegular,
+                    backgroundColor: theme => (selected ? theme.palette.action.selected : 'unset'),
+                  }}>
                   {category.name}
                 </MenuItem>
               );
@@ -169,11 +158,11 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = ({}) => {
           </Select>
         </FormControl>
       ) : (
-        <CreateCategoryAlert sx={{ mb: 2 }} />
+        <CreateCategoryAlert sx={{mb: 2}} />
       )}
 
       {!loadingPaymentMethods && paymentMethods.length > 0 ? (
-        <FormControl fullWidth sx={{ mb: 2 }}>
+        <FormControl fullWidth sx={{mb: 2}}>
           <InputLabel id="filter-payment-method-label">Payment Method</InputLabel>
           <Select
             labelId="filter-payment-method-label"
@@ -181,11 +170,11 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = ({}) => {
             value={unappliedFilters.paymentMethods ?? []}
             onChange={handler.onPaymentMethodsChange}
             input={<OutlinedInput id="filter-paymnet-method" label="Payment Method" />}
-            renderValue={(selected) => (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {selected.map((paymentMethodId) => {
+            renderValue={selected => (
+              <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 0.5}}>
+                {selected.map(paymentMethodId => {
                   const matchedPaymentMethod = paymentMethods.find(
-                    (paymentMethod) => paymentMethod.id === paymentMethodId
+                    paymentMethod => paymentMethod.id === paymentMethodId,
                   );
                   if (!matchedPaymentMethod) return null;
                   return (
@@ -194,15 +183,14 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = ({}) => {
                       label={matchedPaymentMethod.name}
                       onDelete={() => handler.onRemovePaymentMethod(paymentMethodId)}
                       // In order to make chips deletable we need to cancel the mouse-down event
-                      onMouseDown={(event) => event.stopPropagation()}
+                      onMouseDown={event => event.stopPropagation()}
                     />
                   );
                 })}
               </Box>
             )}
-            MenuProps={MenuProps}
-          >
-            {paymentMethods.map((paymentMethod) => {
+            MenuProps={MenuProps}>
+            {paymentMethods.map(paymentMethod => {
               const selected =
                 Array.isArray(unappliedFilters.paymentMethods) &&
                 unappliedFilters.paymentMethods.includes(paymentMethod.id);
@@ -211,14 +199,10 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = ({}) => {
                   key={paymentMethod.id}
                   value={paymentMethod.id}
                   sx={{
-                    fontWeight: (theme) =>
-                      selected
-                        ? theme.typography.fontWeightBold
-                        : theme.typography.fontWeightRegular,
-                    backgroundColor: (theme) =>
-                      selected ? theme.palette.action.selected : 'unset',
-                  }}
-                >
+                    fontWeight: theme =>
+                      selected ? theme.typography.fontWeightBold : theme.typography.fontWeightRegular,
+                    backgroundColor: theme => (selected ? theme.palette.action.selected : 'unset'),
+                  }}>
                   {paymentMethod.name}
                 </MenuItem>
               );
@@ -226,7 +210,7 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = ({}) => {
           </Select>
         </FormControl>
       ) : (
-        <CreatePaymentMethodAlert sx={{ mb: 2 }} />
+        <CreatePaymentMethodAlert sx={{mb: 2}} />
       )}
 
       <Box
@@ -237,27 +221,26 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = ({}) => {
           justifyContent: 'space-between',
           gap: '1rem',
           mb: 2,
-        }}
-      >
-        <FormControl sx={{ width: 'calc(50% - 0.5rem)' }}>
+        }}>
+        <FormControl sx={{width: 'calc(50% - 0.5rem)'}}>
           <InputLabel htmlFor="filter-start-amount">Start</InputLabel>
           <OutlinedInput
             id="filter-start-amount"
             label="Start"
             name="priceFrom"
-            inputProps={{ inputMode: 'numeric' }}
+            inputProps={{inputMode: 'numeric'}}
             value={unappliedFilters.priceFrom}
             onChange={handler.onPriceFromChange}
             startAdornment={<InputAdornment position="start">€</InputAdornment>}
           />
         </FormControl>
-        <FormControl sx={{ width: 'calc(50% - 0.5rem)' }}>
+        <FormControl sx={{width: 'calc(50% - 0.5rem)'}}>
           <InputLabel htmlFor="filter-end-amount">End</InputLabel>
           <OutlinedInput
             id="filter-end-amount"
             label="End"
             name="priceTo"
-            inputProps={{ inputMode: 'numeric' }}
+            inputProps={{inputMode: 'numeric'}}
             onChange={handler.onPriceToChange}
             value={unappliedFilters.priceTo}
             startAdornment={<InputAdornment position="start">€</InputAdornment>}

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import {z} from 'zod';
 import {
   ZPaymentMethod,
   type TApiResponse,
@@ -11,19 +11,18 @@ import {
   ZDeletePaymentMethodResponsePayload,
   type TTransaction,
 } from '@budgetbuddyde/types';
-import { prepareRequestOptions } from '@/utils';
-import { type IAuthContext } from '../Auth';
-import { PaymentMethodLabelSeperator, type TPaymentMethodInputOption } from './Autocomplete';
-import { subDays } from 'date-fns';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
+import {prepareRequestOptions} from '@/utils';
+import {type IAuthContext} from '../Auth';
+import {PaymentMethodLabelSeperator, type TPaymentMethodInputOption} from './Autocomplete';
+import {subDays} from 'date-fns';
+import {isRunningInProdEnv} from '@/utils/isRunningInProdEnv.util';
 
 export class PaymentMethodService {
-  private static host =
-    (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/payment-method';
+  private static host = (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/payment-method';
 
   static async getPaymentMethodsByUuid(
     uuid: TUser['uuid'],
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TPaymentMethod[] | null, Error | null]> {
     try {
       const query = new URLSearchParams();
@@ -45,7 +44,7 @@ export class PaymentMethodService {
 
   static async create(
     paymentMethod: TCreatePaymentMethodPayload,
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TPaymentMethod | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -67,7 +66,7 @@ export class PaymentMethodService {
 
   static async update(
     paymentMethod: TUpdatePaymentMethodPayload,
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TPaymentMethod | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -89,7 +88,7 @@ export class PaymentMethodService {
 
   static async delete(
     paymentMethod: TDeletePaymentMethodPayload,
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TDeletePaymentMethodResponsePayload | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -119,16 +118,16 @@ export class PaymentMethodService {
   static sortAutocompleteOptionsByTransactionUsage(
     paymentMethods: TPaymentMethod[],
     transactions: TTransaction[],
-    days: number = 30
+    days: number = 30,
   ): TPaymentMethodInputOption[] {
     const uniquePaymentMethods = paymentMethods;
     const now = new Date();
     const startDate = subDays(now, days);
-    const paymentMethodFrequencyMap: { [paymentMethodId: string]: number } = {};
+    const paymentMethodFrequencyMap: {[paymentMethodId: string]: number} = {};
 
-    let pastNTransactions = transactions.filter(({ processedAt }) => processedAt >= startDate);
+    let pastNTransactions = transactions.filter(({processedAt}) => processedAt >= startDate);
     if (pastNTransactions.length < 1) pastNTransactions = transactions.slice(0, 50);
-    pastNTransactions.forEach(({ paymentMethod: { id }, processedAt }) => {
+    pastNTransactions.forEach(({paymentMethod: {id}, processedAt}) => {
       if (processedAt >= startDate && processedAt <= now) {
         paymentMethodFrequencyMap[id] = (paymentMethodFrequencyMap[id] || 0) + 1;
       }
@@ -136,11 +135,11 @@ export class PaymentMethodService {
 
     return this.getAutocompleteOptions(
       uniquePaymentMethods
-        .map((paymentMethod) => ({
+        .map(paymentMethod => ({
           ...paymentMethod,
           frequency: paymentMethodFrequencyMap[paymentMethod.id] || -1,
         }))
-        .sort((a, b) => b.frequency - a.frequency)
+        .sort((a, b) => b.frequency - a.frequency),
     );
   }
 
@@ -150,8 +149,8 @@ export class PaymentMethodService {
    * @returns An array of autocomplete options.
    */
   static getAutocompleteOptions(paymentMethods: TPaymentMethod[]): TPaymentMethodInputOption[] {
-    return paymentMethods.map(({ id, name, provider }) => ({
-      label: this.getAutocompleteLabel({ name, provider }),
+    return paymentMethods.map(({id, name, provider}) => ({
+      label: this.getAutocompleteLabel({name, provider}),
       value: id,
     }));
   }
@@ -175,10 +174,10 @@ export class PaymentMethodService {
   static filter(paymentMethods: TPaymentMethod[], keyword: string): TPaymentMethod[] {
     const lowerKeyword = keyword.toLowerCase();
     return paymentMethods.filter(
-      ({ name, provider, description }) =>
+      ({name, provider, description}) =>
         name.toLowerCase().includes(lowerKeyword) ||
         provider.toLowerCase().includes(lowerKeyword) ||
-        description?.toLowerCase().includes(lowerKeyword)
+        description?.toLowerCase().includes(lowerKeyword),
     );
   }
 }

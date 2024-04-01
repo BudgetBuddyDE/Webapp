@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import {z} from 'zod';
 import {
   ZSubscription,
   type TApiResponse,
@@ -10,23 +10,22 @@ import {
   type TDeleteSubscriptionResponsePayload,
   ZDeleteSubscriptionResponsePayload,
 } from '@budgetbuddyde/types';
-import { determineNextExecutionDate, prepareRequestOptions } from '@/utils';
-import { type IAuthContext } from '../Auth';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
+import {determineNextExecutionDate, prepareRequestOptions} from '@/utils';
+import {type IAuthContext} from '../Auth';
+import {isRunningInProdEnv} from '@/utils/isRunningInProdEnv.util';
 
 export class SubscriptionService {
-  private static host =
-    (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/subscription';
+  private static host = (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/subscription';
 
   static async getSubscriptionsByUuid(
-    { uuid, password }: IAuthContext['authOptions'],
-    requestOptions?: RequestInit
+    {uuid, password}: IAuthContext['authOptions'],
+    requestOptions?: RequestInit,
   ): Promise<[TSubscription[] | null, Error | null]> {
     try {
       const query = new URLSearchParams();
       query.append('uuid', uuid);
       const response = await fetch(this.host + '?' + query.toString(), {
-        ...prepareRequestOptions({ uuid, password }),
+        ...prepareRequestOptions({uuid, password}),
         ...requestOptions,
       });
       const json = (await response.json()) as TApiResponse<TSubscription[]>;
@@ -43,7 +42,7 @@ export class SubscriptionService {
 
   static async create(
     subscription: TCreateSubscriptionPayload,
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TSubscription | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -65,7 +64,7 @@ export class SubscriptionService {
 
   static async update(
     subscription: TUpdateSubscriptionPayload,
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TSubscription | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -87,7 +86,7 @@ export class SubscriptionService {
 
   static async delete(
     subscription: TDeleteSubscriptionPayload,
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TDeleteSubscriptionResponsePayload | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -164,12 +163,10 @@ export class SubscriptionService {
 
   static getPlannedBalanceByType(
     subscriptions: TSubscription[],
-    type: 'INCOME' | 'SPENDINGS' = 'INCOME'
+    type: 'INCOME' | 'SPENDINGS' = 'INCOME',
   ): TSubscription[] {
     return this.sortByExecutionDate(
-      subscriptions.filter(({ transferAmount }) =>
-        type === 'INCOME' ? transferAmount > 0 : transferAmount < 0
-      )
+      subscriptions.filter(({transferAmount}) => (type === 'INCOME' ? transferAmount > 0 : transferAmount < 0)),
     );
   }
 

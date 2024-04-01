@@ -1,7 +1,7 @@
 import React from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { FullPageLoader } from './components/Loading/FullPageLoader.component';
-import { DashboardLayout, DashboardView, BudgetView, StocksView } from './routes/Dashboard';
+import {BrowserRouter, Navigate, Route, Routes} from 'react-router-dom';
+import {FullPageLoader} from './components/Loading/FullPageLoader.component';
+import {DashboardLayout, DashboardView, BudgetView, StocksView} from './routes/Dashboard';
 import StockRoute from './routes/Stock.route';
 import StocksRoute from './routes/Stocks.route';
 import TransactionsRoute from './routes/Transactions.route';

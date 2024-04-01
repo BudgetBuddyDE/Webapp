@@ -1,41 +1,20 @@
-import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@/components/Drawer';
-import { type TEntityDrawerState, useScreenSize } from '@/hooks';
-import {
-  Box,
-  FormControl,
-  Grid,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
-  TextField,
-} from '@mui/material';
-import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import {FormDrawer, FormDrawerReducer, generateInitialFormDrawerState} from '@/components/Drawer';
+import {type TEntityDrawerState, useScreenSize} from '@/hooks';
+import {Box, FormControl, Grid, InputAdornment, InputLabel, OutlinedInput, TextField} from '@mui/material';
+import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
-import { FormStyle } from '@/style/Form.style';
-import { useAuthContext } from '../Auth';
-import { useSnackbarContext } from '../Snackbar';
-import { TransactionService, useFetchTransactions } from '.';
-import { CategoryAutocomplete, getCategoryFromList, useFetchCategories } from '../Category';
-import {
-  FileUpload,
-  FileUploadPreview,
-  ReceiverAutocomplete,
-  type TFileUploadProps,
-} from '@/components/Base';
-import {
-  PaymentMethodAutocomplete,
-  getPaymentMethodFromList,
-  useFetchPaymentMethods,
-} from '../PaymentMethod';
-import {
-  type TUpdateTransactionPayload,
-  type TTransactionFile,
-  ZUpdateTransactionPayload,
-} from '@budgetbuddyde/types';
-import { FileService } from '@/services/File.service';
-import { AppConfig } from '@/app.config';
-import { transformBalance } from '@/utils';
+import {FormStyle} from '@/style/Form.style';
+import {useAuthContext} from '../Auth';
+import {useSnackbarContext} from '../Snackbar';
+import {TransactionService, useFetchTransactions} from '.';
+import {CategoryAutocomplete, getCategoryFromList, useFetchCategories} from '../Category';
+import {FileUpload, FileUploadPreview, ReceiverAutocomplete, type TFileUploadProps} from '@/components/Base';
+import {PaymentMethodAutocomplete, getPaymentMethodFromList, useFetchPaymentMethods} from '../PaymentMethod';
+import {type TUpdateTransactionPayload, type TTransactionFile, ZUpdateTransactionPayload} from '@budgetbuddyde/types';
+import {FileService} from '@/services/File.service';
+import {AppConfig} from '@/app.config';
+import {transformBalance} from '@/utils';
 
 interface IEditTransactionDrawerHandler extends Pick<TFileUploadProps, 'onFileUpload'> {
   onClose: () => void;
@@ -43,7 +22,7 @@ interface IEditTransactionDrawerHandler extends Pick<TFileUploadProps, 'onFileUp
   onAutocompleteChange: (
     event: React.SyntheticEvent<Element, Event>,
     key: 'categoryId' | 'paymentMethodId',
-    value: string | number
+    value: string | number,
   ) => void;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onReceiverChange: (value: string | number) => void;
@@ -54,70 +33,52 @@ export type TEditTransactionDrawerProps = {
   onClose: () => void;
 } & TEntityDrawerState<TUpdateTransactionPayload>;
 
-export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
-  shown,
-  payload,
-  onClose,
-}) => {
+export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({shown, payload, onClose}) => {
   const screenSize = useScreenSize();
-  const { session, authOptions } = useAuthContext();
-  const { showSnackbar } = useSnackbarContext();
-  const {
-    refresh: refreshTransactions,
-    transactions,
-    loading: loadingTransactions,
-  } = useFetchTransactions();
-  const { categories } = useFetchCategories();
-  const { paymentMethods } = useFetchPaymentMethods();
-  const [drawerState, setDrawerState] = React.useReducer(
-    FormDrawerReducer,
-    generateInitialFormDrawerState()
-  );
-  const [uploadedFiles, setUploadedFiles] = React.useState<
-    (File & { buffer?: string | ArrayBuffer | null })[]
-  >([]);
-  const [forDelectionMarkedFiles, setForDeleteMarkedFiles] = React.useState<
-    TTransactionFile['uuid'][]
-  >([]);
+  const {session, authOptions} = useAuthContext();
+  const {showSnackbar} = useSnackbarContext();
+  const {refresh: refreshTransactions, transactions, loading: loadingTransactions} = useFetchTransactions();
+  const {categories} = useFetchCategories();
+  const {paymentMethods} = useFetchPaymentMethods();
+  const [drawerState, setDrawerState] = React.useReducer(FormDrawerReducer, generateInitialFormDrawerState());
+  const [uploadedFiles, setUploadedFiles] = React.useState<(File & {buffer?: string | ArrayBuffer | null})[]>([]);
+  const [forDelectionMarkedFiles, setForDeleteMarkedFiles] = React.useState<TTransactionFile['uuid'][]>([]);
   const [form, setForm] = React.useState<Record<string, string | number | Date>>({
     date: new Date(),
   });
 
   const attachedTransactionFiles: TTransactionFile[] = React.useMemo(() => {
     if (loadingTransactions || !payload) return [];
-    const transaction = transactions.find(
-      (transaction) => transaction.id === payload.transactionId
-    );
+    const transaction = transactions.find(transaction => transaction.id === payload.transactionId);
     return (
-      (transaction?.attachedFiles.filter(
-        (file) => !forDelectionMarkedFiles.includes(file.uuid)
-      ) as TTransactionFile[]) ?? []
+      (transaction?.attachedFiles.filter(file => !forDelectionMarkedFiles.includes(file.uuid)) as TTransactionFile[]) ??
+      []
     );
   }, [loadingTransactions, transactions, payload, forDelectionMarkedFiles]);
 
   const handler: IEditTransactionDrawerHandler = {
     onClose() {
       onClose();
-      setForm({ processedAt: new Date() });
-      setDrawerState({ type: 'RESET' });
+      setForm({processedAt: new Date()});
+      setDrawerState({type: 'RESET'});
     },
     onDateChange(value: string | number | Date | null, _keyboardInputValue?: string | undefined) {
       if (!value) return;
-      setForm((prev) => ({ ...prev, processedAt: value }));
+      setForm(prev => ({...prev, processedAt: value}));
     },
     onAutocompleteChange: (_event, key, value) => {
-      setForm((prev) => ({ ...prev, [key]: value }));
+      setForm(prev => ({...prev, [key]: value}));
     },
     onInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-      setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+      setForm(prev => ({...prev, [event.target.name]: event.target.value}));
     },
     onReceiverChange(value) {
-      setForm((prev) => ({ ...prev, receiver: String(value) }));
+      setForm(prev => ({...prev, receiver: String(value)}));
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
       if (!session || !payload) return;
-      setDrawerState({ type: 'SUBMIT' });
+      setDrawerState({type: 'SUBMIT'});
 
       try {
         const parsedForm = ZUpdateTransactionPayload.safeParse({
@@ -127,30 +88,27 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
         });
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
         const requestPayload: TUpdateTransactionPayload = parsedForm.data;
-        const [updatedTransaction, error] = await TransactionService.update(
-          requestPayload,
-          authOptions
-        );
+        const [updatedTransaction, error] = await TransactionService.update(requestPayload, authOptions);
         if (error) {
-          setDrawerState({ type: 'ERROR', error: error });
+          setDrawerState({type: 'ERROR', error: error});
           return;
         }
         if (!updatedTransaction) {
-          setDrawerState({ type: 'ERROR', error: new Error("Couldn't save the transaction") });
+          setDrawerState({type: 'ERROR', error: new Error("Couldn't save the transaction")});
           return;
         }
 
         if (uploadedFiles.length > 0) {
           const [_, uploadError] = await FileService.attachFilesToTransaction(
             payload.transactionId,
-            uploadedFiles.map((file) => {
+            uploadedFiles.map(file => {
               delete file.buffer;
               return file;
             }),
-            authOptions
+            authOptions,
           );
           if (uploadError) {
-            return showSnackbar({ message: uploadError.message });
+            return showSnackbar({message: uploadError.message});
           }
         }
 
@@ -158,22 +116,22 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
           const [_, detachError] = await FileService.detachFilesFromTransaction(
             payload.transactionId,
             forDelectionMarkedFiles,
-            authOptions
+            authOptions,
           );
           if (detachError) {
-            return showSnackbar({ message: detachError.message });
+            return showSnackbar({message: detachError.message});
           }
         }
 
-        setDrawerState({ type: 'SUCCESS' });
+        setDrawerState({type: 'SUCCESS'});
         handler.onClose();
         React.startTransition(() => {
           refreshTransactions();
         });
-        showSnackbar({ message: `Saved the applied changes` });
+        showSnackbar({message: `Saved the applied changes`});
       } catch (error) {
         console.error(error);
-        setDrawerState({ type: 'ERROR', error: error as Error });
+        setDrawerState({type: 'ERROR', error: error as Error});
       }
     },
     async onFileUpload(files) {
@@ -181,12 +139,10 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
       const filesArray = Array.from(files);
       const uploadLimit = 4;
       if (filesArray.length > uploadLimit) {
-        return showSnackbar({ message: `You can only upload ${uploadLimit} files at once` });
+        return showSnackbar({message: `You can only upload ${uploadLimit} files at once`});
       }
 
-      const acceptedFiles = filesArray.filter((file) =>
-        AppConfig.allowedFileTypes.includes(file.type)
-      );
+      const acceptedFiles = filesArray.filter(file => AppConfig.allowedFileTypes.includes(file.type));
 
       if (acceptedFiles.length !== filesArray.length) {
         const blockedAmount = filesArray.length - acceptedFiles.length;
@@ -197,14 +153,14 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
         });
       }
 
-      acceptedFiles.forEach((file) => {
+      acceptedFiles.forEach(file => {
         const reader = new FileReader();
         reader.onloadend = () => {
           const url = reader.result?.toString() ?? '';
           // @ts-ignore
           file['buffer'] = url;
           console.log(file);
-          setUploadedFiles((prev) => [...prev, file]);
+          setUploadedFiles(prev => [...prev, file]);
         };
 
         if (file) {
@@ -215,9 +171,8 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
   };
 
   React.useLayoutEffect(() => {
-    if (!payload) return setForm({ processedAt: new Date() });
-    const { categoryId, description, paymentMethodId, processedAt, receiver, transferAmount } =
-      payload;
+    if (!payload) return setForm({processedAt: new Date()});
+    const {categoryId, description, paymentMethodId, processedAt, receiver, transferAmount} = payload;
     setForm({
       processedAt: processedAt,
       receiver: receiver,
@@ -240,8 +195,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
       onSubmit={handler.onFormSubmit}
       heading="Update Transaction"
       onClose={handler.onClose}
-      closeOnBackdropClick
-    >
+      closeOnBackdropClick>
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         {screenSize === 'small' ? (
           <MobileDatePicker
@@ -249,7 +203,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
             inputFormat="dd.MM.yy"
             value={form.processedAt}
             onChange={handler.onDateChange}
-            renderInput={(params) => <TextField sx={FormStyle} {...params} required />}
+            renderInput={params => <TextField sx={FormStyle} {...params} required />}
           />
         ) : (
           <DesktopDatePicker
@@ -257,7 +211,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
             inputFormat="dd.MM.yy"
             value={form.processedAt}
             onChange={handler.onDateChange}
-            renderInput={(params) => <TextField sx={FormStyle} {...params} required />}
+            renderInput={params => <TextField sx={FormStyle} {...params} required />}
           />
         )}
       </LocalizationProvider>
@@ -268,25 +222,18 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
           flexDirection: 'row',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
-        }}
-      >
+        }}>
         <CategoryAutocomplete
-          onChange={(event, value) =>
-            handler.onAutocompleteChange(event, 'categoryId', Number(value?.value))
-          }
+          onChange={(event, value) => handler.onAutocompleteChange(event, 'categoryId', Number(value?.value))}
           defaultValue={payload ? getCategoryFromList(payload.categoryId, categories) : undefined}
-          sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+          sx={{width: {xs: '100%', md: 'calc(50% - .5rem)'}, mb: 2}}
           required
         />
 
         <PaymentMethodAutocomplete
-          onChange={(event, value) =>
-            handler.onAutocompleteChange(event, 'paymentMethodId', Number(value?.value))
-          }
-          defaultValue={
-            payload ? getPaymentMethodFromList(payload.paymentMethodId, paymentMethods) : undefined
-          }
-          sx={{ width: { xs: '100%', md: 'calc(50% - .5rem)' }, mb: 2 }}
+          onChange={(event, value) => handler.onAutocompleteChange(event, 'paymentMethodId', Number(value?.value))}
+          defaultValue={payload ? getPaymentMethodFromList(payload.paymentMethodId, paymentMethods) : undefined}
+          sx={{width: {xs: '100%', md: 'calc(50% - .5rem)'}, mb: 2}}
           required
         />
       </Box>
@@ -295,22 +242,22 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
         sx={FormStyle}
         id="receiver"
         label="Receiver"
-        options={TransactionService.getUniqueReceivers(transactions).map((receiver) => ({
+        options={TransactionService.getUniqueReceivers(transactions).map(receiver => ({
           label: receiver,
           value: receiver,
         }))}
         defaultValue={payload?.receiver}
-        onValueChange={(value) => handler.onReceiverChange(String(value))}
+        onValueChange={value => handler.onReceiverChange(String(value))}
         required
       />
 
-      <FormControl fullWidth required sx={{ mb: 2 }}>
+      <FormControl fullWidth required sx={{mb: 2}}>
         <InputLabel htmlFor="amount">Amount</InputLabel>
         <OutlinedInput
           id="transferAmount"
           label="Amount"
           name="transferAmount"
-          inputProps={{ inputMode: 'numeric' }}
+          inputProps={{inputMode: 'numeric'}}
           onChange={handler.onInputChange}
           value={form.transferAmount}
           defaultValue={payload?.transferAmount}
@@ -333,22 +280,17 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
 
       <Grid container spacing={2} columns={10}>
         <Grid item xs={2}>
-          <FileUpload
-            sx={{ width: '100%' }}
-            onFileUpload={handler.onFileUpload}
-            accept="image/*"
-            multiple
-          />
+          <FileUpload sx={{width: '100%'}} onFileUpload={handler.onFileUpload} accept="image/*" multiple />
         </Grid>
-        {attachedTransactionFiles.map((file) => (
+        {attachedTransactionFiles.map(file => (
           <Grid item key={file.uuid} xs={2}>
             <FileUploadPreview
               {...file}
               buffer={null}
               location={FileService.getAuthentificatedFileLink(file.location, authOptions)}
-              onDelete={(file) => {
+              onDelete={file => {
                 if (file.uuid) {
-                  setForDeleteMarkedFiles((prev) => [...prev, file.uuid!]);
+                  setForDeleteMarkedFiles(prev => [...prev, file.uuid!]);
                 }
               }}
             />
@@ -362,8 +304,8 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
               fileSize={file.size}
               mimeType={file.type}
               buffer={file.buffer as string}
-              onDelete={(f) => {
-                setUploadedFiles((prev) => prev.filter((pf) => pf.name !== f.fileName));
+              onDelete={f => {
+                setUploadedFiles(prev => prev.filter(pf => pf.name !== f.fileName));
               }}
             />
           </Grid>

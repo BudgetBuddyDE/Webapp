@@ -1,11 +1,11 @@
 import React from 'react';
-import { Alert, type AlertProps, AlertTitle, type AlertTitleProps } from '@mui/material';
+import {Alert, type AlertProps, AlertTitle, type AlertTitleProps} from '@mui/material';
 
 export type TCreatePaymentMethodAlertProps = AlertProps & {
   alerTitle?: AlertTitleProps;
 };
 
-export const CreatePaymentMethodAlert: React.FC<TCreatePaymentMethodAlertProps> = (props) => {
+export const CreatePaymentMethodAlert: React.FC<TCreatePaymentMethodAlertProps> = props => {
   return (
     <Alert severity="info" {...props}>
       <AlertTitle {...props.alerTitle}>Info</AlertTitle>

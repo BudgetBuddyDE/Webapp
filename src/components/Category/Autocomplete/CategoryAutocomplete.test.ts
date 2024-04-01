@@ -1,7 +1,4 @@
-import {
-  type TCategoryInputOption,
-  applyCategoryOptionsFilter,
-} from './CategoryAutocomplete.component';
+import {type TCategoryInputOption, applyCategoryOptionsFilter} from './CategoryAutocomplete.component';
 
 /**
  * Provided options
@@ -20,11 +17,11 @@ describe('Validate if correct items are returned by filter', () => {
     },
   });
   const options: TCategoryInputOption[] = [
-    { label: 'Work', value: 1 },
-    { label: 'Rent', value: 2 },
-    { label: 'Other', value: 3 },
-    { label: 'Office', value: 4 },
-    { label: 'Offgrid', value: 5 },
+    {label: 'Work', value: 1},
+    {label: 'Rent', value: 2},
+    {label: 'Other', value: 3},
+    {label: 'Office', value: 4},
+    {label: 'Offgrid', value: 5},
   ];
 
   it('filters options based on inputValue', () => {
@@ -32,8 +29,8 @@ describe('Validate if correct items are returned by filter', () => {
     const filteredOptions = applyCategoryOptionsFilter(options, state);
     expect(filteredOptions.length).toBe(2);
     expect(filteredOptions).toEqual([
-      { shouldCreate: true, label: 'Create "work"', value: -1 },
-      { label: 'Work', value: 1 },
+      {shouldCreate: true, label: 'Create "work"', value: -1},
+      {label: 'Work', value: 1},
     ]);
   });
 
@@ -41,7 +38,7 @@ describe('Validate if correct items are returned by filter', () => {
     const state = filterOptionsState('Rent');
     const filteredOptions = applyCategoryOptionsFilter(options, state);
     expect(filteredOptions.length).toBe(1);
-    expect(filteredOptions).toEqual([{ label: 'Rent', value: 2 }]);
+    expect(filteredOptions).toEqual([{label: 'Rent', value: 2}]);
   });
 
   it('filters options and creates when no exact match', () => {
@@ -49,8 +46,8 @@ describe('Validate if correct items are returned by filter', () => {
     const filteredOptions = applyCategoryOptionsFilter(options, state);
     expect(filteredOptions.length).toBe(2);
     expect(filteredOptions).toEqual([
-      { shouldCreate: true, label: 'Create "wor"', value: -1 },
-      { label: 'Work', value: 1 },
+      {shouldCreate: true, label: 'Create "wor"', value: -1},
+      {label: 'Work', value: 1},
     ]);
   });
 
@@ -59,9 +56,9 @@ describe('Validate if correct items are returned by filter', () => {
     const filteredOptions = applyCategoryOptionsFilter(options, state);
     expect(filteredOptions.length).toBe(3);
     expect(filteredOptions).toEqual([
-      { shouldCreate: true, label: 'Create "off"', value: -1 },
-      { label: 'Office', value: 4 },
-      { label: 'Offgrid', value: 5 },
+      {shouldCreate: true, label: 'Create "off"', value: -1},
+      {label: 'Office', value: 4},
+      {label: 'Offgrid', value: 5},
     ]);
   });
 

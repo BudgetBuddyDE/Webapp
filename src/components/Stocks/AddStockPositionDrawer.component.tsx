@@ -1,20 +1,17 @@
 import React from 'react';
-import { Grid, InputAdornment, TextField } from '@mui/material';
-import { DesktopDatePicker, LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { FormDrawer, FormDrawerReducer, generateInitialFormDrawerState } from '@/components/Drawer';
-import { useAuthContext } from '../Auth';
-import { useSnackbarContext } from '../Snackbar';
-import { useScreenSize, type TEntityDrawerState } from '@/hooks';
-import { ZOpenPositionPayload, type TOpenPositionPayload } from '@budgetbuddyde/types';
-import { SearchStock, type TSearchStockOption } from './SearchStock.component';
-import {
-  SelectStockExchange,
-  type TSelectStockExchangeOption,
-} from './SelectStockExchange.component';
-import { StockService } from './Stock.service';
-import { useStockStore } from './Stock.store';
-import { transformBalance } from '@/utils';
+import {Grid, InputAdornment, TextField} from '@mui/material';
+import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {FormDrawer, FormDrawerReducer, generateInitialFormDrawerState} from '@/components/Drawer';
+import {useAuthContext} from '../Auth';
+import {useSnackbarContext} from '../Snackbar';
+import {useScreenSize, type TEntityDrawerState} from '@/hooks';
+import {ZOpenPositionPayload, type TOpenPositionPayload} from '@budgetbuddyde/types';
+import {SearchStock, type TSearchStockOption} from './SearchStock.component';
+import {SelectStockExchange, type TSelectStockExchangeOption} from './SelectStockExchange.component';
+import {StockService} from './Stock.service';
+import {useStockStore} from './Stock.store';
+import {transformBalance} from '@/utils';
 
 export type TAddStockPositionDrawerProps = {
   onClose: () => void;
@@ -29,19 +26,12 @@ interface IAddStockPositionDrawerHandler {
   onFormSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export const AddStockPositionDrawer: React.FC<TAddStockPositionDrawerProps> = ({
-  shown,
-  payload,
-  onClose,
-}) => {
+export const AddStockPositionDrawer: React.FC<TAddStockPositionDrawerProps> = ({shown, payload, onClose}) => {
   const screenSize = useScreenSize();
-  const { set: setStockPositions } = useStockStore();
-  const { session, authOptions } = useAuthContext();
-  const { showSnackbar } = useSnackbarContext();
-  const [drawerState, setDrawerState] = React.useReducer(
-    FormDrawerReducer,
-    generateInitialFormDrawerState()
-  );
+  const {set: setStockPositions} = useStockStore();
+  const {session, authOptions} = useAuthContext();
+  const {showSnackbar} = useSnackbarContext();
+  const [drawerState, setDrawerState] = React.useReducer(FormDrawerReducer, generateInitialFormDrawerState());
   const [form, setForm] = React.useState<Record<string, string | number | Date>>({
     bought_at: new Date(),
   });
@@ -49,28 +39,28 @@ export const AddStockPositionDrawer: React.FC<TAddStockPositionDrawerProps> = ({
   const handler: IAddStockPositionDrawerHandler = {
     onClose() {
       onClose();
-      setForm({ bought_at: new Date() });
-      setDrawerState({ type: 'RESET' });
+      setForm({bought_at: new Date()});
+      setDrawerState({type: 'RESET'});
     },
     onDateChange(date) {
       if (!date) return;
-      setForm((prev) => ({ ...prev, bought_at: date }));
+      setForm(prev => ({...prev, bought_at: date}));
     },
     onExchangeChange(value) {
       if (!value) return;
-      setForm((prev) => ({ ...prev, exchange: value.ticker }));
+      setForm(prev => ({...prev, exchange: value.ticker}));
     },
     onInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-      setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+      setForm(prev => ({...prev, [event.target.name]: event.target.value}));
     },
     onSelectAsset(selectedAsset) {
       if (!selectedAsset) return;
-      setForm((prev) => ({ ...prev, isin: selectedAsset.isin }));
+      setForm(prev => ({...prev, isin: selectedAsset.isin}));
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
       if (!session) return;
-      setDrawerState({ type: 'SUBMIT' });
+      setDrawerState({type: 'SUBMIT'});
 
       try {
         const parsedForm = ZOpenPositionPayload.safeParse({
@@ -85,23 +75,23 @@ export const AddStockPositionDrawer: React.FC<TAddStockPositionDrawerProps> = ({
 
         const [positions, error] = await StockService.openPositions([requestPayload], authOptions);
         if (error) {
-          setDrawerState({ type: 'ERROR', error });
+          setDrawerState({type: 'ERROR', error});
           return;
         }
         if (!positions || positions.length < 1) {
-          setDrawerState({ type: 'ERROR', error: new Error('Error opening position') });
+          setDrawerState({type: 'ERROR', error: new Error('Error opening position')});
           return;
         }
 
-        setDrawerState({ type: 'SUCCESS' });
+        setDrawerState({type: 'SUCCESS'});
         handler.onClose();
-        showSnackbar({ message: `Position saved` });
+        showSnackbar({message: `Position saved`});
         React.startTransition(() => {
           setStockPositions(positions);
         });
       } catch (error) {
         console.error(error);
-        setDrawerState({ type: 'ERROR', error: error as Error });
+        setDrawerState({type: 'ERROR', error: error as Error});
       }
     },
   };
@@ -125,10 +115,9 @@ export const AddStockPositionDrawer: React.FC<TAddStockPositionDrawerProps> = ({
       onClose={() => {
         onClose();
         setForm({});
-        setDrawerState({ type: 'RESET' });
+        setDrawerState({type: 'RESET'});
       }}
-      closeOnBackdropClick
-    >
+      closeOnBackdropClick>
       <Grid container spacing={2}>
         <Grid item xs={12} md={12}>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -138,7 +127,7 @@ export const AddStockPositionDrawer: React.FC<TAddStockPositionDrawerProps> = ({
                 inputFormat="dd.MM.yy"
                 value={form.boughtAt}
                 onChange={handler.onDateChange}
-                renderInput={(params) => <TextField fullWidth {...params} required />}
+                renderInput={params => <TextField fullWidth {...params} required />}
               />
             ) : (
               <DesktopDatePicker
@@ -146,7 +135,7 @@ export const AddStockPositionDrawer: React.FC<TAddStockPositionDrawerProps> = ({
                 inputFormat="dd.MM.yy"
                 value={form.boughtAt}
                 onChange={handler.onDateChange}
-                renderInput={(params) => <TextField fullWidth {...params} required />}
+                renderInput={params => <TextField fullWidth {...params} required />}
               />
             )}
           </LocalizationProvider>
@@ -169,7 +158,7 @@ export const AddStockPositionDrawer: React.FC<TAddStockPositionDrawerProps> = ({
             fullWidth
             onChange={handler.onInputChange}
             value={form.amount}
-            InputProps={{ inputMode: 'numeric' }}
+            InputProps={{inputMode: 'numeric'}}
             required
           />
         </Grid>
@@ -186,9 +175,7 @@ export const AddStockPositionDrawer: React.FC<TAddStockPositionDrawerProps> = ({
             required
             InputProps={{
               inputMode: 'numeric',
-              endAdornment: (
-                <InputAdornment position="start">{payload?.currency ?? 'EUR'}</InputAdornment>
-              ),
+              endAdornment: <InputAdornment position="start">{payload?.currency ?? 'EUR'}</InputAdornment>,
             }}
           />
         </Grid>
@@ -201,9 +188,7 @@ export const AddStockPositionDrawer: React.FC<TAddStockPositionDrawerProps> = ({
               fullWidth
               value={Number(form.quantity) * Number(form.buy_in)}
               InputProps={{
-                endAdornment: (
-                  <InputAdornment position="start">{payload?.currency ?? 'EUR'}</InputAdornment>
-                ),
+                endAdornment: <InputAdornment position="start">{payload?.currency ?? 'EUR'}</InputAdornment>,
               }}
               disabled
             />

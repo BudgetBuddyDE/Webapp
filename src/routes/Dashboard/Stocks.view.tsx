@@ -1,10 +1,10 @@
 import React from 'react';
-import { AccountBalanceRounded, TimelineRounded } from '@mui/icons-material';
-import { Grid } from '@mui/material';
-import { type TDividendDetails } from '@budgetbuddyde/types';
-import { StatsCard } from '@/components/StatsCard.component';
-import { useAuthContext } from '@/components/Auth';
-import { formatBalance, getSocketIOClient } from '@/utils';
+import {AccountBalanceRounded, TimelineRounded} from '@mui/icons-material';
+import {Grid} from '@mui/material';
+import {type TDividendDetails} from '@budgetbuddyde/types';
+import {StatsCard} from '@/components/StatsCard.component';
+import {useAuthContext} from '@/components/Auth';
+import {formatBalance, getSocketIOClient} from '@/utils';
 import {
   StockList,
   StockNews,
@@ -15,15 +15,15 @@ import {
 } from '@/components/Stocks';
 
 export const StocksView = () => {
-  const { updateQuote } = useStockStore();
-  const { authOptions } = useAuthContext();
+  const {updateQuote} = useStockStore();
+  const {authOptions} = useAuthContext();
   const socket = getSocketIOClient(authOptions);
-  const { loading: loadingStockPositions, positions: stockPositions } = useFetchStockPositions();
+  const {loading: loadingStockPositions, positions: stockPositions} = useFetchStockPositions();
   const {
     loading: loadingDividends,
     dividends,
     refresh: refreshDividends,
-  } = useFetchStockDividends(stockPositions.map(({ isin }) => isin));
+  } = useFetchStockDividends(stockPositions.map(({isin}) => isin));
 
   const depotBuyIn: number = React.useMemo(() => {
     return stockPositions.reduce((acc, position) => {
@@ -43,8 +43,8 @@ export const StocksView = () => {
   }, [dividends]);
 
   React.useLayoutEffect(() => {
-    const subscribedAssets: { isin: string; exchange: string }[] = [
-      ...new Set(stockPositions.map(({ isin, exchange: { exchange } }) => ({ isin, exchange }))),
+    const subscribedAssets: {isin: string; exchange: string}[] = [
+      ...new Set(stockPositions.map(({isin, exchange: {exchange}}) => ({isin, exchange}))),
     ];
 
     socket.connect();
@@ -53,14 +53,10 @@ export const StocksView = () => {
 
     socket.on(
       `stock:update:${authOptions.uuid}`,
-      (data: {
-        exchange: string;
-        isin: string;
-        quote: { datetime: string; currency: string; price: number };
-      }) => {
+      (data: {exchange: string; isin: string; quote: {datetime: string; currency: string; price: number}}) => {
         console.log('stock:update', data);
         updateQuote(data.exchange, data.isin, data.quote.price);
-      }
+      },
     );
 
     return () => {
@@ -77,8 +73,8 @@ export const StocksView = () => {
 
   return (
     <React.Fragment>
-      <Grid container item xs={12} md={8} spacing={3} sx={{ height: 'fit-content' }}>
-        <Grid item xs={6} md={6} order={{ xs: 1, md: 1 }}>
+      <Grid container item xs={12} md={8} spacing={3} sx={{height: 'fit-content'}}>
+        <Grid item xs={6} md={6} order={{xs: 1, md: 1}}>
           <StatsCard
             label={'Depot'}
             value={formatBalance(depotValue)}
@@ -87,7 +83,7 @@ export const StocksView = () => {
             valueInformation="Current value of your depot"
           />
         </Grid>
-        <Grid item xs={6} md={6} order={{ xs: 2, md: 3 }}>
+        <Grid item xs={6} md={6} order={{xs: 2, md: 3}}>
           <StatsCard
             label={'Performance'}
             value={formatBalance(depotValue - depotBuyIn)}
@@ -96,18 +92,14 @@ export const StocksView = () => {
           />
         </Grid>
 
-        <Grid item xs={12} md={12} order={{ xs: 4 }}>
+        <Grid item xs={12} md={12} order={{xs: 4}}>
           <DividendTable dividends={preparedDividends} isLoading={loadingDividends} />
         </Grid>
       </Grid>
 
       <Grid container item xs={12} md={4} spacing={3}>
         <Grid item xs={12}>
-          <StockList
-            title="Stocks"
-            subtitle="How are your stocks performing?"
-            data={stockPositions}
-          />
+          <StockList title="Stocks" subtitle="How are your stocks performing?" data={stockPositions} />
         </Grid>
 
         <Grid item xs={12}>

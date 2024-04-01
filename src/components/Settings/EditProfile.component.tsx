@@ -1,10 +1,10 @@
-import { Card } from '@/components/Base';
-import { Box, Button, Grid, TextField } from '@mui/material';
+import {Card} from '@/components/Base';
+import {Box, Button, Grid, TextField} from '@mui/material';
 import React from 'react';
-import { useAuthContext } from '../Auth';
-import { type TUpdateUserPayload, ZUpdateUserPayload } from '@budgetbuddyde/types';
-import { useSnackbarContext } from '../Snackbar';
-import { UserService } from '@/services';
+import {useAuthContext} from '../Auth';
+import {type TUpdateUserPayload, ZUpdateUserPayload} from '@budgetbuddyde/types';
+import {useSnackbarContext} from '../Snackbar';
+import {UserService} from '@/services';
 
 interface IEditProfileHandler {
   onChangeInput: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -15,14 +15,14 @@ interface IEditProfileHandler {
 export type TEditProfileProps = {};
 
 export const EditProfile: React.FC<TEditProfileProps> = () => {
-  const { showSnackbar } = useSnackbarContext();
-  const { session, setSession, authOptions } = useAuthContext();
+  const {showSnackbar} = useSnackbarContext();
+  const {session, setSession, authOptions} = useAuthContext();
   const [enableInputs, setEnableInputs] = React.useState(false);
   const [form, setForm] = React.useState<Record<string, string>>({});
 
   const handler: IEditProfileHandler = {
     onChangeInput(event) {
-      setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+      setForm(prev => ({...prev, [event.target.name]: event.target.value}));
     },
     onDiscard() {
       if (!session) return; // should never be the case
@@ -50,7 +50,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
         if (error) throw error;
         if (!updatedUser) throw new Error("Couldn't save the applied changes");
 
-        showSnackbar({ message: "Changes we're saved" });
+        showSnackbar({message: "Changes we're saved"});
         setForm({
           name: updatedUser.name,
           surname: updatedUser.surname,
@@ -61,7 +61,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
         setEnableInputs(false);
       } catch (error) {
         console.error(error);
-        showSnackbar({ message: (error as Error).message });
+        showSnackbar({message: (error as Error).message});
       }
     },
   };
@@ -86,7 +86,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                 name="uuid"
                 label="UUID"
                 defaultValue={session.uuid}
-                sx={{ mt: 2 }}
+                sx={{mt: 2}}
                 required
               />
             </Grid>
@@ -98,7 +98,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                 value={form.name}
                 defaultValue={session.name}
                 onChange={handler.onChangeInput}
-                sx={{ mt: 2 }}
+                sx={{mt: 2}}
                 fullWidth
                 disabled={!enableInputs}
                 required
@@ -112,7 +112,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                 value={form.surname}
                 defaultValue={session.surname}
                 onChange={handler.onChangeInput}
-                sx={{ mt: 2 }}
+                sx={{mt: 2}}
                 fullWidth
                 disabled={!enableInputs}
                 required
@@ -126,7 +126,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                 label="E-Mail"
                 value={form.email}
                 defaultValue={session.email}
-                sx={{ mt: 2 }}
+                sx={{mt: 2}}
                 disabled={!enableInputs}
                 required
               />
@@ -135,8 +135,8 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
 
           <Box display="flex" flexDirection="row" justifyContent="flex-end">
             {enableInputs ? (
-              <Box sx={{ mt: 2 }}>
-                <Button variant="text" sx={{ mr: 1 }} onClick={handler.onDiscard}>
+              <Box sx={{mt: 2}}>
+                <Button variant="text" sx={{mr: 1}} onClick={handler.onDiscard}>
                   Discard
                 </Button>
 
@@ -145,7 +145,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                 </Button>
               </Box>
             ) : (
-              <Button variant="contained" sx={{ mt: 2 }} onClick={() => setEnableInputs(true)}>
+              <Button variant="contained" sx={{mt: 2}} onClick={() => setEnableInputs(true)}>
                 Edit
               </Button>
             )}

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import {z} from 'zod';
 import {
   ZBudget,
   type TApiResponse,
@@ -11,13 +11,12 @@ import {
   type TDeleteBudgetResponsePayload,
   ZDeleteBudgetResponsePayload,
 } from '@budgetbuddyde/types';
-import { prepareRequestOptions } from '@/utils';
-import { type IAuthContext } from '../Auth';
-import { isRunningInProdEnv } from '@/utils/isRunningInProdEnv.util';
+import {prepareRequestOptions} from '@/utils';
+import {type IAuthContext} from '../Auth';
+import {isRunningInProdEnv} from '@/utils/isRunningInProdEnv.util';
 
 export class BudgetService {
-  private static host =
-    (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/budget';
+  private static host = (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/budget';
 
   static async getBudgetsByUuid({
     uuid,
@@ -27,7 +26,7 @@ export class BudgetService {
       const query = new URLSearchParams();
       query.append('uuid', uuid);
       const response = await fetch(this.host + '?' + query.toString(), {
-        ...prepareRequestOptions({ uuid, password }),
+        ...prepareRequestOptions({uuid, password}),
       });
       const json = (await response.json()) as TApiResponse<TBudget[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
@@ -49,7 +48,7 @@ export class BudgetService {
       const query = new URLSearchParams();
       query.append('uuid', uuid);
       const response = await fetch(this.host + '/progress' + '?' + query.toString(), {
-        ...prepareRequestOptions({ uuid, password }),
+        ...prepareRequestOptions({uuid, password}),
       });
       const json = (await response.json()) as TApiResponse<TBudgetProgress[]>;
       if (json.status != 200) return [null, new Error(json.message!)];
@@ -65,7 +64,7 @@ export class BudgetService {
 
   static async create(
     budget: TCreateBudgetPayload,
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TBudget | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -87,7 +86,7 @@ export class BudgetService {
 
   static async update(
     budget: TUpdateBudgetPayload,
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TBudget | null, Error | null]> {
     try {
       const response = await fetch(this.host, {
@@ -109,7 +108,7 @@ export class BudgetService {
 
   static async delete(
     budget: TDeleteBudgetPayload,
-    user: IAuthContext['authOptions']
+    user: IAuthContext['authOptions'],
   ): Promise<[TDeleteBudgetResponsePayload | null, Error | null]> {
     try {
       const response = await fetch(this.host, {

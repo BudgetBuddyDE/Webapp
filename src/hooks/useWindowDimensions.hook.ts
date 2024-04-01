@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 
 export type Breakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -18,7 +18,7 @@ export function getBreakpoint(width: number): Breakpoint {
 
 export function getWindowDimensions() {
   if (typeof window !== 'undefined') {
-    const { innerWidth: width, innerHeight: height } = window;
+    const {innerWidth: width, innerHeight: height} = window;
     return {
       width,
       height,

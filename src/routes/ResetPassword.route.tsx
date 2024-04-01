@@ -1,35 +1,29 @@
-import { withUnauthentificatedLayout } from '@/components/Auth/Layout';
-import { Card, PasswordInput } from '@/components/Base';
-import { Button, Divider, Grid, Paper, Typography } from '@mui/material';
-import { AppRegistrationRounded, HomeRounded, SendRounded } from '@mui/icons-material';
-import { AppLogo } from '@/components/AppLogo.component';
-import { AuthService, useAuthContext } from '@/components/Auth';
-import { StackedIconButton } from '@/components/StackedIconButton.component';
-import { useNavigate } from 'react-router-dom';
-import { useSnackbarContext } from '@/components/Snackbar';
+import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
+import {Card, PasswordInput} from '@/components/Base';
+import {Button, Divider, Grid, Paper, Typography} from '@mui/material';
+import {AppRegistrationRounded, HomeRounded, SendRounded} from '@mui/icons-material';
+import {AppLogo} from '@/components/AppLogo.component';
+import {AuthService, useAuthContext} from '@/components/Auth';
+import {StackedIconButton} from '@/components/StackedIconButton.component';
+import {useNavigate} from 'react-router-dom';
+import {useSnackbarContext} from '@/components/Snackbar';
 import React from 'react';
-import { z } from 'zod';
-import { CircularProgress } from '@/components/Loading';
+import {z} from 'zod';
+import {CircularProgress} from '@/components/Loading';
 
-const ZPassword = z
-  .string()
-  .min(8, 'The password needs to fullfill a minimum of 8 characters')
-  .max(64);
+const ZPassword = z.string().min(8, 'The password needs to fullfill a minimum of 8 characters').max(64);
 
 const ResetPassword = () => {
   const navigate = useNavigate();
-  const { session } = useAuthContext();
-  const { showSnackbar } = useSnackbarContext();
+  const {session} = useAuthContext();
+  const {showSnackbar} = useSnackbarContext();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
   const [form, setForm] = React.useState({
     pwd1: '',
     pwd2: '',
   });
-  const searchParams = React.useMemo(
-    () => new URLSearchParams(window.location.search),
-    [window.location.search]
-  );
+  const searchParams = React.useMemo(() => new URLSearchParams(window.location.search), [window.location.search]);
   const otp: string | null = React.useMemo(() => {
     if (searchParams.has('otp')) {
       return searchParams.get('otp') as string;
@@ -50,7 +44,7 @@ const ResetPassword = () => {
 
   const handler = {
     onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-      setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+      setForm(prev => ({...prev, [e.target.name]: e.target.value}));
     },
     onSubmit: async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -63,7 +57,7 @@ const ResetPassword = () => {
         if (error) throw error;
         if (!updatedUser) throw new Error("Couldn't update your user");
 
-        showSnackbar({ message: 'Your password was changed' });
+        showSnackbar({message: 'Your password was changed'});
         navigate('/sign-in');
       } catch (error) {
         console.error(error);
@@ -89,14 +83,13 @@ const ResetPassword = () => {
   return (
     <Card
       sx={{
-        width: { xs: '90%', md: '40%', lg: '30%', xl: '25%' },
+        width: {xs: '90%', md: '40%', lg: '30%', xl: '25%'},
         maxWidth: '480px',
         mx: 'auto',
         px: 4,
         py: 2,
         textAlign: 'center',
-      }}
-    >
+      }}>
       <Card.Header>
         <AppLogo
           style={{
@@ -112,28 +105,28 @@ const ResetPassword = () => {
         {loading ? (
           <CircularProgress />
         ) : error != null ? (
-          <Paper elevation={2} sx={{ mt: 1, p: 1 }}>
+          <Paper elevation={2} sx={{mt: 1, p: 1}}>
             <Typography variant="h6">Something wen't wrong</Typography>
             <Typography>{error.message}</Typography>
           </Paper>
         ) : (
           <React.Fragment>
-            <Typography variant="h2" sx={{ my: 1 }}>
+            <Typography variant="h2" sx={{my: 1}}>
               Save new password
             </Typography>
 
             <form onSubmit={handler.onSubmit}>
               <PasswordInput
-                formControlProps={{ sx: { mt: 2 } }}
-                outlinedInputProps={{ name: 'pwd1', onChange: handler.onInputChange }}
+                formControlProps={{sx: {mt: 2}}}
+                outlinedInputProps={{name: 'pwd1', onChange: handler.onInputChange}}
               />
 
               <PasswordInput
-                formControlProps={{ sx: { mt: 2 } }}
-                outlinedInputProps={{ name: 'pwd2', onChange: handler.onInputChange }}
+                formControlProps={{sx: {mt: 2}}}
+                outlinedInputProps={{name: 'pwd2', onChange: handler.onInputChange}}
               />
 
-              <Button type="submit" variant="contained" sx={{ mt: 2 }} endIcon={<SendRounded />}>
+              <Button type="submit" variant="contained" sx={{mt: 2}} endIcon={<SendRounded />}>
                 Request reset
               </Button>
             </form>
@@ -142,7 +135,7 @@ const ResetPassword = () => {
       </Card.Body>
 
       <Card.Footer>
-        <Divider sx={{ my: 3 }} />
+        <Divider sx={{my: 3}} />
 
         <Grid container spacing={1} justifyContent="center">
           {session && (
@@ -150,9 +143,8 @@ const ResetPassword = () => {
               <StackedIconButton
                 size="large"
                 startIcon={<HomeRounded />}
-                sx={{ width: '100%' }}
-                onClick={() => navigate('/')}
-              >
+                sx={{width: '100%'}}
+                onClick={() => navigate('/')}>
                 Dashboard
               </StackedIconButton>
             </Grid>
@@ -161,12 +153,11 @@ const ResetPassword = () => {
             <StackedIconButton
               size="large"
               startIcon={<AppRegistrationRounded />}
-              sx={{ width: '100%' }}
+              sx={{width: '100%'}}
               onClick={() => {
                 console.log('test');
                 navigate('/sign-up');
-              }}
-            >
+              }}>
               Sign up
             </StackedIconButton>
           </Grid>

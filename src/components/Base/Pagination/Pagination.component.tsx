@@ -3,13 +3,10 @@ import {
   TablePagination as MuiTablePagination,
   type TablePaginationProps as MuiTablePaginationProps,
 } from '@mui/material';
-import { type TPaginationState } from './Pagination.reducer';
-import { ActionPaper } from '../ActionPaper.component';
+import {type TPaginationState} from './Pagination.reducer';
+import {ActionPaper} from '../ActionPaper.component';
 
-export type TPaginationProps = Pick<
-  MuiTablePaginationProps,
-  'count' | 'page' | 'rowsPerPage' | 'labelRowsPerPage'
-> & {
+export type TPaginationProps = Pick<MuiTablePaginationProps, 'count' | 'page' | 'rowsPerPage' | 'labelRowsPerPage'> & {
   onPageChange: (newPage: number) => void;
   onRowsPerPageChange: (rowsPerPage: number) => void;
 };
@@ -35,7 +32,7 @@ export const Pagination: React.FC<TPaginationProps> = ({
   onRowsPerPageChange,
 }) => {
   return (
-    <ActionPaper sx={{ width: 'fit-content', ml: 'auto', pr: 0.5 }}>
+    <ActionPaper sx={{width: 'fit-content', ml: 'auto', pr: 0.5}}>
       <MuiTablePagination
         component="div"
         count={count}
@@ -43,7 +40,7 @@ export const Pagination: React.FC<TPaginationProps> = ({
         onPageChange={(_event, page) => onPageChange(page)}
         labelRowsPerPage={labelRowsPerPage}
         rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={(event) => onRowsPerPageChange(Number(event.target.value))}
+        onRowsPerPageChange={event => onRowsPerPageChange(Number(event.target.value))}
       />
     </ActionPaper>
   );

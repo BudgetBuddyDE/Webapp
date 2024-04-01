@@ -1,9 +1,9 @@
 import React from 'react';
-import { Box, Chip, Typography } from '@mui/material';
-import { Image } from '../Image.component';
-import { Icon } from '@/components/Icon.component';
-import { formatBalance } from '@/utils';
-import { ActionPaper } from '../ActionPaper.component';
+import {Box, Chip, Typography} from '@mui/material';
+import {Image} from '../Image.component';
+import {Icon} from '@/components/Icon.component';
+import {formatBalance} from '@/utils';
+import {ActionPaper} from '../ActionPaper.component';
 
 export type TListWithIconProps = {
   icon?: JSX.Element;
@@ -14,14 +14,7 @@ export type TListWithIconProps = {
   onClick?: () => void;
 };
 
-export const ListWithIcon: React.FC<TListWithIconProps> = ({
-  icon,
-  imageUrl,
-  title,
-  subtitle,
-  amount,
-  onClick,
-}) => {
+export const ListWithIcon: React.FC<TListWithIconProps> = ({icon, imageUrl, title, subtitle, amount, onClick}) => {
   return (
     <Box
       sx={{
@@ -29,14 +22,13 @@ export const ListWithIcon: React.FC<TListWithIconProps> = ({
         flexDirection: 'row',
         alignItems: 'center',
         mt: 1,
-        borderRadius: (theme) => theme.shape.borderRadius + 'px',
+        borderRadius: theme => theme.shape.borderRadius + 'px',
         ':hover': onClick && {
-          backgroundColor: (theme) => theme.palette.action.hover,
+          backgroundColor: theme => theme.palette.action.hover,
           cursor: 'Pointer',
         },
       }}
-      onClick={onClick}
-    >
+      onClick={onClick}>
       {imageUrl ? (
         <ActionPaper
           sx={{
@@ -44,12 +36,11 @@ export const ListWithIcon: React.FC<TListWithIconProps> = ({
             width: '40px',
             height: '40px',
             mr: 1,
-          }}
-        >
-          <Image src={imageUrl} sx={{ width: 'inherit', height: 'inherit' }} />
+          }}>
+          <Image src={imageUrl} sx={{width: 'inherit', height: 'inherit'}} />
         </ActionPaper>
       ) : (
-        <Icon icon={icon} sx={{ mr: 1 }} />
+        <Icon icon={icon} sx={{mr: 1}} />
       )}
       <Box>
         <Typography fontWeight="bold">{title}</Typography>
@@ -57,11 +48,11 @@ export const ListWithIcon: React.FC<TListWithIconProps> = ({
         {subtitle &&
           Array.isArray(subtitle) &&
           typeof subtitle[0] === 'string' &&
-          subtitle.map((label) => (
+          subtitle.map(label => (
             <Chip
               key={label.toLowerCase().replace(' ', '_')}
               label={label}
-              sx={{ mr: 1 }}
+              sx={{mr: 1}}
               variant="outlined"
               size="small"
             />
@@ -69,13 +60,13 @@ export const ListWithIcon: React.FC<TListWithIconProps> = ({
         {subtitle && typeof subtitle === 'object' && subtitle}
       </Box>
       {amount && (
-        <Box sx={{ ml: 'auto' }}>
+        <Box sx={{ml: 'auto'}}>
           <Typography fontWeight="bold">
             {typeof amount === 'string'
               ? amount
               : typeof amount === 'object'
-              ? amount
-              : formatBalance(amount as number)}
+                ? amount
+                : formatBalance(amount as number)}
           </Typography>
         </Box>
       )}

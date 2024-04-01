@@ -1,5 +1,5 @@
-import { HomeRounded as HomeRoundedIcon } from '@mui/icons-material';
-import { Box, Button, type ButtonProps } from '@mui/material';
+import {HomeRounded as HomeRoundedIcon} from '@mui/icons-material';
+import {Box, Button, type ButtonProps} from '@mui/material';
 
 export type StackedIconButtonProps = Omit<ButtonProps, 'endIcon'>;
 

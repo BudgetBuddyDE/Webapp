@@ -1,5 +1,5 @@
 import React from 'react';
-import { Divider, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import {Divider, List, ListItem, ListItemIcon, ListItemText, Typography} from '@mui/material';
 import {
   BusinessRounded,
   PublicRounded,
@@ -10,22 +10,22 @@ import {
   PieChartRounded,
   SportsMartialArtsRounded,
 } from '@mui/icons-material';
-import { format } from 'date-fns';
-import { type TAssetDetails } from '@budgetbuddyde/types';
-import { Card } from '../Base';
-import { formatBalance } from '@/utils';
+import {format} from 'date-fns';
+import {type TAssetDetails} from '@budgetbuddyde/types';
+import {Card} from '../Base';
+import {formatBalance} from '@/utils';
 
 export type TCompanyInformationProps = {
   details: TAssetDetails;
 };
 
-export const CompanyInformation: React.FC<TCompanyInformationProps> = ({ details }) => {
+export const CompanyInformation: React.FC<TCompanyInformationProps> = ({details}) => {
   return (
-    <Card sx={{ p: 0 }}>
-      <Card.Header sx={{ px: 2, pt: 2 }}>
+    <Card sx={{p: 0}}>
+      <Card.Header sx={{px: 2, pt: 2}}>
         <Card.Title>Info</Card.Title>
       </Card.Header>
-      <Card.Body sx={{ px: 0 }}>
+      <Card.Body sx={{px: 0}}>
         <List dense>
           {[
             {
@@ -68,7 +68,7 @@ export const CompanyInformation: React.FC<TCompanyInformationProps> = ({ details
               text: 'Market cap.',
               value: formatBalance(
                 details.details.securityDetails?.marketCap ?? 0,
-                details.details.securityDetails?.currency
+                details.details.securityDetails?.currency,
               ),
             },
             {
@@ -76,10 +76,10 @@ export const CompanyInformation: React.FC<TCompanyInformationProps> = ({ details
               text: 'Shares',
               value: details.details.securityDetails?.shares.toLocaleString(),
             },
-          ].map(({ icon, text, value }, idx, arr) => (
+          ].map(({icon, text, value}, idx, arr) => (
             <React.Fragment key={text.toLowerCase()}>
               <ListItem secondaryAction={<Typography>{value}</Typography>}>
-                <ListItemIcon sx={{ minWidth: 'unset', mr: 1 }}>{icon}</ListItemIcon>
+                <ListItemIcon sx={{minWidth: 'unset', mr: 1}}>{icon}</ListItemIcon>
                 <ListItemText primary={text} />
               </ListItem>
               {idx !== arr.length - 1 && <Divider />}

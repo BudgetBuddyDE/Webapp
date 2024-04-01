@@ -1,6 +1,6 @@
 import React from 'react';
-import { IconButton, type IconButtonProps } from '@mui/material';
-import { UploadFileRounded } from '@mui/icons-material';
+import {IconButton, type IconButtonProps} from '@mui/material';
+import {UploadFileRounded} from '@mui/icons-material';
 
 export type TUploadedFile = FileList;
 
@@ -10,12 +10,7 @@ export type TFileUploadProps = IconButtonProps & {
   accept?: HTMLInputElement['accept'];
 };
 
-export const FileUpload: React.FC<TFileUploadProps> = ({
-  onFileUpload,
-  multiple = false,
-  accept,
-  ...props
-}) => {
+export const FileUpload: React.FC<TFileUploadProps> = ({onFileUpload, multiple = false, accept, ...props}) => {
   const fileUploadInputRef = React.useRef<HTMLInputElement>(null);
   return (
     <IconButton
@@ -37,14 +32,13 @@ export const FileUpload: React.FC<TFileUploadProps> = ({
           color: 'primary.main',
         },
         ...props.sx,
-      }}
-    >
+      }}>
       <UploadFileRounded />
       <input
         type="file"
         ref={fileUploadInputRef}
         accept={accept}
-        onChange={(event) => {
+        onChange={event => {
           const files = event.target.files;
           if (!files || (files && files.length === 0)) return;
           onFileUpload(files);

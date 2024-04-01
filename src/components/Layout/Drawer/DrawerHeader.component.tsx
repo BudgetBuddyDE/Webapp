@@ -1,21 +1,20 @@
-import { Brand } from '../../Brand.component';
-import { useDrawerStore } from './Drawer.store';
-import { StyledDrawerHeader } from './StyledDrawerHeader.component';
-import { DrawerHamburger } from './DrawerHamburger.component';
+import {Brand} from '../../Brand.component';
+import {useDrawerStore} from './Drawer.store';
+import {StyledDrawerHeader} from './StyledDrawerHeader.component';
+import {DrawerHamburger} from './DrawerHamburger.component';
 
 export const DrawerHeader = () => {
-  const { open } = useDrawerStore();
+  const {open} = useDrawerStore();
 
   return (
     <StyledDrawerHeader
       sx={{
-        justifyContent: { xs: 'space-between', md: open ? 'space-between' : 'center' },
-      }}
-    >
+        justifyContent: {xs: 'space-between', md: open ? 'space-between' : 'center'},
+      }}>
       <Brand
         asLink
         boxStyle={{
-          display: { xs: 'flex', md: open ? 'flex' : 'none' },
+          display: {xs: 'flex', md: open ? 'flex' : 'none'},
           ml: 2,
         }}
       />

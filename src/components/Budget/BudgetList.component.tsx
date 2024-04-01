@@ -1,26 +1,22 @@
-import { ActionPaper, Card, NoResults } from '@/components/Base';
-import { AddRounded } from '@mui/icons-material';
-import { Box, Button, IconButton, Tooltip } from '@mui/material';
+import {ActionPaper, Card, NoResults} from '@/components/Base';
+import {AddRounded} from '@mui/icons-material';
+import {Box, Button, IconButton, Tooltip} from '@mui/material';
 import React from 'react';
-import { useFetchBudget } from './useFetchBudget.hook';
-import { CircularProgress } from '@/components/Loading';
-import { CategoryBudget, TCategoryBudgetProps } from './CategoryBudget.component';
-import { BudgetService, CreateBudgetDrawer, EditBudgetDrawer, useFetchBudgetProgress } from '.';
-import { useSnackbarContext } from '../Snackbar';
-import { useAuthContext } from '../Auth';
-import { TBudget } from '@budgetbuddyde/types';
+import {useFetchBudget} from './useFetchBudget.hook';
+import {CircularProgress} from '@/components/Loading';
+import {CategoryBudget, TCategoryBudgetProps} from './CategoryBudget.component';
+import {BudgetService, CreateBudgetDrawer, EditBudgetDrawer, useFetchBudgetProgress} from '.';
+import {useSnackbarContext} from '../Snackbar';
+import {useAuthContext} from '../Auth';
+import {TBudget} from '@budgetbuddyde/types';
 
 export type TBudgetListProps = {};
 
 export const BudgetList: React.FC<TBudgetListProps> = () => {
-  const { authOptions } = useAuthContext();
-  const { showSnackbar } = useSnackbarContext();
-  const { refresh: refreshBudgets } = useFetchBudget();
-  const {
-    loading: loadingBudgets,
-    budgetProgress,
-    refresh: refreshBudgetProgress,
-  } = useFetchBudgetProgress();
+  const {authOptions} = useAuthContext();
+  const {showSnackbar} = useSnackbarContext();
+  const {refresh: refreshBudgets} = useFetchBudget();
+  const {loading: loadingBudgets, budgetProgress, refresh: refreshBudgetProgress} = useFetchBudgetProgress();
   const [showCreateBudgetDrawer, setShowCreateBudgetDrawer] = React.useState(false);
   const [showEditBudgetDrawer, setShowEditBudgetDrawer] = React.useState(false);
   const [editBudget, setEditBudget] = React.useState<TBudget | null>(null);
@@ -38,7 +34,7 @@ export const BudgetList: React.FC<TBudgetListProps> = () => {
 
         refreshBudgetProgress();
         refreshBudgets();
-        showSnackbar({ message: 'The budget got deleted' });
+        showSnackbar({message: 'The budget got deleted'});
       } catch (error) {
         console.error(error);
         showSnackbar({
@@ -49,8 +45,7 @@ export const BudgetList: React.FC<TBudgetListProps> = () => {
                 if (handler.onDelete) {
                   handler.onDelete(budget);
                 }
-              }}
-            >
+              }}>
               Retry
             </Button>
           ),
@@ -81,13 +76,13 @@ export const BudgetList: React.FC<TBudgetListProps> = () => {
           {loadingBudgets ? (
             <CircularProgress />
           ) : budgetProgress.length > 0 ? (
-            budgetProgress.map((item) => (
-              <Box key={item.id} sx={{ mt: 1 }}>
+            budgetProgress.map(item => (
+              <Box key={item.id} sx={{mt: 1}}>
                 <CategoryBudget budget={item} onEdit={handler.onEdit} onDelete={handler.onDelete} />
               </Box>
             ))
           ) : (
-            <NoResults sx={{ mt: 2 }} text="No budget found" />
+            <NoResults sx={{mt: 2}} text="No budget found" />
           )}
         </Card.Body>
       </Card>
@@ -96,7 +91,7 @@ export const BudgetList: React.FC<TBudgetListProps> = () => {
 
       <EditBudgetDrawer
         open={showEditBudgetDrawer}
-        onChangeOpen={(isOpen) => {
+        onChangeOpen={isOpen => {
           if (!isOpen) setEditBudget(null);
           setShowEditBudgetDrawer(isOpen);
         }}

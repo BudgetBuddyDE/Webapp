@@ -1,6 +1,6 @@
 import React from 'react';
-import { Autocomplete, Box, TextField, Typography } from '@mui/material';
-import { StyledAutocompleteOption } from '@/components/Base';
+import {Autocomplete, Box, TextField, Typography} from '@mui/material';
+import {StyledAutocompleteOption} from '@/components/Base';
 
 export type TSelectStockExchangeOption = {
   label: string;
@@ -29,17 +29,14 @@ export type TSelectStockExchangeProps = {
   defaultValue?: TSelectStockExchangeOption | null;
 };
 
-export const SelectStockExchange: React.FC<TSelectStockExchangeProps> = ({
-  onChange,
-  defaultValue,
-}) => {
+export const SelectStockExchange: React.FC<TSelectStockExchangeProps> = ({onChange, defaultValue}) => {
   return (
     <Autocomplete
       options={StockExchangeOptions}
       onChange={(_event, value) => onChange(value)}
-      getOptionLabel={(option) => option.label}
-      renderInput={(params) => <TextField {...params} label="Stock Exchange" required />}
-      renderOption={(props, option, { selected }) => {
+      getOptionLabel={option => option.label}
+      renderInput={params => <TextField {...params} label="Stock Exchange" required />}
+      renderOption={(props, option, {selected}) => {
         return (
           <StyledAutocompleteOption {...props} key={option.value} selected={selected}>
             <Box>

@@ -1,5 +1,5 @@
-import { drawerWidth } from '@/style/theme/theme';
-import { Drawer as MuiDrawer, styled, type CSSObject, type Theme } from '@mui/material';
+import {drawerWidth} from '@/style/theme/theme';
+import {Drawer as MuiDrawer, styled, type CSSObject, type Theme} from '@mui/material';
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
@@ -22,19 +22,17 @@ const closedMixin = (theme: Theme): CSSObject => ({
   },
 });
 
-export const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    ...(open && {
-      ...openedMixin(theme),
-      '& .MuiDrawer-paper': openedMixin(theme),
-    }),
-    ...(!open && {
-      ...closedMixin(theme),
-      '& .MuiDrawer-paper': closedMixin(theme),
-    }),
-  })
-);
+export const StyledDrawer = styled(MuiDrawer, {shouldForwardProp: prop => prop !== 'open'})(({theme, open}) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+  boxSizing: 'border-box',
+  ...(open && {
+    ...openedMixin(theme),
+    '& .MuiDrawer-paper': openedMixin(theme),
+  }),
+  ...(!open && {
+    ...closedMixin(theme),
+    '& .MuiDrawer-paper': closedMixin(theme),
+  }),
+}));

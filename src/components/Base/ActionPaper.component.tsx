@@ -1,9 +1,9 @@
 import React from 'react';
-import { Paper, type PaperProps } from '@mui/material';
+import {Paper, type PaperProps} from '@mui/material';
 
 export type TActionPaperProps = React.PropsWithChildren<PaperProps>;
 
-export const ActionPaper: React.FC<TActionPaperProps> = (props) => (
+export const ActionPaper: React.FC<TActionPaperProps> = props => (
   <Paper
     elevation={2}
     {...props}
@@ -11,8 +11,7 @@ export const ActionPaper: React.FC<TActionPaperProps> = (props) => (
       boxShadow: 'none',
       border: 'none',
       ...props.sx,
-    }}
-  >
+    }}>
     {props.children}
   </Paper>
 );

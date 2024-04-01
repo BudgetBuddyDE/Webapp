@@ -1,16 +1,16 @@
 import React from 'react';
-import { debounce } from 'lodash';
-import { BarChart, Card, StyledAutocompleteOption, type TBarChartData } from '@/components/Base';
-import { ArrowRightRounded } from '@mui/icons-material';
-import { Autocomplete, TextField, Button, Box, Skeleton, Paper, Typography } from '@mui/material';
-import { useFetchCategories } from '..';
-import { TCategory } from '@budgetbuddyde/types';
-import { ParentSize } from '@visx/responsive';
-import { useFetchTransactions } from '@/components/Transaction';
-import { format, isBefore, isSameMonth, isSameYear } from 'date-fns';
-import { DateService } from '@/services';
-import { useSnackbarContext } from '@/components/Snackbar';
-import { formatBalance } from '@/utils';
+import {debounce} from 'lodash';
+import {BarChart, Card, StyledAutocompleteOption, type TBarChartData} from '@/components/Base';
+import {ArrowRightRounded} from '@mui/icons-material';
+import {Autocomplete, TextField, Button, Box, Skeleton, Paper, Typography} from '@mui/material';
+import {useFetchCategories} from '..';
+import {TCategory} from '@budgetbuddyde/types';
+import {ParentSize} from '@visx/responsive';
+import {useFetchTransactions} from '@/components/Transaction';
+import {format, isBefore, isSameMonth, isSameYear} from 'date-fns';
+import {DateService} from '@/services';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {formatBalance} from '@/utils';
 
 const MONTH_BACKLOG = 8;
 
@@ -19,18 +19,15 @@ export type TCategoryAnalytics = {
   onClickMoreDetails?: (selecetdCategory: TCategory) => void;
 };
 
-export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({
-  monthBacklog = MONTH_BACKLOG,
-  onClickMoreDetails,
-}) => {
-  const { showSnackbar } = useSnackbarContext();
-  const { loading: loadingCategories, categories } = useFetchCategories();
-  const { loading: loadingTransactions, transactions } = useFetchTransactions();
+export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({monthBacklog = MONTH_BACKLOG, onClickMoreDetails}) => {
+  const {showSnackbar} = useSnackbarContext();
+  const {loading: loadingCategories, categories} = useFetchCategories();
+  const {loading: loadingTransactions, transactions} = useFetchTransactions();
   const [selectedCategory, setSelectedCategory] = React.useState<TCategory['id'] | null>(null);
   const [activeBar, setActiveBar] = React.useState<TBarChartData | null>(null);
 
   const filterOptions = React.useMemo(() => {
-    return categories.map(({ id, name }) => ({ label: name, value: id }));
+    return categories.map(({id, name}) => ({label: name, value: id}));
   }, [categories]);
 
   React.useEffect(() => {
@@ -61,7 +58,7 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({
     for (const {
       processedAt,
       transferAmount,
-      category: { id: categoryId },
+      category: {id: categoryId},
     } of transactions) {
       if (categoryId !== selectedCategory) continue; // only-current-category
       if (transferAmount >= 0) continue; // only-expenses
@@ -88,9 +85,7 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({
           <Card.Title>Backlog</Card.Title>
           <Card.Subtitle>
             {!loadingCategories && !loadingTransactions && selectedCategory !== null
-              ? `Average: ${formatBalance(
-                  chartData.reduce((prev, cur) => prev + cur.value, 0) / monthBacklog
-                )}`
+              ? `Average: ${formatBalance(chartData.reduce((prev, cur) => prev + cur.value, 0) / monthBacklog)}`
               : 'Expenses per month'}
           </Card.Subtitle>
         </Box>
@@ -99,13 +94,13 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({
           <Skeleton variant="rounded" width={200} />
         ) : (
           <Autocomplete
-            sx={{ width: 200 }}
+            sx={{width: 200}}
             size="small"
-            renderInput={(params) => <TextField {...params} label="Category" />}
+            renderInput={params => <TextField {...params} label="Category" />}
             onChange={debounce((_event, newValue) => setSelectedCategory(newValue?.value || null))}
-            value={filterOptions.find(({ value }) => value === selectedCategory) || null}
+            value={filterOptions.find(({value}) => value === selectedCategory) || null}
             options={filterOptions}
-            renderOption={(props, option, { selected }) => (
+            renderOption={(props, option, {selected}) => (
               <StyledAutocompleteOption {...props} selected={selected}>
                 {option.label}
               </StyledAutocompleteOption>
@@ -113,19 +108,18 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({
           />
         )}
       </Card.Header>
-      <Card.Body sx={{ width: '100%', aspectRatio: '4/3', mt: 2 }}>
-        <Paper elevation={0} sx={{ position: 'relative', width: '100%', height: '100%' }}>
+      <Card.Body sx={{width: '100%', aspectRatio: '4/3', mt: 2}}>
+        <Paper elevation={0} sx={{position: 'relative', width: '100%', height: '100%'}}>
           {!loadingCategories && !loadingTransactions && (chartData.length > 0 || activeBar) && (
             <Box
               sx={{
                 position: 'absolute',
-                top: (theme) => theme.spacing(1),
-                left: (theme) => theme.spacing(1.5),
-              }}
-            >
+                top: theme => theme.spacing(1),
+                left: theme => theme.spacing(1.5),
+              }}>
               <Typography variant="caption">
                 {DateService.getMonthFromDate(
-                  new Date(activeBar ? activeBar.label : chartData[chartData.length - 1].date)
+                  new Date(activeBar ? activeBar.label : chartData[chartData.length - 1].date),
                 )}
               </Typography>
               <Typography variant="subtitle1">
@@ -135,21 +129,21 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({
           )}
 
           <ParentSize>
-            {({ width, height }) =>
+            {({width, height}) =>
               loadingCategories || loadingTransactions || chartData.length === 0 ? (
                 <Skeleton variant="rounded" width={width} height={height} />
               ) : (
                 <BarChart
                   width={width}
                   height={height}
-                  data={chartData.map(({ date, value }) => ({ label: date, value }))}
-                  formatDate={(dateString) => {
+                  data={chartData.map(({date, value}) => ({label: date, value}))}
+                  formatDate={dateString => {
                     const date = new Date(dateString);
                     return isSameYear(date, new Date())
                       ? DateService.shortMonthName(date)
                       : `${DateService.shortMonthName(date)} ${format(date, 'yy')}`;
                   }}
-                  onSelectBar={debounce((bar) => setActiveBar(bar), 150)}
+                  onSelectBar={debounce(bar => setActiveBar(bar), 150)}
                 />
               )
             }
@@ -157,18 +151,17 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({
         </Paper>
       </Card.Body>
       {onClickMoreDetails && (
-        <Card.Footer sx={{ display: 'flex', mt: 2 }}>
+        <Card.Footer sx={{display: 'flex', mt: 2}}>
           <Button
             onClick={() => {
               if (!selectedCategory) {
-                showSnackbar({ message: 'Please select an category first' });
+                showSnackbar({message: 'Please select an category first'});
               }
               // Can be forced because otherwise selectedCategory would be null
-              onClickMoreDetails(categories.find(({ id }) => id === selectedCategory)!);
+              onClickMoreDetails(categories.find(({id}) => id === selectedCategory)!);
             }}
-            sx={{ ml: 'auto' }}
-            endIcon={<ArrowRightRounded />}
-          >
+            sx={{ml: 'auto'}}
+            endIcon={<ArrowRightRounded />}>
             More details
           </Button>
         </Card.Footer>
