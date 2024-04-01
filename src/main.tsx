@@ -1,5 +1,4 @@
 import React from 'react';
-import { SpeedInsights } from '@vercel/speed-insights/react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import '@/style/global.css';
@@ -22,6 +21,5 @@ const Wrapper = () => (
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Wrapper />
-    <SpeedInsights />
   </React.StrictMode>
 );
