@@ -1,14 +1,14 @@
 import {create} from 'zustand';
-import type {TPaymentMethod, TUser} from '@budgetbuddyde/types';
-import {IBaseStore} from '../Transaction';
+import {type IBaseStore} from '@/components/Transaction';
+import {type TPaymentMethod, type TUser} from '@budgetbuddyde/types';
 
-export interface IPaymentMethodStore extends IBaseStore<TPaymentMethod[]> {
-  fetchedBy: TUser['uuid'] | null;
+export interface IPaymentMethodStore<T> extends IBaseStore<T[]> {
+  fetchedBy: NonNullable<TUser>['id'] | null;
   fetchedAt: Date | null;
-  setFetchedData: (data: TPaymentMethod[], fetchedBy: TUser['uuid'] | null) => void;
+  setFetchedData: (data: T[], fetchedBy: NonNullable<TUser>['id'] | null) => void;
 }
 
-export const usePaymentMethodStore = create<IPaymentMethodStore>(set => ({
+export const usePaymentMethodStore = create<IPaymentMethodStore<TPaymentMethod>>(set => ({
   data: [],
   fetchedBy: null,
   fetchedAt: null,

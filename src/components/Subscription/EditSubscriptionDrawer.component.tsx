@@ -5,22 +5,28 @@ import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import {FormStyle} from '@/style/Form.style';
-import {useAuthContext} from '../Auth';
-import {useSnackbarContext} from '../Snackbar';
-import {CategoryAutocomplete, getCategoryFromList, useFetchCategories} from '../Category';
+import {useAuthContext} from '@/components/Auth';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {CategoryAutocomplete, getCategoryFromList, useFetchCategories} from '@/components/Category';
 import {ReceiverAutocomplete} from '@/components/Base';
 import {PaymentMethodAutocomplete, getPaymentMethodFromList, useFetchPaymentMethods} from '../PaymentMethod';
-import {ZUpdateSubscriptionPayload, type TUpdateSubscriptionPayload} from '@budgetbuddyde/types';
-import {determineNextExecutionDate, transformBalance} from '@/utils';
-import {SubscriptionService, useFetchSubscriptions} from '.';
-import {TransactionService, useFetchTransactions} from '../Transaction';
+import {transformBalance} from '@/utils';
+import {TransactionService, useFetchTransactions} from '@/components/Transaction';
+import {
+  type TSubscription,
+  type TUpdateSubscriptionPayload,
+  ZUpdateSubscriptionPayload,
+  PocketBaseCollection,
+} from '@budgetbuddyde/types';
+import {useFetchSubscriptions} from './useFetchSubscriptions.hook';
+import {pb} from '@/pocketbase';
 
 interface IEditSubscriptionDrawerHandler {
   onClose: () => void;
   onDateChange: (date: Date | null) => void;
   onAutocompleteChange: (
     event: React.SyntheticEvent<Element, Event>,
-    key: 'categoryId' | 'paymentMethodId',
+    key: keyof TSubscription,
     value: string | number,
   ) => void;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -30,11 +36,11 @@ interface IEditSubscriptionDrawerHandler {
 
 export type TEditSubscriptionDrawerProps = {
   onClose: () => void;
-} & TEntityDrawerState<TUpdateSubscriptionPayload>;
+} & TEntityDrawerState<TSubscription>;
 
 export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({shown, payload, onClose}) => {
   const screenSize = useScreenSize();
-  const {session, authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const {categories} = useFetchCategories();
   const {paymentMethods} = useFetchPaymentMethods();
@@ -42,18 +48,18 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
   const {refresh: refreshSubscriptions} = useFetchSubscriptions();
   const [drawerState, setDrawerState] = React.useReducer(FormDrawerReducer, generateInitialFormDrawerState());
   const [form, setForm] = React.useState<Record<string, string | number | Date>>({
-    executeAt: new Date(),
+    execute_at: new Date(),
   });
 
   const handler: IEditSubscriptionDrawerHandler = {
     onClose() {
       onClose();
-      setForm({executeAt: new Date()});
+      setForm({execute_at: new Date()});
       setDrawerState({type: 'RESET'});
     },
     onDateChange(value: string | number | Date | null, _keyboardInputValue?: string | undefined) {
       if (!value) return;
-      setForm(prev => ({...prev, executeAt: value}));
+      setForm(prev => ({...prev, execute_at: value}));
     },
     onAutocompleteChange: (_event, key, value) => {
       setForm(prev => ({...prev, [key]: value}));
@@ -66,39 +72,31 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      if (!session || !payload) return;
+      if (!sessionUser || !payload) return;
       setDrawerState({type: 'SUBMIT'});
 
       try {
+        console.log(form);
         const parsedForm = ZUpdateSubscriptionPayload.safeParse({
           ...form,
-          subscriptionId: payload.subscriptionId,
+          owner: sessionUser.id,
+          execute_at: (form.execute_at as Date).getDate(),
           paused: payload.paused,
-          transferAmount: transformBalance(String(form.transferAmount)),
-          description: form.description,
+          transfer_amount: transformBalance(String(form.transfer_amount)),
+          information: form.information,
         });
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
         const requestPayload: TUpdateSubscriptionPayload = parsedForm.data;
 
-        const [updatedSubscription, error] = await SubscriptionService.update(requestPayload, authOptions);
-        if (error) {
-          setDrawerState({type: 'ERROR', error: error});
-          return;
-        }
-        if (!updatedSubscription) {
-          setDrawerState({
-            type: 'ERROR',
-            error: new Error("Couldn't save the applied changes for the subscription"),
-          });
-          return;
-        }
+        const record = await pb.collection(PocketBaseCollection.SUBSCRIPTION).update(payload.id, requestPayload);
+        console.debug('Updated subscription', record);
 
         setDrawerState({type: 'SUCCESS'});
         handler.onClose();
         React.startTransition(() => {
           refreshSubscriptions();
         });
-        showSnackbar({message: `Applied changes were saved`});
+        showSnackbar({message: `Saved applied changes`});
       } catch (error) {
         console.error(error);
         setDrawerState({type: 'ERROR', error: error as Error});
@@ -107,15 +105,14 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
   };
 
   React.useLayoutEffect(() => {
-    if (!payload) return setForm({processedAt: new Date()});
-    const {executeAt, receiver, categoryId, paymentMethodId, transferAmount, description} = payload;
+    if (!payload) return setForm({execute_at: new Date()});
     setForm({
-      executeAt: determineNextExecutionDate(executeAt),
-      receiver: receiver,
-      categoryId: categoryId,
-      paymentMethodId: paymentMethodId,
-      transferAmount: transferAmount,
-      description: description ?? '',
+      execute_at: new Date(payload.execute_at),
+      category: payload.category,
+      payment_method: payload.payment_method,
+      receiver: payload.receiver,
+      transfer_amount: payload.transfer_amount,
+      information: payload.information ?? '',
     });
     return () => {
       setForm({});
@@ -135,7 +132,7 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
           <MobileDatePicker
             label="Date"
             inputFormat="dd.MM.yy"
-            value={form.executeAt}
+            value={form.execute_at}
             onChange={handler.onDateChange}
             renderInput={params => <TextField sx={FormStyle} {...params} required />}
           />
@@ -143,7 +140,7 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
           <DesktopDatePicker
             label="Date"
             inputFormat="dd.MM.yy"
-            value={form.executeAt}
+            value={form.execute_at}
             onChange={handler.onDateChange}
             renderInput={params => <TextField sx={FormStyle} {...params} required />}
           />
@@ -158,15 +155,15 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
           flexWrap: 'wrap',
         }}>
         <CategoryAutocomplete
-          onChange={(event, value) => handler.onAutocompleteChange(event, 'categoryId', Number(value?.value))}
-          defaultValue={payload ? getCategoryFromList(payload.categoryId, categories) : undefined}
+          onChange={(event, value) => handler.onAutocompleteChange(event, 'category', String(value?.value))}
+          defaultValue={payload ? getCategoryFromList(payload.category, categories) : undefined}
           sx={{width: {xs: '100%', md: 'calc(50% - .5rem)'}, mb: 2}}
           required
         />
 
         <PaymentMethodAutocomplete
-          onChange={(event, value) => handler.onAutocompleteChange(event, 'paymentMethodId', Number(value?.value))}
-          defaultValue={payload ? getPaymentMethodFromList(payload.paymentMethodId, paymentMethods) : undefined}
+          onChange={(event, value) => handler.onAutocompleteChange(event, 'payment_method', String(value?.value))}
+          defaultValue={payload ? getPaymentMethodFromList(payload.payment_method, paymentMethods) : undefined}
           sx={{width: {xs: '100%', md: 'calc(50% - .5rem)'}, mb: 2}}
           required
         />
@@ -188,28 +185,28 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
       <FormControl fullWidth required sx={{mb: 2}}>
         <InputLabel htmlFor="amount">Amount</InputLabel>
         <OutlinedInput
-          id="transferAmount"
+          id="transfer_amount"
           label="Amount"
-          name="transferAmount"
+          name="transfer_amount"
           inputProps={{inputMode: 'numeric'}}
           onChange={handler.onInputChange}
-          value={form.amount}
-          defaultValue={payload?.transferAmount}
+          value={form.transfer_amount}
+          defaultValue={payload?.transfer_amount}
           startAdornment={<InputAdornment position="start">€</InputAdornment>}
         />
       </FormControl>
 
       <TextField
-        id="description"
+        id="information"
         variant="outlined"
-        label="Description"
-        name="description"
+        label="Information"
+        name="information"
         sx={{...FormStyle, mb: 0}}
         multiline
         rows={2}
         onChange={handler.onInputChange}
-        value={form.description}
-        defaultValue={payload?.description ?? ''}
+        value={form.information}
+        defaultValue={payload?.information ?? ''}
       />
     </FormDrawer>
   );

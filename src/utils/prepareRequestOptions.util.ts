@@ -1,11 +1,12 @@
-import type {TUser} from '@budgetbuddyde/types';
+import {pb} from '@/pocketbase.ts';
 
-export function prepareRequestOptions({uuid, password}: Pick<TUser, 'uuid' | 'password'>): RequestInit {
+export function preparePockebaseRequestOptions(): RequestInit {
+  const authStore = pb.authStore;
   return {
-    credentials: 'include',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
-      Authorization: `Bearer ${uuid}.${password}`,
+      'X-User-Id': authStore.model?.id || '',
+      Authorization: `Bearer ${authStore.token}`,
     },
   };
 }

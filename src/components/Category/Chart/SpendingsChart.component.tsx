@@ -28,15 +28,22 @@ export const CategorySpendingsChart: React.FC<TCategorySpendingsChartProps> = ()
     const now = new Date();
     const expensesByCategory = new Map<string, number>();
     transactions
-      .filter(({transferAmount, processedAt}) => {
-        return transferAmount < 0 && (chart === 'MONTH' ? isSameMonth(processedAt, now) : true);
+      .filter(({transfer_amount, processed_at}) => {
+        return transfer_amount < 0 && (chart === 'MONTH' ? isSameMonth(processed_at, now) : true);
       })
-      .forEach(({category: {name}, transferAmount}) => {
-        const currAmount = expensesByCategory.get(name);
-        if (currAmount) {
-          expensesByCategory.set(name, currAmount + Math.abs(transferAmount));
-        } else expensesByCategory.set(name, Math.abs(transferAmount));
-      });
+      .forEach(
+        ({
+          expand: {
+            category: {name},
+          },
+          transfer_amount,
+        }) => {
+          const currAmount = expensesByCategory.get(name);
+          if (currAmount) {
+            expensesByCategory.set(name, currAmount + Math.abs(transfer_amount));
+          } else expensesByCategory.set(name, Math.abs(transfer_amount));
+        },
+      );
 
     return [...expensesByCategory.entries()].map(
       ([category, amount]) => ({label: category, value: amount}) as TPieChartData,

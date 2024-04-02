@@ -2,12 +2,17 @@ import {FormDrawer, FormDrawerReducer, generateInitialFormDrawerState} from '@/c
 import {TextField} from '@mui/material';
 import React from 'react';
 import {FormStyle} from '@/style/Form.style';
-import {ZCreatePaymentMethodPayload, type TCreatePaymentMethodPayload} from '@budgetbuddyde/types';
-import {useAuthContext} from '../Auth';
-import {useSnackbarContext} from '../Snackbar';
-import {PaymentMethodService} from './PaymentMethod.service';
+import {useAuthContext} from '@/components/Auth';
+import {useSnackbarContext} from '@/components/Snackbar';
 import {useFetchPaymentMethods} from './useFetchPaymentMethods.hook';
 import {type TEntityDrawerState} from '@/hooks';
+import {
+  type TCreatePaymentMethodPayload,
+  ZCreatePaymentMethodPayload,
+  ZPaymentMethod,
+  PocketBaseCollection,
+} from '@budgetbuddyde/types';
+import {pb} from '@/pocketbase';
 
 export type TCreatePaymentMethodDrawerPayload = Omit<TCreatePaymentMethodPayload, 'owner'>;
 
@@ -16,9 +21,9 @@ export type TCreatePaymentMethodProps = {
 } & TEntityDrawerState<TCreatePaymentMethodDrawerPayload>;
 
 export const CreatePaymentMethodDrawer: React.FC<TCreatePaymentMethodProps> = ({shown, payload, onClose}) => {
-  const {session, authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
-  const {refresh: refreshCategories} = useFetchPaymentMethods();
+  const {refresh: refreshPaymentMethods} = useFetchPaymentMethods();
   const [drawerState, setDrawerState] = React.useReducer(FormDrawerReducer, generateInitialFormDrawerState());
   const [form, setForm] = React.useState<Record<string, string>>({});
 
@@ -33,30 +38,28 @@ export const CreatePaymentMethodDrawer: React.FC<TCreatePaymentMethodProps> = ({
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      if (!session) return;
+      if (!sessionUser) return;
       setDrawerState({type: 'SUBMIT'});
 
       try {
         const parsedForm = ZCreatePaymentMethodPayload.safeParse({
           ...form,
-          owner: session.uuid,
+          owner: sessionUser.id,
         });
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
         const payload: TCreatePaymentMethodPayload = parsedForm.data;
 
-        const [createdCategory, error] = await PaymentMethodService.create(payload, authOptions);
-        if (error) {
-          setDrawerState({type: 'ERROR', error: error});
-          return;
-        }
-        if (!createdCategory) {
-          setDrawerState({type: 'ERROR', error: new Error("Couldn't create the payment-method")});
-          return;
-        }
+        const record = await pb.collection(PocketBaseCollection.PAYMENT_METHOD).create(payload);
+        const parsingResult = ZPaymentMethod.safeParse(record);
+        if (!parsingResult.success) throw parsingResult;
+
+        console.debug('Created payment-method', parsingResult.data);
 
         setDrawerState({type: 'SUCCESS'});
         handler.onClose();
-        refreshCategories(); // FIXME: Wrap inside startTransition
+        React.startTransition(() => {
+          refreshPaymentMethods();
+        });
         showSnackbar({message: `Created payment-method ${payload.name}`});
       } catch (error) {
         console.error(error);

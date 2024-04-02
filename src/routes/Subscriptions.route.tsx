@@ -7,19 +7,11 @@ import {
   CreateSubscriptionDrawer,
   EditSubscriptionDrawer,
   SubscriptionActionMenu,
-  SubscriptionService,
   useFetchSubscriptions,
 } from '@/components/Subscription';
 import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
 import {Box, Checkbox, Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {useAuthContext} from '@/components/Auth';
-import {
-  type TCreateSubscriptionPayload,
-  type TCreateTransactionPayload,
-  type TSubscription,
-  type TUpdateSubscriptionPayload,
-} from '@budgetbuddyde/types';
 import {Table} from '@/components/Base/Table';
 import {AppConfig} from '@/app.config';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
@@ -32,12 +24,19 @@ import {CategoryChip} from '@/components/Category';
 import {PaymentMethodChip} from '@/components/PaymentMethod';
 import {type ISelectionHandler} from '@/components/Base/Select';
 import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
+import {
+  PocketBaseCollection,
+  TCreateSubscriptionPayload,
+  type TCreateTransactionPayload,
+  type TSubscription,
+} from '@budgetbuddyde/types';
+import {pb} from '@/pocketbase';
 
 interface ISubscriptionsHandler {
   onSearch: (keyword: string) => void;
   onSubscriptionDelete: (subscription: TSubscription) => void;
   onConfirmSubscriptionDelete: () => void;
-  onEditSubscription: (subscription: TUpdateSubscriptionPayload) => void;
+  onEditSubscription: (subscription: TSubscription) => void;
   onToggleExecutionStatus: (subscription: TSubscription) => void;
   transaction: {
     onShowCreateDrawer: (subscription: TSubscription) => void;
@@ -47,7 +46,6 @@ interface ISubscriptionsHandler {
 
 export const Subscriptions = () => {
   const {showSnackbar} = useSnackbarContext();
-  const {authOptions} = useAuthContext();
   const {filters} = useFilterStore();
   const {subscriptions, loading: loadingSubscriptions, refresh: refreshSubscriptions} = useFetchSubscriptions();
   const [showCreateTransactionDrawer, dispatchCreateTransactionDrawer] = React.useReducer(
@@ -59,8 +57,8 @@ export const Subscriptions = () => {
     CreateEntityDrawerState<TCreateSubscriptionPayload>(),
   );
   const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
-    useEntityDrawer<TUpdateSubscriptionPayload>,
-    CreateEntityDrawerState<TUpdateSubscriptionPayload>(),
+    useEntityDrawer<TSubscription>,
+    CreateEntityDrawerState<TSubscription>(),
   );
   const [showDeleteSubscriptionDialog, setShowDeleteSubscriptionDialog] = React.useState(false);
   const [deleteSubscriptions, setDeleteSubscriptions] = React.useState<TSubscription[]>([]);
@@ -81,21 +79,20 @@ export const Subscriptions = () => {
     async onConfirmSubscriptionDelete() {
       try {
         if (deleteSubscriptions.length === 0) return;
-        const [deletedItem, error] = await SubscriptionService.delete(
-          deleteSubscriptions.map(({id}) => ({subscriptionId: id})),
-          authOptions,
+
+        const deleteResponses = Promise.allSettled(
+          deleteSubscriptions.map(subscription =>
+            pb.collection(PocketBaseCollection.SUBSCRIPTION).delete(subscription.id),
+          ),
         );
-        if (error) {
-          return showSnackbar({message: error.message});
-        }
-        if (!deletedItem) {
-          return showSnackbar({message: "Couldn't delete the subscription"});
-        }
+        console.debug('Deleting subscriptions', deleteResponses);
 
         setShowDeleteSubscriptionDialog(false);
         setDeleteSubscriptions([]);
-        refreshSubscriptions(); // FIXME: Wrap inside startTransition
-        showSnackbar({message: `Subscription deleted`});
+        React.startTransition(() => {
+          refreshSubscriptions();
+        });
+        showSnackbar({message: `Subscriptions we're deleted`});
         setSelectedSubscriptions([]);
       } catch (error) {
         console.error(error);
@@ -107,18 +104,15 @@ export const Subscriptions = () => {
     },
     async onToggleExecutionStatus(subscription) {
       try {
-        const payload: TUpdateSubscriptionPayload = {
-          ...SubscriptionService.getUpdateValues(subscription),
+        const record = await pb.collection(PocketBaseCollection.SUBSCRIPTION).update(subscription.id, {
           paused: !subscription.paused,
-        };
-        const [updatedSubscription, error] = await SubscriptionService.update(payload, authOptions);
-        if (error) throw error;
-        if (!updatedSubscription) {
-          throw new Error("No changes we're saved");
-        }
-        refreshSubscriptions();
-        showSnackbar({
-          message: `Subscription is now ${updatedSubscription.paused ? 'paused' : 'active'}`,
+        });
+
+        console.debug('Updated subscription', record);
+
+        showSnackbar({message: `Subscription #${subscription.id} ${record.paused ? 'paused' : 'resumed'}`});
+        React.startTransition(() => {
+          refreshSubscriptions();
         });
       } catch (error) {
         console.error(error);
@@ -128,17 +122,13 @@ export const Subscriptions = () => {
       }
     },
     transaction: {
-      onShowCreateDrawer({owner, category, description, executeAt, paymentMethod, receiver, transferAmount}) {
+      onShowCreateDrawer(data) {
         dispatchCreateTransactionDrawer({
           type: 'open',
           payload: {
-            categoryId: category.id,
-            paymentMethodId: paymentMethod.id,
-            receiver,
-            description: description,
-            processedAt: determineNextExecutionDate(executeAt),
-            transferAmount,
-            owner: owner.uuid,
+            ...data,
+            processed_at: determineNextExecutionDate(data.execute_at),
+            transfer_amount: data.transfer_amount,
           },
         });
       },
@@ -190,36 +180,36 @@ export const Subscriptions = () => {
                   sx={{
                     textDecoration: subscription.paused ? 'line-through' : 'unset',
                   }}>
-                  {determineNextExecution(subscription.executeAt)}
+                  {determineNextExecution(subscription.execute_at)}
                 </Typography>
               </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
-                <CategoryChip category={subscription.category} />
+                <CategoryChip category={subscription.expand.category} />
               </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
                 <Linkify>{subscription.receiver}</Linkify>
               </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
                 <Typography>
-                  {subscription.transferAmount.toLocaleString('de', {
+                  {subscription.transfer_amount.toLocaleString('de', {
                     style: 'currency',
                     currency: 'EUR',
                   })}
                 </Typography>
               </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
-                <PaymentMethodChip paymentMethod={subscription.paymentMethod} />
+                <PaymentMethodChip paymentMethod={subscription.expand.payment_method} />
               </TableCell>
               <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
-                <Linkify>{subscription.description ?? 'No information'}</Linkify>
-              </TableCell>{' '}
+                <Linkify>{subscription.information ?? 'No information available'}</Linkify>
+              </TableCell>
               <TableCell align="right" size={AppConfig.table.cellSize}>
                 <Box sx={{display: 'flex', flexDirection: 'row'}}>
                   <ActionPaper sx={{width: 'fit-content', ml: 'auto'}}>
                     <IconButton
                       color="primary"
                       onClick={() => {
-                        handler.onEditSubscription(SubscriptionService.toUpdatePayload(subscription));
+                        handler.onEditSubscription(subscription);
                       }}>
                       <EditRounded />
                     </IconButton>

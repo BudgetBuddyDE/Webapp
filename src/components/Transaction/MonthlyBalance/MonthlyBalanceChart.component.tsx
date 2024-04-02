@@ -5,9 +5,9 @@ import {AxisBottom} from '@visx/axis';
 import {scaleBand, scaleLinear, scaleOrdinal} from '@visx/scale';
 import {Tooltip, useTheme} from '@mui/material';
 import {format, isSameYear} from 'date-fns';
-import {type TMonthlyBalance} from '@budgetbuddyde/types';
 import {DateService} from '@/services';
 import {formatBalance} from '@/utils';
+import {type TMonthlyBalance} from '@budgetbuddyde/types';
 
 export type TMontlyBalanceChartProps = {
   data: TMonthlyBalance[];
@@ -23,7 +23,7 @@ export const MonthlyBalanceChart: React.FC<TMontlyBalanceChartProps> = ({data, w
 
   const helper = {
     getDate(d: TMonthlyBalance) {
-      return d.month.toString();
+      return d.date.toString();
     },
     formatDate(date: Date | string) {
       const dateObj = typeof date === 'string' ? new Date(date) : date;

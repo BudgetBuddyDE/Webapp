@@ -13,11 +13,10 @@ import {
   Select,
   type SelectChangeEvent,
 } from '@mui/material';
-import {DateRange, TDateRangeProps} from '@/components/Base';
-import {CreateCategoryAlert, useFetchCategories} from '../Category';
-import type {TCategory, TPaymentMethod} from '@budgetbuddyde/types';
-import {CreatePaymentMethodAlert, useFetchPaymentMethods} from '../PaymentMethod';
-
+import {DateRange, type TDateRangeProps} from '@/components/Base';
+import {CreateCategoryAlert, useFetchCategories} from '@/components/Category';
+import {CreatePaymentMethodAlert, useFetchPaymentMethods} from '@/components/PaymentMethod';
+import {type TCategory, type TPaymentMethod} from '@budgetbuddyde/types';
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -44,7 +43,7 @@ interface IFilterDrawerHandler {
 
 export type TFilterDrawerProps = {};
 
-export const FilterDrawer: React.FC<TFilterDrawerProps> = ({}) => {
+export const FilterDrawer: React.FC<TFilterDrawerProps> = () => {
   const {categories, loading: loadingCategories} = useFetchCategories();
   const {paymentMethods, loading: loadingPaymentMethods} = useFetchPaymentMethods();
   const {show: showFilterDrawer, filters, setFilters, toggleVisibility} = useFilterStore();
@@ -56,7 +55,7 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = ({}) => {
     },
     onCategoriesChange(event) {
       const value = event.target.value;
-      const selectedCategories: TCategory['id'][] = Array.isArray(value) ? value : [Number(value)];
+      const selectedCategories: TCategory['id'][] = Array.isArray(value) ? value : [value];
       setUnappliedFilters(prev => ({...prev, categories: selectedCategories}));
     },
     onRemoveCategory(categoryId) {
@@ -66,7 +65,7 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = ({}) => {
     },
     onPaymentMethodsChange(event) {
       const value = event.target.value;
-      const selectedPaymentMethods: TPaymentMethod['id'][] = Array.isArray(value) ? value : [Number(value)];
+      const selectedPaymentMethods: TPaymentMethod['id'][] = Array.isArray(value) ? value : [value];
       setUnappliedFilters(prev => ({...prev, paymentMethods: selectedPaymentMethods}));
     },
     onRemovePaymentMethod(paymentMethodId) {

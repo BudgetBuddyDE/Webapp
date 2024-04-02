@@ -1,19 +1,17 @@
 import React from 'react';
 import {ActionPaper, Linkify} from '@/components/Base';
 import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
-import {useAuthContext} from '@/components/Auth';
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {
   CreatePaymentMethodDrawer,
   EditPaymentMethodDrawer,
   PaymentMethodChip,
   PaymentMethodService,
+  useFetchPaymentMethods,
   type TCreatePaymentMethodDrawerPayload,
   type TEditPaymentMethodDrawerPayload,
-  useFetchPaymentMethods,
 } from '@/components/PaymentMethod';
 import {useSnackbarContext} from '@/components/Snackbar';
-import type {TPaymentMethod} from '@budgetbuddyde/types';
 import {Checkbox, Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {SearchInput} from '@/components/Base/Search';
@@ -25,6 +23,8 @@ import {useEntityDrawer, CreateEntityDrawerState} from '@/hooks';
 import {useNavigate, useLocation} from 'react-router-dom';
 import {type ISelectionHandler} from '@/components/Base/Select';
 import {ToggleFilterDrawerButton} from '@/components/Filter';
+import {pb} from '@/pocketbase';
+import {PocketBaseCollection, type TPaymentMethod} from '@budgetbuddyde/types';
 
 interface IPaymentMethodsHandler {
   onSearch: (keyword: string) => void;
@@ -40,7 +40,6 @@ export const PaymentMethods = () => {
   const navigate = useNavigate();
   const {paymentMethods, loading: loadingPaymentMethods, refresh: refreshPaymentMethods} = useFetchPaymentMethods();
   const {showSnackbar} = useSnackbarContext();
-  const {authOptions} = useAuthContext();
   const [showCreateDrawer, dispatchCreateDrawer] = React.useReducer(
     useEntityDrawer<TCreatePaymentMethodDrawerPayload>,
     CreateEntityDrawerState<TCreatePaymentMethodDrawerPayload>(),
@@ -72,21 +71,18 @@ export const PaymentMethods = () => {
     async onConfirmPaymentMethodDelete() {
       try {
         if (deletePaymentMethods.length === 0) return;
-        const [deletedItem, error] = await PaymentMethodService.delete(
-          deletePaymentMethods.map(({id}) => ({paymentMethodId: id})),
-          authOptions,
+
+        const deleteResponses = Promise.allSettled(
+          deletePaymentMethods.map(category => pb.collection(PocketBaseCollection.PAYMENT_METHOD).delete(category.id)),
         );
-        if (error) {
-          return showSnackbar({message: error.message});
-        }
-        if (!deletedItem) {
-          return showSnackbar({message: "Couldn't delete the payment-method"});
-        }
+        console.debug('Deleting payment-methods', deleteResponses);
 
         setShowDeletePaymentMethodDialog(false);
         setDeletePaymentMethods([]);
-        refreshPaymentMethods(); // FIXME: Wrap inside startTransition
-        showSnackbar({message: `Payment-method we're deleted`});
+        React.startTransition(() => {
+          refreshPaymentMethods();
+        });
+        showSnackbar({message: `Payment-methods we're deleted`});
         setSelectedPaymentMethods([]);
       } catch (error) {
         console.error(error);

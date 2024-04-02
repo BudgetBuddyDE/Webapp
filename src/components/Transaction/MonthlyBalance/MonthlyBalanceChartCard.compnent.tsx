@@ -49,7 +49,7 @@ export const MonthlyBalanceChartCard: React.FC<TMonthlyBalanceChartCardProps> = 
         <Paper elevation={0} sx={{mt: '1rem'}}>
           {!loading && selectedBarGroup && (
             <Box sx={{ml: 2, mt: 1}}>
-              <Typography variant="caption">{handler.formatMonth(selectedBarGroup.month)}</Typography>
+              <Typography variant="caption">{handler.formatMonth(selectedBarGroup.date)}</Typography>
               <Typography variant="subtitle1">{formatBalance(selectedBarGroup.balance)}</Typography>
             </Box>
           )}

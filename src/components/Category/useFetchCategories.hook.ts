@@ -1,31 +1,31 @@
 import React from 'react';
-import {useAuthContext} from '../Auth';
-import {CategoryService} from './Category.service';
+import {z} from 'zod';
+import {useAuthContext} from '@/components/Auth';
 import {useCategoryStore} from './Category.store';
+import {pb} from '@/pocketbase.ts';
+import {PocketBaseCollection, ZCategory, type TCategory} from '@budgetbuddyde/types';
 
 let mounted = false;
 
 export function useFetchCategories() {
-  const {session, authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const {data, fetchedAt, fetchedBy, setFetchedData} = useCategoryStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 
-  const fetchCategories = React.useCallback(async (withLoading?: boolean) => {
+  const fetchCategories = React.useCallback(async (withLoading?: boolean): Promise<boolean> => {
     setError(null);
     try {
-      if (!session) return;
+      if (!sessionUser) return false;
       if (withLoading) setLoading(true);
-      const [fetchedCategories, error] = await CategoryService.getCategoriesByUuid(authOptions);
-      if (error) {
-        setError(error);
+      const records = await pb.collection<TCategory>(PocketBaseCollection.CATEGORY).getFullList();
+
+      const parsingResult = z.array(ZCategory).safeParse(records);
+      if (!parsingResult.success) {
+        console.error(parsingResult.error);
         return false;
       }
-      if (!fetchedCategories) {
-        setError(new Error('No categories returned'));
-        return false;
-      }
-      setFetchedData(fetchedCategories, session.uuid);
+      setFetchedData(parsingResult.data, sessionUser.id);
       return true;
     } catch (error) {
       if ((error as Error).name === 'AbortError') return true;
@@ -35,7 +35,7 @@ export function useFetchCategories() {
   }, []);
 
   React.useEffect(() => {
-    if (!session || (fetchedBy === session.uuid && data) || loading || mounted) return;
+    if (!sessionUser || (fetchedBy === sessionUser.id && data) || loading || mounted) return;
 
     mounted = true;
     fetchCategories(true).then(success => {
@@ -48,7 +48,7 @@ export function useFetchCategories() {
       setError(null);
       mounted = false;
     };
-  }, [session, data]);
+  }, [sessionUser, data]);
 
   return {
     loading,

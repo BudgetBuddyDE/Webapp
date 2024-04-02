@@ -5,7 +5,7 @@ import {ParentSize} from '@visx/responsive';
 import {Card, NoResults, type TPieChartData} from '@/components/Base';
 import {CircularProgress} from '@/components/Loading';
 import {useFetchTransactions} from '@/components/Transaction';
-import {SPENDING_CHART_TYPES, type TChartType} from './SpendingsChart.component';
+import {SPENDING_CHART_TYPES, type TChartType} from '@/components/Category';
 import {ApexPieChart} from '@/components/Base/Charts/ApexPieChart.component';
 
 export type TCategoryIncomeChartProps = {};
@@ -18,15 +18,22 @@ export const CategoryIncomeChart: React.FC<TCategoryIncomeChartProps> = () => {
     const now = new Date();
     const expensesByCategory = new Map<string, number>();
     transactions
-      .filter(({transferAmount, processedAt}) => {
-        return transferAmount > 0 && (chart === 'MONTH' ? isSameMonth(processedAt, now) : true);
+      .filter(({transfer_amount, processed_at}) => {
+        return transfer_amount > 0 && (chart === 'MONTH' ? isSameMonth(processed_at, now) : true);
       })
-      .forEach(({category: {name}, transferAmount}) => {
-        const currAmount = expensesByCategory.get(name);
-        if (currAmount) {
-          expensesByCategory.set(name, currAmount + Math.abs(transferAmount));
-        } else expensesByCategory.set(name, Math.abs(transferAmount));
-      });
+      .forEach(
+        ({
+          expand: {
+            category: {name},
+          },
+          transfer_amount,
+        }) => {
+          const currAmount = expensesByCategory.get(name);
+          if (currAmount) {
+            expensesByCategory.set(name, currAmount + Math.abs(transfer_amount));
+          } else expensesByCategory.set(name, Math.abs(transfer_amount));
+        },
+      );
 
     return [...expensesByCategory.entries()].map(
       ([category, amount]) => ({label: category, value: amount}) as TPieChartData,
@@ -65,7 +72,12 @@ export const CategoryIncomeChart: React.FC<TCategoryIncomeChartProps> = () => {
             </ParentSize>
           </Box>
         ) : (
-          <NoResults sx={{mt: 2}} />
+          <NoResults
+            sx={{m: 2}}
+            text={
+              chart === 'MONTH' ? 'There are no information about this month!' : 'There are no information in general!'
+            }
+          />
         )}
       </Card.Body>
     </Card>

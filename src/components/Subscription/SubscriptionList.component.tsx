@@ -2,8 +2,8 @@ import React from 'react';
 import {format} from 'date-fns';
 import {Box, Chip, IconButton, type ChipProps} from '@mui/material';
 import {AddRounded as AddIcon, ReceiptRounded as ReceiptIcon} from '@mui/icons-material';
-import type {TSubscription} from '@budgetbuddyde/types';
 import {Card, ListWithIcon, NoResults} from '@/components/Base';
+import {type TSubscription} from '@budgetbuddyde/types';
 
 export type TSubscriptionList = {
   data: TSubscription[];
@@ -18,7 +18,7 @@ export const SubscriptionList: React.FC<TSubscriptionList> = ({data, onAddSubscr
   };
 
   const upcomingSubscriptions = React.useMemo(() => {
-    return data.filter(({executeAt}) => executeAt > new Date().getDate());
+    return data.filter(({execute_at}) => execute_at > new Date().getDate());
   }, [data]);
 
   return (
@@ -41,7 +41,7 @@ export const SubscriptionList: React.FC<TSubscriptionList> = ({data, onAddSubscr
           upcomingSubscriptions.length > 0 ? (
             upcomingSubscriptions.map(subscription => {
               const executionDate = new Date();
-              executionDate.setDate(subscription.executeAt);
+              executionDate.setDate(subscription.execute_at);
               return (
                 <ListWithIcon
                   key={subscription.id}
@@ -50,10 +50,10 @@ export const SubscriptionList: React.FC<TSubscriptionList> = ({data, onAddSubscr
                   subtitle={
                     <Box>
                       <Chip label={'Next ' + format(executionDate, 'dd.MM')} sx={{mr: 1}} {...chipProps} />
-                      <Chip label={subscription.category.name} {...chipProps} />
+                      <Chip label={subscription.expand.category.name} {...chipProps} />
                     </Box>
                   }
-                  amount={subscription.transferAmount}
+                  amount={subscription.transfer_amount}
                 />
               );
             })

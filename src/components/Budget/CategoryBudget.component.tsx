@@ -1,16 +1,16 @@
 import React from 'react';
 import {Delete as DeleteIcon, Edit as EditIcon, Label as LabelIcon} from '@mui/icons-material';
 import {Box, IconButton, Tooltip, Typography} from '@mui/material';
-import type {TBudget, TBudgetProgress, TDeleteBudgetPayload} from '@budgetbuddyde/types';
 import {Icon} from '@/components/Icon.component';
 import {ActionPaper} from '@/components/Base';
 import {formatBalance} from '@/utils';
+import {type TBudget} from '@budgetbuddyde/types';
 
 export type TCategoryBudgetProps = {
-  budget: TBudgetProgress;
+  budget: TBudget;
   icon?: JSX.Element;
   onEdit?: (budget: TBudget) => void;
-  onDelete?: (budget: TDeleteBudgetPayload) => void;
+  onDelete?: (budget: TBudget) => void;
 };
 
 export const CategoryBudget: React.FC<TCategoryBudgetProps> = ({budget, icon = <LabelIcon />, onEdit, onDelete}) => {
@@ -19,7 +19,7 @@ export const CategoryBudget: React.FC<TCategoryBudgetProps> = ({budget, icon = <
       if (onEdit) onEdit(budget);
     },
     onDelete() {
-      if (onDelete) onDelete([{budgetId: budget.id}]);
+      if (onDelete) onDelete(budget);
     },
   };
 
@@ -44,9 +44,9 @@ export const CategoryBudget: React.FC<TCategoryBudgetProps> = ({budget, icon = <
           <Icon icon={icon} sx={{mr: 1}} />
           <Box sx={{mr: 1}}>
             <Typography variant="subtitle1" fontWeight="bold">
-              {budget.category.name}
+              {budget.expand.category.name}
             </Typography>
-            <Typography variant="subtitle2">{budget.category.description || 'No description'}</Typography>
+            <Typography variant="subtitle2">{budget.expand.category.description || 'No description'}</Typography>
           </Box>
           <Box
             sx={{
@@ -56,25 +56,6 @@ export const CategoryBudget: React.FC<TCategoryBudgetProps> = ({budget, icon = <
               alignItems: 'baseline',
               columnGap: 0.5,
             }}>
-            <Tooltip
-              title={
-                budget.budget > Math.abs(budget.amount_spent)
-                  ? "You'r still in budget"
-                  : "You've spent a little too much"
-              }>
-              <Typography
-                sx={{
-                  ml: 'auto',
-                  fontWeight: 'bold',
-                  fontSize: '90%',
-                  color: theme =>
-                    budget.budget >= Math.abs(budget.amount_spent)
-                      ? theme.palette.success.main
-                      : theme.palette.error.main,
-                }}>
-                {formatBalance(Math.abs(budget.amount_spent))}
-              </Typography>
-            </Tooltip>
             <Typography fontWeight="bold">{formatBalance(budget.budget)}</Typography>
           </Box>
         </Box>

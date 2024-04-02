@@ -1,9 +1,9 @@
-import type {TCategory} from '@budgetbuddyde/types';
+import {type TCategory} from '@budgetbuddyde/types';
 
 export function getCategoryFromList(
-  categoryId: number,
+  categoryId: TCategory['id'],
   categories: TCategory[],
-): {label: string; value: number} | undefined {
+): {label: TCategory['name']; value: TCategory['id']} | undefined {
   const match = categories.find(category => category.id === categoryId);
   if (!match) return undefined;
   return {label: match.name, value: match.id};

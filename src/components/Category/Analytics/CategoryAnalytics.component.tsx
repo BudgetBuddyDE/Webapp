@@ -3,14 +3,14 @@ import {debounce} from 'lodash';
 import {BarChart, Card, StyledAutocompleteOption, type TBarChartData} from '@/components/Base';
 import {ArrowRightRounded} from '@mui/icons-material';
 import {Autocomplete, TextField, Button, Box, Skeleton, Paper, Typography} from '@mui/material';
-import {useFetchCategories} from '..';
-import {TCategory} from '@budgetbuddyde/types';
 import {ParentSize} from '@visx/responsive';
 import {useFetchTransactions} from '@/components/Transaction';
 import {format, isBefore, isSameMonth, isSameYear} from 'date-fns';
 import {DateService} from '@/services';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {formatBalance} from '@/utils';
+import {useFetchCategories} from '@/components/Category';
+import {type TCategory} from '@budgetbuddyde/types';
 
 const MONTH_BACKLOG = 8;
 
@@ -32,7 +32,7 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({monthBacklog = 
 
   React.useEffect(() => {
     if (loadingCategories) return;
-    setSelectedCategory(categories[0]?.id || null);
+    setSelectedCategory(categories.length > 0 ? categories[0].id : null);
   }, [categories]);
 
   /**
@@ -56,18 +56,20 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({monthBacklog = 
     }
 
     for (const {
-      processedAt,
-      transferAmount,
-      category: {id: categoryId},
+      processed_at,
+      transfer_amount,
+      expand: {
+        category: {id: categoryId},
+      },
     } of transactions) {
       if (categoryId !== selectedCategory) continue; // only-current-category
-      if (transferAmount >= 0) continue; // only-expenses
-      const mapKey = format(processedAt, 'yyyy-MM');
+      if (transfer_amount >= 0) continue; // only-expenses
+      const mapKey = format(processed_at, 'yyyy-MM');
       if (!monthsBetween.has(mapKey)) continue;
 
       const curVal = monthsBetween.get(mapKey) || 0;
-      monthsBetween.set(mapKey, curVal + Math.abs(transferAmount));
-      if (isBefore(processedAt, startDate) && !isSameMonth(processedAt, new Date(mapKey))) break;
+      monthsBetween.set(mapKey, curVal + Math.abs(transfer_amount));
+      if (isBefore(processed_at, startDate) && !isSameMonth(processed_at, new Date(mapKey))) break;
     }
 
     return Array.from(monthsBetween.entries()).map(([month, value]) => {

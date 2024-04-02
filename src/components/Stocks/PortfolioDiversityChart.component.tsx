@@ -1,17 +1,16 @@
 import React from 'react';
 import {Box} from '@mui/material';
 import {ParentSize} from '@visx/responsive';
-import {Card, NoResults, type TPieChartData} from '@/components/Base';
-import {type TStockPosition} from '@budgetbuddyde/types';
-import {ApexPieChart} from '../Base/Charts/ApexPieChart.component';
+import {Card, NoResults, type TPieChartData, ApexPieChart} from '@/components/Base';
+import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
 
 export type TPortfolioDiversityChartProps = {
-  positions: TStockPosition[];
+  positions: TStockPositionWithQuote[];
 };
 
 export const PortfolioDiversityChart: React.FC<TPortfolioDiversityChartProps> = ({positions}) => {
   const preparedData: TPieChartData[] = React.useMemo(() => {
-    let groupedData: Record<string, {label: string; total: number}> = {};
+    const groupedData: Record<string, {label: string; total: number}> = {};
     for (const position of positions) {
       if (groupedData[position.isin]) {
         groupedData[position.isin].total += position.quantity * position.quote.price;
@@ -22,6 +21,7 @@ export const PortfolioDiversityChart: React.FC<TPortfolioDiversityChartProps> = 
         };
       }
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     return Object.entries(groupedData).map(([_, {label, total}]) => ({
       label: label,
       value: total,
@@ -42,7 +42,7 @@ export const PortfolioDiversityChart: React.FC<TPortfolioDiversityChartProps> = 
             <ParentSize>{({width}) => <ApexPieChart width={width} height={width} data={preparedData} />}</ParentSize>
           </Box>
         ) : (
-          <NoResults text="No positions provided" sx={{mt: 2}} />
+          <NoResults text="No positions provided" sx={{m: 2}} />
         )}
       </Card.Body>
     </Card>

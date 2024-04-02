@@ -1,2 +1,2 @@
 export * from './Auth.context';
-export * from './Auth.service';
+export * from './SocialSignInBtn.component.tsx';

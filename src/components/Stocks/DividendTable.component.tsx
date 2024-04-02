@@ -5,7 +5,7 @@ import {type TTableProps, Table} from '@/components/Base/Table';
 import {type TDividendDetails} from '@budgetbuddyde/types';
 import {AppConfig} from '@/app.config';
 import {StockPrice} from './StockPrice.component';
-import {useFetchStockPositions} from './hooks/useFetchStockPositions.hook';
+import {useFetchStockPositions} from '@/components/Stocks/hooks';
 import {StockService} from './Stock.service';
 
 export type TDividendTableProps = {

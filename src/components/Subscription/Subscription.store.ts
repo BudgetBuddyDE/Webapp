@@ -1,15 +1,15 @@
 import {create} from 'zustand';
-import type {TSubscription, TUser} from '@budgetbuddyde/types';
-import {type IBaseStore} from '../Transaction';
-import {SubscriptionService} from '.';
+import {type IBaseStore} from '@/components/Transaction';
+import {type TSubscription, type TUser} from '@budgetbuddyde/types';
+import {SubscriptionService} from './Subscription.service';
 
-export interface ISubscriptionStore extends IBaseStore<TSubscription[]> {
-  fetchedBy: TUser['uuid'] | null;
+export interface ISubscriptionStore<T> extends IBaseStore<T[]> {
+  fetchedBy: NonNullable<TUser>['id'] | null;
   fetchedAt: Date | null;
-  setFetchedData: (data: TSubscription[], fetchedBy: TUser['uuid'] | null) => void;
+  setFetchedData: (data: T[], fetchedBy: NonNullable<TUser>['id'] | null) => void;
 }
 
-export const useSubscriptionStore = create<ISubscriptionStore>(set => ({
+export const useSubscriptionStore = create<ISubscriptionStore<TSubscription>>(set => ({
   data: [],
   fetchedBy: null,
   fetchedAt: null,

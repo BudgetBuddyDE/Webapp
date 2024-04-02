@@ -12,8 +12,7 @@ import {
   Typography,
   createFilterOptions,
 } from '@mui/material';
-import {useFetchPaymentMethods} from '../useFetchPaymentMethods.hook';
-import {CreatePaymentMethodAlert} from '../CreatePaymentMethodAlert.component';
+import {useFetchPaymentMethods, CreatePaymentMethodAlert} from '@/components/PaymentMethod';
 import {StyledAutocompleteOption} from '@/components/Base';
 import {getNameFromLabel} from '@/components/Category';
 import {PaymentMethodService} from '../PaymentMethod.service';

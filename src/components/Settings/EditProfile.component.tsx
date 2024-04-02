@@ -1,10 +1,10 @@
-import {Card} from '@/components/Base';
+import {Card, NoResults} from '@/components/Base';
 import {Box, Button, Grid, TextField} from '@mui/material';
 import React from 'react';
-import {useAuthContext} from '../Auth';
-import {type TUpdateUserPayload, ZUpdateUserPayload} from '@budgetbuddyde/types';
-import {useSnackbarContext} from '../Snackbar';
-import {UserService} from '@/services';
+import {useAuthContext} from '@/components/Auth';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {PersonRounded} from '@mui/icons-material';
+import {pb} from '@/pocketbase.ts';
 
 interface IEditProfileHandler {
   onChangeInput: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -12,11 +12,11 @@ interface IEditProfileHandler {
   onSubmit: (event: React.FormEvent) => void;
 }
 
-export type TEditProfileProps = {};
+export type TEditProfileProps = unknown;
 
 export const EditProfile: React.FC<TEditProfileProps> = () => {
   const {showSnackbar} = useSnackbarContext();
-  const {session, setSession, authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const [enableInputs, setEnableInputs] = React.useState(false);
   const [form, setForm] = React.useState<Record<string, string>>({});
 
@@ -25,39 +25,21 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
       setForm(prev => ({...prev, [event.target.name]: event.target.value}));
     },
     onDiscard() {
-      if (!session) return; // should never be the case
+      if (!sessionUser) return; // should never be the case
       setEnableInputs(false);
       setForm({
-        name: session.name,
-        surname: session.surname,
-        email: session.email,
+        name: sessionUser.name ?? '',
+        surname: sessionUser.surname ?? '',
+        username: sessionUser.username,
+        email: sessionUser.email,
       });
     },
     async onSubmit(event) {
       event.preventDefault();
-      if (!session) return;
+      if (!sessionUser) return;
       try {
-        const parsedForm = ZUpdateUserPayload.safeParse({
-          uuid: session.uuid,
-          email: form.email ?? session.email,
-          name: form.name ?? session.name,
-          surname: form.surname ?? session.surname,
-        });
-        if (!parsedForm.success) throw new Error(parsedForm.error.message);
-        const payload: TUpdateUserPayload = parsedForm.data;
-
-        const [updatedUser, error] = await UserService.update(payload, authOptions);
-        if (error) throw error;
-        if (!updatedUser) throw new Error("Couldn't save the applied changes");
-
+        await pb.collection('users').update(sessionUser.id, form);
         showSnackbar({message: "Changes we're saved"});
-        setForm({
-          name: updatedUser.name,
-          surname: updatedUser.surname,
-          email: updatedUser.email,
-        });
-        setForm({});
-        setSession(updatedUser);
         setEnableInputs(false);
       } catch (error) {
         console.error(error);
@@ -66,7 +48,13 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
     },
   };
 
-  if (!session) return;
+  if (!sessionUser) {
+    return (
+      <Card>
+        <NoResults icon={<PersonRounded />} text="No user found" />
+      </Card>
+    );
+  }
   return (
     <Card>
       <Card.Header>
@@ -85,7 +73,8 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                 id="uuid"
                 name="uuid"
                 label="UUID"
-                defaultValue={session.uuid}
+                value={sessionUser.id}
+                defaultValue={sessionUser.id}
                 sx={{mt: 2}}
                 required
               />
@@ -96,7 +85,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                 name="name"
                 label="Name"
                 value={form.name}
-                defaultValue={session.name}
+                defaultValue={sessionUser.name}
                 onChange={handler.onChangeInput}
                 sx={{mt: 2}}
                 fullWidth
@@ -110,10 +99,23 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                 name="surname"
                 label="Surname"
                 value={form.surname}
-                defaultValue={session.surname}
+                defaultValue={sessionUser.surname}
                 onChange={handler.onChangeInput}
                 sx={{mt: 2}}
                 fullWidth
+                disabled={!enableInputs}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} md={12}>
+              <TextField
+                fullWidth
+                id="username"
+                name="username"
+                label="Username"
+                value={form.username}
+                defaultValue={sessionUser.username}
+                sx={{mt: 2}}
                 disabled={!enableInputs}
                 required
               />
@@ -125,7 +127,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                 name="email"
                 label="E-Mail"
                 value={form.email}
-                defaultValue={session.email}
+                defaultValue={sessionUser.email}
                 sx={{mt: 2}}
                 disabled={!enableInputs}
                 required

@@ -1,4 +1,4 @@
-import {TSubscription} from '@budgetbuddyde/types';
+import {type TSubscription} from '@budgetbuddyde/types';
 import {SubscriptionService} from './Subscription.service';
 
 describe('getPlannedBalanceByType', () => {
@@ -10,24 +10,24 @@ describe('getPlannedBalanceByType', () => {
 
   it('should return an array of income subscriptions when type is "INCOME"', () => {
     const subscriptions = [
-      {transferAmount: 100, executeAt: new Date().getDate()},
-      {transferAmount: -50, executeAt: new Date().getDate()},
-      {transferAmount: 200, executeAt: new Date().getDate()},
+      {transfer_amount: 100, execute_at: new Date().getDate()},
+      {transfer_amount: -50, execute_at: new Date().getDate()},
+      {transfer_amount: 200, execute_at: new Date().getDate()},
     ] as TSubscription[];
     const result = SubscriptionService.getPlannedBalanceByType(subscriptions, 'INCOME');
     expect(result).toEqual([
-      {transferAmount: 100, executeAt: new Date().getDate()},
-      {transferAmount: 200, executeAt: new Date().getDate()},
+      {transfer_amount: 100, execute_At: new Date().getDate()},
+      {transfer_amount: 200, execute_At: new Date().getDate()},
     ]);
   });
 
   it('should return an array of spending subscriptions when type is "SPENDINGS"', () => {
     const subscriptions = [
-      {transferAmount: 100, executeAt: new Date().getDate()},
-      {transferAmount: -50, executeAt: new Date().getDate()},
-      {transferAmount: 200, executeAt: new Date().getDate()},
+      {transfer_amount: 100, execute_at: new Date().getDate()},
+      {transfer_amount: -50, execute_at: new Date().getDate()},
+      {transfer_amount: 200, execute_at: new Date().getDate()},
     ] as TSubscription[];
     const result = SubscriptionService.getPlannedBalanceByType(subscriptions, 'SPENDINGS');
-    expect(result).toEqual([{transferAmount: -50, executeAt: new Date().getDate()}]);
+    expect(result).toEqual([{transfer_amount: -50, execute_at: new Date().getDate()}]);
   });
 });

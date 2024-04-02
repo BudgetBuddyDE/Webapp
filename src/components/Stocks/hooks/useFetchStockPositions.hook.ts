@@ -1,41 +1,44 @@
 import React from 'react';
-import {useAuthContext} from '../../Auth';
+import {useAuthContext} from '@/components/Auth';
 import {useStockStore} from '../Stock.store';
 import {StockService} from '../Stock.service';
 
 let mounted = false;
 
 export function useFetchStockPositions() {
-  const {session, authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const {data, fetchedAt, fetchedBy, setFetchedData} = useStockStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 
-  const fetchStockPositions = React.useCallback(async (withLoading?: boolean): Promise<boolean> => {
-    setError(null);
-    try {
-      if (!session) return false;
-      if (withLoading) setLoading(true);
-      const [fetchedPositions, error] = await StockService.getPositions(authOptions);
-      if (error) {
-        setError(error);
+  const fetchStockPositions = React.useCallback(
+    async (withLoading?: boolean): Promise<boolean> => {
+      setError(null);
+      try {
+        if (!sessionUser) return false;
+        if (withLoading) setLoading(true);
+        const [fetchedPositions, error] = await StockService.getPositions();
+        if (error) {
+          setError(error);
+          return false;
+        }
+        if (!fetchedPositions) {
+          setError(new Error('No stock-positions returned'));
+          return false;
+        }
+        setFetchedData(fetchedPositions, sessionUser.id);
+        return true;
+      } catch (error) {
+        if ((error as Error).name === 'AbortError') return true;
+        setError(error instanceof Error ? error : null);
         return false;
       }
-      if (!fetchedPositions) {
-        setError(new Error('No stock-positions returned'));
-        return false;
-      }
-      setFetchedData(fetchedPositions, session.uuid);
-      return true;
-    } catch (error) {
-      if ((error as Error).name === 'AbortError') return true;
-      setError(error instanceof Error ? error : null);
-      return false;
-    }
-  }, []);
+    },
+    [sessionUser],
+  );
 
   React.useEffect(() => {
-    if (!session || (fetchedBy === session.uuid && data) || loading || mounted) return;
+    if (!sessionUser || (fetchedBy === sessionUser.id && data) || loading || mounted) return;
 
     mounted = true;
     fetchStockPositions(true).then(success => {
@@ -48,7 +51,7 @@ export function useFetchStockPositions() {
       setError(null);
       mounted = false;
     };
-  }, [session]);
+  }, [sessionUser]);
 
   return {
     loading,

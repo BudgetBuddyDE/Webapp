@@ -1,23 +1,24 @@
 import {FormDrawer, FormDrawerReducer, generateInitialFormDrawerState} from '@/components/Drawer';
 import {FormControl, InputAdornment, InputLabel, OutlinedInput} from '@mui/material';
 import React from 'react';
-import {useAuthContext} from '../Auth';
-import {useSnackbarContext} from '../Snackbar';
-import {BudgetService, useFetchBudget, useFetchBudgetProgress} from '.';
-import {CategoryAutocomplete, getCategoryFromList, useFetchCategories} from '../Category';
-import {
-  ZUpdateBudgetPayload,
-  type TBudget,
-  type TBudgetProgress,
-  type TUpdateBudgetPayload,
-} from '@budgetbuddyde/types';
+import {useAuthContext} from '@/components/Auth';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {CategoryAutocomplete, getCategoryFromList, useFetchCategories} from '@/components/Category';
 import {transformBalance} from '@/utils';
+import {
+  type TBudget,
+  type TUpdateBudgetPayload,
+  ZUpdateBudgetPayload,
+  PocketBaseCollection,
+} from '@budgetbuddyde/types';
+import {useFetchBudget} from './useFetchBudget.hook';
+import {pb} from '@/pocketbase';
 
 interface IEditBudgetDrawerHandler {
   onClose: () => void;
   onAutocompleteChange: (
     event: React.SyntheticEvent<Element, Event>,
-    key: 'categoryId',
+    key: keyof TBudget,
     value: string | number,
   ) => void;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -27,15 +28,15 @@ interface IEditBudgetDrawerHandler {
 export type TEditBudgetDrawerProps = {
   open: boolean;
   onChangeOpen: (isOpen: boolean) => void;
-  budget: TBudget | TBudgetProgress | null;
+  budget: TBudget | null;
 };
 
 export const EditBudgetDrawer: React.FC<TEditBudgetDrawerProps> = ({open, onChangeOpen, budget}) => {
-  const {session, authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const {categories} = useFetchCategories();
   const {refresh: refreshBudgets} = useFetchBudget();
-  const {refresh: refreshBudgetProgress} = useFetchBudgetProgress();
+  // FIXME: const {refresh: refreshBudgetProgress} = useFetchBudgetProgress();
   const [drawerState, setDrawerState] = React.useReducer(FormDrawerReducer, generateInitialFormDrawerState());
   const [form, setForm] = React.useState<Record<string, string | number>>({});
 
@@ -53,33 +54,27 @@ export const EditBudgetDrawer: React.FC<TEditBudgetDrawerProps> = ({open, onChan
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      if (!session || !budget) return;
+      if (!sessionUser || !budget) return;
       setDrawerState({type: 'SUBMIT'});
 
       try {
         const parsedForm = ZUpdateBudgetPayload.safeParse({
           ...form,
-          budgetId: budget.id,
           budget: transformBalance(String(form.budget)),
         });
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
         const payload: TUpdateBudgetPayload = parsedForm.data;
 
-        const [updatedBudget, error] = await BudgetService.update(payload, authOptions);
-        if (error) {
-          setDrawerState({type: 'ERROR', error: error});
-          return;
-        }
-        if (!updatedBudget) {
-          setDrawerState({type: 'ERROR', error: new Error(`Couldn't save the budget`)});
-          return;
-        }
+        const record = await pb.collection(PocketBaseCollection.BUDGET).update(budget.id, payload);
+        console.debug('Updated budget', record);
 
         setDrawerState({type: 'SUCCESS'});
         handler.onClose();
-        refreshBudgets(); // FIXME: Wrap inside startTransition
-        refreshBudgetProgress(); // FIXME: Wrap inside startTransition
-        showSnackbar({message: `Budget for ${updatedBudget.category.name} we're saved`});
+        React.startTransition(() => {
+          refreshBudgets();
+          // FIXME: refreshBudgetProgress();
+        });
+        showSnackbar({message: `Saved applied changes`});
       } catch (error) {
         console.error(error);
         setDrawerState({type: 'ERROR', error: error as Error});
@@ -89,10 +84,7 @@ export const EditBudgetDrawer: React.FC<TEditBudgetDrawerProps> = ({open, onChan
 
   React.useEffect(() => {
     if (!budget) return;
-    setForm({
-      categoryId: budget.category.id,
-      budget: budget.budget,
-    });
+    setForm({category: budget.category, budget: budget.budget});
   }, [budget]);
 
   return (
@@ -104,8 +96,8 @@ export const EditBudgetDrawer: React.FC<TEditBudgetDrawerProps> = ({open, onChan
       onClose={handler.onClose}
       closeOnBackdropClick>
       <CategoryAutocomplete
-        onChange={(event, value) => handler.onAutocompleteChange(event, 'categoryId', Number(value?.value))}
-        defaultValue={budget ? getCategoryFromList(budget.category.id, categories) : undefined}
+        onChange={(event, value) => handler.onAutocompleteChange(event, 'category', String(value?.value))}
+        defaultValue={budget ? getCategoryFromList(budget.expand.category.id, categories) : undefined}
         sx={{mb: 2}}
         required
       />

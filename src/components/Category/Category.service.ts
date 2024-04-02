@@ -1,112 +1,8 @@
-import {z} from 'zod';
-import {
-  ZCategory,
-  type TApiResponse,
-  type TCategory,
-  type TCreateCategoryPayload,
-  type TDeleteCategoryPayload,
-  type TUpdateCategoryPayload,
-  type TDeleteCategoryResponsePayload,
-  ZDeleteCategoryResponsePayload,
-  type TTransaction,
-} from '@budgetbuddyde/types';
-import {prepareRequestOptions} from '@/utils';
-import {type IAuthContext} from '../Auth';
-import {type TCategoryInputOption} from './Autocomplete';
 import {subDays} from 'date-fns';
-import {isRunningInProdEnv} from '@/utils/isRunningInProdEnv.util';
+import {type TCategoryInputOption} from './Autocomplete';
+import {type TCategory, type TTransaction} from '@budgetbuddyde/types';
 
 export class CategoryService {
-  private static host = (isRunningInProdEnv() ? (process.env.BACKEND_HOST as string) : '/api') + '/v1/category';
-
-  static async getCategoriesByUuid({
-    uuid,
-    password,
-  }: IAuthContext['authOptions']): Promise<[TCategory[] | null, Error | null]> {
-    try {
-      const query = new URLSearchParams();
-      query.append('uuid', uuid);
-      const response = await fetch(this.host + '?' + query.toString(), {
-        ...prepareRequestOptions({uuid, password}),
-      });
-      const json = (await response.json()) as TApiResponse<TCategory[]>;
-      if (json.status != 200) return [null, new Error(json.message!)];
-
-      const parsingResult = z.array(ZCategory).safeParse(json.data);
-      if (!parsingResult.success) throw new Error(parsingResult.error.message);
-      return [parsingResult.data, null];
-    } catch (error) {
-      console.error(error);
-      return [null, error as Error];
-    }
-  }
-
-  static async create(
-    category: TCreateCategoryPayload,
-    user: IAuthContext['authOptions'],
-  ): Promise<[TCategory | null, Error | null]> {
-    try {
-      const response = await fetch(this.host, {
-        method: 'POST',
-        body: JSON.stringify(category),
-        ...prepareRequestOptions(user),
-      });
-      const json = (await response.json()) as TApiResponse<TCategory>;
-      if (json.status != 200) return [null, new Error(json.message!)];
-
-      const parsingResult = ZCategory.safeParse(json.data);
-      if (!parsingResult.success) throw new Error(parsingResult.error.message);
-      return [parsingResult.data, null];
-    } catch (error) {
-      console.error(error);
-      return [null, error as Error];
-    }
-  }
-
-  static async update(
-    category: TUpdateCategoryPayload,
-    user: IAuthContext['authOptions'],
-  ): Promise<[TCategory | null, Error | null]> {
-    try {
-      const response = await fetch(this.host, {
-        method: 'PUT',
-        body: JSON.stringify(category),
-        ...prepareRequestOptions(user),
-      });
-      const json = (await response.json()) as TApiResponse<TCategory>;
-      if (json.status != 200) return [null, new Error(json.message!)];
-
-      const parsingResult = ZCategory.safeParse(json.data);
-      if (!parsingResult.success) throw new Error(parsingResult.error.message);
-      return [parsingResult.data, null];
-    } catch (error) {
-      console.error(error);
-      return [null, error as Error];
-    }
-  }
-
-  static async delete(
-    category: TDeleteCategoryPayload,
-    user: IAuthContext['authOptions'],
-  ): Promise<[TDeleteCategoryResponsePayload | null, Error | null]> {
-    try {
-      const response = await fetch(this.host, {
-        method: 'DELETE',
-        body: JSON.stringify(category),
-        ...prepareRequestOptions(user),
-      });
-      const json = (await response.json()) as TApiResponse<TDeleteCategoryResponsePayload>;
-      if (json.status != 200) return [null, new Error(json.message!)];
-
-      const parsingResult = ZDeleteCategoryResponsePayload.safeParse(json.data);
-      if (!parsingResult.success) throw new Error(parsingResult.error.message);
-      return [parsingResult.data, null];
-    } catch (error) {
-      console.error(error);
-      return [null, error as Error];
-    }
-  }
-
   /**
    * Sorts the autocomplete options for categories based on transaction usage.
    *
@@ -124,13 +20,20 @@ export class CategoryService {
     const startDate = subDays(now, days);
     const categoryFrequencyMap: {[categoryId: string]: number} = {};
 
-    let pastNTransactions = transactions.filter(({processedAt}) => processedAt >= startDate);
+    let pastNTransactions = transactions.filter(({processed_at}) => processed_at >= startDate);
     if (pastNTransactions.length < 1) pastNTransactions = transactions.slice(0, 50);
-    pastNTransactions.forEach(({category: {id}, processedAt}) => {
-      if (processedAt >= startDate && processedAt <= now) {
-        categoryFrequencyMap[id] = (categoryFrequencyMap[id] || 0) + 1;
-      }
-    });
+    pastNTransactions.forEach(
+      ({
+        processed_at,
+        expand: {
+          category: {id},
+        },
+      }) => {
+        if (processed_at >= startDate && processed_at <= now) {
+          categoryFrequencyMap[id] = (categoryFrequencyMap[id] || 0) + 1;
+        }
+      },
+    );
 
     return this.getAutocompleteOptions(
       uniqueCatgegories

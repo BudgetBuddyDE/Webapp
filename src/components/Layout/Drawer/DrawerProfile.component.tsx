@@ -3,7 +3,7 @@ import {LogoutRounded as LogoutIcon} from '@mui/icons-material';
 import {Box, Button, type ButtonProps, useTheme, Divider, Typography, Chip} from '@mui/material';
 import {useDrawerStore} from './Drawer.store';
 import {useScreenSize, useWindowDimensions} from '@/hooks';
-import {AuthService, useAuthContext} from '@/components/Auth';
+import {useAuthContext} from '@/components/Auth';
 import {UserAvatar} from '@/components/User';
 import {useNavigate} from 'react-router-dom';
 
@@ -13,16 +13,13 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const screenSize = useScreenSize();
+  const {logout} = useAuthContext();
   const {open, toggle} = useDrawerStore();
   const {breakpoint} = useWindowDimensions();
-  const {session} = useAuthContext();
+  const {sessionUser} = useAuthContext();
 
   const handleSignOut = async () => {
-    await AuthService.signOut(success => {
-      if (success) {
-        window.location.reload();
-      }
-    });
+    logout();
   };
 
   const handleClick = () => {
@@ -32,7 +29,7 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
     navigate('/settings/profile');
   };
 
-  if (!session) return null;
+  if (!sessionUser) return null;
   return (
     <Box sx={{mt: 'auto', backgroundColor: theme.palette.action.focus}}>
       <Divider />
@@ -61,10 +58,8 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
           onClick={handleClick}>
           <UserAvatar />
           <Box sx={{ml: '.5rem'}}>
-            <Typography fontWeight="bold">
-              {session.name} {session.surname}
-            </Typography>
-            <Chip label={session.role.name} variant="outlined" size="small" />
+            <Typography fontWeight="bold">{sessionUser.name ?? sessionUser.username}</Typography>
+            <Chip label={'Basic'} variant="outlined" size="small" />
           </Box>
         </Box>
         <LogoutButton

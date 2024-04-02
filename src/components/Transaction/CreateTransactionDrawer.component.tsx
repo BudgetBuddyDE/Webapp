@@ -5,22 +5,24 @@ import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import {FormStyle} from '@/style/Form.style';
-import {useAuthContext} from '../Auth';
-import {useSnackbarContext} from '../Snackbar';
-import {TransactionService, useFetchTransactions} from '.';
-import {CategoryAutocomplete, getCategoryFromList, useFetchCategories} from '../Category';
+import {useAuthContext} from '@/components/Auth';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {CategoryAutocomplete, getCategoryFromList, useFetchCategories} from '@/components/Category';
 import {ReceiverAutocomplete, type TAutocompleteOption} from '@/components/Base';
-import {PaymentMethodAutocomplete, getPaymentMethodFromList, useFetchPaymentMethods} from '../PaymentMethod';
-import {type TCreateTransactionPayload, ZCreateTransactionPayload} from '@budgetbuddyde/types';
+import {PaymentMethodAutocomplete, getPaymentMethodFromList, useFetchPaymentMethods} from '@/components/PaymentMethod';
+import {type TCreateTransactionPayload, ZCreateTransactionPayload, PocketBaseCollection} from '@budgetbuddyde/types';
+import {pb} from '@/pocketbase';
 import {transformBalance} from '@/utils';
+import {TransactionService} from './Transaction.service';
+import {useFetchTransactions} from './useFetchTransactions.hook';
 
 interface ICreateTransactionDrawerHandler {
   onClose: () => void;
   onDateChange: (date: Date | null) => void;
   onAutocompleteChange: (
     event: React.SyntheticEvent<Element, Event>,
-    key: 'categoryId' | 'paymentMethodId',
-    value: string | number,
+    key: keyof TCreateTransactionPayload,
+    value: string,
   ) => void;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onReceiverChange: (value: string | number) => void;
@@ -33,14 +35,14 @@ export type TCreateTransactionDrawerProps = {
 
 export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = ({shown, payload, onClose}) => {
   const screenSize = useScreenSize();
-  const {session, authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const {categories} = useFetchCategories();
   const {paymentMethods} = useFetchPaymentMethods();
   const {refresh: refreshTransactions, transactions} = useFetchTransactions();
   const [drawerState, setDrawerState] = React.useReducer(FormDrawerReducer, generateInitialFormDrawerState());
   const [form, setForm] = React.useState<Record<string, string | number | Date>>({
-    date: new Date(),
+    processed_at: new Date(),
   });
 
   const receiverOptions: TAutocompleteOption[] = React.useMemo(() => {
@@ -53,12 +55,12 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
   const handler: ICreateTransactionDrawerHandler = {
     onClose() {
       onClose();
-      setForm({processedAt: new Date()});
+      setForm({processed_at: new Date()});
       setDrawerState({type: 'RESET'});
     },
     onDateChange(value: string | number | Date | null, _keyboardInputValue?: string | undefined) {
       if (!value) return;
-      setForm(prev => ({...prev, processedAt: value}));
+      setForm(prev => ({...prev, processed_at: value}));
     },
     onAutocompleteChange: (_event, key, value) => {
       setForm(prev => ({...prev, [key]: value}));
@@ -71,35 +73,28 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      if (!session) return;
+      if (!sessionUser) return;
       setDrawerState({type: 'SUBMIT'});
 
       try {
-        const transferAmount = transformBalance(String(form.transferAmount));
         const parsedForm = ZCreateTransactionPayload.safeParse({
           ...form,
-          transferAmount,
-          owner: session.uuid,
+          transfer_amount: transformBalance(String(form.transfer_amount)),
+          owner: sessionUser.id,
         });
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
-        const requestPayload: TCreateTransactionPayload = parsedForm.data;
+        const payload: TCreateTransactionPayload = parsedForm.data;
 
-        const [createdTransaction, error] = await TransactionService.create([requestPayload], authOptions);
-        if (error) {
-          setDrawerState({type: 'ERROR', error: error});
-          return;
-        }
-        if (!createdTransaction || createdTransaction.length === 0) {
-          setDrawerState({type: 'ERROR', error: new Error("Couldn't create the transaction")});
-          return;
-        }
+        const record = await pb.collection(PocketBaseCollection.TRANSACTION).create(payload);
+
+        console.debug('Created transaction', record);
 
         setDrawerState({type: 'SUCCESS'});
         handler.onClose();
         React.startTransition(() => {
           refreshTransactions();
         });
-        showSnackbar({message: `Created transaction`});
+        showSnackbar({message: `Created transaction for ${payload.receiver}`});
       } catch (error) {
         console.error(error);
         setDrawerState({type: 'ERROR', error: error as Error});
@@ -108,16 +103,14 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
   };
 
   React.useLayoutEffect(() => {
-    if (!payload) return setForm({processedAt: new Date()});
-    const {description} = payload;
+    if (!payload) return setForm({processed_at: new Date()});
     setForm({
-      ...payload,
-      // processedAt: processedAt,
-      // receiver: receiver,
-      // categoryId: categoryId,
-      // paymentMethodId: paymentMethodId,
-      // transferAmount: transferAmount,
-      description: description ?? '',
+      processed_at: new Date(payload.processed_at),
+      category: payload.category,
+      payment_method: payload.payment_method,
+      receiver: payload.receiver,
+      transfer_amount: payload.transfer_amount,
+      information: payload.information ?? '',
     });
     return () => {
       setForm({});
@@ -137,7 +130,7 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
           <MobileDatePicker
             label="Date"
             inputFormat="dd.MM.yy"
-            value={form.processedAt}
+            value={form.processed_at}
             onChange={handler.onDateChange}
             renderInput={params => <TextField sx={FormStyle} {...params} required />}
           />
@@ -145,7 +138,7 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
           <DesktopDatePicker
             label="Date"
             inputFormat="dd.MM.yy"
-            value={form.processedAt}
+            value={form.processed_at}
             onChange={handler.onDateChange}
             renderInput={params => <TextField sx={FormStyle} {...params} required />}
           />
@@ -160,15 +153,15 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
           flexWrap: 'wrap',
         }}>
         <CategoryAutocomplete
-          onChange={(event, value) => handler.onAutocompleteChange(event, 'categoryId', Number(value?.value))}
-          defaultValue={payload ? getCategoryFromList(payload.categoryId, categories) : undefined}
+          onChange={(event, value) => handler.onAutocompleteChange(event, 'category', String(value?.value))}
+          defaultValue={payload ? getCategoryFromList(payload.category, categories) : undefined}
           sx={{width: {xs: '100%', md: 'calc(50% - .5rem)'}, mb: 2}}
           required
         />
 
         <PaymentMethodAutocomplete
-          onChange={(event, value) => handler.onAutocompleteChange(event, 'paymentMethodId', Number(value?.value))}
-          defaultValue={payload ? getPaymentMethodFromList(payload.paymentMethodId, paymentMethods) : undefined}
+          onChange={(event, value) => handler.onAutocompleteChange(event, 'payment_method', String(value?.value))}
+          defaultValue={payload ? getPaymentMethodFromList(payload.payment_method, paymentMethods) : undefined}
           sx={{width: {xs: '100%', md: 'calc(50% - .5rem)'}, mb: 2}}
           required
         />
@@ -187,28 +180,28 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
       <FormControl fullWidth required sx={{mb: 2}}>
         <InputLabel htmlFor="amount">Amount</InputLabel>
         <OutlinedInput
-          id="transferAmount"
+          id="transfer_amount"
           label="Amount"
-          name="transferAmount"
+          name="transfer_amount"
           inputProps={{inputMode: 'numeric'}}
           onChange={handler.onInputChange}
-          value={form.transferAmount}
-          defaultValue={payload?.transferAmount}
+          value={form.transfer_amount}
+          defaultValue={payload?.transfer_amount}
           startAdornment={<InputAdornment position="start">€</InputAdornment>}
         />
       </FormControl>
 
       <TextField
-        id="description"
+        id="information"
         variant="outlined"
-        label="Description"
-        name="description"
+        label="Information"
+        name="information"
         sx={FormStyle}
         multiline
         rows={2}
         onChange={handler.onInputChange}
-        value={form.description}
-        defaultValue={payload?.description ?? ''}
+        value={form.information}
+        defaultValue={payload?.information ?? ''}
       />
     </FormDrawer>
   );

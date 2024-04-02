@@ -1,14 +1,14 @@
 import {create} from 'zustand';
-import type {TBudget, TUser} from '@budgetbuddyde/types';
-import {IBaseStore} from '../Transaction';
+import {type IBaseStore} from '@/components/Transaction';
+import {type TBudget, type TUser} from '@budgetbuddyde/types';
 
-export interface IBudgetStore extends IBaseStore<TBudget[]> {
-  fetchedBy: TUser['uuid'] | null;
+export interface IBudgetStore<T> extends IBaseStore<T[]> {
+  fetchedBy: NonNullable<TUser>['id'] | null;
   fetchedAt: Date | null;
-  setFetchedData: (data: TBudget[], fetchedBy: TUser['uuid'] | null) => void;
+  setFetchedData: (data: T[], fetchedBy: NonNullable<TUser>['id'] | null) => void;
 }
 
-export const useBudgetStore = create<IBudgetStore>(set => ({
+export const useBudgetStore = create<IBudgetStore<TBudget>>(set => ({
   data: [],
   fetchedBy: null,
   fetchedAt: null,

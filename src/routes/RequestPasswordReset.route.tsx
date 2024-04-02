@@ -1,18 +1,17 @@
 import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
 import {Card} from '@/components/Base';
-import {Button, CircularProgress, Divider, Grid, TextField, Typography} from '@mui/material';
-import {AppRegistrationRounded, HomeRounded, SendRounded} from '@mui/icons-material';
+import {Box, Button, CircularProgress, Divider, Grid, TextField, Typography} from '@mui/material';
+import {AppRegistrationRounded, ExitToAppRounded, SendRounded} from '@mui/icons-material';
 import {AppLogo} from '@/components/AppLogo.component';
-import {AuthService, useAuthContext} from '@/components/Auth';
-import {StackedIconButton} from '@/components/StackedIconButton.component';
-import {useNavigate} from 'react-router-dom';
+import {useAuthContext} from '@/components/Auth';
+import {Link as RouterLink} from 'react-router-dom';
 import {useSnackbarContext} from '@/components/Snackbar';
 import React from 'react';
-import {ZEmail} from '@budgetbuddyde/types';
+import {pb} from '@/pocketbase.ts';
+import {PocketBaseCollection} from '@budgetbuddyde/types';
 
 const RequestPasswordReset = () => {
-  const navigate = useNavigate();
-  const {session} = useAuthContext();
+  const {sessionUser, logout} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const [loading, setLoading] = React.useState(false);
   const [email, setEmail] = React.useState('');
@@ -20,16 +19,10 @@ const RequestPasswordReset = () => {
   const handler = {
     onSubmit: async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+
       try {
         setLoading(true);
-        const emailValidationResult = ZEmail.safeParse(email);
-        if (!emailValidationResult.success) {
-          throw new Error(emailValidationResult.error.message);
-        }
-        const [resetToken, error] = await AuthService.requestPasswordReset(email);
-        if (error) throw error;
-        if (process.env.NODE_ENV === 'development') console.log(resetToken);
-
+        await pb.collection(PocketBaseCollection.USERS).requestPasswordReset(email);
         showSnackbar({message: 'Password reset email sent'});
       } catch (error) {
         console.error(error);
@@ -48,86 +41,95 @@ const RequestPasswordReset = () => {
   };
 
   return (
-    <Card
-      sx={{
-        width: {xs: '90%', md: '40%', lg: '30%', xl: '25%'},
-        maxWidth: '480px',
-        mx: 'auto',
-        px: 4,
-        py: 2,
-        textAlign: 'center',
-      }}>
-      <Card.Header>
-        <AppLogo
-          style={{
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            borderRadius: '5px',
-          }}
-          width={96}
-          height={96}
-        />
-      </Card.Header>
-      <Card.Body>
-        <Typography variant="h2" sx={{my: 1}}>
-          Reset Password
-        </Typography>
-
-        <form onSubmit={handler.onSubmit}>
-          <TextField
-            id="email"
-            name="email"
-            label="Email"
-            type="email"
-            variant="outlined"
-            fullWidth
-            required
-            autoFocus
-            onChange={e => setEmail(e.target.value)}
-            disabled={loading}
+    <React.Fragment>
+      {sessionUser && (
+        <Button
+          sx={{position: 'absolute', top: theme => theme.spacing(2), right: theme => theme.spacing(2)}}
+          startIcon={<ExitToAppRounded />}
+          onClick={logout}>
+          Sign out
+        </Button>
+      )}
+      <Card
+        sx={{
+          width: {xs: '90%', md: '40%', lg: '30%', xl: '25%'},
+          maxWidth: '480px',
+          mx: 'auto',
+          px: 4,
+          py: 2,
+          textAlign: 'center',
+        }}>
+        <Card.Header sx={{display: 'flex', flexDirection: 'column'}}>
+          <AppLogo
+            style={{
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              borderRadius: '5px',
+            }}
+            width={96}
+            height={96}
           />
 
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{mt: 2}}
-            endIcon={loading ? <CircularProgress size={18} color="primary" /> : <SendRounded />}
-            disabled={loading}>
-            Request reset
-          </Button>
-        </form>
-      </Card.Body>
-
-      <Card.Footer>
-        <Divider sx={{my: 3}} />
-
-        <Grid container spacing={1} justifyContent="center">
-          {session && (
-            <Grid item xs={6} md={6} lg={6} xl={4}>
-              <StackedIconButton
-                size="large"
-                startIcon={<HomeRounded />}
-                sx={{width: '100%'}}
-                onClick={() => navigate('/')}>
-                Dashboard
-              </StackedIconButton>
+          <Typography variant={'h4'} textAlign={'center'} fontWeight={'bolder'} sx={{mt: 2}}>
+            Request password reset
+          </Typography>
+        </Card.Header>
+        <Card.Body>
+          <form onSubmit={handler.onSubmit}>
+            <Grid container spacing={2} sx={{mt: 1}}>
+              <Grid item xs={12} md={12}>
+                <TextField
+                  variant="outlined"
+                  type="email"
+                  label="E-Mail"
+                  name="email"
+                  onChange={e => setEmail(e.target.value)}
+                  autoFocus
+                  fullWidth
+                  required
+                  disabled={loading}
+                />
+              </Grid>
             </Grid>
-          )}
-          <Grid item xs={6} md={6} lg={6} xl={4}>
-            <StackedIconButton
-              size="large"
-              startIcon={<AppRegistrationRounded />}
-              sx={{width: '100%'}}
-              onClick={() => {
-                console.log('test');
-                navigate('/sign-up');
-              }}>
-              Sign up
-            </StackedIconButton>
-          </Grid>
-        </Grid>
-      </Card.Footer>
-    </Card>
+            <Box sx={{display: 'flex', justifyContent: 'center'}}>
+              <Button
+                type="submit"
+                variant="contained"
+                endIcon={loading ? <CircularProgress size={18} color="primary" /> : <SendRounded />}
+                disabled={loading}
+                sx={{mt: 2}}>
+                Submit request
+              </Button>
+            </Box>
+          </form>
+
+          <Divider sx={{my: 2}}>Other options</Divider>
+
+          {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+          {/*@ts-expect-error*/}
+          <Button
+            LinkComponent={RouterLink}
+            to={'/sign-in'}
+            size={'large'}
+            startIcon={<SendRounded />}
+            sx={{mb: 1}}
+            fullWidth>
+            Sign in
+          </Button>
+
+          {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+          {/*@ts-expect-error*/}
+          <Button
+            LinkComponent={RouterLink}
+            to={'/sign-up'}
+            size={'large'}
+            startIcon={<AppRegistrationRounded />}
+            fullWidth>
+            Sign up
+          </Button>
+        </Card.Body>
+      </Card>
+    </React.Fragment>
   );
 };
 

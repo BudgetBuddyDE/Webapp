@@ -2,12 +2,18 @@ import {FormDrawer, FormDrawerReducer, generateInitialFormDrawerState} from '@/c
 import {TextField} from '@mui/material';
 import React from 'react';
 import {FormStyle} from '@/style/Form.style';
-import {ZUpdateCategoryPayload, type TCategory, type TUpdateCategoryPayload} from '@budgetbuddyde/types';
-import {useAuthContext} from '../Auth';
-import {useSnackbarContext} from '../Snackbar';
-import {CategoryService} from './Category.service';
-import {useFetchCategories} from '.';
+import {useAuthContext} from '@/components/Auth';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {useFetchCategories} from './useFetchCategories.hook';
 import {type TEntityDrawerState} from '@/hooks';
+import {
+  type TCategory,
+  type TUpdateCategoryPayload,
+  ZCategory,
+  ZUpdateCategoryPayload,
+  PocketBaseCollection,
+} from '@budgetbuddyde/types';
+import {pb} from '@/pocketbase';
 
 export type TEditCategoryDrawerPayload = TCategory;
 
@@ -16,7 +22,7 @@ export type TEditCategoryDrawerProps = {
 } & TEntityDrawerState<TEditCategoryDrawerPayload>;
 
 export const EditCategoryDrawer: React.FC<TEditCategoryDrawerProps> = ({shown, payload: drawerPayload, onClose}) => {
-  const {session, authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const {refresh: refreshCategories} = useFetchCategories();
   const [drawerState, setDrawerState] = React.useReducer(FormDrawerReducer, generateInitialFormDrawerState());
@@ -33,30 +39,28 @@ export const EditCategoryDrawer: React.FC<TEditCategoryDrawerProps> = ({shown, p
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      if (!session || !drawerPayload) return;
+      if (!sessionUser || !drawerPayload) return;
       setDrawerState({type: 'SUBMIT'});
 
       try {
         const parsedForm = ZUpdateCategoryPayload.safeParse({
+          owner: sessionUser.id,
           ...form,
-          categoryId: drawerPayload.id,
         });
-        if (!parsedForm.success) throw new Error(parsedForm.error.message);
+        if (!parsedForm.success) throw parsedForm.error;
         const payload: TUpdateCategoryPayload = parsedForm.data;
 
-        const [createdCategory, error] = await CategoryService.update(payload, authOptions);
-        if (error) {
-          setDrawerState({type: 'ERROR', error: error});
-          return;
-        }
-        if (!createdCategory) {
-          setDrawerState({type: 'ERROR', error: new Error("Couldn't save the applied changes")});
-          return;
-        }
+        const record = await pb.collection(PocketBaseCollection.CATEGORY).update(drawerPayload.id, payload);
+        const parsingResult = ZCategory.safeParse(record);
+        if (!parsingResult.success) throw parsingResult;
+
+        console.debug('Updated category', parsingResult.data);
 
         setDrawerState({type: 'SUCCESS'});
         handler.onClose();
-        refreshCategories(); // FIXME: Wrap inside startTransition
+        React.startTransition(() => {
+          refreshCategories();
+        });
         showSnackbar({message: `Saved applied changes for ${payload.name}`});
       } catch (error) {
         console.error(error);

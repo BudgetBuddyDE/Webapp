@@ -1,14 +1,14 @@
 import {create} from 'zustand';
-import type {TCategory, TUser} from '@budgetbuddyde/types';
-import {IBaseStore} from '../Transaction';
+import {type IBaseStore} from '@/components/Transaction';
+import {type TCategory, type TUser} from '@budgetbuddyde/types';
 
-export interface ICategoryStore extends IBaseStore<TCategory[]> {
-  fetchedBy: TUser['uuid'] | null;
+export interface ICategoryStore<T> extends IBaseStore<T[]> {
+  fetchedBy: NonNullable<TUser>['id'] | null;
   fetchedAt: Date | null;
-  setFetchedData: (data: TCategory[], fetchedBy: TUser['uuid'] | null) => void;
+  setFetchedData: (data: T[], fetchedBy: NonNullable<TUser>['id'] | null) => void;
 }
 
-export const useCategoryStore = create<ICategoryStore>(set => ({
+export const useCategoryStore = create<ICategoryStore<TCategory>>(set => ({
   data: [],
   fetchedBy: null,
   fetchedAt: null,

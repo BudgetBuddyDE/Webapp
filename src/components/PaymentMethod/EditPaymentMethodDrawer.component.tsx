@@ -2,11 +2,18 @@ import {FormDrawer, FormDrawerReducer, generateInitialFormDrawerState} from '@/c
 import {TextField} from '@mui/material';
 import React from 'react';
 import {FormStyle} from '@/style/Form.style';
-import {ZUpdatePaymentMethodPayload, type TPaymentMethod, type TUpdatePaymentMethodPayload} from '@budgetbuddyde/types';
-import {useAuthContext} from '../Auth';
-import {useSnackbarContext} from '../Snackbar';
-import {useFetchPaymentMethods, PaymentMethodService} from '.';
+import {useAuthContext} from '@/components/Auth';
+import {useSnackbarContext} from '@/components/Snackbar';
 import {type TEntityDrawerState} from '@/hooks';
+import {
+  PocketBaseCollection,
+  type TPaymentMethod,
+  type TUpdatePaymentMethodPayload,
+  ZPaymentMethod,
+  ZUpdatePaymentMethodPayload,
+} from '@budgetbuddyde/types';
+import {useFetchPaymentMethods} from './useFetchPaymentMethods.hook';
+import {pb} from '@/pocketbase';
 
 export type TEditPaymentMethodDrawerPayload = TPaymentMethod;
 
@@ -16,10 +23,10 @@ export type TEditPaymentMethodProps = {
 
 export const EditPaymentMethodDrawer: React.FC<TEditPaymentMethodProps> = ({
   shown,
-  payload: paymentMethod,
+  payload: drawerPayload,
   onClose,
 }) => {
-  const {session, authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const {refresh: refreshPaymentMethods} = useFetchPaymentMethods();
   const [drawerState, setDrawerState] = React.useReducer(FormDrawerReducer, generateInitialFormDrawerState());
@@ -36,30 +43,28 @@ export const EditPaymentMethodDrawer: React.FC<TEditPaymentMethodProps> = ({
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      if (!session || !paymentMethod) return;
+      if (!sessionUser || !drawerPayload) return;
       setDrawerState({type: 'SUBMIT'});
 
       try {
         const parsedForm = ZUpdatePaymentMethodPayload.safeParse({
           ...form,
-          id: paymentMethod.id,
+          owner: sessionUser.id,
         });
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
         const payload: TUpdatePaymentMethodPayload = parsedForm.data;
 
-        const [createdPaymentMethod, error] = await PaymentMethodService.update(payload, authOptions);
-        if (error) {
-          setDrawerState({type: 'ERROR', error: error});
-          return;
-        }
-        if (!createdPaymentMethod) {
-          setDrawerState({type: 'ERROR', error: new Error("Couldn't save the applied changes")});
-          return;
-        }
+        const record = await pb.collection(PocketBaseCollection.PAYMENT_METHOD).update(drawerPayload.id, payload);
+        const parsingResult = ZPaymentMethod.safeParse(record);
+        if (!parsingResult.success) throw parsingResult;
+
+        console.debug('Updated payment-method', parsingResult.data);
 
         setDrawerState({type: 'SUCCESS'});
         handler.onClose();
-        refreshPaymentMethods(); // FIXME: Wrap inside startTransition
+        React.startTransition(() => {
+          refreshPaymentMethods();
+        });
         showSnackbar({message: `Saved applied changes for ${payload.name}`});
       } catch (error) {
         console.error(error);
@@ -69,14 +74,14 @@ export const EditPaymentMethodDrawer: React.FC<TEditPaymentMethodProps> = ({
   };
 
   React.useEffect(() => {
-    if (!paymentMethod) return;
+    if (!drawerPayload) return;
     setForm({
-      name: paymentMethod.name,
-      address: paymentMethod.address,
-      provider: paymentMethod.provider,
-      description: paymentMethod.description ?? '',
+      name: drawerPayload.name,
+      address: drawerPayload.address ?? '',
+      provider: drawerPayload.provider ?? '',
+      description: drawerPayload.description ?? '',
     });
-  }, [paymentMethod]);
+  }, [drawerPayload]);
 
   return (
     <FormDrawer

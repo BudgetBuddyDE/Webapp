@@ -2,8 +2,8 @@ import React from 'react';
 import {format} from 'date-fns';
 import {Box, Chip, IconButton, type ChipProps} from '@mui/material';
 import {AddRounded as AddIcon, ReceiptRounded as ReceiptIcon} from '@mui/icons-material';
-import type {TTransaction} from '@budgetbuddyde/types';
 import {Card, ListWithIcon, NoResults, TCardProps} from '@/components/Base';
+import {type TTransaction} from '@budgetbuddyde/types';
 
 export type TTransactionListProps = {
   title: string;
@@ -52,11 +52,11 @@ export const TransactionList: React.FC<TTransactionListProps> = ({
               title={transaction.receiver}
               subtitle={
                 <Box>
-                  <Chip label={format(new Date(transaction.processedAt), 'dd.MM')} sx={{mr: 1}} {...chipProps} />
-                  <Chip label={transaction.category.name} {...chipProps} />
+                  <Chip label={format(new Date(transaction.processed_at), 'dd.MM')} sx={{mr: 1}} {...chipProps} />
+                  <Chip label={transaction.expand.category.name} {...chipProps} />
                 </Box>
               }
-              amount={transaction.transferAmount}
+              amount={transaction.transfer_amount}
             />
           ))
         ) : (

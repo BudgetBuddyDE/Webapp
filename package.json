@@ -10,10 +10,10 @@
     "test": "jest --passWithNoTests --setupFiles dotenv/config",
     "preview": "vite preview",
     "prepare": "node .husky/install.mjs",
-    "format": "prettier --write ./src"
+    "format": "prettier --write ./src --log-level silent"
   },
   "dependencies": {
-    "@budgetbuddyde/types": "^1.0.20",
+    "@budgetbuddyde/types": "^1.0.24",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.15",
@@ -32,9 +32,11 @@
     "dotenv": "^16.3.1",
     "framer-motion": "^10.16.4",
     "lodash": "^4.17.21",
+    "pocketbase": "^0.21.1",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.1",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.51.2",
     "react-router-dom": "^6.17.0",
     "socket.io-client": "^4.7.5",
     "vite-plugin-ejs": "^1.7.0",

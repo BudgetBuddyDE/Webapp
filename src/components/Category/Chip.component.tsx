@@ -1,7 +1,7 @@
 import React from 'react';
 import {Chip, type ChipProps} from '@mui/material';
-import type {TCategory} from '@budgetbuddyde/types';
 import {useFilterStore} from '../Filter';
+import {type TCategory} from '@budgetbuddyde/types';
 
 export type TCategoryChipProps = ChipProps & {category: TCategory};
 

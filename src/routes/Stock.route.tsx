@@ -18,12 +18,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import {
-  type TStockPosition,
-  type TUpdatePositionPayload,
-  type TOpenPositionPayload,
-  type TTimeframe,
-} from '@budgetbuddyde/types';
+import {type TTimeframe} from '@budgetbuddyde/types';
 import {
   AddRounded,
   ArrowForwardRounded,
@@ -60,6 +55,11 @@ import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks/useEntityDrawer.
 import {useSnackbarContext} from '@/components/Snackbar';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {CircularProgress} from '@/components/Loading';
+import {
+  type TCreateStockPositionPayload,
+  type TStockPositionWithQuote,
+  type TUpdateStockPositionPayload,
+} from '@budgetbuddyde/types';
 
 const NoStockMessage = () => (
   <Card>
@@ -70,7 +70,7 @@ const NoStockMessage = () => (
 interface IStockHandler {
   onSearch: (term: string) => void;
   onAddPosition: () => void;
-  onEditPosition: (position: TStockPosition) => void;
+  onEditPosition: (position: TStockPositionWithQuote) => void;
   onCancelDeletePosition: () => void;
   onConfirmDeletePosition: () => void;
 }
@@ -79,9 +79,9 @@ export const Stock = () => {
   const theme = useTheme();
   const params = useParams<{isin: string}>();
   const {showSnackbar} = useSnackbarContext();
-  const {authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const {updateQuote} = useStockStore();
-  const socket = getSocketIOClient(authOptions);
+  const socket = getSocketIOClient();
   const [keyword, setKeyword] = React.useState('');
   const [chartTimeframe, setChartTimeframe] = React.useState<TTimeframe>('1m');
   const [tabPane, setTabPane] = React.useState({
@@ -101,15 +101,15 @@ export const Stock = () => {
     refresh: refreshStockPositions,
   } = useFetchStockPositions();
   const [showAddDrawer, dispatchAddDrawer] = React.useReducer(
-    useEntityDrawer<TOpenPositionPayload>,
-    CreateEntityDrawerState<TOpenPositionPayload>(),
+    useEntityDrawer<TCreateStockPositionPayload>,
+    CreateEntityDrawerState<TCreateStockPositionPayload>(),
   );
   const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
-    useEntityDrawer<TUpdatePositionPayload>,
-    CreateEntityDrawerState<TUpdatePositionPayload>(),
+    useEntityDrawer<TUpdateStockPositionPayload>,
+    CreateEntityDrawerState<TUpdateStockPositionPayload>(),
   );
   const [showDeletePositionDialog, setShowDeletePositionDialog] = React.useState(false);
-  const [deletePosition, setDeletePosition] = React.useState<TStockPosition | null>(null);
+  const [deletePosition, setDeletePosition] = React.useState<TStockPositionWithQuote | null>(null);
   const chartOptions: Chart['props']['options'] = {
     chart: {
       type: 'bar',
@@ -191,8 +191,8 @@ export const Stock = () => {
       setShowDeletePositionDialog(false);
     },
     async onConfirmDeletePosition() {
-      if (!deletePosition) return;
-      const [position, error] = await StockService.deletePosition([{id: deletePosition.id}], authOptions);
+      if (!deletePosition || !sessionUser) return;
+      const [position, error] = await StockService.deletePosition({id: deletePosition.id});
       if (error) {
         showSnackbar({
           message: error.message,
@@ -201,7 +201,7 @@ export const Stock = () => {
         console.error(error);
         return;
       }
-      if (!position || position.length === 0) {
+      if (!position || !position.success) {
         showSnackbar({
           message: 'Error deleting position',
           action: <Button onClick={() => handler.onConfirmDeletePosition()}>Retry</Button>,
@@ -218,13 +218,16 @@ export const Stock = () => {
     onAddPosition() {
       dispatchAddDrawer({type: 'open'});
     },
-    onEditPosition({bought_at, buy_in, exchange, id, isin, quantity}) {
+    onEditPosition({bought_at, buy_in, expand: {exchange}, id, isin, quantity}) {
+      if (!sessionUser) throw new Error('sessionUser is null!');
       dispatchEditDrawer({
         type: 'open',
         payload: {
+          owner: sessionUser.id,
+          currency: 'EUR',
           bought_at: bought_at,
           buy_in: buy_in,
-          exchange: exchange.symbol,
+          exchange: exchange.id,
           id: id,
           isin: isin,
           quantity: quantity,
@@ -234,13 +237,13 @@ export const Stock = () => {
   };
 
   React.useLayoutEffect(() => {
-    if (!params.isin) return;
+    if (!params.isin || !sessionUser || loadingStockPositions || loadingQuotes || loadingDetails) return;
     socket.connect();
 
-    socket.emit('stock:subscribe', [{isin: params.isin, exchange: 'langschwarz'}], authOptions.uuid);
+    socket.emit('stock:subscribe', [{isin: params.isin, exchange: 'langschwarz'}], sessionUser.id);
 
     socket.on(
-      `stock:update:${authOptions.uuid}`,
+      `stock:update:${sessionUser.id}`,
       (data: {exchange: string; isin: string; quote: {datetime: string; currency: string; price: number}}) => {
         console.log('stock:update', data);
         updateQuote(data.exchange, data.isin, data.quote.price);
@@ -255,10 +258,10 @@ export const Stock = () => {
     );
 
     return () => {
-      socket.emit('stock:unsubscribe', [{isin: params.isin, exchange: 'langschwarz'}], authOptions.uuid);
+      socket.emit('stock:unsubscribe', [{isin: params.isin, exchange: 'langschwarz'}], sessionUser.id);
       socket.disconnect();
     };
-  }, [params, authOptions]);
+  }, [params, sessionUser]);
 
   React.useEffect(() => {
     refreshQuotes();
@@ -278,7 +281,7 @@ export const Stock = () => {
         </Grid>
 
         <Grid item xs={12} md={12}>
-          <Table<TStockPosition>
+          <Table<TStockPositionWithQuote>
             isLoading={loadingStockPositions}
             title="Positions"
             data={displayedStockPositions}
@@ -287,7 +290,7 @@ export const Stock = () => {
               <TableRow key={position.id}>
                 <TableCell>{format(position.bought_at, 'dd.MM.yy')}</TableCell>
                 <TableCell>
-                  <Chip variant="outlined" size="small" sx={{mr: 1}} label={position.exchange.symbol} />
+                  <Chip variant="outlined" size="small" sx={{mr: 1}} label={position.expand.exchange.symbol} />
                 </TableCell>
                 <TableCell>
                   <Typography>{formatBalance(position.buy_in, position.currency)}</Typography>

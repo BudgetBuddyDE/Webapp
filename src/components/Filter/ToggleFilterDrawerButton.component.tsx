@@ -1,6 +1,6 @@
 import {TuneRounded} from '@mui/icons-material';
 import {IconButton, Tooltip} from '@mui/material';
-import {useFilterStore} from '.';
+import {useFilterStore} from './Filter.store.ts';
 
 export const ToggleFilterDrawerButton = () => {
   const {toggleVisibility} = useFilterStore();

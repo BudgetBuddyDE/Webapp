@@ -7,7 +7,7 @@ export * from './Stock.service';
 export * from './StockList.component';
 export * from './PortfolioDiversityChart.component';
 export * from './AddStockPositionDrawer.component';
-export * from './SelectStockExchange.component';
+export * from './Exchange/SelectStockExchange.component.tsx';
 export * from './EditStockPositionDrawer.component';
 export * from './Timeframe.component';
 export * from './CompanyInformation.component';

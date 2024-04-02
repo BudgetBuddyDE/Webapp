@@ -2,12 +2,17 @@ import {FormDrawer, FormDrawerReducer, generateInitialFormDrawerState} from '@/c
 import {TextField} from '@mui/material';
 import React from 'react';
 import {FormStyle} from '@/style/Form.style';
-import {ZCreateCategoryPayload, type TCreateCategoryPayload} from '@budgetbuddyde/types';
-import {useAuthContext} from '../Auth';
-import {useSnackbarContext} from '../Snackbar';
-import {CategoryService} from './Category.service';
+import {useAuthContext} from '@/components/Auth';
+import {useSnackbarContext} from '@/components/Snackbar';
 import {useFetchCategories} from './useFetchCategories.hook';
 import {type TEntityDrawerState} from '@/hooks';
+import {
+  type TCreateCategoryPayload,
+  ZCategory,
+  ZCreateCategoryPayload,
+  PocketBaseCollection,
+} from '@budgetbuddyde/types';
+import {pb} from '@/pocketbase';
 
 export type TCreateCategoryDrawerPayload = Omit<TCreateCategoryPayload, 'owner'>;
 
@@ -16,7 +21,7 @@ export type TCreateCategoryDrawerProps = {
 } & TEntityDrawerState<TCreateCategoryDrawerPayload>;
 
 export const CreateCategoryDrawer: React.FC<TCreateCategoryDrawerProps> = ({shown, payload, onClose}) => {
-  const {session, authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const {refresh: refreshCategories} = useFetchCategories();
   const [drawerState, setDrawerState] = React.useReducer(FormDrawerReducer, generateInitialFormDrawerState());
@@ -33,30 +38,28 @@ export const CreateCategoryDrawer: React.FC<TCreateCategoryDrawerProps> = ({show
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      if (!session) return;
+      if (!sessionUser) return;
       setDrawerState({type: 'SUBMIT'});
 
       try {
         const parsedForm = ZCreateCategoryPayload.safeParse({
           ...form,
-          owner: session.uuid,
+          owner: sessionUser.id,
         });
-        if (!parsedForm.success) throw new Error(parsedForm.error.message);
+        if (!parsedForm.success) throw parsedForm.error;
         const payload: TCreateCategoryPayload = parsedForm.data;
 
-        const [createdCategory, error] = await CategoryService.create(payload, authOptions);
-        if (error) {
-          setDrawerState({type: 'ERROR', error: error});
-          return;
-        }
-        if (!createdCategory) {
-          setDrawerState({type: 'ERROR', error: new Error("Couldn't create the category")});
-          return;
-        }
+        const record = await pb.collection(PocketBaseCollection.CATEGORY).create(payload);
+        const parsingResult = ZCategory.safeParse(record);
+        if (!parsingResult.success) throw parsingResult;
+
+        console.debug('Created category', parsingResult.data);
 
         setDrawerState({type: 'SUCCESS'});
         handler.onClose();
-        refreshCategories(); // FIXME: Wrap inside startTransition
+        React.startTransition(() => {
+          refreshCategories();
+        });
         showSnackbar({message: `Created category ${payload.name}`});
       } catch (error) {
         console.error(error);

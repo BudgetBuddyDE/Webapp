@@ -6,7 +6,7 @@ import {ExitToAppRounded, HomeRounded} from '@mui/icons-material';
 import {Grid, Typography, Link} from '@mui/material';
 
 const PageNotFound = () => {
-  const {session} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   return (
     <ActionPaper
       sx={{
@@ -25,7 +25,7 @@ const PageNotFound = () => {
       <Typography sx={{my: 1}}>The page you are looking for might have been removed or moved.</Typography>
 
       <Grid container spacing={1} sx={{width: '60%', mx: 'auto', justifyContent: 'center'}}>
-        {session && (
+        {sessionUser && (
           <Grid item xs={6}>
             <StackedIconButton
               component={Link}

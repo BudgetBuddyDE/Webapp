@@ -16,8 +16,8 @@ import {
 
 export const StocksView = () => {
   const {updateQuote} = useStockStore();
-  const {authOptions} = useAuthContext();
-  const socket = getSocketIOClient(authOptions);
+  const {sessionUser} = useAuthContext();
+  const socket = getSocketIOClient();
   const {loading: loadingStockPositions, positions: stockPositions} = useFetchStockPositions();
   const {
     loading: loadingDividends,
@@ -39,20 +39,31 @@ export const StocksView = () => {
 
   const preparedDividends: TDividendDetails[] = React.useMemo(() => {
     if (!dividends) return [];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     return Object.entries(dividends).map(([_, dividendDetails]) => dividendDetails);
   }, [dividends]);
 
   React.useLayoutEffect(() => {
+    if (!sessionUser || loadingStockPositions || stockPositions.length === 0) return;
     const subscribedAssets: {isin: string; exchange: string}[] = [
-      ...new Set(stockPositions.map(({isin, exchange: {exchange}}) => ({isin, exchange}))),
+      ...new Set(
+        stockPositions.map(
+          ({
+            isin,
+            expand: {
+              exchange: {exchange},
+            },
+          }) => ({isin, exchange}),
+        ),
+      ),
     ];
 
     socket.connect();
 
-    socket.emit('stock:subscribe', subscribedAssets, authOptions.uuid);
+    socket.emit('stock:subscribe', subscribedAssets, sessionUser.id);
 
     socket.on(
-      `stock:update:${authOptions.uuid}`,
+      `stock:update:${sessionUser.id}`,
       (data: {exchange: string; isin: string; quote: {datetime: string; currency: string; price: number}}) => {
         console.log('stock:update', data);
         updateQuote(data.exchange, data.isin, data.quote.price);
@@ -60,10 +71,10 @@ export const StocksView = () => {
     );
 
     return () => {
-      socket.emit('stock:unsubscribe', subscribedAssets, authOptions.uuid);
+      socket.emit('stock:unsubscribe', subscribedAssets, sessionUser.id);
       socket.disconnect();
     };
-  }, [authOptions.uuid, socket, stockPositions]);
+  }, [sessionUser, socket, stockPositions, loadingStockPositions]);
 
   React.useEffect(() => {
     if (!loadingStockPositions && stockPositions.length > 0) {

@@ -2,33 +2,31 @@ import {Grid} from '@mui/material';
 import React from 'react';
 import {StatsCard, type TStatsCardProps} from './StatsCard.component';
 import {AddRounded, RemoveRounded, BalanceRounded} from '@mui/icons-material';
-import {type IBaseStore, TransactionService, useTransactionStore} from '@/components/Transaction';
-import {type TUser} from '@budgetbuddyde/types';
+import {type IBaseStore, useTransactionStore} from '@/components/Transaction';
 import {create} from 'zustand';
 import {useAuthContext} from '@/components/Auth';
 import {useSubscriptionStore} from '@/components/Subscription';
 import {formatBalance} from '@/utils';
+import {type TUser, PocketBaseCollection} from '@budgetbuddyde/types';
+import {pb} from '@/pocketbase.ts';
+import {format} from 'date-fns';
 
 export type TDashboardStats = {
   earnings: number;
-  upcoming_earnings: number;
   expenses: number;
-  upcoming_expenses: number;
   balance: number;
 };
 
 export interface IDashboardStatsStore extends IBaseStore<TDashboardStats> {
-  fetchedBy: TUser['uuid'] | null;
+  fetchedBy: NonNullable<TUser>['id'] | null;
   fetchedAt: Date | null;
-  setFetchedData: (data: TDashboardStats, fetchedBy: TUser['uuid'] | null) => void;
+  setFetchedData: (data: TDashboardStats, fetchedBy: NonNullable<TUser>['id'] | null) => void;
 }
 
 export const useDashboardStatsStore = create<IDashboardStatsStore>(set => ({
   data: {
     earnings: 0,
-    upcoming_earnings: 0,
     expenses: 0,
-    upcoming_expenses: 0,
     balance: 0,
   },
   fetchedBy: null,
@@ -39,9 +37,7 @@ export const useDashboardStatsStore = create<IDashboardStatsStore>(set => ({
     set({
       data: {
         earnings: 0,
-        upcoming_earnings: 0,
         expenses: 0,
-        upcoming_expenses: 0,
         balance: 0,
       },
       fetchedBy: null,
@@ -49,10 +45,10 @@ export const useDashboardStatsStore = create<IDashboardStatsStore>(set => ({
     }),
 }));
 
-export type TDashboardStatsWrapperProps = {};
+export type TDashboardStatsWrapperProps = unknown;
 
 export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () => {
-  const {session, authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const {data: fetchedStats, setFetchedData, fetchedBy} = useDashboardStatsStore();
   const [loading, setLoading] = React.useState(false);
 
@@ -62,15 +58,11 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
         icon: <AddRounded />,
         label: 'Income',
         value: formatBalance(fetchedStats.earnings),
-        valueInformation:
-          fetchedStats.upcoming_earnings > 0 ? `Upcoming ${formatBalance(fetchedStats.upcoming_earnings)}` : undefined,
       },
       {
         icon: <RemoveRounded />,
         label: 'Spendings',
         value: formatBalance(fetchedStats.expenses),
-        valueInformation:
-          fetchedStats.upcoming_expenses > 0 ? `Upcoming ${formatBalance(fetchedStats.upcoming_expenses)}` : undefined,
       },
       {
         icon: <BalanceRounded />,
@@ -81,17 +73,26 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
   }, [fetchedStats]);
 
   const fetchData = React.useCallback(async () => {
-    if (!session) return;
+    if (!sessionUser) return;
     try {
-      const [stats, error] = await TransactionService.getDashboardStats(authOptions);
-      if (error) throw error;
-      if (!stats) return;
-
-      setFetchedData(stats, session.uuid);
+      const data = await pb
+        .collection(PocketBaseCollection.V_MONTHLY_BALANCES)
+        .getFirstListItem(`date="${format(new Date(), 'yyyy-MM')}"`);
+      if (!data) {
+        setFetchedData({earnings: 0, expenses: 0, balance: 0}, sessionUser.id);
+      }
+      setFetchedData(
+        {
+          earnings: data.income,
+          expenses: data.expenses,
+          balance: data.balance,
+        },
+        sessionUser.id,
+      );
     } catch (error) {
       console.error(error);
     }
-  }, [authOptions]);
+  }, []);
 
   React.useEffect(() => {
     useTransactionStore.subscribe((curr, prev) => {
@@ -104,13 +105,13 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
   }, []);
 
   React.useEffect(() => {
-    if (!session || (fetchedBy === session.uuid && fetchedStats)) return;
+    if (!sessionUser || (fetchedBy === sessionUser.id && fetchedStats)) return;
     setLoading(true);
     fetchData().finally(() => setLoading(false));
     return () => {
       setLoading(false);
     };
-  }, [session]);
+  }, [sessionUser]);
 
   return (
     <Grid container item xs={12} md={12} columns={12} spacing={3}>

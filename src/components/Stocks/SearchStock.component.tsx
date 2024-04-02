@@ -1,11 +1,10 @@
 import React from 'react';
 import {debounce} from 'lodash';
 import {Autocomplete, Box, CircularProgress, Grid, TextField, Typography} from '@mui/material';
-import {useSnackbarContext} from '../Snackbar';
+import {useSnackbarContext} from '@/components/Snackbar';
 import {type TAssetSearchResult} from '@budgetbuddyde/types';
 import {Image, StyledAutocompleteOption} from '@/components/Base';
 import {StockService} from './Stock.service';
-import {useAuthContext} from '../Auth';
 
 export type TSearchStockOption = {
   /**
@@ -31,7 +30,6 @@ interface ISearchStockHandler {
 const EVENT_DEBOUNCE_TIME = 400;
 
 export const SearchStock: React.FC<TSearchStockProps> = ({onChange}) => {
-  const {authOptions} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const [loading, setLoading] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -58,7 +56,7 @@ export const SearchStock: React.FC<TSearchStockProps> = ({onChange}) => {
     if (searchTerm.length < 1) return setSearchResults([]);
     setLoading(true);
     try {
-      const [matches, error] = await StockService.searchAsset(searchTerm, authOptions);
+      const [matches, error] = await StockService.searchAsset(searchTerm);
       if (error) throw error;
       if (!matches) return setSearchResults([]);
       // console.log(matches);

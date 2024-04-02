@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { defineConfig } from 'vite';
-import { ViteEjsPlugin } from 'vite-plugin-ejs';
+import {defineConfig} from 'vite';
+import {ViteEjsPlugin} from 'vite-plugin-ejs';
 import path from 'path';
 import react from '@vitejs/plugin-react-swc';
 // import dns from 'dns';
@@ -12,18 +12,16 @@ import react from '@vitejs/plugin-react-swc';
 
 const production = process.env.NODE_ENV === 'production';
 
-const BACKEND_HOST = process.env.BACKEND_HOST || 'http://localhost:8080';
-const FILE_SERVICE_HOST = process.env.FILE_SERVICE_HOST || 'http://localhost:8090';
 const STOCK_SERVICE_HOST = process.env.STOCK_SERVICE_HOST || 'http://localhost:7080';
+const POCKETBASE_URL = process.env.POCKETBASE_URL || '';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   // https://github.com/vitejs/vite/issues/1973#issuecomment-787571499
   define: {
     'process.env': {
-      BACKEND_HOST: BACKEND_HOST,
-      FILE_SERVICE_HOST: FILE_SERVICE_HOST,
       STOCK_SERVICE_HOST: STOCK_SERVICE_HOST,
+      POCKETBASE_URL: POCKETBASE_URL,
       NODE_ENV: process.env.NODE_ENV,
     },
   },
@@ -36,17 +34,17 @@ export default defineConfig({
           '/api': {
             target: BACKEND_HOST,
             changeOrigin: true,
-            rewrite: (path) => path.replace('/api', ''),
+            rewrite: path => path.replace('/api', ''),
           },
           '/file': {
             target: FILE_SERVICE_HOST,
             changeOrigin: true,
-            rewrite: (path) => path.replace('/file', ''),
+            rewrite: path => path.replace('/file', ''),
           },
           '/stock_service': {
             target: STOCK_SERVICE_HOST,
             changeOrigin: true,
-            rewrite: (path) => path.replace('/stock_service', ''),
+            rewrite: path => path.replace('/stock_service', ''),
           },
           // "/socket": {
           //   target: "http://localhost:7070",
@@ -58,14 +56,14 @@ export default defineConfig({
       : undefined,
   },
   resolve: {
-    alias: [{ find: '@', replacement: path.resolve(__dirname, 'src') }],
+    alias: [{find: '@', replacement: path.resolve(__dirname, 'src')}],
   },
   build: {
     outDir: 'build',
   },
   plugins: [
     react(),
-    ViteEjsPlugin((config) => {
+    ViteEjsPlugin(config => {
       return {
         ...config,
         isProd: config.mode === 'production',

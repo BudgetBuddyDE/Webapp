@@ -3,7 +3,6 @@ import {Navigate, useLocation} from 'react-router-dom';
 import {FullPageLoader} from '@/components/Loading';
 import {useAuthContext} from '../Auth.context';
 import {AuthLayout} from './Auth.layout';
-import {NotVerified} from './NotVerified.component';
 
 /**
  * **IMPORTANT**
@@ -13,7 +12,7 @@ import {NotVerified} from './NotVerified.component';
 export function withAuthLayout<P extends object>(Component: React.ComponentType<P>) {
   return function WrappedComponent(props: P & {isAuthenticated?: boolean}) {
     const {pathname} = useLocation();
-    const {loading, session} = useAuthContext();
+    const {loading, sessionUser} = useAuthContext();
 
     const loginRedirectUrl = React.useMemo(() => {
       const query = new URLSearchParams({
@@ -24,7 +23,11 @@ export function withAuthLayout<P extends object>(Component: React.ComponentType<
 
     if (loading) return <FullPageLoader />;
 
-    if (!session) return <Navigate to={loginRedirectUrl} />;
-    return <AuthLayout>{session.isVerified ? <Component {...props} /> : <NotVerified />}</AuthLayout>;
+    if (!sessionUser) return <Navigate to={loginRedirectUrl} />;
+    return (
+      <AuthLayout>
+        <Component {...props} />
+      </AuthLayout>
+    );
   };
 }

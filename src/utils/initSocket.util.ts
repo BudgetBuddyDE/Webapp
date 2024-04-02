@@ -1,14 +1,14 @@
 import {io} from 'socket.io-client';
-import {type IAuthContext} from '@/components/Auth';
+import {pb} from '@/pocketbase.ts';
 
-export function getSocketIOClient(authOptions: IAuthContext['authOptions']) {
-  return io(
-    `${process.env.NODE_ENV === 'production' ? 'wss' : 'ws'}://${process.env.STOCK_SERVICE_HOST!.split('//')[1]}`,
-    {
-      autoConnect: false,
-      auth: {
-        token: `Bearer ${authOptions.uuid}.${authOptions.password}`,
-      },
+export function getSocketIOClient() {
+  const authStore = pb.authStore;
+  const {NODE_ENV, STOCK_SERVICE_HOST} = process.env;
+  return io(`${NODE_ENV === 'production' ? 'wss' : 'ws'}://${STOCK_SERVICE_HOST!.split('//')[1]}`, {
+    autoConnect: false,
+    auth: {
+      userId: authStore.model?.id || '',
+      token: `Bearer ${authStore.token}`,
     },
-  );
+  });
 }

@@ -3,7 +3,6 @@ import {ActionPaper, Linkify} from '@/components/Base';
 import {Table} from '@/components/Base/Table';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
-import {useAuthContext} from '@/components/Auth';
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {
   CategoryAnalytics,
@@ -12,14 +11,13 @@ import {
   CategorySpendingsChart,
   CreateCategoryDrawer,
   EditCategoryDrawer,
+  useFetchCategories,
   type TCreateCategoryDrawerPayload,
   type TEditCategoryDrawerPayload,
-  useFetchCategories,
 } from '@/components/Category';
 import {CategoryIncomeChart} from '@/components/Category/Chart/IncomeChart.component';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
-import type {TCategory} from '@budgetbuddyde/types';
 import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
 import {Checkbox, Grid, IconButton, TableCell, TableRow} from '@mui/material';
 import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
@@ -28,6 +26,8 @@ import {useLocation, useNavigate} from 'react-router-dom';
 import {SearchInput} from '@/components/Base/Search';
 import {type ISelectionHandler} from '@/components/Base/Select';
 import {ToggleFilterDrawerButton} from '@/components/Filter';
+import {pb} from '@/pocketbase';
+import {PocketBaseCollection, type TCategory} from '@budgetbuddyde/types';
 
 interface ICategoriesHandler {
   onSearch: (keyword: string) => void;
@@ -43,7 +43,6 @@ export const Categories = () => {
   const navigate = useNavigate();
   const {categories, refresh: refreshCategories, loading: loadingCategories} = useFetchCategories();
   const {showSnackbar} = useSnackbarContext();
-  const {authOptions} = useAuthContext();
   const [showCreateDrawer, dispatchCreateDrawer] = React.useReducer(
     useEntityDrawer<TCreateCategoryDrawerPayload>,
     CreateEntityDrawerState<TCreateCategoryDrawerPayload>(),
@@ -75,20 +74,17 @@ export const Categories = () => {
     async onConfirmCategoryDelete() {
       try {
         if (deleteCategories.length === 0) return;
-        const [deletedItem, error] = await CategoryService.delete(
-          deleteCategories.map(({id}) => ({categoryId: id})),
-          authOptions,
+
+        const deleteResponses = Promise.allSettled(
+          deleteCategories.map(category => pb.collection(PocketBaseCollection.CATEGORY).delete(category.id)),
         );
-        if (error) {
-          return showSnackbar({message: error.message});
-        }
-        if (!deletedItem) {
-          return showSnackbar({message: "Couldn't delete the category"});
-        }
+        console.debug('Deleting categories', deleteResponses);
 
         setShowDeleteCategoryDialog(false);
         setDeleteCategories([]);
-        refreshCategories(); // FIXME: Wrap inside startTransition
+        React.startTransition(() => {
+          refreshCategories();
+        });
         showSnackbar({message: `Categories we're deleted`});
         setSelectedCategories([]);
       } catch (error) {
@@ -156,7 +152,7 @@ export const Categories = () => {
                 <CategoryChip category={category} />
               </TableCell>
               <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
-                <Linkify>{category.description ?? 'No Description'}</Linkify>
+                <Linkify>{category.description ?? 'No description available'}</Linkify>
               </TableCell>
               <TableCell align="right" size={AppConfig.table.cellSize}>
                 <ActionPaper sx={{width: 'fit-content', ml: 'auto'}}>
@@ -229,7 +225,6 @@ export const Categories = () => {
         onConfirm={() => handler.onConfirmCategoryDelete()}
         withTransition
       />
-
       <FabContainer>
         <OpenFilterDrawerFab />
         <AddFab onClick={() => handler.onCreateCategory()} />

@@ -6,16 +6,15 @@ import {FormDrawer, FormDrawerReducer, generateInitialFormDrawerState} from '@/c
 import {useAuthContext} from '../Auth';
 import {useSnackbarContext} from '../Snackbar';
 import {useScreenSize, type TEntityDrawerState} from '@/hooks';
-import {ZOpenPositionPayload, type TOpenPositionPayload} from '@budgetbuddyde/types';
 import {SearchStock, type TSearchStockOption} from './SearchStock.component';
-import {SelectStockExchange, type TSelectStockExchangeOption} from './SelectStockExchange.component';
-import {StockService} from './Stock.service';
-import {useStockStore} from './Stock.store';
+import {StockService, useStockStore} from '@/components/Stocks';
+import {SelectStockExchange, type TSelectStockExchangeOption} from '@/components/Stocks/Exchange';
 import {transformBalance} from '@/utils';
+import {TCreateStockPositionPayload, ZCreateStockPositionPayload} from '@budgetbuddyde/types';
 
 export type TAddStockPositionDrawerProps = {
   onClose: () => void;
-} & TEntityDrawerState<TOpenPositionPayload>;
+} & TEntityDrawerState<TCreateStockPositionPayload>;
 
 interface IAddStockPositionDrawerHandler {
   onClose: () => void;
@@ -28,9 +27,9 @@ interface IAddStockPositionDrawerHandler {
 
 export const AddStockPositionDrawer: React.FC<TAddStockPositionDrawerProps> = ({shown, payload, onClose}) => {
   const screenSize = useScreenSize();
-  const {set: setStockPositions} = useStockStore();
-  const {session, authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
+  const {set: setStockPositions} = useStockStore();
   const [drawerState, setDrawerState] = React.useReducer(FormDrawerReducer, generateInitialFormDrawerState());
   const [form, setForm] = React.useState<Record<string, string | number | Date>>({
     bought_at: new Date(),
@@ -48,7 +47,7 @@ export const AddStockPositionDrawer: React.FC<TAddStockPositionDrawerProps> = ({
     },
     onExchangeChange(value) {
       if (!value) return;
-      setForm(prev => ({...prev, exchange: value.ticker}));
+      setForm(prev => ({...prev, exchange: value.value}));
     },
     onInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
       setForm(prev => ({...prev, [event.target.name]: event.target.value}));
@@ -59,21 +58,21 @@ export const AddStockPositionDrawer: React.FC<TAddStockPositionDrawerProps> = ({
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      if (!session) return;
+      if (!sessionUser) return;
       setDrawerState({type: 'SUBMIT'});
 
       try {
-        const parsedForm = ZOpenPositionPayload.safeParse({
+        const parsedForm = ZCreateStockPositionPayload.safeParse({
           ...form,
           buy_in: transformBalance(form.buy_in as string),
           quantity: transformBalance(form.quantity as string),
-          owner: session.uuid,
+          owner: sessionUser.id,
           currency: 'EUR',
         });
-        if (!parsedForm.success) throw new Error(parsedForm.error.message);
-        const requestPayload: TOpenPositionPayload = parsedForm.data;
+        if (!parsedForm.success) throw parsedForm.error;
+        const requestPayload: TCreateStockPositionPayload = parsedForm.data;
 
-        const [positions, error] = await StockService.openPositions([requestPayload], authOptions);
+        const [positions, error] = await StockService.openPositions(requestPayload);
         if (error) {
           setDrawerState({type: 'ERROR', error});
           return;

@@ -8,18 +8,14 @@ import {useScreenSize, type TEntityDrawerState} from '@/hooks';
 import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {StockService} from './Stock.service';
-import {ZUpdatePositionPayload, type TUpdatePositionPayload} from '@budgetbuddyde/types';
-import {
-  type TSelectStockExchangeOption,
-  SelectStockExchange,
-  StockExchangeOptions,
-} from './SelectStockExchange.component';
+import {TUpdateStockPositionPayload, ZUpdateStockPositionPayload} from '@budgetbuddyde/types';
+import {SelectStockExchange, type TSelectStockExchangeOption} from '@/components/Stocks/Exchange';
+import {useFetchStockPositions} from '@/components/Stocks';
 import {transformBalance} from '@/utils';
-import {useFetchStockPositions} from './hooks/useFetchStockPositions.hook';
 
 export type TEditStockPositionDrawerProps = {
   onClose: () => void;
-} & TEntityDrawerState<TUpdatePositionPayload>;
+} & TEntityDrawerState<TUpdateStockPositionPayload>;
 
 interface IEditStockPositionDrawerHandler {
   onClose: () => void;
@@ -31,7 +27,7 @@ interface IEditStockPositionDrawerHandler {
 
 export const EditStockPositionDrawer: React.FC<TEditStockPositionDrawerProps> = ({shown, payload, onClose}) => {
   const screenSize = useScreenSize();
-  const {session, authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const {refresh: refreshStockPositions} = useFetchStockPositions();
   const {showSnackbar} = useSnackbarContext();
   const [drawerState, setDrawerState] = React.useReducer(FormDrawerReducer, generateInitialFormDrawerState());
@@ -56,28 +52,28 @@ export const EditStockPositionDrawer: React.FC<TEditStockPositionDrawerProps> = 
     },
     async onFormSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      if (!session || !payload) return;
+      if (!sessionUser || !payload) return;
       setDrawerState({type: 'SUBMIT'});
 
       try {
-        const parsedForm = ZUpdatePositionPayload.safeParse({
+        const parsedForm = ZUpdateStockPositionPayload.safeParse({
           ...form,
           buy_in: transformBalance(form.buy_in + ''),
           quantity: transformBalance(form.quantity + ''),
-          owner: session.uuid,
+          owner: sessionUser.id,
           currency: 'EUR',
           isin: payload.isin,
           id: payload.id,
         });
-        if (!parsedForm.success) throw new Error(parsedForm.error.message);
-        const requestPayload: TUpdatePositionPayload = parsedForm.data;
+        if (!parsedForm.success) throw parsedForm.error;
+        const requestPayload: TUpdateStockPositionPayload = parsedForm.data;
 
-        const [positions, error] = await StockService.updatePositions([requestPayload], authOptions);
+        const [updatedPosition, error] = await StockService.updatePositions(requestPayload);
         if (error) {
           setDrawerState({type: 'ERROR', error});
           return;
         }
-        if (!positions || positions.length < 1) {
+        if (!updatedPosition) {
           setDrawerState({type: 'ERROR', error: new Error('Error updating position')});
           return;
         }
@@ -141,14 +137,7 @@ export const EditStockPositionDrawer: React.FC<TEditStockPositionDrawerProps> = 
         </Grid>
 
         <Grid item xs={12} md={12}>
-          <SelectStockExchange
-            onChange={handler.onExchangeChange}
-            defaultValue={
-              payload?.exchange
-                ? StockService.getStockExchangeInputOptionFromList(payload?.exchange, StockExchangeOptions)
-                : undefined
-            }
-          />
+          <SelectStockExchange onChange={handler.onExchangeChange} defaultValue={payload?.exchange} />
         </Grid>
 
         <Grid item xs={12} md={6}>

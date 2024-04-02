@@ -3,7 +3,7 @@ import {Grid, type GridProps} from '@mui/material';
 import {StatsCard, type TStatsCardProps} from '@/components/StatsCard.component';
 import {formatBalance} from '@/utils';
 import {useFetchBudget} from './useFetchBudget.hook';
-import {SubscriptionService, useFetchSubscriptions} from '../Subscription';
+import {SubscriptionService, useFetchSubscriptions} from '@/components/Subscription';
 import {AddRounded, BalanceRounded, RemoveRounded} from '@mui/icons-material';
 
 export type TStatsWrapperProps = {
@@ -19,7 +19,7 @@ export const StatsWrapper: React.FC<TStatsWrapperProps> = ({containerProps}) => 
       income: React.useMemo(
         () =>
           SubscriptionService.getPlannedBalanceByType(subscriptions, 'INCOME').reduce(
-            (prev, {transferAmount}) => prev + Math.abs(transferAmount),
+            (prev, {transfer_amount}) => prev + Math.abs(transfer_amount),
             0,
           ),
         [subscriptions],
@@ -27,7 +27,7 @@ export const StatsWrapper: React.FC<TStatsWrapperProps> = ({containerProps}) => 
       spendings: React.useMemo(
         () =>
           SubscriptionService.getPlannedBalanceByType(subscriptions, 'SPENDINGS').reduce(
-            (prev, {transferAmount}) => prev + Math.abs(transferAmount),
+            (prev, {transfer_amount}) => prev + Math.abs(transfer_amount),
             0,
           ),
         [subscriptions],

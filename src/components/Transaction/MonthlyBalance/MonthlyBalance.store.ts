@@ -1,11 +1,11 @@
 import {create} from 'zustand';
-import type {TUser, TMonthlyBalance} from '@budgetbuddyde/types';
-import {type IBaseStore} from '../Transaction.store';
+import {type IBaseStore} from '@/components/Transaction';
+import {type TMonthlyBalance, type TUser} from '@budgetbuddyde/types';
 
 export interface IMonthlyBalanceStore extends IBaseStore<TMonthlyBalance[]> {
-  fetchedBy: TUser['uuid'] | null;
+  fetchedBy: NonNullable<TUser>['id'] | null;
   fetchedAt: Date | null;
-  setFetchedData: (data: TMonthlyBalance[], fetchedBy: TUser['uuid'] | null) => void;
+  setFetchedData: (data: TMonthlyBalance[], fetchedBy: NonNullable<TUser>['id'] | null) => void;
 }
 
 export const useMonthlyBalanceStore = create<IMonthlyBalanceStore>(set => ({

@@ -1,17 +1,17 @@
 import React from 'react';
 import {Grid} from '@mui/material';
+import {CreateTransactionDrawer, TransactionList, useFetchTransactions} from '@/components/Transaction';
+import {CreateSubscriptionDrawer, SubscriptionList, useFetchSubscriptions} from '@/components/Subscription';
 import {
   type TCreateSubscriptionPayload,
   type TCreateTransactionPayload,
   type TSubscription,
   type TTransaction,
 } from '@budgetbuddyde/types';
-import {DashboardStatsWrapper} from '@/components/DashboardStatsWrapper.component';
+import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
 import {CircularProgress} from '@/components/Loading';
 import {CategorySpendingsChart} from '@/components/Category';
-import {CreateSubscriptionDrawer, SubscriptionList, useFetchSubscriptions} from '@/components/Subscription';
-import {TransactionList, useFetchTransactions, CreateTransactionDrawer} from '@/components/Transaction';
-import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
+import {DashboardStatsWrapper} from '@/components/DashboardStatsWrapper.component';
 
 const LIST_ITEM_COUNT = 6;
 
@@ -33,7 +33,7 @@ export const DashboardView = () => {
 
   const upcomingTransactions: TTransaction[] = React.useMemo(() => {
     const now = new Date();
-    return transactions.filter(({processedAt}) => processedAt >= now).slice(0, LIST_ITEM_COUNT);
+    return transactions.filter(({processed_at}) => processed_at >= now).slice(0, LIST_ITEM_COUNT);
   }, [transactions]);
 
   const upcomingSubscriptions: TSubscription[] = React.useMemo(() => {

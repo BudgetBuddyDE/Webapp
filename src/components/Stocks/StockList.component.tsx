@@ -3,14 +3,14 @@ import {useNavigate} from 'react-router';
 import {ArrowForwardRounded} from '@mui/icons-material';
 import {Box, Button, Chip, Link} from '@mui/material';
 import {Card, ListWithIcon} from '@/components/Base';
-import {type TStockPosition} from '@budgetbuddyde/types';
 import {StockPrice} from './index';
-import {useSnackbarContext} from '../Snackbar';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
 
 export type TStockListProps = {
   title: string;
   subtitle?: string;
-  data: TStockPosition[];
+  data: TStockPositionWithQuote[];
 };
 
 export const StockList: React.FC<TStockListProps> = ({title, subtitle, data}) => {
@@ -31,7 +31,7 @@ export const StockList: React.FC<TStockListProps> = ({title, subtitle, data}) =>
             title={position.name}
             subtitle={
               <Box sx={{display: 'flex', flexDirection: 'row'}}>
-                <Chip variant="outlined" size="small" sx={{mr: 1}} label={position.exchange.symbol} />
+                <Chip variant="outlined" size="small" sx={{mr: 1}} label={position.expand.exchange.symbol} />
                 <Chip
                   variant="outlined"
                   size="small"

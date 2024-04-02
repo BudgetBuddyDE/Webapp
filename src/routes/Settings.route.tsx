@@ -7,11 +7,12 @@ import {AppInformation, EditProfile} from '@/components/Settings';
 import {UserAvatar} from '@/components/User';
 import {useAuthContext} from '@/components/Auth';
 
-export type TSettingsRouteProps = {};
+export type TSettingsRouteProps = unknown;
 
 const SettingsRoute: React.FC<TSettingsRouteProps> = () => {
-  const {session} = useAuthContext();
+  const {sessionUser} = useAuthContext();
 
+  if (!sessionUser) return null;
   return (
     <Grid container spacing={3}>
       <PageHeader title="Settings" />
@@ -40,10 +41,12 @@ const SettingsRoute: React.FC<TSettingsRouteProps> = () => {
 
               <Box sx={{mt: 'auto', mb: {xs: 0, md: 2}, ml: 1}}>
                 <Typography variant="h2">
-                  {session?.name} {session?.surname}
+                  {sessionUser.name && sessionUser.surname
+                    ? `${sessionUser.name} ${sessionUser.surname}`
+                    : sessionUser.username}
                 </Typography>
                 <Typography variant="body1" fontWeight="bolder">
-                  {session?.uuid}
+                  {sessionUser.email}
                 </Typography>
               </Box>
             </Box>
@@ -57,7 +60,7 @@ const SettingsRoute: React.FC<TSettingsRouteProps> = () => {
         </Grid>
       </Grid>
 
-      <Grid container item xs={12} md={8} lg={8} xl={9} order={{xs: 0, md: 1}}>
+      <Grid container item xs={12} md={8} lg={8} xl={9} order={{xs: 0, md: 1}} spacing={3}>
         <Grid item xs={12} md={8} lg={6} xl={6}>
           <EditProfile />
         </Grid>

@@ -1,7 +1,7 @@
 import {subDays} from 'date-fns';
 import {CategoryService} from '../Category.service';
-import {type TCategory, type TTransaction} from '@budgetbuddyde/types';
 import {type TCategoryInputOption} from '../Autocomplete';
+import {type TCategory, type TTransaction} from '@budgetbuddyde/types';
 
 describe('sortAutocompleteOptionsByTransactionUsage', () => {
   it('should return an empty array if categories is empty', () => {
@@ -13,68 +13,68 @@ describe('sortAutocompleteOptionsByTransactionUsage', () => {
 
   it('should return autocomplete options sorted by transaction usage', () => {
     const categories = [
-      {id: 1, name: 'Category 1'},
-      {id: 2, name: 'Category 2'},
-      {id: 3, name: 'Category 3'},
+      {id: '1', name: 'Category 1'},
+      {id: '2', name: 'Category 2'},
+      {id: '3', name: 'Category 3'},
     ] as TCategory[];
     const transactions = [
-      {category: categories[0], processedAt: new Date()},
-      {category: categories[1], processedAt: new Date()},
-      {category: categories[0], processedAt: new Date()},
-      {category: categories[2], processedAt: new Date()},
+      {expand: {category: categories[0]}, processed_at: new Date()},
+      {expand: {category: categories[1]}, processed_at: new Date()},
+      {expand: {category: categories[0]}, processed_at: new Date()},
+      {expand: {category: categories[2]}, processed_at: new Date()},
     ] as TTransaction[];
     const result = CategoryService.sortAutocompleteOptionsByTransactionUsage(categories, transactions);
 
     const expected: TCategoryInputOption[] = [
-      {value: 1, label: 'Category 1'},
-      {value: 2, label: 'Category 2'},
-      {value: 3, label: 'Category 3'},
+      {value: '1', label: 'Category 1'},
+      {value: '2', label: 'Category 2'},
+      {value: '3', label: 'Category 3'},
     ];
     expect(result).toEqual(expected);
   });
 
   it('should return autocomplete options sorted by transaction usage within the specified days', () => {
     const categories = [
-      {id: 1, name: 'Category 1'},
-      {id: 2, name: 'Category 2'},
-      {id: 3, name: 'Category 3'},
+      {id: '1', name: 'Category 1'},
+      {id: '2', name: 'Category 2'},
+      {id: '3', name: 'Category 3'},
     ] as TCategory[];
     const transactions = [
-      {category: categories[0], processedAt: subDays(new Date(), 10)},
-      {category: categories[1], processedAt: subDays(new Date(), 20)},
-      {category: categories[0], processedAt: subDays(new Date(), 5)},
-      {category: categories[2], processedAt: subDays(new Date(), 15)},
+      {expand: {category: categories[0]}, processed_at: subDays(new Date(), 10)},
+      {expand: {category: categories[1]}, processed_at: subDays(new Date(), 20)},
+      {expand: {category: categories[0]}, processed_at: subDays(new Date(), 5)},
+      {expand: {category: categories[2]}, processed_at: subDays(new Date(), 15)},
     ] as TTransaction[];
     const result = CategoryService.sortAutocompleteOptionsByTransactionUsage(categories, transactions, 15);
 
     const expected: TCategoryInputOption[] = [
-      {value: 1, label: 'Category 1'},
-      {value: 3, label: 'Category 3'},
-      {value: 2, label: 'Category 2'},
+      {value: '1', label: 'Category 1'},
+      {value: '3', label: 'Category 3'},
+      {value: '2', label: 'Category 2'},
     ];
     expect(result).toEqual(expected);
   });
 
   it('should return autocomplete options sorted by transaction usage with default days', () => {
     const categories = [
-      {id: 1, name: 'Category 1'},
-      {id: 2, name: 'Category 2'},
-      {id: 3, name: 'Category 3'},
+      {id: '1', name: 'Category 1'},
+      {id: '2', name: 'Category 2'},
+      {id: '3', name: 'Category 3'},
     ] as TCategory[];
     const transactions = [
-      {category: categories[0], processedAt: subDays(new Date(), 10)},
-      {category: categories[2], processedAt: subDays(new Date(), 20)},
-      {category: categories[0], processedAt: subDays(new Date(), 5)},
-      {category: categories[1], processedAt: subDays(new Date(), 15)},
-      {category: categories[2], processedAt: subDays(new Date(), 31)},
-      {category: categories[2], processedAt: subDays(new Date(), 31)},
+      {expand: {category: categories[0]}, processed_at: subDays(new Date(), 10)},
+      {expand: {category: categories[2]}, processed_at: subDays(new Date(), 20)},
+      {expand: {category: categories[0]}, processed_at: subDays(new Date(), 5)},
+      {expand: {category: categories[1]}, processed_at: subDays(new Date(), 15)},
+      {expand: {category: categories[2]}, processed_at: subDays(new Date(), 31)},
+      {expand: {category: categories[2]}, processed_at: subDays(new Date(), 31)},
     ] as TTransaction[];
     const result = CategoryService.sortAutocompleteOptionsByTransactionUsage(categories, transactions);
 
     const expected: TCategoryInputOption[] = [
-      {value: 1, label: 'Category 1'},
-      {value: 2, label: 'Category 2'},
-      {value: 3, label: 'Category 3'},
+      {value: '1', label: 'Category 1'},
+      {value: '2', label: 'Category 2'},
+      {value: '3', label: 'Category 3'},
     ];
     expect(result).toEqual(expected);
   });
@@ -89,57 +89,57 @@ describe('filter', () => {
 
   it('should return categories that match the keyword', () => {
     const categories = [
-      {id: 1, name: 'Category 1', description: 'Description 1'},
-      {id: 2, name: 'Category 2', description: 'Description 2'},
-      {id: 3, name: 'Category 3', description: 'Description 3'},
+      {id: '1', name: 'Category 1', description: 'Description 1'},
+      {id: '2', name: 'Category 2', description: 'Description 2'},
+      {id: '3', name: 'Category 3', description: 'Description 3'},
     ] as TCategory[];
     const keyword = 'category';
     const result = CategoryService.filter(categories, keyword);
     const expected = [
-      {id: 1, name: 'Category 1', description: 'Description 1'},
-      {id: 2, name: 'Category 2', description: 'Description 2'},
-      {id: 3, name: 'Category 3', description: 'Description 3'},
+      {id: '1', name: 'Category 1', description: 'Description 1'},
+      {id: '2', name: 'Category 2', description: 'Description 2'},
+      {id: '3', name: 'Category 3', description: 'Description 3'},
     ];
     expect(result).toEqual(expected);
   });
 
   it('should return categories that match the keyword case-insensitively', () => {
     const categories = [
-      {id: 1, name: 'Category 1', description: 'Description 1'},
-      {id: 2, name: 'Category 2', description: 'Description 2'},
-      {id: 3, name: 'Category 3', description: 'Description 3'},
+      {id: '1', name: 'Category 1', description: 'Description 1'},
+      {id: '2', name: 'Category 2', description: 'Description 2'},
+      {id: '3', name: 'Category 3', description: 'Description 3'},
     ] as TCategory[];
     const keyword = 'CATEGORY';
     const result = CategoryService.filter(categories, keyword);
     const expected = [
-      {id: 1, name: 'Category 1', description: 'Description 1'},
-      {id: 2, name: 'Category 2', description: 'Description 2'},
-      {id: 3, name: 'Category 3', description: 'Description 3'},
+      {id: '1', name: 'Category 1', description: 'Description 1'},
+      {id: '2', name: 'Category 2', description: 'Description 2'},
+      {id: '3', name: 'Category 3', description: 'Description 3'},
     ];
     expect(result).toEqual(expected);
   });
 
   it('should return categories that match the keyword in name or description', () => {
     const categories = [
-      {id: 1, name: 'Category 1', description: 'Description 1'},
-      {id: 2, name: 'Category 2', description: 'Description 2'},
-      {id: 3, name: 'Category 3', description: 'Description 3'},
+      {id: '1', name: 'Category 1', description: 'Description 1'},
+      {id: '2', name: 'Category 2', description: 'Description 2'},
+      {id: '3', name: 'Category 3', description: 'Description 3'},
     ] as TCategory[];
     const keyword = 'description';
     const result = CategoryService.filter(categories, keyword);
     const expected = [
-      {id: 1, name: 'Category 1', description: 'Description 1'},
-      {id: 2, name: 'Category 2', description: 'Description 2'},
-      {id: 3, name: 'Category 3', description: 'Description 3'},
+      {id: '1', name: 'Category 1', description: 'Description 1'},
+      {id: '2', name: 'Category 2', description: 'Description 2'},
+      {id: '3', name: 'Category 3', description: 'Description 3'},
     ];
     expect(result).toEqual(expected);
   });
 
   it('should return an empty array if no categories match the keyword', () => {
     const categories = [
-      {id: 1, name: 'Category 1', description: 'Description 1'},
-      {id: 2, name: 'Category 2', description: 'Description 2'},
-      {id: 3, name: 'Category 3', description: 'Description 3'},
+      {id: '1', name: 'Category 1', description: 'Description 1'},
+      {id: '2', name: 'Category 2', description: 'Description 2'},
+      {id: '3', name: 'Category 3', description: 'Description 3'},
     ] as TCategory[];
     const keyword = 'test';
     const result = CategoryService.filter(categories, keyword);

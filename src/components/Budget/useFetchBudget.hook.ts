@@ -1,12 +1,14 @@
 import React from 'react';
-import {useAuthContext} from '../Auth';
+import {z} from 'zod';
+import {pb} from '@/pocketbase';
+import {PocketBaseCollection, ZBudget} from '@budgetbuddyde/types';
+import {useAuthContext} from '@/components/Auth';
 import {useBudgetStore} from './Budget.store';
-import {BudgetService} from './Budget.service';
 
 let mounted = false;
 
 export function useFetchBudget() {
-  const {session, authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const {data, fetchedAt, fetchedBy, setFetchedData} = useBudgetStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
@@ -14,18 +16,18 @@ export function useFetchBudget() {
   const fetchBudget = React.useCallback(async (withLoading?: boolean): Promise<boolean> => {
     setError(null);
     try {
-      if (!session) return false;
+      if (!sessionUser) return false;
       if (withLoading) setLoading(true);
-      const [fetchedBudget, error] = await BudgetService.getBudgetsByUuid(authOptions);
-      if (error) {
-        setError(error);
+      const records = await pb.collection(PocketBaseCollection.BUDGET).getFullList({
+        expand: 'category',
+      });
+
+      const parsingResult = z.array(ZBudget).safeParse(records);
+      if (!parsingResult.success) {
+        console.error(parsingResult.error);
         return false;
       }
-      if (!fetchedBudget) {
-        setError(new Error('No budgets returned'));
-        return false;
-      }
-      setFetchedData(fetchedBudget, session.uuid);
+      setFetchedData(parsingResult.data, sessionUser.id);
       return true;
     } catch (error) {
       if ((error as Error).name === 'AbortError') return true;
@@ -35,7 +37,7 @@ export function useFetchBudget() {
   }, []);
 
   React.useEffect(() => {
-    if (!session || (fetchedBy === session.uuid && data) || loading || mounted) return;
+    if (!sessionUser || (fetchedBy === sessionUser.id && data) || loading || mounted) return;
 
     mounted = true;
     fetchBudget(true).then(success => {
@@ -48,7 +50,7 @@ export function useFetchBudget() {
       setError(null);
       mounted = false;
     };
-  }, [session, data]);
+  }, [sessionUser, data]);
 
   return {
     loading,

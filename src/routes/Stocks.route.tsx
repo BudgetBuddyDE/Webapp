@@ -6,7 +6,6 @@ import {Table} from '@/components/Base/Table';
 import {ContentGrid} from '@/components/Layout';
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {Box, Button, Chip, Grid, IconButton, TableCell, TableRow, Tooltip, Typography} from '@mui/material';
-import {type TOpenPositionPayload, type TStockPosition} from '@budgetbuddyde/types';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {
   AddStockPositionDrawer,
@@ -24,6 +23,7 @@ import {CircularProgress} from '@/components/Loading';
 import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {useAuthContext} from '@/components/Auth';
+import {type TCreateStockPositionPayload, type TStockPositionWithQuote} from '@budgetbuddyde/types';
 
 interface IStocksHandler {
   onSearch: (keyword: string) => void;
@@ -34,20 +34,20 @@ interface IStocksHandler {
 
 export const Stocks = () => {
   const navigate = useNavigate();
-  const {authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const {updateQuote} = useStockStore();
-  const socket = getSocketIOClient(authOptions);
+  const socket = getSocketIOClient();
   const {showSnackbar} = useSnackbarContext();
   const [showDeletePositionDialog, setShowDeletePositionDialog] = React.useState(false);
-  const [deletePosition, setDeletePosition] = React.useState<TStockPosition | null>(null);
+  const [deletePosition, setDeletePosition] = React.useState<TStockPositionWithQuote | null>(null);
   const {
     loading: loadingStockPositions,
     positions: stockPositions,
     refresh: refreshStockPositions,
   } = useFetchStockPositions();
   const [showAddDrawer, dispatchAddDrawer] = React.useReducer(
-    useEntityDrawer<TOpenPositionPayload>,
-    CreateEntityDrawerState<TOpenPositionPayload>(),
+    useEntityDrawer<TCreateStockPositionPayload>,
+    CreateEntityDrawerState<TCreateStockPositionPayload>(),
   );
   const [keyword, setKeyword] = React.useState('');
 
@@ -66,9 +66,9 @@ export const Stocks = () => {
       setShowDeletePositionDialog(false);
     },
     async onConfirmDeletePosition() {
-      if (!deletePosition) return;
+      if (!deletePosition || !sessionUser) return;
 
-      const [position, error] = await StockService.deletePosition([{id: deletePosition.id}], authOptions);
+      const [position, error] = await StockService.deletePosition({id: deletePosition.id});
       if (error) {
         showSnackbar({
           message: error.message,
@@ -77,7 +77,7 @@ export const Stocks = () => {
         console.error(error);
         return;
       }
-      if (!position || position.length === 0) {
+      if (!position || !position.success) {
         showSnackbar({
           message: 'Error deleting position',
           action: <Button onClick={() => handler.onConfirmDeletePosition()}>Retry</Button>,
@@ -101,16 +101,26 @@ export const Stocks = () => {
   };
 
   React.useLayoutEffect(() => {
+    if (!sessionUser || loadingStockPositions || stockPositions.length === 0) return;
     const subscribedAssets: {isin: string; exchange: string}[] = [
-      ...new Set(stockPositions.map(({isin, exchange: {exchange}}) => ({isin, exchange}))),
+      ...new Set(
+        stockPositions.map(
+          ({
+            isin,
+            expand: {
+              exchange: {exchange},
+            },
+          }) => ({isin, exchange}),
+        ),
+      ),
     ];
 
     socket.connect();
 
-    socket.emit('stock:subscribe', subscribedAssets, authOptions.uuid);
+    socket.emit('stock:subscribe', subscribedAssets, sessionUser.id);
 
     socket.on(
-      `stock:update:${authOptions.uuid}`,
+      `stock:update:${sessionUser.id}`,
       (data: {exchange: string; isin: string; quote: {datetime: string; currency: string; price: number}}) => {
         console.log('stock:update', data);
         updateQuote(data.exchange, data.isin, data.quote.price);
@@ -118,15 +128,15 @@ export const Stocks = () => {
     );
 
     return () => {
-      socket.emit('stock:unsubscribe', subscribedAssets, authOptions.uuid);
+      socket.emit('stock:unsubscribe', subscribedAssets, sessionUser.id);
       socket.disconnect();
     };
-  }, [authOptions.uuid, socket, stockPositions]);
+  }, [sessionUser, socket, stockPositions, loadingStockPositions]);
 
   return (
     <ContentGrid title="Stocks" description={'Manage your positions'}>
       <Grid item xs={12} md={9} lg={9} xl={9}>
-        <Table<TStockPosition>
+        <Table<TStockPositionWithQuote>
           title="Positions"
           data={displayedStockPositions}
           headerCells={['Bought at', 'Name', 'Buy in', 'Price', 'Quantity', 'Value', 'Profit (+/-)', '']}
@@ -150,7 +160,7 @@ export const Stocks = () => {
                   <Box>
                     <Typography>{position.name}</Typography>
                     <Box sx={{display: 'flex', flexDirection: 'row'}}>
-                      <Chip variant="outlined" size="small" sx={{mr: 1}} label={position.exchange.symbol} />
+                      <Chip variant="outlined" size="small" sx={{mr: 1}} label={position.expand.exchange.symbol} />
                       <Chip
                         variant="outlined"
                         size="small"

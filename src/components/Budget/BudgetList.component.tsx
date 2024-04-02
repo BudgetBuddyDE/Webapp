@@ -1,55 +1,46 @@
 import {ActionPaper, Card, NoResults} from '@/components/Base';
 import {AddRounded} from '@mui/icons-material';
-import {Box, Button, IconButton, Tooltip} from '@mui/material';
+import {Box, IconButton, Tooltip} from '@mui/material';
 import React from 'react';
 import {useFetchBudget} from './useFetchBudget.hook';
 import {CircularProgress} from '@/components/Loading';
-import {CategoryBudget, TCategoryBudgetProps} from './CategoryBudget.component';
-import {BudgetService, CreateBudgetDrawer, EditBudgetDrawer, useFetchBudgetProgress} from '.';
-import {useSnackbarContext} from '../Snackbar';
-import {useAuthContext} from '../Auth';
-import {TBudget} from '@budgetbuddyde/types';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {CreateBudgetDrawer} from './CreateBudgetDrawer.component';
+import {EditBudgetDrawer} from './EditBudgetDrawer.component';
+import {type TBudget, PocketBaseCollection} from '@budgetbuddyde/types';
+import {pb} from '@/pocketbase';
+import {CategoryBudget} from './CategoryBudget.component';
+
+interface IBudgetListHandler {
+  onEdit: (budget: TBudget) => void;
+  onDelete: (budget: TBudget) => void;
+}
 
 export type TBudgetListProps = {};
 
 export const BudgetList: React.FC<TBudgetListProps> = () => {
-  const {authOptions} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
-  const {refresh: refreshBudgets} = useFetchBudget();
-  const {loading: loadingBudgets, budgetProgress, refresh: refreshBudgetProgress} = useFetchBudgetProgress();
+  const {loading: loadingBudgets, budgets, refresh: refreshBudgets} = useFetchBudget();
   const [showCreateBudgetDrawer, setShowCreateBudgetDrawer] = React.useState(false);
   const [showEditBudgetDrawer, setShowEditBudgetDrawer] = React.useState(false);
   const [editBudget, setEditBudget] = React.useState<TBudget | null>(null);
 
-  const handler: Pick<TCategoryBudgetProps, 'onEdit' | 'onDelete'> = {
+  const handler: IBudgetListHandler = {
     async onEdit(budget) {
       setEditBudget(budget);
       setShowEditBudgetDrawer(true);
     },
     async onDelete(budget) {
       try {
-        const [deletedBudget, error] = await BudgetService.delete(budget, authOptions);
-        if (error) throw error;
-        if (!deletedBudget) throw new Error("Couldn't remove the budgets for this category");
+        const deleteResponse = await pb.collection(PocketBaseCollection.BUDGET).delete(budget.id);
+        console.debug('Deleting budget', deleteResponse);
 
-        refreshBudgetProgress();
-        refreshBudgets();
-        showSnackbar({message: 'The budget got deleted'});
+        React.startTransition(() => {
+          refreshBudgets();
+        });
+        showSnackbar({message: `Budget deleted`});
       } catch (error) {
         console.error(error);
-        showSnackbar({
-          message: (error as Error).message,
-          action: (
-            <Button
-              onClick={() => {
-                if (handler.onDelete) {
-                  handler.onDelete(budget);
-                }
-              }}>
-              Retry
-            </Button>
-          ),
-        });
       }
     },
   };
@@ -75,10 +66,10 @@ export const BudgetList: React.FC<TBudgetListProps> = () => {
         <Card.Body>
           {loadingBudgets ? (
             <CircularProgress />
-          ) : budgetProgress.length > 0 ? (
-            budgetProgress.map(item => (
-              <Box key={item.id} sx={{mt: 1}}>
-                <CategoryBudget budget={item} onEdit={handler.onEdit} onDelete={handler.onDelete} />
+          ) : budgets.length > 0 ? (
+            budgets.map(budget => (
+              <Box key={budget.id} sx={{mt: 1}}>
+                <CategoryBudget budget={budget} onEdit={handler.onEdit} onDelete={handler.onDelete} />
               </Box>
             ))
           ) : (

@@ -3,7 +3,7 @@ import {useAuthContext} from '@/components/Auth';
 import {StockService} from '../Stock.service';
 
 export function useFetchStockDetails(isin: string) {
-  const {session, authOptions} = useAuthContext();
+  const {sessionUser} = useAuthContext();
   const [details, setDetails] = React.useState<Awaited<ReturnType<typeof StockService.getAssetDetails>>[0]>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
@@ -13,10 +13,10 @@ export function useFetchStockDetails(isin: string) {
       return setError(new Error('No valid ISIN provided'));
     }
     setError(null);
-    if (!session || !authOptions) return setError(new Error('No session or authOptions found'));
+    if (!sessionUser) return setError(new Error('sessionUser is null!'));
     setLoading(true);
 
-    const [result, error] = await StockService.getAssetDetails(isin, authOptions);
+    const [result, error] = await StockService.getAssetDetails(isin);
     if (error) {
       console.error(error);
       setLoading(false);
@@ -25,7 +25,7 @@ export function useFetchStockDetails(isin: string) {
 
     setDetails(result);
     setLoading(false);
-  }, [isin, authOptions]);
+  }, [isin, sessionUser]);
 
   React.useLayoutEffect(() => {
     fetchDetails();
@@ -34,7 +34,7 @@ export function useFetchStockDetails(isin: string) {
       setError(null);
       setDetails(null);
     };
-  }, [session]);
+  }, [sessionUser]);
 
   return {
     loading,

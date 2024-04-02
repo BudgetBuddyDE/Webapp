@@ -14,7 +14,7 @@ export const MonthlyBalanceWidget: React.FC<TMonthlyBalanceWidget> = ({cardPros}
   }, [balances]);
 
   const months = React.useMemo(() => {
-    return balances.map(balance => balance.month).reverse();
+    return balances.map(balance => balance.date).reverse();
   }, [balances]);
 
   if (loading) return null;
