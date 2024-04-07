@@ -228,8 +228,6 @@ export const Stock = () => {
     },
   };
 
-  React.useEffect(() => console.log('stockDetails', stockDetails?.details.securityDetails), [stockDetails]);
-
   React.useLayoutEffect(() => {
     if (!params.isin || !authOptions) return;
     socket.connect();
