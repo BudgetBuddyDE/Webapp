@@ -65,7 +65,12 @@ export const CategoryIncomeChart: React.FC<TCategoryIncomeChartProps> = () => {
             </ParentSize>
           </Box>
         ) : (
-          <NoResults sx={{mt: 2}} />
+          <NoResults
+            sx={{m: 2}}
+            text={
+              chart === 'MONTH' ? 'There are no transactions for this month!' : "You haven't receive any income yet!"
+            }
+          />
         )}
       </Card.Body>
     </Card>

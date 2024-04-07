@@ -244,16 +244,7 @@ export const Transactions = () => {
 
       <CreateTransactionDrawer {...showCreateDrawer} onClose={() => dispatchCreateDrawer({type: 'close'})} />
 
-      <EditTransactionDrawer
-        {...showEditDrawer}
-        onClose={() => dispatchEditDrawer({type: 'close'})}
-        // open={showEditTransactionDrawer}
-        // onChangeOpen={(isOpen) => {
-        //   setShowEditTransactionDrawer(isOpen);
-        //   if (!isOpen) setEditTransaction(null);
-        // }}
-        // transaction={editTransaction}
-      />
+      <EditTransactionDrawer {...showEditDrawer} onClose={() => dispatchEditDrawer({type: 'close'})} />
 
       <DeleteDialog
         open={showDeleteTransactionDialog}
