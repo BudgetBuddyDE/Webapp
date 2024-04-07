@@ -7,7 +7,6 @@ import {useAuthContext} from '@/components/Auth';
 import {formatBalance, getSocketIOClient} from '@/utils';
 import {
   StockList,
-  StockNews,
   DividendTable,
   useFetchStockPositions,
   useStockStore,
@@ -100,10 +99,6 @@ export const StocksView = () => {
       <Grid container item xs={12} md={4} spacing={3}>
         <Grid item xs={12}>
           <StockList title="Stocks" subtitle="How are your stocks performing?" data={stockPositions} />
-        </Grid>
-
-        <Grid item xs={12}>
-          <StockNews news={[]} />
         </Grid>
       </Grid>
     </React.Fragment>

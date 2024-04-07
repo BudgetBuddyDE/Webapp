@@ -32,6 +32,8 @@ import {CategoryChip} from '@/components/Category';
 import {PaymentMethodChip} from '@/components/PaymentMethod';
 import {type ISelectionHandler} from '@/components/Base/Select';
 import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
+import {DownloadButton} from '@/components/Download';
+import {format} from 'date-fns';
 
 interface ISubscriptionsHandler {
   onSearch: (keyword: string) => void;
@@ -248,6 +250,13 @@ export const Subscriptions = () => {
               <IconButton color="primary" onClick={() => dispatchCreateDrawer({type: 'open'})}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
+              <DownloadButton
+                data={subscriptions}
+                exportFileName={`bb_subscriptions_${format(new Date(), 'yyyy_mm_dd')}`}
+                exportFormat="JSON"
+                withTooltip>
+                Export
+              </DownloadButton>
             </React.Fragment>
           }
           withSelection

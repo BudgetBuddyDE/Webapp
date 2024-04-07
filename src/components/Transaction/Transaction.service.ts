@@ -23,6 +23,7 @@ import {type IAuthContext} from '../Auth';
 import {type TDashboardStats} from '@/components/DashboardStatsWrapper.component';
 import {FileService} from '@/services/File.service';
 import {isRunningInProdEnv} from '@/utils/isRunningInProdEnv.util';
+import {type ITransactionStore} from './Transaction.store';
 
 /**
  * Service for managing transactions.
@@ -337,5 +338,45 @@ export class TransactionService {
       mimeType: file.type,
       fileUrl: FileService.getFileUrl(file, user),
     };
+  }
+
+  /**
+   * Calculates the usage per category based on the provided transactions.
+   * @param transactions - An array of transactions.
+   * @returns A map containing the usage count per category ID.
+   */
+  static calculateUsagePerCategory(transactions: TTransaction[]): ITransactionStore['categoryUsage'] {
+    const usage: ITransactionStore['categoryUsage'] = new Map();
+    for (const {
+      category: {id},
+    } of transactions) {
+      if (usage.has(id)) {
+        usage.set(id, (usage.get(id) as number) + 1);
+      } else {
+        usage.set(id, 1);
+      }
+    }
+    console.log('categoryUsage', usage);
+    return usage;
+  }
+
+  /**
+   * Calculates the usage per payment-method based on the provided transactions.
+   * @param transactions - An array of transactions.
+   * @returns A map containing the usage count per payment-method ID.
+   */
+  static calculateUsagePerPaymentMethod(transactions: TTransaction[]): ITransactionStore['paymentMethodUsage'] {
+    const usage: ITransactionStore['paymentMethodUsage'] = new Map();
+    for (const {
+      paymentMethod: {id},
+    } of transactions) {
+      if (usage.has(id)) {
+        usage.set(id, (usage.get(id) as number) + 1);
+      } else {
+        usage.set(id, 1);
+      }
+    }
+    console.log('paymentMethodUsage', usage);
+    return usage;
   }
 }

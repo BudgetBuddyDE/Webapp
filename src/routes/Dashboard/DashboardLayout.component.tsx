@@ -4,7 +4,12 @@ import {Outlet, useLocation, useNavigate} from 'react-router-dom';
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {useAuthContext} from '@/components/Auth';
 import {ContentGrid} from '@/components/Layout';
-import {type TDashboardView, DashboardViewMapping, DashboardViewDescriptionMapping} from './index';
+import {
+  type TDashboardView,
+  DashboardViewMapping,
+  DashboardViewDescriptionMapping,
+  DashboardViewIconMapping,
+} from './index';
 import {ActionPaper} from '@/components/Base';
 
 export type TDashboardLayoutProps = React.PropsWithChildren<{
@@ -34,6 +39,13 @@ const DashboardLayout: React.FC<TDashboardLayoutProps> = ({children, useOutletIn
             exclusive>
             {Object.entries(DashboardViewMapping).map(([path, view]: [string, TDashboardView]) => (
               <ToggleButton key={path} value={path}>
+                {React.isValidElement(DashboardViewIconMapping[view]) &&
+                  // @ts-expect-error
+                  React.cloneElement(DashboardViewIconMapping[view], {
+                    sx: {
+                      mr: 0.5,
+                    },
+                  })}
                 {view.substring(0, 1).toUpperCase() + view.substring(1)}
               </ToggleButton>
             ))}

@@ -24,6 +24,7 @@ import {CircularProgress} from '@/components/Loading';
 import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {useAuthContext} from '@/components/Auth';
+import {DownloadButton} from '@/components/Download';
 
 interface IStocksHandler {
   onSearch: (keyword: string) => void;
@@ -219,6 +220,13 @@ export const Stocks = () => {
               <IconButton color="primary" onClick={handler.onAddPosition}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
+              <DownloadButton
+                data={stockPositions}
+                exportFileName={`bb_stock_positions_${format(new Date(), 'yyyy_mm_dd')}`}
+                exportFormat="JSON"
+                withTooltip>
+                Export
+              </DownloadButton>
             </React.Fragment>
           }
         />

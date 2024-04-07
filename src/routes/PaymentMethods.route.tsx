@@ -25,6 +25,8 @@ import {useEntityDrawer, CreateEntityDrawerState} from '@/hooks';
 import {useNavigate, useLocation} from 'react-router-dom';
 import {type ISelectionHandler} from '@/components/Base/Select';
 import {ToggleFilterDrawerButton} from '@/components/Filter';
+import {DownloadButton} from '@/components/Download';
+import {format} from 'date-fns';
 
 interface IPaymentMethodsHandler {
   onSearch: (keyword: string) => void;
@@ -151,7 +153,7 @@ export const PaymentMethods = () => {
                 />
               </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
-                <PaymentMethodChip paymentMethod={paymentMethod} />
+                <PaymentMethodChip paymentMethod={paymentMethod} showUsage />
               </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
                 {/* TODO: Format when is IBAN */}
@@ -184,6 +186,13 @@ export const PaymentMethods = () => {
               <IconButton color="primary" onClick={() => handler.onCreatePaymentMethod()}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
+              <DownloadButton
+                data={paymentMethods}
+                exportFileName={`bb_payment_methods_${format(new Date(), 'yyyy_mm_dd')}`}
+                exportFormat="JSON"
+                withTooltip>
+                Export
+              </DownloadButton>
             </React.Fragment>
           }
           withSelection

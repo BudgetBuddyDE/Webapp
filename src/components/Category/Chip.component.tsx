@@ -1,12 +1,14 @@
 import React from 'react';
-import {Chip, type ChipProps} from '@mui/material';
+import {Chip, Tooltip, type ChipProps} from '@mui/material';
 import type {TCategory} from '@budgetbuddyde/types';
 import {useFilterStore} from '../Filter';
+import {useTransactionStore} from '../Transaction';
 
-export type TCategoryChipProps = ChipProps & {category: TCategory};
+export type TCategoryChipProps = ChipProps & {category: TCategory; showUsage?: boolean};
 
-export const CategoryChip: React.FC<TCategoryChipProps> = ({category, ...otherProps}) => {
+export const CategoryChip: React.FC<TCategoryChipProps> = ({category, showUsage = false, ...otherProps}) => {
   const {filters, setFilters} = useFilterStore();
+  const {categoryUsage} = useTransactionStore();
 
   const handleChipClick = () => {
     if (!filters.categories) {
@@ -30,6 +32,22 @@ export const CategoryChip: React.FC<TCategoryChipProps> = ({category, ...otherPr
     });
   };
 
+  if (showUsage) {
+    return (
+      <Tooltip
+        title={`Used ${categoryUsage.has(category.id) ? categoryUsage.get(category.id) : 0} times`}
+        placement="top"
+        arrow>
+        <Chip
+          onClick={handleChipClick}
+          onDelete={filters.categories && filters.categories.includes(category.id) ? handleChipDelete : undefined}
+          label={category.name}
+          variant="outlined"
+          {...otherProps}
+        />
+      </Tooltip>
+    );
+  }
   return (
     <Chip
       onClick={handleChipClick}

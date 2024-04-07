@@ -60,6 +60,7 @@ import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks/useEntityDrawer.
 import {useSnackbarContext} from '@/components/Snackbar';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {CircularProgress} from '@/components/Loading';
+import {Formatter} from '@/services';
 
 const NoStockMessage = () => (
   <Card>
@@ -123,7 +124,6 @@ export const Stock = () => {
           colors: theme.palette.text.primary,
         },
       },
-      categories: stockDetails?.details.securityDetails?.annualFinancials.map(({date}) => date.getFullYear()).reverse(),
     },
     dataLabels: {
       enabled: false,
@@ -140,13 +140,7 @@ export const Stock = () => {
           colors: theme.palette.text.primary,
         },
         formatter(val: number) {
-          let formattedVal: number | string = val as number;
-          if (formattedVal >= 1000000000) {
-            formattedVal = (formattedVal / 1000000000).toFixed(2) + ' Mrd.';
-          } else if (formattedVal >= 1000000) {
-            formattedVal = (formattedVal / 1000000).toFixed(2) + ' Mio.';
-          }
-          return formattedVal as string;
+          return Formatter.shortenNumber(val);
         },
       },
     },
@@ -161,7 +155,7 @@ export const Stock = () => {
       theme: 'dark',
       y: {
         formatter(val: number) {
-          return formatBalance(val as number);
+          return Formatter.formatBalance(val);
         },
       },
     },
@@ -232,6 +226,8 @@ export const Stock = () => {
       });
     },
   };
+
+  React.useEffect(() => console.log('stockDetails', stockDetails?.details.securityDetails), [stockDetails]);
 
   React.useLayoutEffect(() => {
     if (!params.isin) return;
@@ -361,7 +357,15 @@ export const Stock = () => {
                     type="bar"
                     width={'100%'}
                     height={300}
-                    options={chartOptions}
+                    options={{
+                      ...chartOptions,
+                      xaxis: {
+                        ...chartOptions.xaxis,
+                        categories: stockDetails?.details.securityDetails?.annualFinancials
+                          .map(({date}) => date.getFullYear())
+                          .reverse(),
+                      },
+                    }}
                     series={[
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
@@ -385,7 +389,15 @@ export const Stock = () => {
                     type="bar"
                     width={'100%'}
                     height={300}
-                    options={chartOptions}
+                    options={{
+                      ...chartOptions,
+                      xaxis: {
+                        ...chartOptions.xaxis,
+                        categories: stockDetails?.details.securityDetails?.quarterlyFinancials
+                          .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
+                          .reverse(),
+                      },
+                    }}
                     series={[
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
@@ -428,7 +440,15 @@ export const Stock = () => {
                     type="bar"
                     width={'100%'}
                     height={300}
-                    options={chartOptions}
+                    options={{
+                      ...chartOptions,
+                      xaxis: {
+                        ...chartOptions.xaxis,
+                        categories: stockDetails?.details.securityDetails?.annualFinancials
+                          .map(({date}) => date.getFullYear())
+                          .reverse(),
+                      },
+                    }}
                     series={[
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
@@ -464,7 +484,15 @@ export const Stock = () => {
                     type="bar"
                     width={'100%'}
                     height={300}
-                    options={chartOptions}
+                    options={{
+                      ...chartOptions,
+                      xaxis: {
+                        ...chartOptions.xaxis,
+                        categories: stockDetails?.details.securityDetails?.quarterlyFinancials
+                          .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
+                          .reverse(),
+                      },
+                    }}
                     series={[
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
