@@ -153,7 +153,7 @@ export const Categories = () => {
                 />
               </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
-                <CategoryChip category={category} />
+                <CategoryChip category={category} showUsage />
               </TableCell>
               <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                 <Linkify>{category.description ?? 'No Description'}</Linkify>

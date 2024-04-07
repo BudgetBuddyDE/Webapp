@@ -151,7 +151,7 @@ export const PaymentMethods = () => {
                 />
               </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
-                <PaymentMethodChip paymentMethod={paymentMethod} />
+                <PaymentMethodChip paymentMethod={paymentMethod} showUsage />
               </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
                 {/* TODO: Format when is IBAN */}
