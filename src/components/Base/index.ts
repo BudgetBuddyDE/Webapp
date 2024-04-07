@@ -12,3 +12,4 @@ export * from './Charts';
 export * from './SparklineWidget.component';
 export * from './LabelBadge.component';
 export * from './TabPanel.component';
+export * from './FullScreenDialog.component.tsx';

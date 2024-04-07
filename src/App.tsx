@@ -1,7 +1,7 @@
 import React from 'react';
 import {BrowserRouter, Navigate, Route, Routes} from 'react-router-dom';
-import {FullPageLoader} from './components/Loading/FullPageLoader.component';
-import {DashboardLayout, DashboardView, BudgetView, StocksView} from './routes/Dashboard';
+import {FullPageLoader} from '@/components/Loading';
+import {DashboardLayout, DashboardView, BudgetView, StocksView, AnalyticsView} from './routes/Dashboard';
 import StockRoute from './routes/Stock.route';
 import StocksRoute from './routes/Stocks.route';
 import TransactionsRoute from './routes/Transactions.route';
@@ -26,6 +26,7 @@ const App = () => {
             <Route index element={<DashboardView />} />
             <Route path="budget" element={<BudgetView />} />
             <Route path="stocks" element={<StocksView />} />
+            <Route path="analytics" element={<AnalyticsView navigateOnClose navigateTo="/dashboard" />} />
             <Route path="*" element={<Navigate to="/dashboard" />} />
           </Route>
           <Route path="/stocks">
