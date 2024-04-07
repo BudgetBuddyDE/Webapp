@@ -232,13 +232,15 @@ export const Transactions = () => {
               <IconButton color="primary" onClick={() => dispatchCreateDrawer({type: 'open'})}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
-              <DownloadButton
-                data={transactions}
-                exportFileName={`bb_transactions_${format(new Date(), 'yyyy_mm_dd')}`}
-                exportFormat="JSON"
-                withTooltip>
-                Export
-              </DownloadButton>
+              {transactions.length > 0 && (
+                <DownloadButton
+                  data={transactions}
+                  exportFileName={`bb_transactions_${format(new Date(), 'yyyy_mm_dd')}`}
+                  exportFormat="JSON"
+                  withTooltip>
+                  Export
+                </DownloadButton>
+              )}
             </React.Fragment>
           }
           withSelection

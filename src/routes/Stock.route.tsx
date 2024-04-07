@@ -1,5 +1,5 @@
 import React from 'react';
-import {useParams} from 'react-router-dom';
+import {Navigate, useParams} from 'react-router-dom';
 import Chart from 'react-apexcharts';
 import {
   Accordion,
@@ -61,6 +61,7 @@ import {useSnackbarContext} from '@/components/Snackbar';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {CircularProgress} from '@/components/Loading';
 import {Formatter} from '@/services';
+import {DownloadButton} from '@/components/Download';
 
 const NoStockMessage = () => (
   <Card>
@@ -230,7 +231,7 @@ export const Stock = () => {
   React.useEffect(() => console.log('stockDetails', stockDetails?.details.securityDetails), [stockDetails]);
 
   React.useLayoutEffect(() => {
-    if (!params.isin) return;
+    if (!params.isin || !authOptions) return;
     socket.connect();
 
     socket.emit('stock:subscribe', [{isin: params.isin, exchange: 'langschwarz'}], authOptions.uuid);
@@ -260,6 +261,7 @@ export const Stock = () => {
     refreshQuotes();
   }, [chartTimeframe]);
 
+  if (!params.isin || params.isin.length !== 12) return <Navigate to={'/stocks'} />;
   return (
     <ContentGrid title={stockDetails?.asset.name ?? ''} description={params.isin}>
       <Grid container item xs={12} md={12} lg={8} spacing={3}>
@@ -329,6 +331,15 @@ export const Stock = () => {
                 <IconButton color="primary" onClick={handler.onAddPosition}>
                   <AddRounded fontSize="inherit" />
                 </IconButton>
+                {displayedStockPositions.length > 0 && (
+                  <DownloadButton
+                    data={displayedStockPositions}
+                    exportFileName={`bb_${params.isin}_positions_${format(new Date(), 'yyyy_mm_dd')}`}
+                    exportFormat="JSON"
+                    withTooltip>
+                    Export
+                  </DownloadButton>
+                )}
               </React.Fragment>
             }
           />
@@ -574,7 +585,7 @@ export const Stock = () => {
                     Ratings
                   </Typography>
                 </AccordionSummary>
-                <AccordionDetails sx={{px: 0}}>
+                <AccordionDetails sx={{p: 0}}>
                   <StockRating ratings={stockDetails.details.scorings} />
                 </AccordionDetails>
               </Accordion>

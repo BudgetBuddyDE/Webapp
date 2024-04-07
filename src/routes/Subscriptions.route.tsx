@@ -250,13 +250,15 @@ export const Subscriptions = () => {
               <IconButton color="primary" onClick={() => dispatchCreateDrawer({type: 'open'})}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
-              <DownloadButton
-                data={subscriptions}
-                exportFileName={`bb_subscriptions_${format(new Date(), 'yyyy_mm_dd')}`}
-                exportFormat="JSON"
-                withTooltip>
-                Export
-              </DownloadButton>
+              {subscriptions.length > 0 && (
+                <DownloadButton
+                  data={subscriptions}
+                  exportFileName={`bb_subscriptions_${format(new Date(), 'yyyy_mm_dd')}`}
+                  exportFormat="JSON"
+                  withTooltip>
+                  Export
+                </DownloadButton>
+              )}
             </React.Fragment>
           }
           withSelection

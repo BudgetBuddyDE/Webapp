@@ -181,13 +181,15 @@ export const Categories = () => {
               <IconButton color="primary" onClick={() => handler.onCreateCategory()}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
-              <DownloadButton
-                data={categories}
-                exportFileName={`bb_categories_${format(new Date(), 'yyyy_mm_dd')}`}
-                exportFormat="JSON"
-                withTooltip>
-                Export
-              </DownloadButton>
+              {categories.length > 0 && (
+                <DownloadButton
+                  data={categories}
+                  exportFileName={`bb_categories_${format(new Date(), 'yyyy_mm_dd')}`}
+                  exportFormat="JSON"
+                  withTooltip>
+                  Export
+                </DownloadButton>
+              )}
             </React.Fragment>
           }
           withSelection

@@ -186,13 +186,15 @@ export const PaymentMethods = () => {
               <IconButton color="primary" onClick={() => handler.onCreatePaymentMethod()}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
-              <DownloadButton
-                data={paymentMethods}
-                exportFileName={`bb_payment_methods_${format(new Date(), 'yyyy_mm_dd')}`}
-                exportFormat="JSON"
-                withTooltip>
-                Export
-              </DownloadButton>
+              {paymentMethods.length > 0 && (
+                <DownloadButton
+                  data={paymentMethods}
+                  exportFileName={`bb_payment_methods_${format(new Date(), 'yyyy_mm_dd')}`}
+                  exportFormat="JSON"
+                  withTooltip>
+                  Export
+                </DownloadButton>
+              )}
             </React.Fragment>
           }
           withSelection
