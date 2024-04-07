@@ -1,3 +1,5 @@
+import {DateService} from './Date.service';
+
 export class Formatter {
   /**
    * Formats the balance amount as a currency string.
@@ -25,5 +27,9 @@ export class Formatter {
       formattedVal = (formattedVal / 1000).toFixed(2) + ' K.';
     }
     return formattedVal as string;
+  }
+
+  static formatDate() {
+    return new DateService();
   }
 }

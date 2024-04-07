@@ -124,7 +124,6 @@ export const Stock = () => {
           colors: theme.palette.text.primary,
         },
       },
-      categories: stockDetails?.details.securityDetails?.annualFinancials.map(({date}) => date.getFullYear()).reverse(),
     },
     dataLabels: {
       enabled: false,
@@ -227,6 +226,8 @@ export const Stock = () => {
       });
     },
   };
+
+  React.useEffect(() => console.log('stockDetails', stockDetails?.details.securityDetails), [stockDetails]);
 
   React.useLayoutEffect(() => {
     if (!params.isin) return;
@@ -356,7 +357,15 @@ export const Stock = () => {
                     type="bar"
                     width={'100%'}
                     height={300}
-                    options={chartOptions}
+                    options={{
+                      ...chartOptions,
+                      xaxis: {
+                        ...chartOptions.xaxis,
+                        categories: stockDetails?.details.securityDetails?.annualFinancials
+                          .map(({date}) => date.getFullYear())
+                          .reverse(),
+                      },
+                    }}
                     series={[
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
@@ -380,7 +389,15 @@ export const Stock = () => {
                     type="bar"
                     width={'100%'}
                     height={300}
-                    options={chartOptions}
+                    options={{
+                      ...chartOptions,
+                      xaxis: {
+                        ...chartOptions.xaxis,
+                        categories: stockDetails?.details.securityDetails?.quarterlyFinancials
+                          .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
+                          .reverse(),
+                      },
+                    }}
                     series={[
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
@@ -423,7 +440,15 @@ export const Stock = () => {
                     type="bar"
                     width={'100%'}
                     height={300}
-                    options={chartOptions}
+                    options={{
+                      ...chartOptions,
+                      xaxis: {
+                        ...chartOptions.xaxis,
+                        categories: stockDetails?.details.securityDetails?.annualFinancials
+                          .map(({date}) => date.getFullYear())
+                          .reverse(),
+                      },
+                    }}
                     series={[
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
@@ -459,7 +484,15 @@ export const Stock = () => {
                     type="bar"
                     width={'100%'}
                     height={300}
-                    options={chartOptions}
+                    options={{
+                      ...chartOptions,
+                      xaxis: {
+                        ...chartOptions.xaxis,
+                        categories: stockDetails?.details.securityDetails?.quarterlyFinancials
+                          .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
+                          .reverse(),
+                      },
+                    }}
                     series={[
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
