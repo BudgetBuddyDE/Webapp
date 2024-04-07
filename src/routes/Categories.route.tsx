@@ -28,6 +28,8 @@ import {useLocation, useNavigate} from 'react-router-dom';
 import {SearchInput} from '@/components/Base/Search';
 import {type ISelectionHandler} from '@/components/Base/Select';
 import {ToggleFilterDrawerButton} from '@/components/Filter';
+import {DownloadButton} from '@/components/Download';
+import {format} from 'date-fns';
 
 interface ICategoriesHandler {
   onSearch: (keyword: string) => void;
@@ -179,6 +181,13 @@ export const Categories = () => {
               <IconButton color="primary" onClick={() => handler.onCreateCategory()}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
+              <DownloadButton
+                data={categories}
+                exportFileName={`bb_categories_${format(new Date(), 'yyyy_mm_dd')}`}
+                exportFormat="JSON"
+                withTooltip>
+                Export
+              </DownloadButton>
             </React.Fragment>
           }
           withSelection

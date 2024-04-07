@@ -32,6 +32,7 @@ import {type ISelectionHandler} from '@/components/Base/Select';
 import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
 import {FileService} from '@/services/File.service';
 import {ImageViewDialog} from '@/components/ImageViewDialog.component';
+import {DownloadButton} from '@/components/Download';
 
 interface ITransactionsHandler {
   onSearch: (keyword: string) => void;
@@ -231,6 +232,13 @@ export const Transactions = () => {
               <IconButton color="primary" onClick={() => dispatchCreateDrawer({type: 'open'})}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
+              <DownloadButton
+                data={transactions}
+                exportFileName={`bb_transactions_${format(new Date(), 'yyyy_mm_dd')}`}
+                exportFormat="JSON"
+                withTooltip>
+                Export
+              </DownloadButton>
             </React.Fragment>
           }
           withSelection
