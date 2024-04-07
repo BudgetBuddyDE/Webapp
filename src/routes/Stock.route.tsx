@@ -60,6 +60,7 @@ import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks/useEntityDrawer.
 import {useSnackbarContext} from '@/components/Snackbar';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {CircularProgress} from '@/components/Loading';
+import {Formatter} from '@/services';
 
 const NoStockMessage = () => (
   <Card>
@@ -140,13 +141,7 @@ export const Stock = () => {
           colors: theme.palette.text.primary,
         },
         formatter(val: number) {
-          let formattedVal: number | string = val as number;
-          if (formattedVal >= 1000000000) {
-            formattedVal = (formattedVal / 1000000000).toFixed(2) + ' Mrd.';
-          } else if (formattedVal >= 1000000) {
-            formattedVal = (formattedVal / 1000000).toFixed(2) + ' Mio.';
-          }
-          return formattedVal as string;
+          return Formatter.shortenNumber(val);
         },
       },
     },
@@ -161,7 +156,7 @@ export const Stock = () => {
       theme: 'dark',
       y: {
         formatter(val: number) {
-          return formatBalance(val as number);
+          return Formatter.formatBalance(val);
         },
       },
     },
