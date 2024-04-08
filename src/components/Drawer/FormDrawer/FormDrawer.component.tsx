@@ -5,6 +5,7 @@ import React from 'react';
 import {ActionPaper} from '@/components/Base';
 import {CloseRounded, DoneRounded, ErrorRounded} from '@mui/icons-material';
 import {type TFormDrawerState} from '@/components/Drawer';
+import {useKeyPress} from '@/hooks/useKeyPress.hook.ts';
 
 export type TFormDrawerProps = {
   state?: TFormDrawerState;
@@ -24,7 +25,21 @@ export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = (
   heading = 'Drawer',
   children,
 }) => {
+  const drawerRef = React.useRef<HTMLDivElement | null>(null);
+  const saveBtnRef = React.useRef<HTMLButtonElement | null>(null);
   const screenSize = useScreenSize();
+
+  useKeyPress(
+    ['s'],
+    e => {
+      if (saveBtnRef.current) {
+        e.preventDefault();
+        saveBtnRef.current.click();
+      }
+    },
+    drawerRef.current,
+    true,
+  );
 
   const DrawerAnchor: DrawerProps['anchor'] = React.useMemo(() => {
     return screenSize === 'small' ? 'bottom' : 'right';
@@ -32,6 +47,7 @@ export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = (
 
   return (
     <Drawer
+      ref={drawerRef}
       anchor={DrawerAnchor}
       open={open}
       onClose={(_event, reason) => {
@@ -92,6 +108,7 @@ export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = (
             <Button
               type="submit"
               variant="contained"
+              ref={saveBtnRef}
               {...(state !== undefined
                 ? {
                     startIcon: state.loading ? (
