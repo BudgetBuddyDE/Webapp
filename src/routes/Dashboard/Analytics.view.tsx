@@ -2,6 +2,7 @@ import React from 'react';
 import {useNavigate} from 'react-router-dom';
 import Chart from 'react-apexcharts';
 import {
+  ActionPaper,
   DateRange,
   FullScreenDialog,
   StyledAutocompleteOption,
@@ -9,7 +10,7 @@ import {
   type TFullScreenDialogProps,
 } from '@/components/Base';
 import {Formatter} from '@/services';
-import {Autocomplete, Box, TextField, CircularProgress, useTheme} from '@mui/material';
+import {Autocomplete, Box, TextField, CircularProgress, useTheme, Typography} from '@mui/material';
 import {useFetchCategories} from '@/components/Category';
 import {type TCategory, type TTransaction} from '@budgetbuddyde/types';
 import {format, subMonths} from 'date-fns';
@@ -136,65 +137,81 @@ export const AnalyticsView: React.FC<TAnalyticsViewProps> = props => {
           </Box>
 
           <Box sx={{flex: 1, mt: 2}}>
-            <Chart
-              type={'bar'}
-              with={'100%'}
-              height={'100%'}
-              series={chartData}
-              options={{
-                chart: {
-                  type: 'bar',
-                  toolbar: {
-                    show: false,
-                  },
-                },
-                xaxis: {
-                  labels: {
-                    style: {
-                      colors: theme.palette.text.primary,
+            {selectedCategories.length > 0 && chartData.length > 0 ? (
+              <Chart
+                type={'bar'}
+                with={'100%'}
+                height={'100%'}
+                series={chartData}
+                options={{
+                  chart: {
+                    type: 'bar',
+                    toolbar: {
+                      show: false,
                     },
                   },
-                  categories: dateRangeLabels.map(dateStr => {
-                    const date = new Date(dateStr);
-                    return `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`;
-                  }),
-                },
-                dataLabels: {
-                  enabled: false,
-                },
-                grid: {
-                  borderColor: theme.palette.action.disabled,
-                  strokeDashArray: 5,
-                },
-                yaxis: {
-                  forceNiceScale: true,
-                  opposite: true,
-                  labels: {
-                    style: {
-                      colors: theme.palette.text.primary,
+                  xaxis: {
+                    labels: {
+                      style: {
+                        colors: theme.palette.text.primary,
+                      },
                     },
-                    formatter(val: number) {
-                      return Formatter.formatBalance(val);
-                    },
+                    categories: dateRangeLabels.map(dateStr => {
+                      const date = new Date(dateStr);
+                      return `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`;
+                    }),
                   },
-                },
-                legend: {
-                  position: 'bottom',
-                  horizontalAlign: 'left',
-                  labels: {
-                    colors: 'white',
+                  dataLabels: {
+                    enabled: false,
                   },
-                },
-                tooltip: {
-                  theme: 'dark',
-                  y: {
-                    formatter(val: number) {
-                      return Formatter.formatBalance(val);
+                  grid: {
+                    borderColor: theme.palette.action.disabled,
+                    strokeDashArray: 5,
+                  },
+                  yaxis: {
+                    forceNiceScale: true,
+                    opposite: true,
+                    labels: {
+                      style: {
+                        colors: theme.palette.text.primary,
+                      },
+                      formatter(val: number) {
+                        return Formatter.formatBalance(val);
+                      },
                     },
                   },
-                },
-              }}
-            />
+                  legend: {
+                    position: 'bottom',
+                    horizontalAlign: 'left',
+                    labels: {
+                      colors: 'white',
+                    },
+                  },
+                  tooltip: {
+                    theme: 'dark',
+                    y: {
+                      formatter(val: number) {
+                        return Formatter.formatBalance(val);
+                      },
+                    },
+                  },
+                }}
+              />
+            ) : (
+              <ActionPaper
+                sx={{
+                  display: 'flex',
+                  width: '100%',
+                  height: '100%',
+                  p: 2,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Typography variant={'h1'}>
+                  {selectedCategories.length === 0 ? 'No categories selected' : 'No data available'}
+                </Typography>
+              </ActionPaper>
+            )}
           </Box>
         </React.Fragment>
       )}

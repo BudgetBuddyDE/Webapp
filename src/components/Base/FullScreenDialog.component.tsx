@@ -18,10 +18,20 @@ export const FullScreenDialog: React.FC<TFullScreenDialogProps> = ({
   ...dialogProps
 }) => {
   return (
-    <Dialog fullScreen TransitionComponent={Transition} {...dialogProps}>
-      <AppBar sx={{position: 'relative', border: 'none'}}>
+    <Dialog fullScreen TransitionComponent={Transition} PaperProps={{elevation: 0}} {...dialogProps}>
+      <AppBar
+        elevation={0}
+        sx={{position: 'relative', border: 0, borderBottom: theme => `1px solid ${theme.palette.divider}`}}>
         <Toolbar sx={{border: 'none'}}>
-          <Typography sx={{flex: 1}} variant="h6" component="div">
+          <Typography
+            sx={{
+              flex: 1,
+              fontWeight: 700,
+              color: 'inherit',
+              textDecoration: 'none',
+            }}
+            variant="h5"
+            component="div">
             {title}
           </Typography>
 
