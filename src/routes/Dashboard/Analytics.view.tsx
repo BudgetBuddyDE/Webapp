@@ -15,6 +15,7 @@ import {useFetchCategories} from '@/components/Category';
 import {type TCategory, type TTransaction} from '@budgetbuddyde/types';
 import {format, subMonths} from 'date-fns';
 import {useFetchTransactions} from '@/components/Transaction';
+import {useKeyPress} from '@/hooks/useKeyPress.hook.ts';
 
 export type TAnalyticsViewProps =
   | {navigateOnClose: true; navigateTo: string}
@@ -23,6 +24,7 @@ export type TAnalyticsViewProps =
 export const AnalyticsView: React.FC<TAnalyticsViewProps> = props => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const autocompleteRef = React.useRef<HTMLInputElement | null>(null);
   const {loading: loadingCategories, categories} = useFetchCategories();
   const {loading: loadingTransactions, transactions} = useFetchTransactions();
   const [dateRange, setDateRange] = React.useState<TDateRange>({
@@ -30,6 +32,22 @@ export const AnalyticsView: React.FC<TAnalyticsViewProps> = props => {
     endDate: new Date(),
   });
   const [selectedCategories, setSelectedCategories] = React.useState<{label: string; value: TCategory['id']}[]>([]);
+  useKeyPress(
+    ['k'],
+    e => {
+      e.preventDefault();
+      if (autocompleteRef.current) {
+        // FIXME: This is not working
+        // if (document.activeElement === autocompleteRef.current) {
+        //   document.activeElement.blur();
+        // }
+
+        autocompleteRef.current.focus();
+      }
+    },
+    null,
+    true,
+  );
 
   const filterOptions = React.useMemo(() => {
     return categories.map(({id, name}) => ({label: name, value: id}));
@@ -113,7 +131,16 @@ export const AnalyticsView: React.FC<TAnalyticsViewProps> = props => {
             <Box flex={1}>
               <Autocomplete
                 sx={{width: {xs: '100%', sm: '30%'}, maxWidth: {xs: 'unset', sm: '500px'}, mb: {xs: 2, sm: 0}}}
-                renderInput={params => <TextField {...params} label="Categories" />}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    inputRef={input => {
+                      autocompleteRef.current = input;
+                    }}
+                    label="Categories"
+                    placeholder={'Select categories'}
+                  />
+                )}
                 onChange={(_event, value) => setSelectedCategories(value)}
                 value={selectedCategories}
                 options={filterOptions}
