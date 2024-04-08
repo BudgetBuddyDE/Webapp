@@ -16,6 +16,7 @@ import {type TCategory, type TTransaction} from '@budgetbuddyde/types';
 import {format, subMonths} from 'date-fns';
 import {useFetchTransactions} from '@/components/Transaction';
 import {useKeyPress} from '@/hooks/useKeyPress.hook.ts';
+import {DownloadButton} from '@/components/Download';
 
 export type TAnalyticsViewProps =
   | {navigateOnClose: true; navigateTo: string}
@@ -128,7 +129,7 @@ export const AnalyticsView: React.FC<TAnalyticsViewProps> = props => {
       ) : (
         <React.Fragment>
           <Box sx={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap'}}>
-            <Box flex={1}>
+            <Box sx={{display: 'flex', flexDirection: 'row', flex: 1}}>
               <Autocomplete
                 sx={{width: {xs: '100%', sm: '30%'}, maxWidth: {xs: 'unset', sm: '500px'}, mb: {xs: 2, sm: 0}}}
                 renderInput={params => (
@@ -152,6 +153,16 @@ export const AnalyticsView: React.FC<TAnalyticsViewProps> = props => {
                 disableCloseOnSelect
                 multiple
               />
+
+              <DownloadButton
+                exportFormat={'JSON'}
+                exportFileName={`bb_category_analytics_${format(new Date(), 'yyyy_mm_dd')}`}
+                data={chartData}
+                size={'large'}
+                sx={{ml: 1}}
+                withTooltip>
+                Export data
+              </DownloadButton>
             </Box>
 
             <Box>
