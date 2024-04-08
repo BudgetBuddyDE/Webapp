@@ -356,7 +356,6 @@ export class TransactionService {
         usage.set(id, 1);
       }
     }
-    console.log('categoryUsage', usage);
     return usage;
   }
 
@@ -376,7 +375,6 @@ export class TransactionService {
         usage.set(id, 1);
       }
     }
-    console.log('paymentMethodUsage', usage);
     return usage;
   }
 }

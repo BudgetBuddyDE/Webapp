@@ -112,7 +112,7 @@ export const AnalyticsView: React.FC<TAnalyticsViewProps> = props => {
           <Box sx={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap'}}>
             <Box flex={1}>
               <Autocomplete
-                sx={{width: {xs: '100%', sm: 350}, mb: {xs: 2, sm: 0}}}
+                sx={{width: {xs: '100%', sm: '30%'}, maxWidth: {xs: 'unset', sm: '500px'}, mb: {xs: 2, sm: 0}}}
                 renderInput={params => <TextField {...params} label="Categories" />}
                 onChange={(_event, value) => setSelectedCategories(value)}
                 value={selectedCategories}
@@ -141,7 +141,7 @@ export const AnalyticsView: React.FC<TAnalyticsViewProps> = props => {
               <Chart
                 type={'bar'}
                 with={'100%'}
-                height={'100%'}
+                height={'99.99%'}
                 series={chartData}
                 options={{
                   chart: {
@@ -207,7 +207,7 @@ export const AnalyticsView: React.FC<TAnalyticsViewProps> = props => {
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}>
-                <Typography variant={'h1'}>
+                <Typography variant={'h1'} textAlign={'center'}>
                   {selectedCategories.length === 0 ? 'No categories selected' : 'No data available'}
                 </Typography>
               </ActionPaper>
