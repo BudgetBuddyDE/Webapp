@@ -4,7 +4,7 @@ import {Box, Drawer, Typography, type DrawerProps, Button, IconButton, Alert, Ci
 import React from 'react';
 import {ActionPaper} from '@/components/Base';
 import {CloseRounded, DoneRounded, ErrorRounded} from '@mui/icons-material';
-import {type TFormDrawerState} from './FormDrawer.reducer';
+import {type TFormDrawerState} from '@/components/Drawer';
 
 export type TFormDrawerProps = {
   state?: TFormDrawerState;
@@ -85,7 +85,7 @@ export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = (
               p: 2,
               pt: 0,
             }}>
-            <Button onClick={onClose} sx={{mr: 2}}>
+            <Button onClick={onClose} sx={{mr: 2}} tabIndex={2}>
               Cancel
             </Button>
 
@@ -103,7 +103,8 @@ export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = (
                     ) : null,
                     disabled: state.loading,
                   }
-                : {})}>
+                : {})}
+              tabIndex={1}>
               Save
             </Button>
           </Box>
