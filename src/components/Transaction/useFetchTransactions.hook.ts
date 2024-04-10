@@ -20,6 +20,7 @@ export function useFetchTransactions() {
       if (withLoading) setLoading(true);
       const records = await pb.collection(PocketBaseCollection.TRANSACTION).getFullList({
         expand: 'category,payment_method',
+        sort: '-processed_at',
       });
 
       const parsingResult = z.array(ZTransaction).safeParse(records);

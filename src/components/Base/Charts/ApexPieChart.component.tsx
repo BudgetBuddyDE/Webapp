@@ -55,7 +55,6 @@ export const ApexPieChart: React.FC<TApexPieChartProps> = ({data, ...props}) => 
           },
         },
         labels: data.map(({label}) => label),
-
         dataLabels: {
           // @ts-ignore
           formatter(val, opts) {

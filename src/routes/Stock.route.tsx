@@ -1,5 +1,5 @@
 import React from 'react';
-import {useParams} from 'react-router-dom';
+import {Navigate, useParams} from 'react-router-dom';
 import Chart from 'react-apexcharts';
 import {
   Accordion,
@@ -60,6 +60,8 @@ import {
   type TStockPositionWithQuote,
   type TUpdateStockPositionPayload,
 } from '@budgetbuddyde/types';
+import {Formatter} from '@/services';
+import {DownloadButton} from '@/components/Download';
 
 const NoStockMessage = () => (
   <Card>
@@ -123,7 +125,6 @@ export const Stock = () => {
           colors: theme.palette.text.primary,
         },
       },
-      categories: stockDetails?.details.securityDetails?.annualFinancials.map(({date}) => date.getFullYear()).reverse(),
     },
     dataLabels: {
       enabled: false,
@@ -140,13 +141,7 @@ export const Stock = () => {
           colors: theme.palette.text.primary,
         },
         formatter(val: number) {
-          let formattedVal: number | string = val as number;
-          if (formattedVal >= 1000000000) {
-            formattedVal = (formattedVal / 1000000000).toFixed(2) + ' Mrd.';
-          } else if (formattedVal >= 1000000) {
-            formattedVal = (formattedVal / 1000000).toFixed(2) + ' Mio.';
-          }
-          return formattedVal as string;
+          return Formatter.shortenNumber(val);
         },
       },
     },
@@ -161,7 +156,7 @@ export const Stock = () => {
       theme: 'dark',
       y: {
         formatter(val: number) {
-          return formatBalance(val as number);
+          return Formatter.formatBalance(val);
         },
       },
     },
@@ -267,6 +262,7 @@ export const Stock = () => {
     refreshQuotes();
   }, [chartTimeframe]);
 
+  if (!params.isin || params.isin.length !== 12) return <Navigate to={'/stocks'} />;
   return (
     <ContentGrid title={stockDetails?.asset.name ?? ''} description={params.isin}>
       <Grid container item xs={12} md={12} lg={8} spacing={3}>
@@ -336,6 +332,15 @@ export const Stock = () => {
                 <IconButton color="primary" onClick={handler.onAddPosition}>
                   <AddRounded fontSize="inherit" />
                 </IconButton>
+                {displayedStockPositions.length > 0 && (
+                  <DownloadButton
+                    data={displayedStockPositions}
+                    exportFileName={`bb_${params.isin}_positions_${format(new Date(), 'yyyy_mm_dd')}`}
+                    exportFormat="JSON"
+                    withTooltip>
+                    Export
+                  </DownloadButton>
+                )}
               </React.Fragment>
             }
           />
@@ -364,7 +369,15 @@ export const Stock = () => {
                     type="bar"
                     width={'100%'}
                     height={300}
-                    options={chartOptions}
+                    options={{
+                      ...chartOptions,
+                      xaxis: {
+                        ...chartOptions.xaxis,
+                        categories: stockDetails?.details.securityDetails?.annualFinancials
+                          .map(({date}) => date.getFullYear())
+                          .reverse(),
+                      },
+                    }}
                     series={[
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
@@ -388,7 +401,15 @@ export const Stock = () => {
                     type="bar"
                     width={'100%'}
                     height={300}
-                    options={chartOptions}
+                    options={{
+                      ...chartOptions,
+                      xaxis: {
+                        ...chartOptions.xaxis,
+                        categories: stockDetails?.details.securityDetails?.quarterlyFinancials
+                          .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
+                          .reverse(),
+                      },
+                    }}
                     series={[
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
@@ -431,7 +452,15 @@ export const Stock = () => {
                     type="bar"
                     width={'100%'}
                     height={300}
-                    options={chartOptions}
+                    options={{
+                      ...chartOptions,
+                      xaxis: {
+                        ...chartOptions.xaxis,
+                        categories: stockDetails?.details.securityDetails?.annualFinancials
+                          .map(({date}) => date.getFullYear())
+                          .reverse(),
+                      },
+                    }}
                     series={[
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
@@ -467,7 +496,15 @@ export const Stock = () => {
                     type="bar"
                     width={'100%'}
                     height={300}
-                    options={chartOptions}
+                    options={{
+                      ...chartOptions,
+                      xaxis: {
+                        ...chartOptions.xaxis,
+                        categories: stockDetails?.details.securityDetails?.quarterlyFinancials
+                          .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
+                          .reverse(),
+                      },
+                    }}
                     series={[
                       {
                         name: `Revenue (${stockDetails.details.securityDetails.currency})`,
@@ -549,7 +586,7 @@ export const Stock = () => {
                     Ratings
                   </Typography>
                 </AccordionSummary>
-                <AccordionDetails sx={{px: 0}}>
+                <AccordionDetails sx={{p: 0}}>
                   <StockRating ratings={stockDetails.details.scorings} />
                 </AccordionDetails>
               </Accordion>

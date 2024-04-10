@@ -26,11 +26,13 @@ import {type ISelectionHandler} from '@/components/Base/Select';
 import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
 import {
   PocketBaseCollection,
-  TCreateSubscriptionPayload,
+  type TCreateSubscriptionPayload,
   type TCreateTransactionPayload,
   type TSubscription,
 } from '@budgetbuddyde/types';
 import {pb} from '@/pocketbase';
+import {DownloadButton} from '@/components/Download';
+import {format} from 'date-fns';
 
 interface ISubscriptionsHandler {
   onSearch: (keyword: string) => void;
@@ -238,6 +240,15 @@ export const Subscriptions = () => {
               <IconButton color="primary" onClick={() => dispatchCreateDrawer({type: 'open'})}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
+              {subscriptions.length > 0 && (
+                <DownloadButton
+                  data={subscriptions}
+                  exportFileName={`bb_subscriptions_${format(new Date(), 'yyyy_mm_dd')}`}
+                  exportFormat="JSON"
+                  withTooltip>
+                  Export
+                </DownloadButton>
+              )}
             </React.Fragment>
           }
           withSelection

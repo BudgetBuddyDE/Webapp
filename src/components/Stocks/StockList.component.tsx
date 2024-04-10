@@ -1,8 +1,8 @@
 import React from 'react';
 import {useNavigate} from 'react-router';
-import {ArrowForwardRounded} from '@mui/icons-material';
+import {ArrowForwardRounded, FormatListBulletedRounded} from '@mui/icons-material';
 import {Box, Button, Chip, Link} from '@mui/material';
-import {Card, ListWithIcon} from '@/components/Base';
+import {Card, ListWithIcon, NoResults} from '@/components/Base';
 import {StockPrice} from './index';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
@@ -25,42 +25,52 @@ export const StockList: React.FC<TStockListProps> = ({title, subtitle, data}) =>
         </Box>
       </Card.Header>
       <Card.Body>
-        {data.map(position => (
-          <ListWithIcon
-            key={position.id}
-            title={position.name}
-            subtitle={
-              <Box sx={{display: 'flex', flexDirection: 'row'}}>
-                <Chip variant="outlined" size="small" sx={{mr: 1}} label={position.expand.exchange.symbol} />
-                <Chip
-                  variant="outlined"
-                  size="small"
-                  sx={{mr: 1}}
-                  label={position.isin}
-                  onClick={async event => {
-                    event.stopPropagation();
-                    await navigator.clipboard.writeText(position.isin);
-                    showSnackbar({message: 'Copied to clipboard'});
-                  }}
+        {data.length > 0 ? (
+          data.map(position => (
+            <ListWithIcon
+              key={position.id}
+              title={position.name}
+              subtitle={
+                <Box sx={{display: 'flex', flexDirection: 'row'}}>
+                  <Chip variant="outlined" size="small" sx={{mr: 1}} label={position.expand.exchange.symbol} />
+                  <Chip
+                    variant="outlined"
+                    size="small"
+                    sx={{mr: 1}}
+                    label={position.isin}
+                    onClick={async event => {
+                      event.stopPropagation();
+                      await navigator.clipboard.writeText(position.isin);
+                      showSnackbar({message: 'Copied to clipboard'});
+                    }}
+                  />
+                </Box>
+              }
+              amount={
+                <StockPrice
+                  price={position.quote.price}
+                  trend={position.quote.price >= position.buy_in ? 'up' : 'down'}
                 />
-              </Box>
-            }
-            amount={
-              <StockPrice
-                price={position.quote.price}
-                trend={position.quote.price >= position.buy_in ? 'up' : 'down'}
-              />
-            }
-            imageUrl={position.logo}
-            onClick={() => navigate('/stocks/' + position.isin)}
+              }
+              imageUrl={position.logo}
+              onClick={() => navigate('/stocks/' + position.isin)}
+            />
+          ))
+        ) : (
+          <NoResults
+            icon={<FormatListBulletedRounded />}
+            text="You haven't added any stock-positions yet"
+            sx={{mt: 2}}
           />
-        ))}
+        )}
       </Card.Body>
-      <Card.Footer sx={{display: 'flex', justifyContent: 'flex-end'}}>
-        <Button endIcon={<ArrowForwardRounded />} LinkComponent={Link} href="/stocks">
-          View all
-        </Button>
-      </Card.Footer>
+      {data.length > 0 && (
+        <Card.Footer sx={{display: 'flex', justifyContent: 'flex-end'}}>
+          <Button endIcon={<ArrowForwardRounded />} LinkComponent={Link} href="/stocks">
+            View all
+          </Button>
+        </Card.Footer>
+      )}
     </Card>
   );
 };

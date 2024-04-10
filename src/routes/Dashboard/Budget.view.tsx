@@ -4,13 +4,6 @@ import {CategorySpendingsChart, CategoryIncomeChart} from '@/components/Category
 import {Grid} from '@mui/material';
 import {MonthlyBalanceChartCard, MonthlyBalanceWidget} from '@/components/Transaction/MonthlyBalance';
 
-export const DATE_RANGE_INPUT_FORMAT = 'dd.MM';
-export type TChartContentType = 'INCOME' | 'SPENDINGS';
-export const ChartContentTypes = [
-  {type: 'INCOME' as TChartContentType, label: 'Income'},
-  {type: 'SPENDINGS' as TChartContentType, label: 'Spendings'},
-];
-
 export const BudgetView = () => {
   return (
     <React.Fragment>

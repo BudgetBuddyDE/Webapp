@@ -3,14 +3,14 @@ import {Grid, InputAdornment, TextField} from '@mui/material';
 import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {FormDrawer, FormDrawerReducer, generateInitialFormDrawerState} from '@/components/Drawer';
-import {useAuthContext} from '../Auth';
-import {useSnackbarContext} from '../Snackbar';
+import {useAuthContext} from '@/components/Auth';
+import {useSnackbarContext} from '@/components/Snackbar';
 import {useScreenSize, type TEntityDrawerState} from '@/hooks';
 import {SearchStock, type TSearchStockOption} from './SearchStock.component';
 import {StockService, useStockStore} from '@/components/Stocks';
 import {SelectStockExchange, type TSelectStockExchangeOption} from '@/components/Stocks/Exchange';
 import {transformBalance} from '@/utils';
-import {TCreateStockPositionPayload, ZCreateStockPositionPayload} from '@budgetbuddyde/types';
+import {type TCreateStockPositionPayload, ZCreateStockPositionPayload} from '@budgetbuddyde/types';
 
 export type TAddStockPositionDrawerProps = {
   onClose: () => void;
@@ -29,7 +29,7 @@ export const AddStockPositionDrawer: React.FC<TAddStockPositionDrawerProps> = ({
   const screenSize = useScreenSize();
   const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
-  const {set: setStockPositions} = useStockStore();
+  const {addStockPositions} = useStockStore();
   const [drawerState, setDrawerState] = React.useReducer(FormDrawerReducer, generateInitialFormDrawerState());
   const [form, setForm] = React.useState<Record<string, string | number | Date>>({
     bought_at: new Date(),
@@ -86,7 +86,7 @@ export const AddStockPositionDrawer: React.FC<TAddStockPositionDrawerProps> = ({
         handler.onClose();
         showSnackbar({message: `Position saved`});
         React.startTransition(() => {
-          setStockPositions(positions);
+          addStockPositions(positions);
         });
       } catch (error) {
         console.error(error);

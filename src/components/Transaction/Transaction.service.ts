@@ -1,5 +1,6 @@
 import {type TTransaction} from '@budgetbuddyde/types';
 import {isSameMonth, subDays} from 'date-fns';
+import {type ITransactionStore} from './Transaction.store';
 
 /**
  * Service for managing transactions.
@@ -70,5 +71,41 @@ export class TransactionService {
       )
       .reduce((prev, cur) => prev + cur.transfer_amount, 0);
     return Number(num.toFixed(2));
+  }
+
+  /**
+   * Calculates the usage per category based on the provided transactions.
+   * @param transactions - An array of transactions.
+   * @returns A map containing the usage count per category ID.
+   */
+  static calculateUsagePerCategory(transactions: TTransaction[]): ITransactionStore<TTransaction>['categoryUsage'] {
+    const usage: ITransactionStore<TTransaction>['categoryUsage'] = new Map();
+    for (const {category} of transactions) {
+      if (usage.has(category)) {
+        usage.set(category, (usage.get(category) as number) + 1);
+      } else {
+        usage.set(category, 1);
+      }
+    }
+    return usage;
+  }
+
+  /**
+   * Calculates the usage per payment-method based on the provided transactions.
+   * @param transactions - An array of transactions.
+   * @returns A map containing the usage count per payment-method ID.
+   */
+  static calculateUsagePerPaymentMethod(
+    transactions: TTransaction[],
+  ): ITransactionStore<TTransaction>['paymentMethodUsage'] {
+    const usage: ITransactionStore<TTransaction>['paymentMethodUsage'] = new Map();
+    for (const {payment_method} of transactions) {
+      if (usage.has(payment_method)) {
+        usage.set(payment_method, (usage.get(payment_method) as number) + 1);
+      } else {
+        usage.set(payment_method, 1);
+      }
+    }
+    return usage;
   }
 }

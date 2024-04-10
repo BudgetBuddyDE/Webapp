@@ -31,16 +31,6 @@ export default defineConfig({
     port: 3000,
     proxy: !production
       ? {
-          '/api': {
-            target: BACKEND_HOST,
-            changeOrigin: true,
-            rewrite: path => path.replace('/api', ''),
-          },
-          '/file': {
-            target: FILE_SERVICE_HOST,
-            changeOrigin: true,
-            rewrite: path => path.replace('/file', ''),
-          },
           '/stock_service': {
             target: STOCK_SERVICE_HOST,
             changeOrigin: true,

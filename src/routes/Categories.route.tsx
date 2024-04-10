@@ -28,6 +28,8 @@ import {type ISelectionHandler} from '@/components/Base/Select';
 import {ToggleFilterDrawerButton} from '@/components/Filter';
 import {pb} from '@/pocketbase';
 import {PocketBaseCollection, type TCategory} from '@budgetbuddyde/types';
+import {DownloadButton} from '@/components/Download';
+import {format} from 'date-fns';
 
 interface ICategoriesHandler {
   onSearch: (keyword: string) => void;
@@ -149,7 +151,7 @@ export const Categories = () => {
                 />
               </TableCell>
               <TableCell size={AppConfig.table.cellSize}>
-                <CategoryChip category={category} />
+                <CategoryChip category={category} showUsage />
               </TableCell>
               <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                 <Linkify>{category.description ?? 'No description available'}</Linkify>
@@ -175,6 +177,15 @@ export const Categories = () => {
               <IconButton color="primary" onClick={() => handler.onCreateCategory()}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
+              {categories.length > 0 && (
+                <DownloadButton
+                  data={categories}
+                  exportFileName={`bb_categories_${format(new Date(), 'yyyy_mm_dd')}`}
+                  exportFormat="JSON"
+                  withTooltip>
+                  Export
+                </DownloadButton>
+              )}
             </React.Fragment>
           }
           withSelection

@@ -1,5 +1,6 @@
 import {create} from 'zustand';
-import {type TTransaction, type TUser} from '@budgetbuddyde/types';
+import {type TTransaction, type TUser, type TPaymentMethod, type TCategory} from '@budgetbuddyde/types';
+import {TransactionService} from './Transaction.service';
 
 export interface IBaseStore<T> {
   data: T;
@@ -8,6 +9,8 @@ export interface IBaseStore<T> {
 }
 
 export interface ITransactionStore<T> extends IBaseStore<T[]> {
+  categoryUsage: Map<TCategory['id'], number>;
+  paymentMethodUsage: Map<TPaymentMethod['id'], number>;
   fetchedBy: NonNullable<TUser>['id'] | null;
   fetchedAt: Date | null;
   setFetchedData: (data: T[], fetchedBy: NonNullable<TUser>['id'] | null) => void;
@@ -15,9 +18,20 @@ export interface ITransactionStore<T> extends IBaseStore<T[]> {
 
 export const useTransactionStore = create<ITransactionStore<TTransaction>>(set => ({
   data: [],
+  categoryUsage: new Map(),
+  paymentMethodUsage: new Map(),
   fetchedBy: null,
   fetchedAt: null,
-  set: data => set({data: data}),
-  setFetchedData: (data, fetchedBy) => set({data: data, fetchedBy: fetchedBy, fetchedAt: new Date()}),
-  clear: () => set({data: [], fetchedBy: null, fetchedAt: null}),
+  set: data => {
+    const categoryUsage = TransactionService.calculateUsagePerCategory(data);
+    const paymentMethodUsage = TransactionService.calculateUsagePerPaymentMethod(data);
+    set({data, categoryUsage, paymentMethodUsage});
+  },
+  setFetchedData: (data, fetchedBy) => {
+    const categoryUsage = TransactionService.calculateUsagePerCategory(data);
+    const paymentMethodUsage = TransactionService.calculateUsagePerPaymentMethod(data);
+    set({data, categoryUsage, paymentMethodUsage, fetchedBy: fetchedBy, fetchedAt: new Date()});
+  },
+  clear: () =>
+    set({data: [], categoryUsage: new Map(), paymentMethodUsage: new Map(), fetchedBy: null, fetchedAt: null}),
 }));

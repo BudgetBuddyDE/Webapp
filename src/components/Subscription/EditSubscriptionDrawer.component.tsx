@@ -88,8 +88,7 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
         const requestPayload: TUpdateSubscriptionPayload = parsedForm.data;
 
-        const record = await pb.collection(PocketBaseCollection.SUBSCRIPTION).update(payload.id, requestPayload);
-        console.debug('Updated subscription', record);
+        await pb.collection(PocketBaseCollection.SUBSCRIPTION).update(payload.id, requestPayload);
 
         setDrawerState({type: 'SUCCESS'});
         handler.onClose();
@@ -106,8 +105,9 @@ export const EditSubscriptionDrawer: React.FC<TEditSubscriptionDrawerProps> = ({
 
   React.useLayoutEffect(() => {
     if (!payload) return setForm({execute_at: new Date()});
+    const now = new Date();
     setForm({
-      execute_at: new Date(payload.execute_at),
+      execute_at: new Date(now.getFullYear(), now.getMonth(), payload.execute_at),
       category: payload.category,
       payment_method: payload.payment_method,
       receiver: payload.receiver,
