@@ -5,19 +5,19 @@ export const DashboardViewMapping: Record<string, TDashboardView> = {
   ['/dashboard']: 'overview',
   ['/dashboard/budget']: 'budget',
   ['/dashboard/stocks']: 'stocks',
-  ['/dashboard/analytics']: 'analytics',
+  ['/dashboard/insights']: 'insights',
 };
 
 export const DashboardViewDescriptionMapping: Record<TDashboardView, string | undefined> = {
   ['overview']: 'Overview',
   ['budget']: 'Budget',
   ['stocks']: 'Stocks',
-  ['analytics']: 'Analytics',
+  ['insights']: 'Insights',
 };
 
 export const DashboardViewIconMapping: Record<TDashboardView, React.ReactNode | undefined> = {
   ['overview']: <DashboardRounded />,
   ['budget']: <DonutSmallRounded />,
   ['stocks']: <TrendingUpRounded />,
-  ['analytics']: <TrendingUpRounded />,
+  ['insights']: <TrendingUpRounded />,
 };

@@ -18,11 +18,11 @@ import {useFetchTransactions} from '@/components/Transaction';
 import {useKeyPress} from '@/hooks/useKeyPress.hook.ts';
 import {DownloadButton} from '@/components/Download';
 
-export type TAnalyticsViewProps =
+export type TInsightsViewProps =
   | {navigateOnClose: true; navigateTo: string}
   | ({navigateOnClose: false} & Pick<TFullScreenDialogProps, 'onClose'>);
 
-export const AnalyticsView: React.FC<TAnalyticsViewProps> = props => {
+export const InsightsView: React.FC<TInsightsViewProps> = props => {
   const theme = useTheme();
   const navigate = useNavigate();
   const autocompleteRef = React.useRef<HTMLInputElement | null>(null);
@@ -126,7 +126,7 @@ export const AnalyticsView: React.FC<TAnalyticsViewProps> = props => {
 
   return (
     <FullScreenDialog
-      title={'Analytics'}
+      title={'Insights'}
       open={true}
       onClose={handleClose}
       boxProps={{sx: {display: 'flex', flexDirection: 'column', flex: 1}}}>
@@ -265,4 +265,4 @@ export const AnalyticsView: React.FC<TAnalyticsViewProps> = props => {
   );
 };
 
-export default AnalyticsView;
+export default InsightsView;
