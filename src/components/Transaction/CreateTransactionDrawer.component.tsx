@@ -1,14 +1,13 @@
 import {FormDrawer, FormDrawerReducer, generateInitialFormDrawerState} from '@/components/Drawer';
 import {type TEntityDrawerState, useScreenSize} from '@/hooks';
-import {Box, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField} from '@mui/material';
+import {FormControl, Grid, InputAdornment, InputLabel, OutlinedInput, TextField} from '@mui/material';
 import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
-import {FormStyle} from '@/style/Form.style';
 import {useAuthContext} from '@/components/Auth';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {CategoryAutocomplete, getCategoryFromList, useFetchCategories} from '@/components/Category';
-import {ReceiverAutocomplete, type TAutocompleteOption} from '@/components/Base';
+import {FileUpload, FileUploadPreview, ReceiverAutocomplete, type TAutocompleteOption} from '@/components/Base';
 import {PaymentMethodAutocomplete, getPaymentMethodFromList, useFetchPaymentMethods} from '@/components/PaymentMethod';
 import {type TCreateTransactionPayload, ZCreateTransactionPayload, PocketBaseCollection} from '@budgetbuddyde/types';
 import {pb} from '@/pocketbase';
@@ -27,6 +26,7 @@ interface ICreateTransactionDrawerHandler {
   onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onReceiverChange: (value: string | number) => void;
   onFormSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  onFileUpload: (files: FileList) => void;
 }
 
 export type TCreateTransactionDrawerProps = {
@@ -44,6 +44,7 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
   const [form, setForm] = React.useState<Record<string, string | number | Date>>({
     processed_at: new Date(),
   });
+  const [uploadedFiles, setUploadedFiles] = React.useState<File[]>([]);
 
   const receiverOptions: TAutocompleteOption[] = React.useMemo(() => {
     return TransactionService.getUniqueReceivers(transactions).map(receiver => ({
@@ -52,10 +53,30 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
     }));
   }, [transactions]);
 
+  const uploadedFilePreview: (File & {buffer?: string | ArrayBuffer | null})[] = React.useMemo(() => {
+    const filesArray = Array.from(uploadedFiles);
+    const filesWithBuffer: (File & {buffer?: string | ArrayBuffer | null})[] = [];
+
+    for (const file of filesArray) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const url = reader.result?.toString() ?? '';
+        // @ts-ignore
+        file['buffer'] = url;
+        filesWithBuffer.push(file);
+      };
+
+      if (file) reader.readAsDataURL(file);
+    }
+
+    return filesWithBuffer;
+  }, [uploadedFiles]);
+
   const handler: ICreateTransactionDrawerHandler = {
     onClose() {
       onClose();
       setForm({processed_at: new Date()});
+      setUploadedFiles([]);
       setDrawerState({type: 'RESET'});
     },
     onDateChange(value: string | number | Date | null, _keyboardInputValue?: string | undefined) {
@@ -85,20 +106,32 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
         if (!parsedForm.success) throw new Error(parsedForm.error.message);
         const payload: TCreateTransactionPayload = parsedForm.data;
 
-        const record = await pb.collection(PocketBaseCollection.TRANSACTION).create(payload);
+        const formData = new FormData();
+        for (let file of uploadedFiles) {
+          formData.append('attachments', file);
+        }
+        formData.append('owner', payload.owner);
+        formData.append('processed_at', payload.processed_at.toISOString());
+        formData.append('category', payload.category);
+        formData.append('payment_method', payload.payment_method);
+        formData.append('receiver', payload.receiver);
+        formData.append('transfer_amount', String(payload.transfer_amount));
+        formData.append('information', payload.information ?? '');
 
-        console.debug('Created transaction', record);
-
+        const record = await pb.collection(PocketBaseCollection.TRANSACTION).create(formData);
         setDrawerState({type: 'SUCCESS'});
         handler.onClose();
         React.startTransition(() => {
           refreshTransactions();
         });
-        showSnackbar({message: `Created transaction for ${payload.receiver}`});
+        showSnackbar({message: `Created transaction #${record.id}`});
       } catch (error) {
         console.error(error);
         setDrawerState({type: 'ERROR', error: error as Error});
       }
+    },
+    onFileUpload(files) {
+      setUploadedFiles(Array.from(files));
     },
   };
 
@@ -125,84 +158,107 @@ export const CreateTransactionDrawer: React.FC<TCreateTransactionDrawerProps> = 
       heading="Create Transaction"
       onClose={handler.onClose}
       closeOnBackdropClick>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        {screenSize === 'small' ? (
-          <MobileDatePicker
-            label="Date"
-            inputFormat="dd.MM.yy"
-            value={form.processed_at}
-            onChange={handler.onDateChange}
-            renderInput={params => <TextField sx={FormStyle} {...params} required />}
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={12}>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            {screenSize === 'small' ? (
+              <MobileDatePicker
+                label="Date"
+                inputFormat="dd.MM.yy"
+                value={form.processed_at}
+                onChange={handler.onDateChange}
+                renderInput={params => <TextField fullWidth {...params} required />}
+              />
+            ) : (
+              <DesktopDatePicker
+                label="Date"
+                inputFormat="dd.MM.yy"
+                value={form.processed_at}
+                onChange={handler.onDateChange}
+                renderInput={params => <TextField fullWidth {...params} required />}
+              />
+            )}
+          </LocalizationProvider>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <CategoryAutocomplete
+            onChange={(event, value) => handler.onAutocompleteChange(event, 'category', String(value?.value))}
+            defaultValue={payload ? getCategoryFromList(payload.category, categories) : undefined}
+            required
           />
-        ) : (
-          <DesktopDatePicker
-            label="Date"
-            inputFormat="dd.MM.yy"
-            value={form.processed_at}
-            onChange={handler.onDateChange}
-            renderInput={params => <TextField sx={FormStyle} {...params} required />}
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <PaymentMethodAutocomplete
+            onChange={(event, value) => handler.onAutocompleteChange(event, 'payment_method', String(value?.value))}
+            defaultValue={payload ? getPaymentMethodFromList(payload.payment_method, paymentMethods) : undefined}
+            required
           />
-        )}
-      </LocalizationProvider>
+        </Grid>
 
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-        }}>
-        <CategoryAutocomplete
-          onChange={(event, value) => handler.onAutocompleteChange(event, 'category', String(value?.value))}
-          defaultValue={payload ? getCategoryFromList(payload.category, categories) : undefined}
-          sx={{width: {xs: '100%', md: 'calc(50% - .5rem)'}, mb: 2}}
-          required
-        />
+        <Grid item xs={12} md={12}>
+          <ReceiverAutocomplete
+            id="receiver"
+            label="Receiver"
+            options={receiverOptions}
+            defaultValue={payload?.receiver}
+            onValueChange={value => handler.onReceiverChange(String(value))}
+            required
+          />
+        </Grid>
 
-        <PaymentMethodAutocomplete
-          onChange={(event, value) => handler.onAutocompleteChange(event, 'payment_method', String(value?.value))}
-          defaultValue={payload ? getPaymentMethodFromList(payload.payment_method, paymentMethods) : undefined}
-          sx={{width: {xs: '100%', md: 'calc(50% - .5rem)'}, mb: 2}}
-          required
-        />
-      </Box>
+        <Grid item xs={12} md={12}>
+          <FormControl fullWidth required>
+            <InputLabel htmlFor="amount">Amount</InputLabel>
+            <OutlinedInput
+              id="transfer_amount"
+              label="Amount"
+              name="transfer_amount"
+              inputProps={{inputMode: 'numeric'}}
+              onChange={handler.onInputChange}
+              value={form.transfer_amount}
+              defaultValue={payload?.transfer_amount}
+              startAdornment={<InputAdornment position="start">€</InputAdornment>}
+            />
+          </FormControl>
+        </Grid>
 
-      <ReceiverAutocomplete
-        sx={FormStyle}
-        id="receiver"
-        label="Receiver"
-        options={receiverOptions}
-        defaultValue={payload?.receiver}
-        onValueChange={value => handler.onReceiverChange(String(value))}
-        required
-      />
+        <Grid item xs={12} md={12}>
+          <TextField
+            id="information"
+            variant="outlined"
+            label="Information"
+            name="information"
+            onChange={handler.onInputChange}
+            value={form.information}
+            defaultValue={payload?.information ?? ''}
+            fullWidth
+            multiline
+            rows={2}
+          />
+        </Grid>
 
-      <FormControl fullWidth required sx={{mb: 2}}>
-        <InputLabel htmlFor="amount">Amount</InputLabel>
-        <OutlinedInput
-          id="transfer_amount"
-          label="Amount"
-          name="transfer_amount"
-          inputProps={{inputMode: 'numeric'}}
-          onChange={handler.onInputChange}
-          value={form.transfer_amount}
-          defaultValue={payload?.transfer_amount}
-          startAdornment={<InputAdornment position="start">€</InputAdornment>}
-        />
-      </FormControl>
+        <Grid container item xs={12} md={12} columns={10} spacing={2}>
+          <Grid item xs={2}>
+            <FileUpload sx={{width: '100%'}} onFileUpload={handler.onFileUpload} multiple />
+          </Grid>
 
-      <TextField
-        id="information"
-        variant="outlined"
-        label="Information"
-        name="information"
-        sx={FormStyle}
-        multiline
-        rows={2}
-        onChange={handler.onInputChange}
-        value={form.information}
-        defaultValue={payload?.information ?? ''}
-      />
+          {uploadedFilePreview.map(file => (
+            <Grid item key={file.name.replaceAll(' ', '_').toLowerCase()} xs={2}>
+              <FileUploadPreview
+                fileName={file.name}
+                fileSize={file.size}
+                mimeType={file.type}
+                buffer={file.buffer as string}
+                onDelete={f => {
+                  setUploadedFiles(prev => prev.filter(pf => pf.name !== f.fileName));
+                }}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      </Grid>
     </FormDrawer>
   );
 };

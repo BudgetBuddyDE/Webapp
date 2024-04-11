@@ -104,6 +104,7 @@ export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
         return option.value == value.value && option.label == value.label;
       }}
       selectOnFocus
+      fullWidth
     />
   );
 };

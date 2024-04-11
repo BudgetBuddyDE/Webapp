@@ -16,7 +16,6 @@ export type TAppConfig = {
     cellSize: TableCellProps['size'];
   };
   authProvider: Record<string, string>;
-  allowedFileTypes: string[];
 };
 
 export const AppConfig: TAppConfig = {
@@ -36,5 +35,4 @@ export const AppConfig: TAppConfig = {
     github: 'GitHub',
     // "google": "Google",
   },
-  allowedFileTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
 };

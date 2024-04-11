@@ -4,7 +4,7 @@ import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/componen
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {CreateTransactionDrawer, EditTransactionDrawer, useFetchTransactions} from '@/components/Transaction';
-import {Checkbox, Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
+import {Avatar, AvatarGroup, Checkbox, Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {SearchInput} from '@/components/Base/Search';
 import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
@@ -21,6 +21,8 @@ import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
 import {PocketBaseCollection, TCreateTransactionPayload, type TTransaction} from '@budgetbuddyde/types';
 import {pb} from '@/pocketbase';
 import {DownloadButton} from '@/components/Download';
+import {useAuthContext} from '@/components/Auth';
+import {ImageViewDialog} from '@/components/ImageViewDialog.component';
 
 interface ITransactionsHandler {
   onSearch: (keyword: string) => void;
@@ -31,6 +33,7 @@ interface ITransactionsHandler {
 }
 
 export const Transactions = () => {
+  const {fileToken} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const {filters} = useFilterStore();
   const {transactions, loading: loadingTransactions, refresh: refreshTransactions} = useFetchTransactions();
@@ -49,6 +52,11 @@ export const Transactions = () => {
   const displayedTransactions: TTransaction[] = React.useMemo(() => {
     return filterTransactions(keyword, filters, transactions);
   }, [transactions, keyword, filters]);
+  const [imageDialog, setImageDialog] = React.useState<{
+    open: boolean;
+    fileName: string | null;
+    fileUrl: string | null;
+  }>({open: false, fileName: null, fileUrl: null});
 
   const handler: ITransactionsHandler = {
     onSearch(keyword) {
@@ -108,7 +116,7 @@ export const Transactions = () => {
           title="Transactions"
           subtitle="Manage your transactions"
           data={displayedTransactions}
-          headerCells={['Processed at', 'Category', 'Receiver', 'Amount', 'Payment Method', 'Information', '']}
+          headerCells={['Processed at', 'Category', 'Receiver', 'Amount', 'Payment Method', 'Information', 'Files', '']}
           renderRow={transaction => (
             <TableRow
               key={transaction.id}
@@ -147,6 +155,32 @@ export const Transactions = () => {
               </TableCell>
               <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
                 <Linkify>{transaction.information ?? 'No information available'}</Linkify>
+              </TableCell>
+              <TableCell size={AppConfig.table.cellSize}>
+                <AvatarGroup max={4} variant="rounded">
+                  {transaction.attachments?.map(fileName => (
+                    <Avatar
+                      key={fileName}
+                      variant="rounded"
+                      alt={fileName}
+                      src={pb.files.getUrl(transaction, fileName, {token: fileToken})}
+                      sx={{
+                        ':hover': {
+                          zIndex: 1,
+                          transform: 'scale(1.1)',
+                          transition: 'transform 0.2s ease-in-out',
+                        },
+                      }}
+                      onClick={() =>
+                        setImageDialog({
+                          open: true,
+                          fileName: fileName,
+                          fileUrl: pb.files.getUrl(transaction, fileName, {token: fileToken}),
+                        })
+                      }
+                    />
+                  ))}
+                </AvatarGroup>
               </TableCell>
               <TableCell align="right" size={AppConfig.table.cellSize}>
                 <ActionPaper sx={{width: 'fit-content', ml: 'auto'}}>
@@ -204,6 +238,16 @@ export const Transactions = () => {
           setDeleteTransactions([]);
         }}
         onConfirm={handler.onConfirmTransactionDelete}
+        withTransition
+      />
+
+      <ImageViewDialog
+        dialogProps={{
+          open: imageDialog.open,
+          onClose: () => setImageDialog({open: false, fileName: null, fileUrl: null}),
+        }}
+        fileName={imageDialog.fileName ?? ''}
+        fileUrl={imageDialog.fileUrl ?? ''}
         withTransition
       />
 
