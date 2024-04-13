@@ -62,6 +62,7 @@ import {
 } from '@budgetbuddyde/types';
 import {Formatter} from '@/services';
 import {DownloadButton} from '@/components/Download';
+import {RelatedStock, useFetchRelatedStocks} from '@/components/Stocks/RelatedStocks';
 
 const NoStockMessage = () => (
   <Card>
@@ -102,6 +103,7 @@ export const Stock = () => {
     positions: stockPositions,
     refresh: refreshStockPositions,
   } = useFetchStockPositions();
+  const {loading: loadingRelatedStocks, relatedStocks} = useFetchRelatedStocks(params.isin || '', 6);
   const [showAddDrawer, dispatchAddDrawer] = React.useReducer(
     useEntityDrawer<TCreateStockPositionPayload>,
     CreateEntityDrawerState<TCreateStockPositionPayload>(),
@@ -541,6 +543,20 @@ export const Stock = () => {
             </Accordion>
           </Grid>
         )}
+
+        <Grid container item xs={12} md={12} spacing={2}>
+          {loadingRelatedStocks
+            ? Array.from({length: 6}).map((_, idx) => (
+                <Grid key={idx} item xs={6} md={4}>
+                  <RelatedStock isLoading />
+                </Grid>
+              ))
+            : relatedStocks.map((stock, idx) => (
+                <Grid key={idx} item xs={6} md={4}>
+                  <RelatedStock key={stock.asset._id.identifier} stock={stock} />
+                </Grid>
+              ))}
+        </Grid>
       </Grid>
 
       <Grid container item xs={12} md={12} lg={4} spacing={3}>

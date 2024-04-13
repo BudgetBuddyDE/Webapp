@@ -13,7 +13,7 @@
     "format": "prettier --write ./src --log-level silent"
   },
   "dependencies": {
-    "@budgetbuddyde/types": "^1.0.25",
+    "@budgetbuddyde/types": "^1.0.27",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.15",

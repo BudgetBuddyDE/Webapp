@@ -38,7 +38,7 @@ export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, data}
           {onTimeframeChange && <Timeframe onChange={onTimeframeChange} />}
         </Card.HeaderActions>
       </Card.Header>
-      <Card.Body sx={{px: 1, pb: 1}}>
+      <Card.Body sx={{p: 0}}>
         <ParentSize>
           {({width}) => (
             <Chart

@@ -3,14 +3,14 @@ import {type IBaseStore} from '@/components/Transaction';
 import {type TStockExchange, type TUser} from '@budgetbuddyde/types';
 import {type TSelectStockExchangeOption} from '@/components/Stocks';
 
-export interface IStockStore<T> extends IBaseStore<T[]> {
+export interface IStockExchangeStore<T> extends IBaseStore<T[]> {
   selectOptions: TSelectStockExchangeOption[];
   fetchedBy: NonNullable<TUser>['id'] | null;
   fetchedAt: Date | null;
   setFetchedData: (data: T[], fetchedBy: NonNullable<TUser>['id'] | null) => void;
 }
 
-export const useStockExchangeStore = create<IStockStore<TStockExchange>>(set => ({
+export const useStockExchangeStore = create<IStockExchangeStore<TStockExchange>>(set => ({
   data: [],
   selectOptions: [],
   fetchedBy: null,

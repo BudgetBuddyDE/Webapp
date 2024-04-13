@@ -3,12 +3,6 @@ import {preparePockebaseRequestOptions} from '@/utils';
 import {isRunningInProdEnv} from '@/utils/isRunningInProdEnv.util';
 import {
   ApiResponse,
-  type TId,
-  type TApiResponse,
-  type TServiceResponse,
-  type TStockExchange,
-  type TStockPositionWithQuote,
-  type TUpdateStockPositionPayload,
   ZStockExchange,
   ZStockPositionWithQuote,
   ZDividendDetails,
@@ -16,6 +10,13 @@ import {
   ZStockQuote,
   ZAssetChartQuote,
   ZAssetDetails,
+  ZRelatedStockWithQuotes,
+  type TId,
+  type TApiResponse,
+  type TServiceResponse,
+  type TStockExchange,
+  type TStockPositionWithQuote,
+  type TUpdateStockPositionPayload,
   type TDividendDetailList,
   type TAssetSearchResult,
   type TStockQuote,
@@ -23,10 +24,15 @@ import {
   type TAssetChartQuote,
   type TDividendDetails,
   type TAssetDetails,
-  TCreateStockPositionPayload,
+  type TCreateStockPositionPayload,
+  type TIsin,
+  type TRelatedStockWithQuotes,
 } from '@budgetbuddyde/types';
 import {type TSelectStockExchangeOption} from '@/components/Stocks/Exchange';
 
+/**
+ * The StockService class provides methods for interacting with stock-related data and services.
+ */
 export class StockService {
   private static host = isRunningInProdEnv() ? (process.env.STOCK_SERVICE_HOST as string) : '/stock_service';
 
@@ -101,6 +107,12 @@ export class StockService {
     }
   }
 
+  /**
+   * Retrieves open positions for a given stock.
+   *
+   * @param payload - The payload containing information about the stock position.
+   * @returns A promise that resolves to a tuple containing the stock positions with quotes and an error, if any.
+   */
   static async openPositions(
     payload: TCreateStockPositionPayload,
   ): Promise<TServiceResponse<TStockPositionWithQuote[]>> {
@@ -121,6 +133,10 @@ export class StockService {
     }
   }
 
+  /**
+   * Retrieves the positions of stocks with quotes.
+   * @returns A promise that resolves to a tuple containing the stock positions with quotes and an error, if any.
+   */
   static async getPositions(): Promise<TServiceResponse<TStockPositionWithQuote[]>> {
     try {
       const response = await fetch(this.host + '/v1/asset/position', {
@@ -137,6 +153,12 @@ export class StockService {
     }
   }
 
+  /**
+   * Updates the positions of stocks.
+   *
+   * @param payload - The payload containing the updated stock positions.
+   * @returns A promise that resolves to a tuple containing the updated stock positions and an error, if any.
+   */
   static async updatePositions(
     payload: TUpdateStockPositionPayload,
   ): Promise<TServiceResponse<TStockPositionWithQuote[]>> {
@@ -157,6 +179,12 @@ export class StockService {
     }
   }
 
+  /**
+   * Deletes a position with the specified ID.
+   *
+   * @param payload - The payload containing the ID of the position to delete.
+   * @returns A promise that resolves to a tuple containing the response data and any error that occurred.
+   */
   static async deletePosition(payload: {id: TId}): Promise<TServiceResponse<{success: boolean}>> {
     try {
       const response = await fetch(this.host + '/v1/asset/position/', {
@@ -177,6 +205,12 @@ export class StockService {
     }
   }
 
+  /**
+   * Retrieves a stock quote for a given asset and exchange.
+   * @param asset - The asset symbol.
+   * @param exchange - The exchange symbol.
+   * @returns A promise that resolves to a tuple containing the stock quote data and any error that occurred during the request.
+   */
   static async getQuote(asset: string, exchange: string): Promise<TServiceResponse<TStockQuote>> {
     try {
       const query = new URLSearchParams();
@@ -197,6 +231,14 @@ export class StockService {
     }
   }
 
+  /**
+   * Retrieves quotes for multiple assets from the specified exchange and timeframe.
+   *
+   * @param assets - An array of asset symbols.
+   * @param exchange - The exchange from which to retrieve the quotes.
+   * @param timeframe - The timeframe for the quotes.
+   * @returns A promise that resolves to a tuple containing the quotes and any error that occurred.
+   */
   static async getQuotes(
     assets: string[],
     exchange: string,
@@ -222,6 +264,11 @@ export class StockService {
     }
   }
 
+  /**
+   * Searches for an asset based on the provided term.
+   * @param term - The search term.
+   * @returns A promise that resolves to a tuple containing the search results and any error that occurred during the search.
+   */
   static async searchAsset(term: string): Promise<TServiceResponse<TAssetSearchResult[]>> {
     try {
       const query = new URLSearchParams();
@@ -241,6 +288,10 @@ export class StockService {
     }
   }
 
+  /**
+   * Retrieves a list of stock exchanges.
+   * @returns A promise that resolves to a tuple containing the list of stock exchanges and any potential error.
+   */
   static async getExchanges(): Promise<TServiceResponse<TStockExchange[]>> {
     try {
       const response = await fetch(this.host + '/v1/asset/exchanges', {
@@ -257,6 +308,11 @@ export class StockService {
     }
   }
 
+  /**
+   * Retrieves dividend details for the specified assets.
+   * @param assets - An array of asset names.
+   * @returns A promise that resolves to a tuple containing the dividend details and any error that occurred during the request.
+   */
   static async getDividends(assets: string[]): Promise<TServiceResponse<TDividendDetailList['dividendDetails']>> {
     try {
       const query = new URLSearchParams();
@@ -269,6 +325,31 @@ export class StockService {
       if (json.status != 200) return [null, new Error('Something went wrong')];
 
       const parsingResult = z.record(z.string(), ZDividendDetails).safeParse(json.data);
+      if (!parsingResult.success) throw parsingResult.error;
+      return [parsingResult.data, null];
+    } catch (error) {
+      return [null, error as Error];
+    }
+  }
+
+  /**
+   * Retrieves related stocks with quotes based on the provided ISIN.
+   * @param isin - The ISIN (International Securities Identification Number) of the stock.
+   * @param amount - The number of related stocks to retrieve (default: 8).
+   * @returns A promise that resolves to a tuple containing the related stocks with quotes and any potential error.
+   */
+  static async getRelatedStocks(isin: TIsin, amount = 8): Promise<TServiceResponse<TRelatedStockWithQuotes[]>> {
+    try {
+      const query = new URLSearchParams();
+      query.append('limit', amount + '');
+
+      const response = await fetch(`${this.host}/v1/asset/details/${isin}/related?${query.toString()}`, {
+        ...preparePockebaseRequestOptions(),
+      });
+      const json = (await response.json()) as TApiResponse<TRelatedStockWithQuotes[]>;
+      if (json.status != 200) return [null, new Error('Something went wrong')];
+
+      const parsingResult = z.array(ZRelatedStockWithQuotes).safeParse(json.data);
       if (!parsingResult.success) throw parsingResult.error;
       return [parsingResult.data, null];
     } catch (error) {

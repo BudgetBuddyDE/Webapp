@@ -28,13 +28,14 @@ export function useFetchStockDetails(isin: string) {
   }, [isin, sessionUser]);
 
   React.useLayoutEffect(() => {
+    if (details && details.asset._id.identifier === isin) return;
     fetchDetails();
     return () => {
       setLoading(false);
       setError(null);
       setDetails(null);
     };
-  }, [sessionUser]);
+  }, [sessionUser, isin]);
 
   return {
     loading,
