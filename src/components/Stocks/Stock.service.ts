@@ -324,7 +324,7 @@ export class StockService {
       const json = (await response.json()) as TApiResponse<TDividendDetailList['dividendDetails']>;
       if (json.status != 200) return [null, new Error('Something went wrong')];
 
-      const parsingResult = z.record(z.string(), ZDividendDetails).safeParse(json.data);
+      const parsingResult = z.record(ZDividendDetails).safeParse(json.data);
       if (!parsingResult.success) throw parsingResult.error;
       return [parsingResult.data, null];
     } catch (error) {

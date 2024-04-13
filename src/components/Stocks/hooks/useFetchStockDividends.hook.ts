@@ -14,6 +14,7 @@ export function useFetchStockDividends(isin: string[]) {
     const isins = isin.filter(str => str.length > 0);
     if (!isins.length) return setError(new Error('No valid ISINs found'));
     setLoading(true);
+
     const [result, error] = await StockService.getDividends(isins);
     if (error) return setError(error);
     setDividends(result);
