@@ -18,8 +18,6 @@ export type TSelectStockExchangeProps = {
 export const SelectStockExchange: React.FC<TSelectStockExchangeProps> = ({onChange, defaultValue}) => {
   const {loading, selectOptions, error} = useFetchStockExchanges();
 
-  React.useEffect(() => console.log('defaultValue', defaultValue), [defaultValue]);
-
   if (!loading && error) {
     return <Alert severity="error">{error.message}</Alert>;
   }

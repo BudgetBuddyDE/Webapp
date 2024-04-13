@@ -242,6 +242,16 @@ export const Stocks = () => {
               )}
             </React.Fragment>
           }
+          noResultsMessage={
+            <Typography textAlign={'center'}>
+              No positions found.
+              <br /> Click on{' '}
+              <Button startIcon={<AddRounded />} size="small" onClick={handler.onAddPosition}>
+                Add
+              </Button>{' '}
+              to add a new position.
+            </Typography>
+          }
         />
       </Grid>
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import {Box, Button, Skeleton, TableBody, TableCell, TableHead, TableRow, Typography} from '@mui/material';
-import {ActionPaper, Card, NoResults} from '../index';
+import {ActionPaper, Card, NoResults, type TNoResultsProps} from '../index';
 import {
   type IPaginationHandler,
   InitialPaginationState,
@@ -23,6 +23,7 @@ export type TTableProps<T> = {
   renderRow: (row: T) => React.ReactNode;
   tableActions?: React.ReactNode;
   isLoading?: boolean;
+  noResultsMessage?: TNoResultsProps['text'];
 } & (
   | {
       withSelection: true;
@@ -46,6 +47,7 @@ export const Table = <T,>({
   renderRow,
   tableActions,
   isLoading = false,
+  noResultsMessage = 'No records found',
   ...props
 }: TTableProps<T>) => {
   const [state, dispatch] = React.useReducer(PaginationReducer, InitialPaginationState);
@@ -146,7 +148,7 @@ export const Table = <T,>({
             </TableContainer>
           </React.Fragment>
         ) : (
-          <NoResults sx={{mx: 2, mt: 2}} />
+          <NoResults text={noResultsMessage} sx={{mx: 2, mt: 2}} />
         )}
       </Card.Body>
       <Card.Footer sx={{p: 2}}>

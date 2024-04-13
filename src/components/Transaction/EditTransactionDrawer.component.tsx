@@ -121,6 +121,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
         formData.append('receiver', payload.receiver);
         formData.append('transfer_amount', String(payload.transfer_amount));
         formData.append('information', payload.information ?? '');
+
         const record = await pb.collection(PocketBaseCollection.TRANSACTION).update(drawerPayload.id, formData);
 
         if (markedForDeletion.length > 0) {
@@ -162,7 +163,7 @@ export const EditTransactionDrawer: React.FC<TEditTransactionDrawerProps> = ({
     return () => {
       setForm({});
     };
-  }, [drawerPayload]);
+  }, [shown, drawerPayload]);
 
   return (
     <FormDrawer
