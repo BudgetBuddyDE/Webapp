@@ -269,7 +269,7 @@ export const Stock = () => {
     <ContentGrid title={stockDetails?.asset.name ?? ''} description={params.isin}>
       <Grid container item xs={12} md={12} lg={8} spacing={3}>
         <Grid item xs={12} md={12}>
-          {loadingQuotes ? (
+          {loadingQuotes && (!quotes || quotes.length === 0) ? (
             <CircularProgress />
           ) : quotes ? (
             <PriceChart data={preparedChartData} timeframe={chartTimeframe} onTimeframeChange={setChartTimeframe} />

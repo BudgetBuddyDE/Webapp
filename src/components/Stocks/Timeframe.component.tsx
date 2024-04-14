@@ -1,14 +1,20 @@
 import React from 'react';
 import {ToggleButton, ToggleButtonGroup} from '@mui/material';
-import {type TTimeframe} from '@budgetbuddyde/types';
+import {ZTimeframe, type TTimeframe} from '@budgetbuddyde/types';
+import {useSearchParams} from 'react-router-dom';
 
 export type TTimeframeProps = {
   onChange: (timeframe: TTimeframe) => void;
-  defaultValue?: TTimeframe;
 };
 
-export const Timeframe: React.FC<TTimeframeProps> = ({defaultValue, onChange}) => {
-  const [timeframe, setTimeframe] = React.useState<TTimeframe>(defaultValue || '1m');
+export const Timeframe: React.FC<TTimeframeProps> = ({onChange}) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const parsedQueryTimeframe: TTimeframe = React.useMemo(() => {
+    if (!searchParams.has('timeframe') || searchParams.size === 0) return '1m';
+    const parsingResult = ZTimeframe.safeParse(searchParams.get('timeframe'));
+    return parsingResult.success ? parsingResult.data : '1m';
+  }, [location.search]);
+  const [timeframe, setTimeframe] = React.useState<TTimeframe>(parsedQueryTimeframe);
   return (
     <ToggleButtonGroup
       size="small"
@@ -19,6 +25,8 @@ export const Timeframe: React.FC<TTimeframeProps> = ({defaultValue, onChange}) =
         if (value === timeframe) return;
         setTimeframe(value);
         onChange(value);
+        searchParams.set('timeframe', value);
+        setSearchParams(searchParams);
       }}
       exclusive>
       {['1W', '1M', '3M', '1Y', '5Y', 'YTD'].map(timeframe => (

@@ -1,7 +1,6 @@
 import React from 'react';
 import {type TTimeframe} from '@budgetbuddyde/types';
 import Chart from 'react-apexcharts';
-import {ParentSize} from '@visx/responsive';
 import {Box, useTheme} from '@mui/material';
 import {Card} from '@/components/Base';
 import {Timeframe} from './Timeframe.component';
@@ -39,81 +38,76 @@ export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, data}
         </Card.HeaderActions>
       </Card.Header>
       <Card.Body sx={{p: 0}}>
-        <ParentSize>
-          {({width}) => (
-            <Chart
-              width={width}
-              height={width * (screenSize !== 'small' ? 0.5 : 0.75)}
-              type="area"
-              options={{
-                chart: {
-                  type: 'area',
-                  height: 350,
-                  zoom: {
-                    enabled: false,
-                  },
-                  toolbar: {
-                    show: false,
-                  },
+        <Chart
+          width={'100%'}
+          height={screenSize === 'small' ? 300 : 450}
+          type="area"
+          options={{
+            chart: {
+              type: 'area',
+              zoom: {
+                enabled: false,
+              },
+              toolbar: {
+                show: false,
+              },
+            },
+            dataLabels: {
+              enabled: false,
+            },
+            stroke: {
+              width: 3,
+              curve: 'smooth',
+            },
+            fill: {
+              type: 'gradient',
+              gradient: {
+                shadeIntensity: 1,
+                inverseColors: false,
+                opacityFrom: 0.6,
+                opacityTo: 0.1,
+                stops: [0, 90, 100],
+              },
+            },
+            grid: {
+              borderColor: theme.palette.action.disabled,
+              strokeDashArray: 5,
+            },
+            xaxis: {
+              type: 'datetime',
+              labels: {
+                style: {
+                  colors: theme.palette.text.primary,
                 },
-                dataLabels: {
-                  enabled: false,
+              },
+            },
+            yaxis: {
+              opposite: true,
+              labels: {
+                style: {
+                  colors: theme.palette.text.primary,
                 },
-                stroke: {
-                  width: 3,
-                  curve: 'smooth',
+                formatter(val: number) {
+                  return formatBalance(val);
                 },
-                fill: {
-                  type: 'gradient',
-                  gradient: {
-                    shadeIntensity: 1,
-                    inverseColors: false,
-                    opacityFrom: 0.6,
-                    opacityTo: 0,
-                    stops: [0, 90, 100],
-                  },
+              },
+            },
+            tooltip: {
+              theme: 'dark',
+              y: {
+                formatter(val) {
+                  return formatBalance(val as number);
                 },
-                grid: {
-                  borderColor: theme.palette.action.disabled,
-                  strokeDashArray: 5,
-                },
-                xaxis: {
-                  type: 'datetime',
-                  labels: {
-                    style: {
-                      colors: theme.palette.text.primary,
-                    },
-                  },
-                },
-                yaxis: {
-                  opposite: true,
-                  labels: {
-                    style: {
-                      colors: theme.palette.text.primary,
-                    },
-                    formatter(val: number) {
-                      return formatBalance(val);
-                    },
-                  },
-                },
-                tooltip: {
-                  theme: 'dark',
-                  y: {
-                    formatter(val) {
-                      return formatBalance(val as number);
-                    },
-                  },
-                },
-              }}
-              series={[
-                {
-                  name: 'Price',
-                  data: data.map(({date, price}) => [new Date(date).getTime(), price]),
-                },
-              ]}
-            />
-          )}
-        </ParentSize>
+              },
+            },
+          }}
+          series={[
+            {
+              name: 'Price',
+              data: data.map(({date, price}) => [new Date(date).getTime(), price]),
+            },
+          ]}
+        />
       </Card.Body>
     </Card>
   );
