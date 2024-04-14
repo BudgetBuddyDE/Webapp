@@ -5,7 +5,6 @@ import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {
-  CategoryAnalytics,
   CategoryChip,
   CategoryService,
   CategorySpendingsChart,
@@ -198,10 +197,6 @@ export const Categories = () => {
       </Grid>
 
       <Grid container item xs={12} md={12} lg={4} xl={4} spacing={3} sx={{height: 'max-content'}}>
-        <Grid item xs={12} md={12}>
-          <CategoryAnalytics />
-        </Grid>
-
         <Grid item xs={12} md={12}>
           <CategorySpendingsChart />
         </Grid>

@@ -72,13 +72,7 @@ export const RelatedStock: React.FC<TRelatedStockProps> = ({isLoading = false, s
               }}>
               <Image src={stock.asset.logo} sx={{width: 'inherit', height: 'inherit'}} />
             </ActionPaper>
-            <Typography
-              className="teeeeest"
-              sx={{
-                transition: 'color .2s',
-              }}
-              variant="subtitle1"
-              noWrap>
+            <Typography variant="subtitle1" noWrap>
               {stock.asset.name}
             </Typography>
           </React.Fragment>

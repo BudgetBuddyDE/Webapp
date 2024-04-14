@@ -111,7 +111,7 @@ export const MonthlyBalanceChart: React.FC<TMontlyBalanceChartProps> = ({data, w
                 key={`bar-group-${barGroup.index}-${barGroup.x0}`}
                 left={barGroup.x0}
                 onMouseEnter={() => helper.onMouseEnter(data[barGroup.index])}
-                onMouseLeave={() => helper.onMouseLeave()}>
+                onMouseLeave={helper.onMouseLeave}>
                 {barGroup.bars.map((bar, idx) => (
                   <Tooltip title={`${idx === 0 ? 'Income' : 'Expenses'} ${formatBalance(bar.value)}`} placement={'top'}>
                     <rect
@@ -123,7 +123,7 @@ export const MonthlyBalanceChart: React.FC<TMontlyBalanceChartProps> = ({data, w
                       fill={bar.color}
                       rx={theme.shape.borderRadius * 0.5}
                       onMouseEnter={() => helper.onMouseEnter(data[barGroup.index])}
-                      onMouseLeave={() => helper.onMouseLeave()}
+                      onMouseLeave={helper.onMouseLeave}
                     />
                   </Tooltip>
                 ))}
