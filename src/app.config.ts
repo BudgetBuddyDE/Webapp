@@ -32,7 +32,7 @@ export const AppConfig: TAppConfig = {
     cellSize: 'medium',
   },
   authProvider: {
+    google: 'Google',
     github: 'GitHub',
-    // "google": "Google",
   },
 };
