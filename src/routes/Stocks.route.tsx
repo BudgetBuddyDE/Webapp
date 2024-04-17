@@ -9,17 +9,23 @@ import {
   useFetchStockPositions,
   StockService,
   useStockStore,
+  EditStockPositionDrawer,
 } from '@/components/Stocks';
 import {getSocketIOClient} from '@/utils';
 import {CircularProgress} from '@/components/Loading';
 import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {useAuthContext} from '@/components/Auth';
-import {type TCreateStockPositionPayload, type TStockPositionWithQuote} from '@budgetbuddyde/types';
+import {
+  type TUpdateStockPositionPayload,
+  type TCreateStockPositionPayload,
+  type TStockPositionWithQuote,
+} from '@budgetbuddyde/types';
 import {StockPositionTable} from '@/components/Stocks/Position';
 
 interface IStocksHandler {
   onAddPosition: () => void;
+  onEditPosition: (position: TStockPositionWithQuote) => void;
   onCancelDeletePosition: () => void;
   onConfirmDeletePosition: () => void;
 }
@@ -39,6 +45,10 @@ export const Stocks = () => {
   const [showAddDrawer, dispatchAddDrawer] = React.useReducer(
     useEntityDrawer<TCreateStockPositionPayload>,
     CreateEntityDrawerState<TCreateStockPositionPayload>(),
+  );
+  const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
+    useEntityDrawer<TUpdateStockPositionPayload>,
+    CreateEntityDrawerState<TUpdateStockPositionPayload>(),
   );
 
   const handler: IStocksHandler = {
@@ -75,6 +85,22 @@ export const Stocks = () => {
     },
     onAddPosition() {
       dispatchAddDrawer({type: 'open'});
+    },
+    onEditPosition({bought_at, buy_in, expand: {exchange}, id, isin, quantity}) {
+      if (!sessionUser) throw new Error('sessionUser is null!');
+      dispatchEditDrawer({
+        type: 'open',
+        payload: {
+          owner: sessionUser.id,
+          currency: 'EUR',
+          bought_at: bought_at,
+          buy_in: buy_in,
+          exchange: exchange.id,
+          id: id,
+          isin: isin,
+          quantity: quantity,
+        },
+      });
     },
   };
 
@@ -117,6 +143,7 @@ export const Stocks = () => {
         <StockPositionTable
           withRedirect
           onAddPosition={() => dispatchAddDrawer({type: 'open'})}
+          onEditPosition={handler.onEditPosition}
           onDeletePosition={position => {
             setShowDeletePositionDialog(true);
             setDeletePosition(position);
@@ -137,6 +164,8 @@ export const Stocks = () => {
       />
 
       <AddStockPositionDrawer {...showAddDrawer} onClose={() => dispatchAddDrawer({type: 'close'})} />
+
+      <EditStockPositionDrawer {...showEditDrawer} onClose={() => dispatchEditDrawer({type: 'close'})} />
     </ContentGrid>
   );
 };

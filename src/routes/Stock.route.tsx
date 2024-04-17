@@ -263,7 +263,15 @@ export const Stock = () => {
         </Grid>
 
         <Grid item xs={12} md={12}>
-          <StockPositionTable isLoading={loadingStockPositions} positions={displayedStockPositions} />
+          <StockPositionTable
+            isLoading={loadingStockPositions}
+            positions={displayedStockPositions}
+            onEditPosition={position => handler.onEditPosition(position)}
+            onDeletePosition={position => {
+              setShowDeletePositionDialog(true);
+              setDeletePosition(position);
+            }}
+          />
         </Grid>
 
         {stockDetails && stockDetails.details.securityDetails && (

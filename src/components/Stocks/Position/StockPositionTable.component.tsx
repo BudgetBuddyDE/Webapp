@@ -1,21 +1,23 @@
-import {Table} from '@/components/Base/Table/Table.component';
-import {type TStockPositionWithQuote, type TTimeframe} from '@budgetbuddyde/types';
 import React from 'react';
-import {useFetchStockPositions} from '@/components/Stocks';
-import {Button, IconButton, Stack, TableCell, TableRow, Typography} from '@mui/material';
-import {AppConfig} from '@/app.config';
-import {ActionPaper, Image} from '@/components/Base';
 import {useNavigate} from 'react-router-dom';
+import {format} from 'date-fns';
+import {type TStockPositionWithQuote, type TTimeframe} from '@budgetbuddyde/types';
+import {Button, IconButton, Stack, TableCell, TableRow, Typography} from '@mui/material';
+import {AddRounded, ArrowForwardRounded} from '@mui/icons-material';
+import {AppConfig} from '@/app.config';
+import {Table} from '@/components/Base/Table/Table.component';
+import {useFetchStockPositions} from '@/components/Stocks';
+import {ActionPaper, Image} from '@/components/Base';
 import {Formatter} from '@/services';
-import {AddRounded, ArrowForwardRounded, DeleteRounded} from '@mui/icons-material';
 import {SearchInput} from '@/components/Base/Search';
 import {DownloadButton} from '@/components/Download';
-import {format} from 'date-fns';
+import {StockPositionMenu} from './StockPositionMenu.component';
 
 export type TStockPositionTableProps = {
   isLoading?: boolean;
   positions?: TStockPositionWithQuote[];
   onAddPosition?: () => void;
+  onEditPosition?: (position: TStockPositionWithQuote) => void;
   onDeletePosition?: (position: TStockPositionWithQuote) => void;
   withRedirect?: boolean;
 };
@@ -24,6 +26,7 @@ export const StockPositionTable: React.FC<TStockPositionTableProps> = ({
   isLoading = false,
   positions,
   onAddPosition,
+  onEditPosition,
   onDeletePosition,
   withRedirect = false,
 }) => {
@@ -76,7 +79,10 @@ export const StockPositionTable: React.FC<TStockPositionTableProps> = ({
                   cursor: 'pointer',
                 },
               },
-              onClick: () => navigate(`${position.isin}?timeframe=${defaultTimeframe}`),
+              onClick: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>) => {
+                e.stopPropagation();
+                navigate(`${position.isin}?timeframe=${defaultTimeframe}`);
+              },
             })}>
             <TableCell size={AppConfig.table.cellSize}>
               <Stack direction="row" alignItems={'center'}>
@@ -146,12 +152,11 @@ export const StockPositionTable: React.FC<TStockPositionTableProps> = ({
             </TableCell>
             <TableCell align="right">
               <ActionPaper sx={{display: 'flex', width: 'fit-content', ml: 'auto'}}>
-                {onDeletePosition && (
-                  <IconButton color="primary" onClick={() => onDeletePosition}>
-                    <DeleteRounded />
-                  </IconButton>
-                )}
-
+                <StockPositionMenu
+                  position={position}
+                  onEditPosition={onEditPosition}
+                  onDeletePosition={onDeletePosition}
+                />
                 {withRedirect && (
                   <IconButton color="primary" onClick={() => navigate(position.isin)}>
                     <ArrowForwardRounded />
