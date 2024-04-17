@@ -7,34 +7,19 @@ import {
   AccordionSummary,
   Box,
   Button,
-  Chip,
   Grid,
-  IconButton,
   Tab,
-  TableCell,
-  TableRow,
   Tabs,
-  Tooltip,
   Typography,
   useTheme,
 } from '@mui/material';
 import {type TTimeframe} from '@budgetbuddyde/types';
-import {
-  AddRounded,
-  ArrowForwardRounded,
-  DeleteRounded,
-  ExpandMoreRounded,
-  HelpOutlineRounded,
-  TimelineRounded,
-} from '@mui/icons-material';
-import {format} from 'date-fns';
-import {ActionPaper, Card, NoResults, TabPanel} from '@/components/Base';
+import {ExpandMoreRounded, HelpOutlineRounded, TimelineRounded} from '@mui/icons-material';
+import {Card, NoResults, TabPanel} from '@/components/Base';
 import {ContentGrid} from '@/components/Layout';
 import {withAuthLayout} from '@/components/Auth/Layout';
-import {Table} from '@/components/Base/Table';
 import {
   StockNews,
-  StockPrice,
   StockService,
   EditStockPositionDrawer,
   AddStockPositionDrawer,
@@ -48,8 +33,7 @@ import {
   useFetchStockDetails,
   type TPriceChartPoint,
 } from '@/components/Stocks';
-import {formatBalance, getSocketIOClient} from '@/utils';
-import {SearchInput} from '@/components/Base/Search';
+import {getSocketIOClient} from '@/utils';
 import {useAuthContext} from '@/components/Auth';
 import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks/useEntityDrawer.reducer';
 import {useSnackbarContext} from '@/components/Snackbar';
@@ -61,8 +45,8 @@ import {
   type TUpdateStockPositionPayload,
 } from '@budgetbuddyde/types';
 import {Formatter} from '@/services';
-import {DownloadButton} from '@/components/Download';
 import {RelatedStock, useFetchRelatedStocks} from '@/components/Stocks/RelatedStocks';
+import {StockPositionTable} from '@/components/Stocks/Position';
 
 const NoStockMessage = () => (
   <Card>
@@ -279,83 +263,7 @@ export const Stock = () => {
         </Grid>
 
         <Grid item xs={12} md={12}>
-          <Table<TStockPositionWithQuote>
-            isLoading={loadingStockPositions}
-            title="Positions"
-            data={displayedStockPositions}
-            headerCells={['Bought at', 'Exchange', 'Buy in', 'Price', 'Quantity', 'Value', 'Profit', '']}
-            renderRow={position => (
-              <TableRow key={position.id}>
-                <TableCell>{format(position.bought_at, 'dd.MM.yy')}</TableCell>
-                <TableCell>
-                  <Chip variant="outlined" size="small" sx={{mr: 1}} label={position.expand.exchange.symbol} />
-                </TableCell>
-                <TableCell>
-                  <Typography>{formatBalance(position.buy_in, position.currency)}</Typography>
-                </TableCell>
-                <TableCell>
-                  <Tooltip title={'As of ' + format(position.quote.datetime, 'dd.MM HH:mm:ss')}>
-                    <StockPrice price={position.quote.price} currency={position.currency} />
-                  </Tooltip>
-                </TableCell>
-                <TableCell>
-                  <Typography>{position.quantity} x</Typography>
-                </TableCell>
-                <TableCell>
-                  <StockPrice price={position.quantity * position.quote.price} currency={position.currency} />
-                </TableCell>
-                <TableCell>
-                  <StockPrice
-                    price={(position.quote.price - position.buy_in) * position.quantity}
-                    currency={position.currency}
-                  />
-                </TableCell>
-                <TableCell>
-                  <ActionPaper sx={{display: 'flex', width: 'fit-content', ml: 'auto'}}>
-                    <IconButton
-                      color="primary"
-                      onClick={() => {
-                        setShowDeletePositionDialog(true);
-                        setDeletePosition(position);
-                      }}>
-                      <DeleteRounded />
-                    </IconButton>
-
-                    <IconButton color="primary" onClick={() => handler.onEditPosition(position)}>
-                      <ArrowForwardRounded />
-                    </IconButton>
-                  </ActionPaper>
-                </TableCell>
-              </TableRow>
-            )}
-            tableActions={
-              <React.Fragment>
-                <SearchInput placeholder="Search position" onSearch={handler.onSearch} />
-                <IconButton color="primary" onClick={handler.onAddPosition}>
-                  <AddRounded fontSize="inherit" />
-                </IconButton>
-                {displayedStockPositions.length > 0 && (
-                  <DownloadButton
-                    data={displayedStockPositions}
-                    exportFileName={`bb_${params.isin}_positions_${format(new Date(), 'yyyy_mm_dd')}`}
-                    exportFormat="JSON"
-                    withTooltip>
-                    Export
-                  </DownloadButton>
-                )}
-              </React.Fragment>
-            }
-            noResultsMessage={
-              <Typography textAlign={'center'}>
-                No positions found.
-                <br /> Click on{' '}
-                <Button startIcon={<AddRounded />} size="small" onClick={handler.onAddPosition}>
-                  Add
-                </Button>{' '}
-                to add a new position.
-              </Typography>
-            }
-          />
+          <StockPositionTable isLoading={loadingStockPositions} positions={displayedStockPositions} />
         </Grid>
 
         {stockDetails && stockDetails.details.securityDetails && (
