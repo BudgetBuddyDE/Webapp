@@ -1,18 +1,22 @@
 import React from 'react';
-import {Chip, TableCell, TableRow, Typography} from '@mui/material';
+import {useNavigate} from 'react-router-dom';
 import {format} from 'date-fns';
+import {Stack, TableCell, TableRow, Typography} from '@mui/material';
+import {type TTimeframe, type TDividendDetails} from '@budgetbuddyde/types';
 import {type TTableProps, Table} from '@/components/Base/Table';
-import {type TDividendDetails} from '@budgetbuddyde/types';
 import {AppConfig} from '@/app.config';
 import {StockPrice} from './StockPrice.component';
 import {useFetchStockPositions} from '@/components/Stocks/hooks';
 import {StockService} from './Stock.service';
+import {ActionPaper, Image} from '@/components/Base';
 
 export type TDividendTableProps = {
   dividends: TDividendDetails[];
+  withRedirect?: boolean;
 } & Pick<TTableProps<TDividendDetails>, 'isLoading'>;
 
-export const DividendTable: React.FC<TDividendTableProps> = ({dividends, ...tableProps}) => {
+export const DividendTable: React.FC<TDividendTableProps> = ({dividends, withRedirect = false, ...tableProps}) => {
+  const navigate = useNavigate();
   const {loading: loadingStockPositions, positions: stockPositions} = useFetchStockPositions();
 
   const futureDividends = React.useMemo(() => {
@@ -30,15 +34,49 @@ export const DividendTable: React.FC<TDividendTableProps> = ({dividends, ...tabl
         </TableCell>
       )}
       renderRow={data => {
+        const defaultTimeframe: TTimeframe = '3m';
         const matchingPositions = stockPositions.filter(position => position.isin === data.companyInfo?.security.isin);
         // matchingPosition = Array(matchingPositions).at(-1);
         const totalQuantity = matchingPositions.reduce((prev, cur) => prev + cur.quantity, 0);
         return (
-          <TableRow key={data.key}>
+          <TableRow
+            key={data.key}
+            {...(withRedirect && {
+              sx: {
+                ':hover': {
+                  backgroundColor: theme => theme.palette.action.hover,
+                  cursor: 'pointer',
+                },
+              },
+              onClick: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>) => {
+                e.stopPropagation();
+                navigate(`/stocks/${data.companyInfo.security.isin}?timeframe=${defaultTimeframe}`);
+              },
+            })}>
             <TableCell>
-              <Typography>{data.companyInfo?.name}</Typography>
-              <Chip label={data.companyInfo?.security.isin} size="small" sx={{mr: 1}} />
-              <Chip label={data.companyInfo?.security.wkn} size="small" />
+              <Stack direction="row" alignItems={'center'}>
+                <ActionPaper
+                  sx={{
+                    minWidth: '40px',
+                    width: '40px',
+                    height: '40px',
+                    mr: 1.5,
+                  }}>
+                  <Image src={data.companyInfo.logo} sx={{width: 'inherit', height: 'inherit'}} />
+                </ActionPaper>
+
+                <Stack>
+                  <Stack direction="row" spacing={0.5}>
+                    <Typography variant="caption">{data.companyInfo.security.type}</Typography>
+                    <Typography variant="caption">{data.companyInfo.security.isin}</Typography>
+                    <Typography variant="caption">{data.companyInfo.security.wkn}</Typography>
+                  </Stack>
+
+                  <Typography variant="body1" fontWeight={'bolder'}>
+                    {data.companyInfo.name}
+                  </Typography>
+                </Stack>
+              </Stack>
             </TableCell>
             <TableCell>
               <Typography>{format(data.dividend.exDate, 'dd.MM.yy')}</Typography>

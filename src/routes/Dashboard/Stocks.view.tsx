@@ -4,7 +4,7 @@ import {Grid} from '@mui/material';
 import {type TDividendDetails} from '@budgetbuddyde/types';
 import {StatsCard} from '@/components/StatsCard.component';
 import {useAuthContext} from '@/components/Auth';
-import {formatBalance, getSocketIOClient} from '@/utils';
+import {getSocketIOClient} from '@/utils';
 import {
   StockList,
   DividendTable,
@@ -12,6 +12,7 @@ import {
   useStockStore,
   useFetchStockDividends,
 } from '@/components/Stocks';
+import {Formatter} from '@/services';
 
 export const StocksView = () => {
   const {updateQuote} = useStockStore();
@@ -87,7 +88,7 @@ export const StocksView = () => {
         <Grid item xs={6} md={6} order={{xs: 1, md: 1}}>
           <StatsCard
             label={'Depot'}
-            value={formatBalance(depotValue)}
+            value={Formatter.formatBalance(depotValue)}
             icon={<AccountBalanceRounded />}
             isLoading={loadingStockPositions}
             valueInformation="Current value of your depot"
@@ -96,14 +97,14 @@ export const StocksView = () => {
         <Grid item xs={6} md={6} order={{xs: 2, md: 3}}>
           <StatsCard
             label={'Performance'}
-            value={formatBalance(depotValue - depotBuyIn)}
+            value={Formatter.formatBalance(depotValue - depotBuyIn)}
             valueInformation="All-time performance"
             icon={<TimelineRounded />}
           />
         </Grid>
 
         <Grid item xs={12} md={12} order={{xs: 4}}>
-          <DividendTable dividends={preparedDividends} isLoading={loadingDividends} />
+          <DividendTable dividends={preparedDividends} isLoading={loadingDividends} withRedirect />
         </Grid>
       </Grid>
 

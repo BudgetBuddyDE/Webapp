@@ -81,7 +81,7 @@ export const StockPositionTable: React.FC<TStockPositionTableProps> = ({
               },
               onClick: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>) => {
                 e.stopPropagation();
-                navigate(`${position.isin}?timeframe=${defaultTimeframe}`);
+                navigate(`/stocks/${position.isin}?timeframe=${defaultTimeframe}`);
               },
             })}>
             <TableCell size={AppConfig.table.cellSize}>
@@ -158,7 +158,7 @@ export const StockPositionTable: React.FC<TStockPositionTableProps> = ({
                   onDeletePosition={onDeletePosition}
                 />
                 {withRedirect && (
-                  <IconButton color="primary" onClick={() => navigate(position.isin)}>
+                  <IconButton color="primary" onClick={() => navigate('/stocks/' + position.isin)}>
                     <ArrowForwardRounded />
                   </IconButton>
                 )}
