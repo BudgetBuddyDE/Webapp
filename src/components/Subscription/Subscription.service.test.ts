@@ -1,3 +1,4 @@
+import {describe, expect, it} from 'vitest';
 import {type TSubscription} from '@budgetbuddyde/types';
 import {SubscriptionService} from './Subscription.service';
 
@@ -16,8 +17,8 @@ describe('getPlannedBalanceByType', () => {
     ] as TSubscription[];
     const result = SubscriptionService.getPlannedBalanceByType(subscriptions, 'INCOME');
     expect(result).toEqual([
-      {transfer_amount: 100, execute_At: new Date().getDate()},
-      {transfer_amount: 200, execute_At: new Date().getDate()},
+      {transfer_amount: 100, execute_at: new Date().getDate()},
+      {transfer_amount: 200, execute_at: new Date().getDate()},
     ]);
   });
 

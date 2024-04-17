@@ -1,6 +1,7 @@
+import {describe, it, expect} from 'vitest';
+import {type TTransaction} from '@budgetbuddyde/types';
 import {subDays} from 'date-fns';
 import {TransactionService} from '@/components/Transaction';
-import {type TTransaction} from '@budgetbuddyde/types';
 
 describe('getUniqueReceivers', () => {
   it('should return an empty array if transactions is empty', () => {

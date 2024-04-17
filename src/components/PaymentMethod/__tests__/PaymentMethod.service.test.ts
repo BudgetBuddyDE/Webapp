@@ -1,6 +1,7 @@
+import {describe, it, expect} from 'vitest';
 import {subDays} from 'date-fns';
-import {PaymentMethodService} from '@/components/PaymentMethod/PaymentMethod.service';
 import {type TPaymentMethod, type TTransaction} from '@budgetbuddyde/types';
+import {PaymentMethodService} from '@/components/PaymentMethod';
 import {type TPaymentMethodInputOption} from '@/components/PaymentMethod/Autocomplete';
 
 describe('sortAutocompleteOptionsByTransactionUsage', () => {
@@ -26,9 +27,9 @@ describe('sortAutocompleteOptionsByTransactionUsage', () => {
     const result = PaymentMethodService.sortAutocompleteOptionsByTransactionUsage(paymentMethods, transactions);
 
     const expected: TPaymentMethodInputOption[] = [
-      {value: 1, label: PaymentMethodService.getAutocompleteLabel(paymentMethods[0])},
-      {value: 2, label: PaymentMethodService.getAutocompleteLabel(paymentMethods[1])},
-      {value: 3, label: PaymentMethodService.getAutocompleteLabel(paymentMethods[2])},
+      {value: '1', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[0])},
+      {value: '2', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[1])},
+      {value: '3', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[2])},
     ];
     expect(result).toEqual(expected);
   });

@@ -1,3 +1,4 @@
+import {describe, it, expect} from 'vitest';
 import {type TCategory} from '@budgetbuddyde/types';
 import {getCategoryFromList} from './getCategoryFromList.util';
 

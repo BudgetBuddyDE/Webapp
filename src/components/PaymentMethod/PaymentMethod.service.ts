@@ -25,7 +25,7 @@ export class PaymentMethodService {
     pastNTransactions.forEach(
       ({
         expand: {
-          category: {id},
+          payment_method: {id},
         },
         processed_at,
       }) => {

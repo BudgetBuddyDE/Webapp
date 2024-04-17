@@ -1,6 +1,7 @@
+import {describe, it, expect} from 'vitest';
+import {addMonths} from 'date-fns';
 import {DateService} from '@/services';
 import {determineNextExecution} from './determineNextExecution.util';
-import {addMonths} from 'date-fns';
 
 describe('determineNextExecution', () => {
   it('should return the correct next execution date for the same month', () => {

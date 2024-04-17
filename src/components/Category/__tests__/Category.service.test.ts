@@ -1,6 +1,6 @@
+import {describe, it, expect} from 'vitest';
 import {subDays} from 'date-fns';
-import {CategoryService} from '../Category.service';
-import {type TCategoryInputOption} from '../Autocomplete';
+import {CategoryService, type TCategoryInputOption} from '@/components/Category';
 import {type TCategory, type TTransaction} from '@budgetbuddyde/types';
 
 describe('sortAutocompleteOptionsByTransactionUsage', () => {

@@ -15,10 +15,11 @@ import {
 import {CategoryService, CreateCategoryAlert, useFetchCategories} from '../';
 import {StyledAutocompleteOption} from '@/components/Base';
 import {useFetchTransactions} from '@/components/Transaction';
+import {type TCategory} from '@budgetbuddyde/types';
 
 export type TCategoryInputOption = {
-  label: string;
-  value: number | string;
+  label: TCategory['name'];
+  value: TCategory['id'] | -1;
   shouldCreate?: boolean;
 };
 

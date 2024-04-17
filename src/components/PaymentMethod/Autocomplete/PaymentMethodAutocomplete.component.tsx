@@ -17,10 +17,11 @@ import {StyledAutocompleteOption} from '@/components/Base';
 import {getNameFromLabel} from '@/components/Category';
 import {PaymentMethodService} from '../PaymentMethod.service';
 import {useFetchTransactions} from '@/components/Transaction';
+import {type TPaymentMethod} from '@budgetbuddyde/types';
 
 export type TPaymentMethodInputOption = {
   label: string;
-  value: number | string;
+  value: TPaymentMethod['id'] | -1;
   shouldCreate?: boolean;
 };
 

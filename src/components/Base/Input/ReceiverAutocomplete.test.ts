@@ -1,3 +1,4 @@
+import {describe, it, expect} from 'vitest';
 import {type TAutocompleteOption, applyReceiverOptionsFilter} from './ReceiverAutocomplete.component';
 
 describe('Validate if correct items are returned by filter', () => {
