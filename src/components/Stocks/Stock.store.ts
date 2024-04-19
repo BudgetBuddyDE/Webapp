@@ -14,8 +14,9 @@ export const useStockStore = create<IStockStore<TStockPositionWithQuote>>((set, 
   data: [],
   fetchedBy: null,
   fetchedAt: null,
-  set: data => set({data: data}),
-  setFetchedData: (data, fetchedBy) => set({data: data, fetchedBy: fetchedBy, fetchedAt: new Date()}),
+  set: data => set({data: data.sort((a, b) => (a.volume > b.volume ? -1 : 1))}),
+  setFetchedData: (data, fetchedBy) =>
+    set({data: data.sort((a, b) => (a.volume > b.volume ? -1 : 1)), fetchedBy: fetchedBy, fetchedAt: new Date()}),
   addStockPositions: data => set({data: [...get().data, ...data]}),
   clear: () => set({data: [], fetchedBy: null, fetchedAt: null}),
   updateQuote: (exchange, isin, newPrice) => {

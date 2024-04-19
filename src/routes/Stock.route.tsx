@@ -266,6 +266,7 @@ export const Stock = () => {
           <StockPositionTable
             isLoading={loadingStockPositions}
             positions={displayedStockPositions}
+            onAddPosition={() => dispatchAddDrawer({type: 'open'})}
             onEditPosition={position => handler.onEditPosition(position)}
             onDeletePosition={position => {
               setShowDeletePositionDialog(true);

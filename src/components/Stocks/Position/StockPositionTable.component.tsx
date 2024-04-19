@@ -84,7 +84,7 @@ export const StockPositionTable: React.FC<TStockPositionTableProps> = ({
                 navigate(`/stocks/${position.isin}?timeframe=${defaultTimeframe}`);
               },
             })}>
-            <TableCell size={AppConfig.table.cellSize}>
+            <TableCell size={AppConfig.table.cellSize} sx={{minWidth: {xs: '250px', md: 'unset'}}}>
               <Stack direction="row" alignItems={'center'}>
                 <ActionPaper
                   sx={{
