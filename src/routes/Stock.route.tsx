@@ -21,8 +21,6 @@ import {withAuthLayout} from '@/components/Auth/Layout';
 import {
   StockNews,
   StockService,
-  EditStockPositionDrawer,
-  AddStockPositionDrawer,
   CompanyInformation,
   DividendList,
   StockRating,
@@ -35,18 +33,15 @@ import {
 } from '@/components/Stocks';
 import {getSocketIOClient} from '@/utils';
 import {useAuthContext} from '@/components/Auth';
-import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks/useEntityDrawer.reducer';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {CircularProgress} from '@/components/Loading';
-import {
-  type TCreateStockPositionPayload,
-  type TStockPositionWithQuote,
-  type TUpdateStockPositionPayload,
-} from '@budgetbuddyde/types';
+import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
 import {Formatter} from '@/services';
 import {RelatedStock, useFetchRelatedStocks} from '@/components/Stocks/RelatedStocks';
 import {StockPositionTable} from '@/components/Stocks/Position';
+import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
+import {StockPositionDrawer, type TStockPositionDrawerValues} from '@/components/Stocks/StockPositionDrawer.component';
 
 const NoStockMessage = () => (
   <Card>
@@ -55,9 +50,9 @@ const NoStockMessage = () => (
 );
 
 interface IStockHandler {
+  showCreateDialog: () => void;
+  showEditDialog: (stockPosition: TStockPositionWithQuote) => void;
   onSearch: (term: string) => void;
-  onAddPosition: () => void;
-  onEditPosition: (position: TStockPositionWithQuote) => void;
   onCancelDeletePosition: () => void;
   onConfirmDeletePosition: () => void;
 }
@@ -88,13 +83,9 @@ export const Stock = () => {
     refresh: refreshStockPositions,
   } = useFetchStockPositions();
   const {loading: loadingRelatedStocks, relatedStocks} = useFetchRelatedStocks(params.isin || '', 6);
-  const [showAddDrawer, dispatchAddDrawer] = React.useReducer(
-    useEntityDrawer<TCreateStockPositionPayload>,
-    CreateEntityDrawerState<TCreateStockPositionPayload>(),
-  );
-  const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
-    useEntityDrawer<TUpdateStockPositionPayload>,
-    CreateEntityDrawerState<TUpdateStockPositionPayload>(),
+  const [stockPositionDrawer, dispatchStockPositionDrawer] = React.useReducer(
+    useEntityDrawer<TStockPositionDrawerValues>,
+    UseEntityDrawerDefaultState<TStockPositionDrawerValues>(),
   );
   const [showDeletePositionDialog, setShowDeletePositionDialog] = React.useState(false);
   const [deletePosition, setDeletePosition] = React.useState<TStockPositionWithQuote | null>(null);
@@ -164,6 +155,46 @@ export const Stock = () => {
   }, [keyword, stockPositions, params]);
 
   const handler: IStockHandler = {
+    showCreateDialog() {
+      dispatchStockPositionDrawer({
+        type: 'OPEN',
+        drawerAction: 'CREATE',
+        payload: stockDetails
+          ? {
+              stock: {
+                type: stockDetails.asset.assetType,
+                isin: stockDetails.asset._id.identifier,
+                label: stockDetails.asset.name ?? '',
+                logo: stockDetails.asset.logo,
+              },
+            }
+          : undefined,
+      });
+    },
+    showEditDialog({id, bought_at, buy_in, quantity, currency, isin, name, logo, expand: {exchange}}) {
+      dispatchStockPositionDrawer({
+        type: 'OPEN',
+        drawerAction: 'UPDATE',
+        payload: {
+          id,
+          bought_at,
+          currency,
+          buy_in,
+          exchange: {
+            label: exchange.name,
+            ticker: exchange.symbol,
+            value: exchange.id,
+          },
+          quantity,
+          stock: {
+            type: 'Aktie',
+            isin,
+            label: name,
+            logo,
+          },
+        },
+      });
+    },
     onSearch(term: string) {
       setKeyword(term);
     },
@@ -194,25 +225,6 @@ export const Stock = () => {
       setDeletePosition(null);
       React.startTransition(() => {
         refreshStockPositions();
-      });
-    },
-    onAddPosition() {
-      dispatchAddDrawer({type: 'open'});
-    },
-    onEditPosition({bought_at, buy_in, expand: {exchange}, id, isin, quantity}) {
-      if (!sessionUser) throw new Error('sessionUser is null!');
-      dispatchEditDrawer({
-        type: 'open',
-        payload: {
-          owner: sessionUser.id,
-          currency: 'EUR',
-          bought_at: bought_at,
-          buy_in: buy_in,
-          exchange: exchange.id,
-          id: id,
-          isin: isin,
-          quantity: quantity,
-        },
       });
     },
   };
@@ -266,8 +278,8 @@ export const Stock = () => {
           <StockPositionTable
             isLoading={loadingStockPositions}
             positions={displayedStockPositions}
-            onAddPosition={() => dispatchAddDrawer({type: 'open'})}
-            onEditPosition={position => handler.onEditPosition(position)}
+            onAddPosition={handler.showCreateDialog}
+            onEditPosition={handler.showEditDialog}
             onDeletePosition={position => {
               setShowDeletePositionDialog(true);
               setDeletePosition(position);
@@ -554,9 +566,12 @@ export const Stock = () => {
         </Grid>
       </Grid>
 
-      <AddStockPositionDrawer {...showAddDrawer} onClose={() => dispatchAddDrawer({type: 'close'})} />
-
-      <EditStockPositionDrawer {...showEditDrawer} onClose={() => dispatchEditDrawer({type: 'close'})} />
+      <StockPositionDrawer
+        {...stockPositionDrawer}
+        onClose={() => dispatchStockPositionDrawer({type: 'CLOSE'})}
+        closeOnBackdropClick
+        closeOnEscape
+      />
 
       <DeleteDialog
         open={showDeletePositionDialog}

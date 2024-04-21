@@ -125,7 +125,12 @@ const SignIn = () => {
               </Grid>
             </Grid>
             <Box sx={{display: 'flex', justifyContent: 'center'}}>
-              <Button type="submit" variant="contained" endIcon={<SendRounded />} sx={{mt: 1}}>
+              <Button
+                type="submit"
+                variant="contained"
+                endIcon={<SendRounded />}
+                sx={{mt: 1}}
+                data-umami-event={'default-sign-in'}>
                 Sign in
               </Button>
             </Box>
@@ -139,10 +144,14 @@ const SignIn = () => {
               provider={provider}
               onAuthProviderResponse={formHandler.handleAuthProviderLogin}
               sx={{mb: idx !== arr.length - 1 ? 2 : 0}}
+              data-umami-event={'social-sign-in'}
+              data-umami-value={provider}
             />
           ))}
 
-          <Divider sx={{my: 2}}>No account?</Divider>
+          <Divider sx={{my: 2}} data-umami-event={'sign-in-no-account'}>
+            No account?
+          </Divider>
 
           {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
           {/*@ts-expect-error*/}
@@ -152,7 +161,8 @@ const SignIn = () => {
             variant={'contained'}
             size={'large'}
             startIcon={<AppRegistrationRounded />}
-            fullWidth>
+            fullWidth
+            data-umami-event={'sign-in-redirect-register'}>
             Sign up
           </Button>
         </Card>

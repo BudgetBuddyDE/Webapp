@@ -48,6 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
     setLoading(true);
     try {
       const model = pb.authStore.isValid && pb.authStore.isAuthRecord ? pb.authStore.model : null;
+      if (process.env.NODE_ENV === 'development') console.log('Session', pb.authStore.token, pb.authStore.model);
       const parsingResult = ZUser.safeParse(model);
       if (!parsingResult.success) {
         console.error(parsingResult.error);

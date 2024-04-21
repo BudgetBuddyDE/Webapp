@@ -28,29 +28,12 @@ import {
   type TIsin,
   type TRelatedStockWithQuotes,
 } from '@budgetbuddyde/types';
-import {type TSelectStockExchangeOption} from '@/components/Stocks/Exchange';
 
 /**
  * The StockService class provides methods for interacting with stock-related data and services.
  */
 export class StockService {
   private static host = isRunningInProdEnv() ? (process.env.STOCK_SERVICE_HOST as string) : '/stock_service';
-
-  /**
-   * Retrieves a stock exchange input option from a list of stock exchanges based on the exchange ticker.
-   *
-   * @param exchangeTicker - The ticker symbol of the stock exchange.
-   * @param stockExchanges - The list of stock exchanges to search from.
-   * @returns The matching stock exchange input option, or undefined if no match is found.
-   */
-  static getStockExchangeInputOptionFromList(
-    exchangeTicker: string,
-    stockExchanges: TSelectStockExchangeOption[],
-  ): TSelectStockExchangeOption | undefined {
-    const match = stockExchanges.find(se => se.ticker === exchangeTicker);
-    if (!match) return undefined;
-    return match;
-  }
 
   /**
    * Transforms an array of dividend details into a new array of transformed dividend objects.

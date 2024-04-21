@@ -1,6 +1,7 @@
 *.code-workspace
 .env
 build/
+__snapshots__
 
 # Logs
 logs

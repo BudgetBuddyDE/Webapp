@@ -1,14 +1,26 @@
+/**
+ * @deprecated
+ */
 export type TEntityDrawerState<T> = {
   shown: boolean;
   payload: T | null;
 };
 
+/**
+ * @deprecated
+ */
 export type TEntityDrawerAction<T> = {type: 'open'; payload?: T | null} | {type: 'toggle'} | {type: 'close'};
 
+/**
+ * @deprecated
+ */
 export function CreateEntityDrawerState<T>(): TEntityDrawerState<T> {
   return {shown: false, payload: null};
 }
 
+/**
+ * @deprecated
+ */
 export function useEntityDrawer<T>(
   state: TEntityDrawerState<T>,
   action: TEntityDrawerAction<T>,

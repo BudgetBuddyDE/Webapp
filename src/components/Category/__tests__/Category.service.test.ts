@@ -1,6 +1,6 @@
 import {describe, it, expect} from 'vitest';
 import {subDays} from 'date-fns';
-import {CategoryService, type TCategoryInputOption} from '@/components/Category';
+import {CategoryService, type TCategoryAutocompleteOption} from '@/components/Category';
 import {type TCategory, type TTransaction} from '@budgetbuddyde/types';
 
 describe('sortAutocompleteOptionsByTransactionUsage', () => {
@@ -25,10 +25,10 @@ describe('sortAutocompleteOptionsByTransactionUsage', () => {
     ] as TTransaction[];
     const result = CategoryService.sortAutocompleteOptionsByTransactionUsage(categories, transactions);
 
-    const expected: TCategoryInputOption[] = [
-      {value: '1', label: 'Category 1'},
-      {value: '2', label: 'Category 2'},
-      {value: '3', label: 'Category 3'},
+    const expected: TCategoryAutocompleteOption[] = [
+      {id: '1', label: 'Category 1'},
+      {id: '2', label: 'Category 2'},
+      {id: '3', label: 'Category 3'},
     ];
     expect(result).toEqual(expected);
   });
@@ -47,10 +47,10 @@ describe('sortAutocompleteOptionsByTransactionUsage', () => {
     ] as TTransaction[];
     const result = CategoryService.sortAutocompleteOptionsByTransactionUsage(categories, transactions, 15);
 
-    const expected: TCategoryInputOption[] = [
-      {value: '1', label: 'Category 1'},
-      {value: '3', label: 'Category 3'},
-      {value: '2', label: 'Category 2'},
+    const expected: TCategoryAutocompleteOption[] = [
+      {id: '1', label: 'Category 1'},
+      {id: '3', label: 'Category 3'},
+      {id: '2', label: 'Category 2'},
     ];
     expect(result).toEqual(expected);
   });
@@ -71,10 +71,10 @@ describe('sortAutocompleteOptionsByTransactionUsage', () => {
     ] as TTransaction[];
     const result = CategoryService.sortAutocompleteOptionsByTransactionUsage(categories, transactions);
 
-    const expected: TCategoryInputOption[] = [
-      {value: '1', label: 'Category 1'},
-      {value: '2', label: 'Category 2'},
-      {value: '3', label: 'Category 3'},
+    const expected: TCategoryAutocompleteOption[] = [
+      {id: '1', label: 'Category 1'},
+      {id: '2', label: 'Category 2'},
+      {id: '3', label: 'Category 3'},
     ];
     expect(result).toEqual(expected);
   });

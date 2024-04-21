@@ -2,7 +2,7 @@ import {describe, it, expect} from 'vitest';
 import {subDays} from 'date-fns';
 import {type TPaymentMethod, type TTransaction} from '@budgetbuddyde/types';
 import {PaymentMethodService} from '@/components/PaymentMethod';
-import {type TPaymentMethodInputOption} from '@/components/PaymentMethod/Autocomplete';
+import {type TPaymentMethodAutocompleteOption} from '@/components/PaymentMethod/Autocomplete';
 
 describe('sortAutocompleteOptionsByTransactionUsage', () => {
   it('should return an empty array if payment-methods is empty', () => {
@@ -26,10 +26,10 @@ describe('sortAutocompleteOptionsByTransactionUsage', () => {
     ] as TTransaction[];
     const result = PaymentMethodService.sortAutocompleteOptionsByTransactionUsage(paymentMethods, transactions);
 
-    const expected: TPaymentMethodInputOption[] = [
-      {value: '1', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[0])},
-      {value: '2', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[1])},
-      {value: '3', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[2])},
+    const expected: TPaymentMethodAutocompleteOption[] = [
+      {id: '1', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[0])},
+      {id: '2', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[1])},
+      {id: '3', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[2])},
     ];
     expect(result).toEqual(expected);
   });
@@ -48,10 +48,10 @@ describe('sortAutocompleteOptionsByTransactionUsage', () => {
     ] as TTransaction[];
     const result = PaymentMethodService.sortAutocompleteOptionsByTransactionUsage(paymentMethods, transactions, 15);
 
-    const expected: TPaymentMethodInputOption[] = [
-      {value: '1', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[0])},
-      {value: '3', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[2])},
-      {value: '2', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[1])},
+    const expected: TPaymentMethodAutocompleteOption[] = [
+      {id: '1', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[0])},
+      {id: '3', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[2])},
+      {id: '2', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[1])},
     ];
     expect(result).toEqual(expected);
   });
@@ -72,10 +72,10 @@ describe('sortAutocompleteOptionsByTransactionUsage', () => {
     ] as TTransaction[];
     const result = PaymentMethodService.sortAutocompleteOptionsByTransactionUsage(paymentMethods, transactions);
 
-    const expected: TPaymentMethodInputOption[] = [
-      {value: '1', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[0])},
-      {value: '2', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[1])},
-      {value: '3', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[2])},
+    const expected: TPaymentMethodAutocompleteOption[] = [
+      {id: '1', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[0])},
+      {id: '2', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[1])},
+      {id: '3', label: PaymentMethodService.getAutocompleteLabel(paymentMethods[2])},
     ];
     expect(result).toEqual(expected);
   });

@@ -1,10 +1,10 @@
 import {create} from 'zustand';
 import {type IBaseStore} from '@/components/Transaction';
 import {type TStockExchange, type TUser} from '@budgetbuddyde/types';
-import {type TSelectStockExchangeOption} from '@/components/Stocks';
+import {type TStockExchangeAutocompleteOption} from './StockExchangeAutocomplete.component';
 
 export interface IStockExchangeStore<T> extends IBaseStore<T[]> {
-  selectOptions: TSelectStockExchangeOption[];
+  selectOptions: TStockExchangeAutocompleteOption[];
   fetchedBy: NonNullable<TUser>['id'] | null;
   fetchedAt: Date | null;
   setFetchedData: (data: T[], fetchedBy: NonNullable<TUser>['id'] | null) => void;

@@ -1,6 +1,6 @@
 import {subDays} from 'date-fns';
-import {type TCategoryInputOption} from './Autocomplete';
 import {type TCategory, type TTransaction} from '@budgetbuddyde/types';
+import {type TCategoryAutocompleteOption} from './Autocomplete';
 
 export class CategoryService {
   /**
@@ -14,7 +14,7 @@ export class CategoryService {
     categories: TCategory[],
     transactions: TTransaction[],
     days: number = 30,
-  ): TCategoryInputOption[] {
+  ): TCategoryAutocompleteOption[] {
     const uniqueCatgegories = categories;
     const now = new Date();
     const startDate = subDays(now, days);
@@ -35,26 +35,16 @@ export class CategoryService {
       },
     );
 
-    return this.getAutocompleteOptions(
-      uniqueCatgegories
-        .map(category => ({
-          ...category,
-          frequency: categoryFrequencyMap[category.id] || -1,
-        }))
-        .sort((a, b) => b.frequency - a.frequency),
-    );
-  }
-
-  /**
-   * Returns an array of autocomplete options for the given categories.
-   * @param categories - The array of categories.
-   * @returns An array of autocomplete options.
-   */
-  static getAutocompleteOptions(categories: TCategory[]): TCategoryInputOption[] {
-    return categories.map(({id, name}) => ({
-      label: name,
-      value: id,
-    }));
+    return uniqueCatgegories
+      .map(category => ({
+        ...category,
+        frequency: categoryFrequencyMap[category.id] || -1,
+      }))
+      .sort((a, b) => b.frequency - a.frequency)
+      .map(({id, name}) => ({
+        label: name,
+        id: id,
+      }));
   }
 
   /**

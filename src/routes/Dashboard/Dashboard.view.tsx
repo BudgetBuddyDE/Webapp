@@ -1,39 +1,38 @@
 import React from 'react';
 import {Grid} from '@mui/material';
-import {CreateTransactionDrawer, TransactionList, useFetchTransactions} from '@/components/Transaction';
-import {CreateSubscriptionDrawer, SubscriptionList, useFetchSubscriptions} from '@/components/Subscription';
 import {
-  type TCreateSubscriptionPayload,
-  type TCreateTransactionPayload,
-  type TSubscription,
-  type TTransaction,
-} from '@budgetbuddyde/types';
-import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
+  TransactionList,
+  useFetchTransactions,
+  TransactionDrawer,
+  type TTransactionDrawerValues,
+} from '@/components/Transaction';
+import {
+  SubscriptionList,
+  useFetchSubscriptions,
+  SubscriptionDrawer,
+  type TSusbcriptionDrawerValues,
+} from '@/components/Subscription';
+import {type TSubscription, type TTransaction} from '@budgetbuddyde/types';
 import {CircularProgress} from '@/components/Loading';
 import {CategorySpendingsChart} from '@/components/Category';
 import {DashboardStatsWrapper} from '@/components/DashboardStatsWrapper.component';
+import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 
 const LIST_ITEM_COUNT = 6;
 
 export const DashboardView = () => {
   const {transactions, loading: loadingTransactions} = useFetchTransactions();
   const {subscriptions, loading: loadingSubscriptions} = useFetchSubscriptions();
-  const [showCreateTransactionDrawer, dispatchCreateTransactionDrawer] = React.useReducer(
-    useEntityDrawer<TCreateTransactionPayload>,
-    CreateEntityDrawerState<TCreateTransactionPayload>(),
+  const [transactionDrawer, dispatchTransactionDrawer] = React.useReducer(
+    useEntityDrawer<TTransactionDrawerValues>,
+    UseEntityDrawerDefaultState<TTransactionDrawerValues>(),
   );
-  const [showCreateSubscriptionDrawer, dispatchCreateSubscriptionDrawer] = React.useReducer(
-    useEntityDrawer<TCreateSubscriptionPayload>,
-    CreateEntityDrawerState<TCreateSubscriptionPayload>(),
+  const [subscriptionDrawer, dispatchSubscriptionDrawer] = React.useReducer(
+    useEntityDrawer<TSusbcriptionDrawerValues>,
+    UseEntityDrawerDefaultState<TSusbcriptionDrawerValues>(),
   );
-
   const latestTransactions: TTransaction[] = React.useMemo(() => {
     return transactions.slice(0, LIST_ITEM_COUNT);
-  }, [transactions]);
-
-  const upcomingTransactions: TTransaction[] = React.useMemo(() => {
-    const now = new Date();
-    return transactions.filter(({processed_at}) => processed_at >= now).slice(0, LIST_ITEM_COUNT);
   }, [transactions]);
 
   const upcomingSubscriptions: TSubscription[] = React.useMemo(() => {
@@ -50,7 +49,7 @@ export const DashboardView = () => {
         ) : (
           <SubscriptionList
             data={upcomingSubscriptions}
-            onAddSubscription={() => dispatchCreateSubscriptionDrawer({type: 'open'})}
+            onAddSubscription={() => dispatchSubscriptionDrawer({type: 'OPEN', drawerAction: 'CREATE'})}
           />
         )}
       </Grid>
@@ -67,31 +66,23 @@ export const DashboardView = () => {
             title="Latest transactions"
             subtitle="What purchases did you make recently?"
             data={latestTransactions}
-            onAddTransaction={() => dispatchCreateTransactionDrawer({type: 'open'})}
-          />
-        )}
-
-        {loadingTransactions ? (
-          <CircularProgress />
-        ) : (
-          <TransactionList
-            cardProps={{sx: {mt: 3}}}
-            title="Upcoming Transactions"
-            noResultsMessage="You don't have any upcoming transactions"
-            data={upcomingTransactions}
-            onAddTransaction={() => dispatchCreateTransactionDrawer({type: 'open'})}
+            onAddTransaction={() => dispatchTransactionDrawer({type: 'OPEN', drawerAction: 'CREATE'})}
           />
         )}
       </Grid>
 
-      <CreateTransactionDrawer
-        {...showCreateTransactionDrawer}
-        onClose={() => dispatchCreateTransactionDrawer({type: 'close'})}
+      <TransactionDrawer
+        {...transactionDrawer}
+        onClose={() => dispatchTransactionDrawer({type: 'CLOSE'})}
+        closeOnBackdropClick
+        closeOnEscape
       />
 
-      <CreateSubscriptionDrawer
-        {...showCreateSubscriptionDrawer}
-        onClose={() => dispatchCreateSubscriptionDrawer({type: 'close'})}
+      <SubscriptionDrawer
+        {...subscriptionDrawer}
+        onClose={() => dispatchSubscriptionDrawer({type: 'CLOSE'})}
+        closeOnBackdropClick
+        closeOnEscape
       />
     </React.Fragment>
   );

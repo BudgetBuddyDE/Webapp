@@ -6,22 +6,18 @@ import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/componen
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {
   CategoryChip,
+  CategoryDrawer,
   CategoryService,
   CategorySpendingsChart,
-  CreateCategoryDrawer,
-  EditCategoryDrawer,
   useFetchCategories,
-  type TCreateCategoryDrawerPayload,
-  type TEditCategoryDrawerPayload,
+  type TCategoryDrawerValues,
 } from '@/components/Category';
 import {CategoryIncomeChart} from '@/components/Category/Chart/IncomeChart.component';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
 import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
 import {Checkbox, Grid, IconButton, TableCell, TableRow} from '@mui/material';
-import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
 import React from 'react';
-import {useLocation, useNavigate} from 'react-router-dom';
 import {SearchInput} from '@/components/Base/Search';
 import {type ISelectionHandler} from '@/components/Base/Select';
 import {ToggleFilterDrawerButton} from '@/components/Filter';
@@ -29,28 +25,24 @@ import {pb} from '@/pocketbase';
 import {PocketBaseCollection, type TCategory} from '@budgetbuddyde/types';
 import {DownloadButton} from '@/components/Download';
 import {format} from 'date-fns';
+import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 
 interface ICategoriesHandler {
+  showCreateDialog: () => void;
+  showEditDialog: (category: TCategory) => void;
+
   onSearch: (keyword: string) => void;
-  onCreateCategory: (payload?: TCreateCategoryDrawerPayload) => void;
   onCategoryDelete: (category: TCategory) => void;
   onConfirmCategoryDelete: () => void;
-  onEditCategory: (category: TCategory) => void;
   selection: ISelectionHandler<TCategory>;
 }
 
 export const Categories = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
   const {categories, refresh: refreshCategories, loading: loadingCategories} = useFetchCategories();
   const {showSnackbar} = useSnackbarContext();
-  const [showCreateDrawer, dispatchCreateDrawer] = React.useReducer(
-    useEntityDrawer<TCreateCategoryDrawerPayload>,
-    CreateEntityDrawerState<TCreateCategoryDrawerPayload>(),
-  );
-  const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
-    useEntityDrawer<TEditCategoryDrawerPayload>,
-    CreateEntityDrawerState<TEditCategoryDrawerPayload>(),
+  const [categoryDrawer, dispatchCategoryDrawer] = React.useReducer(
+    useEntityDrawer<TCategoryDrawerValues>,
+    UseEntityDrawerDefaultState<TCategoryDrawerValues>(),
   );
   const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] = React.useState(false);
   const [deleteCategories, setDeleteCategories] = React.useState<TCategory[]>([]);
@@ -63,14 +55,19 @@ export const Categories = () => {
   }, [categories, keyword]);
 
   const handler: ICategoriesHandler = {
+    showCreateDialog() {
+      dispatchCategoryDrawer({type: 'OPEN', drawerAction: 'CREATE'});
+    },
+    showEditDialog(category) {
+      const {id, name, description} = category;
+      dispatchCategoryDrawer({
+        type: 'OPEN',
+        drawerAction: 'UPDATE',
+        payload: {id, name, description},
+      });
+    },
     onSearch(keyword) {
       setKeyword(keyword.toLowerCase());
-    },
-    onCreateCategory(payload) {
-      dispatchCreateDrawer({type: 'open', payload});
-    },
-    onEditCategory(category) {
-      dispatchEditDrawer({type: 'open', payload: category});
     },
     async onConfirmCategoryDelete() {
       try {
@@ -115,18 +112,6 @@ export const Categories = () => {
     },
   };
 
-  React.useEffect(() => {
-    if (!location.search) return;
-    const queryParams = new URLSearchParams(location.search);
-    if (!queryParams.has('create') || queryParams.size < 2) return;
-
-    const payload: TCreateCategoryDrawerPayload = {
-      name: queryParams.get('category') ?? '',
-      description: queryParams.get('description'),
-    };
-    handler.onCreateCategory(payload);
-  }, [location.search]);
-
   return (
     <ContentGrid title={'Categories'}>
       <Grid item xs={12} md={12} lg={8} xl={8}>
@@ -157,7 +142,7 @@ export const Categories = () => {
               </TableCell>
               <TableCell align="right" size={AppConfig.table.cellSize}>
                 <ActionPaper sx={{width: 'fit-content', ml: 'auto'}}>
-                  <IconButton color="primary" onClick={() => handler.onEditCategory(category)}>
+                  <IconButton color="primary" onClick={() => handler.showEditDialog(category)}>
                     <EditRounded />
                   </IconButton>
                   <IconButton color="primary" onClick={() => handler.onCategoryDelete(category)}>
@@ -173,7 +158,7 @@ export const Categories = () => {
 
               <SearchInput onSearch={handler.onSearch} />
 
-              <IconButton color="primary" onClick={() => handler.onCreateCategory()}>
+              <IconButton color="primary" onClick={handler.showCreateDialog}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
               {categories.length > 0 && (
@@ -206,17 +191,12 @@ export const Categories = () => {
         </Grid>
       </Grid>
 
-      <Grid item xs={12} md={12} lg={8} xl={6}></Grid>
-
-      <CreateCategoryDrawer
-        {...showCreateDrawer}
-        onClose={() => {
-          navigate(location.pathname, {replace: true});
-          dispatchCreateDrawer({type: 'close'});
-        }}
+      <CategoryDrawer
+        {...categoryDrawer}
+        onClose={() => dispatchCategoryDrawer({type: 'CLOSE'})}
+        closeOnBackdropClick
+        closeOnEscape
       />
-
-      <EditCategoryDrawer {...showEditDrawer} onClose={() => dispatchEditDrawer({type: 'close'})} />
 
       <DeleteDialog
         open={showDeleteCategoryDialog}
@@ -233,7 +213,7 @@ export const Categories = () => {
       />
       <FabContainer>
         <OpenFilterDrawerFab />
-        <AddFab onClick={() => handler.onCreateCategory()} />
+        <AddFab onClick={handler.showCreateDialog} />
       </FabContainer>
     </ContentGrid>
   );

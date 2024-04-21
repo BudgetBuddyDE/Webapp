@@ -39,8 +39,8 @@ export const FileUploadPreview: React.FC<TFileUploadPreviewProps> = ({
           borderColor: 'action.disabled',
           color: 'action.disabled',
           ':hover': {
-            borderColor: 'action.active',
-            color: 'action.active',
+            borderColor: 'primary.main',
+            color: 'primary.main',
           },
           ...avatarProps.sx,
         }}
@@ -61,8 +61,8 @@ export const FileUploadPreview: React.FC<TFileUploadPreviewProps> = ({
             borderColor: 'action.disabled',
             color: 'action.disabled',
             ':hover': {
-              color: 'action.active',
-              borderColor: 'action.active',
+              color: 'primary.main',
+              borderColor: 'primary.main',
             },
           }}>
           <DeleteRounded />

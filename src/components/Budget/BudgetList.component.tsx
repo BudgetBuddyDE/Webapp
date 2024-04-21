@@ -5,14 +5,15 @@ import React from 'react';
 import {useFetchBudget} from './useFetchBudget.hook';
 import {CircularProgress} from '@/components/Loading';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {CreateBudgetDrawer} from './CreateBudgetDrawer.component';
-import {EditBudgetDrawer} from './EditBudgetDrawer.component';
 import {type TBudget, PocketBaseCollection} from '@budgetbuddyde/types';
 import {pb} from '@/pocketbase';
 import {CategoryBudget} from './CategoryBudget.component';
+import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
+import {BudgetDrawer, type TBudgetDrawerValues} from './BudgetDrawer.component';
 
 interface IBudgetListHandler {
-  onEdit: (budget: TBudget) => void;
+  showCreateDialog: () => void;
+  showEditDialog: (budget: TBudget) => void;
   onDelete: (budget: TBudget) => void;
 }
 
@@ -21,14 +22,30 @@ export type TBudgetListProps = {};
 export const BudgetList: React.FC<TBudgetListProps> = () => {
   const {showSnackbar} = useSnackbarContext();
   const {loading: loadingBudgets, budgets, refresh: refreshBudgets} = useFetchBudget();
-  const [showCreateBudgetDrawer, setShowCreateBudgetDrawer] = React.useState(false);
-  const [showEditBudgetDrawer, setShowEditBudgetDrawer] = React.useState(false);
-  const [editBudget, setEditBudget] = React.useState<TBudget | null>(null);
+  const [budgetDrawer, dispatchBudgetDrawer] = React.useReducer(
+    useEntityDrawer<TBudgetDrawerValues>,
+    UseEntityDrawerDefaultState<TBudgetDrawerValues>(),
+  );
 
   const handler: IBudgetListHandler = {
-    async onEdit(budget) {
-      setEditBudget(budget);
-      setShowEditBudgetDrawer(true);
+    showCreateDialog() {
+      dispatchBudgetDrawer({type: 'OPEN', drawerAction: 'CREATE'});
+    },
+    showEditDialog(budget) {
+      const {
+        id,
+        expand: {category},
+        budget: budgetAmount,
+      } = budget;
+      dispatchBudgetDrawer({
+        type: 'OPEN',
+        drawerAction: 'UPDATE',
+        payload: {
+          id: id,
+          category: {id: category.id, label: category.name},
+          budget: budgetAmount,
+        },
+      });
     },
     async onDelete(budget) {
       try {
@@ -56,7 +73,7 @@ export const BudgetList: React.FC<TBudgetListProps> = () => {
           <Card.HeaderActions>
             <ActionPaper>
               <Tooltip title="Set Budget">
-                <IconButton color="primary" onClick={() => setShowCreateBudgetDrawer(true)}>
+                <IconButton color="primary" onClick={handler.showCreateDialog}>
                   <AddRounded />
                 </IconButton>
               </Tooltip>
@@ -69,7 +86,11 @@ export const BudgetList: React.FC<TBudgetListProps> = () => {
           ) : budgets.length > 0 ? (
             budgets.map(budget => (
               <Box key={budget.id} sx={{mt: 1}}>
-                <CategoryBudget budget={budget} onEdit={handler.onEdit} onDelete={handler.onDelete} />
+                <CategoryBudget
+                  budget={budget}
+                  onEdit={() => handler.showEditDialog(budget)}
+                  onDelete={handler.onDelete}
+                />
               </Box>
             ))
           ) : (
@@ -78,15 +99,11 @@ export const BudgetList: React.FC<TBudgetListProps> = () => {
         </Card.Body>
       </Card>
 
-      <CreateBudgetDrawer open={showCreateBudgetDrawer} onChangeOpen={setShowCreateBudgetDrawer} />
-
-      <EditBudgetDrawer
-        open={showEditBudgetDrawer}
-        onChangeOpen={isOpen => {
-          if (!isOpen) setEditBudget(null);
-          setShowEditBudgetDrawer(isOpen);
-        }}
-        budget={editBudget}
+      <BudgetDrawer
+        {...budgetDrawer}
+        onClose={() => dispatchBudgetDrawer({type: 'CLOSE'})}
+        closeOnBackdropClick
+        closeOnEscape
       />
     </React.Fragment>
   );

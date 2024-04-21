@@ -137,7 +137,12 @@ const SignUp = () => {
               </Grid>
             </Grid>
             <Box sx={{display: 'flex', justifyContent: 'center'}}>
-              <Button type="submit" variant="contained" endIcon={<SendRounded />} sx={{mt: 1}}>
+              <Button
+                type="submit"
+                variant="contained"
+                endIcon={<SendRounded />}
+                sx={{mt: 1}}
+                data-umami-event={'default-sign-up'}>
                 Sign up
               </Button>
             </Box>
@@ -151,6 +156,8 @@ const SignUp = () => {
               provider={provider}
               onAuthProviderResponse={formHandler.handleAuthProviderLogin}
               sx={{mb: idx !== arr.length - 1 ? 2 : 0}}
+              data-umami-event={'social-sign-up'}
+              data-umami-value={provider}
             />
           ))}
 
@@ -164,7 +171,8 @@ const SignUp = () => {
             variant={'contained'}
             size={'large'}
             startIcon={<SendRounded />}
-            fullWidth>
+            fullWidth
+            data-umami-event={'sign-up-redirect-login'}>
             Sign in
           </Button>
         </Card>

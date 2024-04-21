@@ -1,8 +1,10 @@
 import {subDays} from 'date-fns';
-import {PaymentMethodLabelSeperator, type TPaymentMethodInputOption} from './Autocomplete';
 import {type TPaymentMethod, type TTransaction} from '@budgetbuddyde/types';
+import {type TPaymentMethodAutocompleteOption} from './Autocomplete/PaymentMethodAutocomplete.component';
 
 export class PaymentMethodService {
+  private static paymentMethodLabelSeperator = '•';
+
   /**
    * Sorts the autocomplete options for payment-methods based on transaction usage.
    *
@@ -14,7 +16,7 @@ export class PaymentMethodService {
     paymentMethods: TPaymentMethod[],
     transactions: TTransaction[],
     days: number = 30,
-  ): TPaymentMethodInputOption[] {
+  ): TPaymentMethodAutocompleteOption[] {
     const uniquePaymentMethods = paymentMethods;
     const now = new Date();
     const startDate = subDays(now, days);
@@ -35,26 +37,16 @@ export class PaymentMethodService {
       },
     );
 
-    return this.getAutocompleteOptions(
-      uniquePaymentMethods
-        .map(paymentMethod => ({
-          ...paymentMethod,
-          frequency: paymentMethodFrequencyMap[paymentMethod.id] || -1,
-        }))
-        .sort((a, b) => b.frequency - a.frequency),
-    );
-  }
-
-  /**
-   * Returns an array of autocomplete options for the given payment-methods.
-   * @param paymentMethods - The array of payment-methods.
-   * @returns An array of autocomplete options.
-   */
-  static getAutocompleteOptions(paymentMethods: TPaymentMethod[]): TPaymentMethodInputOption[] {
-    return paymentMethods.map(({id, name, provider}) => ({
-      label: this.getAutocompleteLabel({name, provider}),
-      value: id,
-    }));
+    return uniquePaymentMethods
+      .map(paymentMethod => ({
+        ...paymentMethod,
+        frequency: paymentMethodFrequencyMap[paymentMethod.id] || -1,
+      }))
+      .sort((a, b) => b.frequency - a.frequency)
+      .map(({id, name, provider}) => ({
+        label: this.getAutocompleteLabel({name, provider}),
+        id: id,
+      }));
   }
 
   /**
@@ -64,7 +56,7 @@ export class PaymentMethodService {
    * @returns The autocomplete label.
    */
   static getAutocompleteLabel(paymentMethod: Pick<TPaymentMethod, 'name' | 'provider'>): string {
-    return `${paymentMethod.name} ${PaymentMethodLabelSeperator} ${paymentMethod.provider}`;
+    return `${paymentMethod.name} ${this.paymentMethodLabelSeperator} ${paymentMethod.provider}`;
   }
 
   /**

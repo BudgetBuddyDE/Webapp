@@ -1,14 +1,14 @@
 import {describe, it, expect} from 'vitest';
-import {type TAutocompleteOption, applyReceiverOptionsFilter} from './ReceiverAutocomplete.component';
+import {type TReceiverAutocompleteOption, applyReceiverOptionsFilter} from './ReceiverAutocomplete.component';
 
 describe('Validate if correct items are returned by filter', () => {
   const filterOptionsState = (keyword: string) => ({
     inputValue: keyword,
-    getOptionLabel(option: TAutocompleteOption) {
+    getOptionLabel(option: TReceiverAutocompleteOption) {
       return option.label;
     },
   });
-  const options: TAutocompleteOption[] = [
+  const options: TReceiverAutocompleteOption[] = [
     {label: 'Landlord', value: 'Landlord'},
     {label: 'McDonalds', value: 'McDonalds'},
     {label: 'State Office', value: 'State Office'},

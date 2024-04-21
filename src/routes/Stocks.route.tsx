@@ -3,29 +3,19 @@ import {ContentGrid} from '@/components/Layout';
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {Button, Grid} from '@mui/material';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {
-  AddStockPositionDrawer,
-  PortfolioDiversityChart,
-  useFetchStockPositions,
-  StockService,
-  useStockStore,
-  EditStockPositionDrawer,
-} from '@/components/Stocks';
+import {PortfolioDiversityChart, useFetchStockPositions, StockService, useStockStore} from '@/components/Stocks';
 import {getSocketIOClient} from '@/utils';
 import {CircularProgress} from '@/components/Loading';
-import {CreateEntityDrawerState, useEntityDrawer} from '@/hooks';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {useAuthContext} from '@/components/Auth';
-import {
-  type TUpdateStockPositionPayload,
-  type TCreateStockPositionPayload,
-  type TStockPositionWithQuote,
-} from '@budgetbuddyde/types';
+import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
 import {StockPositionTable} from '@/components/Stocks/Position';
+import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
+import {StockPositionDrawer, type TStockPositionDrawerValues} from '@/components/Stocks/StockPositionDrawer.component';
 
 interface IStocksHandler {
-  onAddPosition: () => void;
-  onEditPosition: (position: TStockPositionWithQuote) => void;
+  showCreateDialog: () => void;
+  showEditDialog: (stockPosition: TStockPositionWithQuote) => void;
   onCancelDeletePosition: () => void;
   onConfirmDeletePosition: () => void;
 }
@@ -42,16 +32,39 @@ export const Stocks = () => {
     positions: stockPositions,
     refresh: refreshStockPositions,
   } = useFetchStockPositions();
-  const [showAddDrawer, dispatchAddDrawer] = React.useReducer(
-    useEntityDrawer<TCreateStockPositionPayload>,
-    CreateEntityDrawerState<TCreateStockPositionPayload>(),
-  );
-  const [showEditDrawer, dispatchEditDrawer] = React.useReducer(
-    useEntityDrawer<TUpdateStockPositionPayload>,
-    CreateEntityDrawerState<TUpdateStockPositionPayload>(),
+  const [stockPositionDrawer, dispatchStockPositionDrawer] = React.useReducer(
+    useEntityDrawer<TStockPositionDrawerValues>,
+    UseEntityDrawerDefaultState<TStockPositionDrawerValues>(),
   );
 
   const handler: IStocksHandler = {
+    showCreateDialog() {
+      dispatchStockPositionDrawer({type: 'OPEN', drawerAction: 'CREATE'});
+    },
+    showEditDialog({id, bought_at, buy_in, quantity, currency, isin, name, logo, expand: {exchange}}) {
+      dispatchStockPositionDrawer({
+        type: 'OPEN',
+        drawerAction: 'UPDATE',
+        payload: {
+          id,
+          bought_at,
+          currency,
+          buy_in,
+          exchange: {
+            label: exchange.name,
+            ticker: exchange.symbol,
+            value: exchange.id,
+          },
+          quantity,
+          stock: {
+            type: 'Aktie',
+            isin,
+            label: name,
+            logo,
+          },
+        },
+      });
+    },
     onCancelDeletePosition() {
       setDeletePosition(null);
       setShowDeletePositionDialog(false);
@@ -81,25 +94,6 @@ export const Stocks = () => {
       setDeletePosition(null);
       React.startTransition(() => {
         refreshStockPositions();
-      });
-    },
-    onAddPosition() {
-      dispatchAddDrawer({type: 'open'});
-    },
-    onEditPosition({bought_at, buy_in, expand: {exchange}, id, isin, quantity}) {
-      if (!sessionUser) throw new Error('sessionUser is null!');
-      dispatchEditDrawer({
-        type: 'open',
-        payload: {
-          owner: sessionUser.id,
-          currency: 'EUR',
-          bought_at: bought_at,
-          buy_in: buy_in,
-          exchange: exchange.id,
-          id: id,
-          isin: isin,
-          quantity: quantity,
-        },
       });
     },
   };
@@ -142,8 +136,8 @@ export const Stocks = () => {
       <Grid item xs={12} md={9} lg={9} xl={9}>
         <StockPositionTable
           withRedirect
-          onAddPosition={() => dispatchAddDrawer({type: 'open'})}
-          onEditPosition={handler.onEditPosition}
+          onAddPosition={handler.showCreateDialog}
+          onEditPosition={handler.showEditDialog}
           onDeletePosition={position => {
             setShowDeletePositionDialog(true);
             setDeletePosition(position);
@@ -155,6 +149,13 @@ export const Stocks = () => {
         {loadingStockPositions ? <CircularProgress /> : <PortfolioDiversityChart positions={stockPositions} />}
       </Grid>
 
+      <StockPositionDrawer
+        {...stockPositionDrawer}
+        onClose={() => dispatchStockPositionDrawer({type: 'CLOSE'})}
+        closeOnBackdropClick
+        closeOnEscape
+      />
+
       <DeleteDialog
         open={showDeletePositionDialog}
         onClose={handler.onCancelDeletePosition}
@@ -162,10 +163,6 @@ export const Stocks = () => {
         onConfirm={handler.onConfirmDeletePosition}
         withTransition
       />
-
-      <AddStockPositionDrawer {...showAddDrawer} onClose={() => dispatchAddDrawer({type: 'close'})} />
-
-      <EditStockPositionDrawer {...showEditDrawer} onClose={() => dispatchEditDrawer({type: 'close'})} />
     </ContentGrid>
   );
 };

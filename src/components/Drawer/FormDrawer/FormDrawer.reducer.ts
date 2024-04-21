@@ -1,15 +1,24 @@
+/**
+ * @deprecated
+ */
 export type TFormDrawerState = {
   loading: boolean;
   success: boolean;
   error: string | Error | null;
 };
 
+/**
+ * @deprecated
+ */
 export type TFormDrawerAction =
   | {type: 'RESET'}
   | {type: 'SUBMIT'}
   | {type: 'SUCCESS'; error?: TFormDrawerState['error']}
   | {type: 'ERROR'; error: TFormDrawerState['error']};
 
+/**
+ * @deprecated
+ */
 export function generateInitialFormDrawerState(): TFormDrawerState {
   return {
     loading: false,
@@ -18,6 +27,9 @@ export function generateInitialFormDrawerState(): TFormDrawerState {
   };
 }
 
+/**
+ * @deprecated
+ */
 export function FormDrawerReducer(state: TFormDrawerState, action: TFormDrawerAction): TFormDrawerState {
   switch (action.type) {
     case 'RESET':

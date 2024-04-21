@@ -1,35 +1,37 @@
 import React from 'react';
 import {
   Autocomplete,
-  type FilterOptionsState,
-  type SxProps,
+  AutocompleteChangeReason,
+  FilterOptionsState,
   TextField,
-  type Theme,
   createFilterOptions,
+  type TextFieldProps,
 } from '@mui/material';
-import {StyledAutocompleteOption} from './StyledAutocompleteOption.component';
+import {useFetchTransactions} from '@/components/Transaction';
+import {StyledAutocompleteOption} from '@/components/Base';
 
-export type TAutocompleteOption = {
+export type TReceiverAutocompleteOption = {
   label: string;
   value: string;
 };
 
-export type TReceiverAutocompleteProps = {
-  sx?: SxProps<Theme>;
-  id?: string;
-  label: string;
-  options: TAutocompleteOption[];
-  defaultValue?: string;
-  onValueChange: (value: string | number) => void;
-  required?: boolean;
-};
+export interface IReceiverAutocompleteProps {
+  value?: TReceiverAutocompleteOption | null;
+  defaultValue?: TReceiverAutocompleteOption | null;
+  onChange?: (
+    event: React.SyntheticEvent<Element, Event>,
+    value: TReceiverAutocompleteOption | null,
+    reason: AutocompleteChangeReason,
+  ) => void;
+  textFieldProps?: TextFieldProps;
+}
 
-const filter = createFilterOptions<TAutocompleteOption>();
+const filter = createFilterOptions<TReceiverAutocompleteOption>();
 
 export function applyReceiverOptionsFilter(
-  options: TAutocompleteOption[],
-  state: FilterOptionsState<TAutocompleteOption>,
-): TAutocompleteOption[] {
+  options: TReceiverAutocompleteOption[],
+  state: FilterOptionsState<TReceiverAutocompleteOption>,
+): TReceiverAutocompleteOption[] {
   if (state.inputValue.length < 1) return options;
   const filtered = filter(options, state);
   const matches = filtered.filter(option => option.label.toLowerCase().includes(state.inputValue.toLowerCase()));
@@ -41,70 +43,44 @@ export function applyReceiverOptionsFilter(
   } else return [{label: `Create "${state.inputValue}"`, value: state.inputValue}];
 }
 
-/**
- * Docs:
- * - [Material UI reference](https://mui.com/material-ui/react-autocomplete/#creatable)
- */
-export const ReceiverAutocomplete: React.FC<TReceiverAutocompleteProps> = ({
-  sx,
-  id,
-  label,
-  options,
-  defaultValue = null,
-  onValueChange,
-  required = false,
+export const ReceiverAutocomplete: React.FC<IReceiverAutocompleteProps> = ({
+  value,
+  defaultValue,
+  onChange,
+  textFieldProps,
 }) => {
-  const [value, setValue] = React.useState<TAutocompleteOption | null>(
-    defaultValue ? {label: defaultValue, value: defaultValue} : null,
-  );
+  const {loading, transactions} = useFetchTransactions();
 
-  React.useEffect(() => onValueChange(value?.value || ''), [value, onValueChange]);
+  const options: TReceiverAutocompleteOption[] = React.useMemo(() => {
+    return Array.from(new Set(transactions.map(({receiver}) => receiver))).map(
+      receiver => ({label: receiver, value: receiver}) as TReceiverAutocompleteOption,
+    );
+  }, [transactions]);
 
   return (
     <Autocomplete
-      sx={sx}
-      id={id}
       options={options}
-      value={value}
-      onChange={(_event, newValue) => {
-        if (typeof newValue === 'string') {
-          setValue({
-            label: newValue,
-            value: newValue,
-          });
-        } else if (newValue && newValue.value) {
-          setValue({
-            label: newValue.value,
-            value: newValue.value,
-          });
-        } else {
-          setValue(newValue);
-        }
-      }}
-      filterOptions={applyReceiverOptionsFilter}
       getOptionLabel={option => {
-        // Value selected with enter, right from the input
-        if (typeof option === 'string') {
-          return option;
-        }
-        // Add "xxx" option created dynamically
-        if (option.value) {
-          return option.value;
-        }
-        // Regular option
+        if (typeof option === 'string') return option;
+        if (option.value) return option.value;
         return option.label;
       }}
+      value={value}
+      onChange={onChange}
+      filterOptions={applyReceiverOptionsFilter}
+      // FIXME:
+      isOptionEqualToValue={(option, value) => option.value === value?.value || typeof value.value === 'string'}
+      defaultValue={defaultValue}
+      loadingText="Loading..."
+      loading={loading}
+      selectOnFocus
+      autoHighlight
+      renderInput={params => <TextField label="Receiver" {...textFieldProps} {...params} />}
       renderOption={(props, option, {selected}) => (
         <StyledAutocompleteOption {...props} selected={selected}>
           {option.label}
         </StyledAutocompleteOption>
       )}
-      renderInput={params => <TextField {...params} label={label} required={required} />}
-      isOptionEqualToValue={(option, value) => {
-        return option.value == value.value && option.label == value.label;
-      }}
-      selectOnFocus
-      fullWidth
     />
   );
 };

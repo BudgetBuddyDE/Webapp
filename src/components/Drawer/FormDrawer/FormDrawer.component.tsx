@@ -7,6 +7,9 @@ import {CloseRounded, DoneRounded, ErrorRounded} from '@mui/icons-material';
 import {type TFormDrawerState} from '@/components/Drawer';
 import {useKeyPress} from '@/hooks/useKeyPress.hook.ts';
 
+/**
+ * @deprecated
+ */
 export type TFormDrawerProps = {
   state?: TFormDrawerState;
   open?: boolean;
@@ -16,6 +19,9 @@ export type TFormDrawerProps = {
   closeOnBackdropClick?: boolean;
 };
 
+/**
+ * @deprecated
+ */
 export const FormDrawer: React.FC<React.PropsWithChildren<TFormDrawerProps>> = ({
   state,
   open,
