@@ -13,8 +13,10 @@ import {
   useFetchStockDividends,
 } from '@/components/Stocks';
 import {Formatter} from '@/services';
+import {Feature} from '@/app.config';
+import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
 
-export const StocksView = () => {
+const StocksView = () => {
   const {updateQuote} = useStockStore();
   const {sessionUser} = useAuthContext();
   const socket = getSocketIOClient();
@@ -117,4 +119,4 @@ export const StocksView = () => {
   );
 };
 
-export default StocksView;
+export default withFeatureFlag(Feature.STOCKS, StocksView);

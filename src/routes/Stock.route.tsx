@@ -42,6 +42,8 @@ import {RelatedStock, useFetchRelatedStocks} from '@/components/Stocks/RelatedSt
 import {StockPositionTable} from '@/components/Stocks/Position';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {StockPositionDrawer, type TStockPositionDrawerValues} from '@/components/Stocks/StockPositionDrawer.component';
+import {Feature} from '@/app.config';
+import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
 
 const NoStockMessage = () => (
   <Card>
@@ -584,4 +586,4 @@ export const Stock = () => {
   );
 };
 
-export default withAuthLayout(Stock);
+export default withFeatureFlag(Feature.STOCKS, withAuthLayout(Stock), true);

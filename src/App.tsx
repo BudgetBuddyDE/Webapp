@@ -8,7 +8,7 @@ import TransactionsRoute from './routes/Transactions.route';
 import SubscriptionsRoute from './routes/Subscriptions.route';
 import PaymentMethodsRoute from './routes/PaymentMethods.route';
 import CategoriesRoute from './routes/Categories.route';
-import NotFoundPage from './routes/NotFound.route';
+const NotFoundPage = React.lazy(() => import('./routes/NotFound.route'));
 const SignInRoute = React.lazy(() => import('./routes/SignIn.route'));
 const SignUpRoute = React.lazy(() => import('./routes/SignUp.route'));
 const VerifyMailRoute = React.lazy(() => import('./routes/VerifyMail.route'));

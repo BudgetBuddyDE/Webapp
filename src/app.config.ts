@@ -2,6 +2,10 @@ import {type TableCellProps, type Theme} from '@mui/material';
 import BlueTheme from '@/style/theme/theme';
 import {version} from '../package.json';
 
+export enum Feature {
+  STOCKS = 'stocks',
+}
+
 export type TAppConfig = {
   production: boolean;
   appName: string;
@@ -16,6 +20,7 @@ export type TAppConfig = {
     cellSize: TableCellProps['size'];
   };
   authProvider: Record<string, string>;
+  feature: Record<Feature, boolean>;
 };
 
 export const AppConfig: TAppConfig = {
@@ -34,5 +39,8 @@ export const AppConfig: TAppConfig = {
   authProvider: {
     google: 'Google',
     github: 'GitHub',
+  },
+  feature: {
+    [Feature.STOCKS]: process.env.STOCK_SERVICE_HOST !== undefined,
   },
 };

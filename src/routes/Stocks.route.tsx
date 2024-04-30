@@ -12,6 +12,8 @@ import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
 import {StockPositionTable} from '@/components/Stocks/Position';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {StockPositionDrawer, type TStockPositionDrawerValues} from '@/components/Stocks/StockPositionDrawer.component';
+import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
+import {Feature} from '@/app.config';
 
 interface IStocksHandler {
   showCreateDialog: () => void;
@@ -31,7 +33,6 @@ export const Stocks = () => {
     loading: loadingStockPositions,
     positions: stockPositions,
     refresh: refreshStockPositions,
-    error: stockPositionsError,
   } = useFetchStockPositions();
   const [stockPositionDrawer, dispatchStockPositionDrawer] = React.useReducer(
     useEntityDrawer<TStockPositionDrawerValues>,
@@ -132,8 +133,6 @@ export const Stocks = () => {
     };
   }, [sessionUser, socket, stockPositions, loadingStockPositions]);
 
-  React.useEffect(() => console.error('Stocks.route.tsx', stockPositionsError), [stockPositionsError]);
-
   return (
     <ContentGrid title="Stocks" description={'Manage your positions'}>
       <Grid item xs={12} md={9} lg={9} xl={9}>
@@ -170,4 +169,4 @@ export const Stocks = () => {
   );
 };
 
-export default withAuthLayout(Stocks);
+export default withFeatureFlag(Feature.STOCKS, withAuthLayout(Stocks), true);
