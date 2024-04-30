@@ -1,5 +1,5 @@
 import React from 'react';
-import {Navigate, useParams} from 'react-router-dom';
+import {Navigate, useNavigate, useParams} from 'react-router-dom';
 import Chart from 'react-apexcharts';
 import {
   Accordion,
@@ -29,6 +29,7 @@ import {
   useStockStore,
   useFetchStockQuotes,
   useFetchStockDetails,
+  StockLayout,
   type TPriceChartPoint,
 } from '@/components/Stocks';
 import {getSocketIOClient} from '@/utils';
@@ -52,7 +53,7 @@ const NoStockMessage = () => (
 );
 
 interface IStockHandler {
-  showCreateDialog: () => void;
+  showCreateDialog: (payload?: Partial<TStockPositionDrawerValues>) => void;
   showEditDialog: (stockPosition: TStockPositionWithQuote) => void;
   onSearch: (term: string) => void;
   onCancelDeletePosition: () => void;
@@ -61,6 +62,7 @@ interface IStockHandler {
 
 export const Stock = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const params = useParams<{isin: string}>();
   const {showSnackbar} = useSnackbarContext();
   const {sessionUser} = useAuthContext();
@@ -157,20 +159,22 @@ export const Stock = () => {
   }, [keyword, stockPositions, params]);
 
   const handler: IStockHandler = {
-    showCreateDialog() {
+    showCreateDialog(payload) {
       dispatchStockPositionDrawer({
         type: 'OPEN',
         drawerAction: 'CREATE',
-        payload: stockDetails
-          ? {
-              stock: {
-                type: stockDetails.asset.assetType,
-                isin: stockDetails.asset._id.identifier,
-                label: stockDetails.asset.name ?? '',
-                logo: stockDetails.asset.logo,
-              },
-            }
-          : undefined,
+        payload: payload
+          ? payload
+          : stockDetails
+            ? {
+                stock: {
+                  type: stockDetails.asset.assetType,
+                  isin: stockDetails.asset._id.identifier,
+                  label: stockDetails.asset.name ?? '',
+                  logo: stockDetails.asset.logo,
+                },
+              }
+            : undefined,
       });
     },
     showEditDialog({id, bought_at, buy_in, quantity, currency, isin, name, logo, expand: {exchange}}) {
@@ -264,325 +268,333 @@ export const Stock = () => {
 
   if (!params.isin || params.isin.length !== 12) return <Navigate to={'/stocks'} />;
   return (
-    <ContentGrid title={stockDetails?.asset.name ?? ''} description={params.isin}>
-      <Grid container item xs={12} md={12} lg={8} spacing={3}>
-        <Grid item xs={12} md={12}>
-          {loadingQuotes && (!quotes || quotes.length === 0) ? (
-            <CircularProgress />
-          ) : quotes ? (
-            <PriceChart data={preparedChartData} onTimeframeChange={setChartTimeframe} />
-          ) : (
-            <NoResults icon={<TimelineRounded />} text="No quotes found" />
-          )}
-        </Grid>
-
-        <Grid item xs={12} md={12}>
-          <StockPositionTable
-            isLoading={loadingStockPositions}
-            positions={displayedStockPositions}
-            onAddPosition={handler.showCreateDialog}
-            onEditPosition={handler.showEditDialog}
-            onDeletePosition={position => {
-              setShowDeletePositionDialog(true);
-              setDeletePosition(position);
-            }}
-          />
-        </Grid>
-
-        {stockDetails && stockDetails.details.securityDetails && (
+    <StockLayout
+      onSelectAsset={({identifier}) => navigate(`/stocks/${identifier}`)}
+      onOpenPosition={({name, logo, identifier, type}) => {
+        handler.showCreateDialog({stock: {type, isin: identifier, label: name, logo}});
+      }}>
+      <ContentGrid title={stockDetails?.asset.name ?? ''} description={params.isin}>
+        <Grid container item xs={12} md={12} lg={8} spacing={3}>
           <Grid item xs={12} md={12}>
-            <Accordion defaultExpanded>
-              <AccordionSummary expandIcon={<ExpandMoreRounded />}>
-                <Typography variant="subtitle1" fontWeight={'bold'}>
-                  Profit & loss statements
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{px: 0}}>
-                <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-                  <Tabs
-                    value={tabPane.profit}
-                    onChange={(_, value) => setTabPane(prev => ({...prev, profit: value}))}
-                    sx={{mx: 2}}>
-                    <Tab label="Yearly" value={0} />
-                    <Tab label="Quarterly" value={1} />
-                  </Tabs>
-                </Box>
-                <TabPanel idx={0} value={tabPane.profit}>
-                  <Chart
-                    type="bar"
-                    width={'100%'}
-                    height={300}
-                    options={{
-                      ...chartOptions,
-                      xaxis: {
-                        ...chartOptions.xaxis,
-                        categories: stockDetails?.details.securityDetails?.annualFinancials
-                          .map(({date}) => date.getFullYear())
-                          .reverse(),
-                      },
-                    }}
-                    series={[
-                      {
-                        name: `Revenue (${stockDetails.details.securityDetails.currency})`,
-                        data: stockDetails.details.securityDetails.annualFinancials
-                          .map(({revenue}) => revenue)
-                          .reverse(),
-                        color: theme.palette.success.main,
-                      },
-                      {
-                        name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
-                        data: stockDetails.details.securityDetails.annualFinancials
-                          .map(({netIncome}) => netIncome)
-                          .reverse(),
-                        color: theme.palette.warning.light,
-                      },
-                    ]}
-                  />
-                </TabPanel>
-                <TabPanel idx={1} value={tabPane.profit}>
-                  <Chart
-                    type="bar"
-                    width={'100%'}
-                    height={300}
-                    options={{
-                      ...chartOptions,
-                      xaxis: {
-                        ...chartOptions.xaxis,
-                        categories: stockDetails?.details.securityDetails?.quarterlyFinancials
-                          .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
-                          .reverse(),
-                      },
-                    }}
-                    series={[
-                      {
-                        name: `Revenue (${stockDetails.details.securityDetails.currency})`,
-                        data: stockDetails.details.securityDetails.quarterlyFinancials
-                          .map(({revenue}) => revenue)
-                          .reverse(),
-                        color: theme.palette.success.main,
-                      },
-                      {
-                        name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
-                        data: stockDetails.details.securityDetails.quarterlyFinancials
-                          .map(({netIncome}) => netIncome)
-                          .reverse(),
-                        color: theme.palette.warning.light,
-                      },
-                    ]}
-                  />
-                </TabPanel>
-              </AccordionDetails>
-            </Accordion>
-
-            <Accordion>
-              <AccordionSummary expandIcon={<ExpandMoreRounded />}>
-                <Typography variant="subtitle1" fontWeight={'bold'}>
-                  Financial Statements
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{px: 0}}>
-                <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-                  <Tabs
-                    value={tabPane.financial}
-                    onChange={(_, value) => setTabPane(prev => ({...prev, financial: value}))}
-                    sx={{mx: 2}}>
-                    <Tab label="Yearly" value={0} />
-                    <Tab label="Quarterly" value={1} />
-                  </Tabs>
-                </Box>
-                <TabPanel idx={0} value={tabPane.financial}>
-                  <Chart
-                    type="bar"
-                    width={'100%'}
-                    height={300}
-                    options={{
-                      ...chartOptions,
-                      xaxis: {
-                        ...chartOptions.xaxis,
-                        categories: stockDetails?.details.securityDetails?.annualFinancials
-                          .map(({date}) => date.getFullYear())
-                          .reverse(),
-                      },
-                    }}
-                    series={[
-                      {
-                        name: `Revenue (${stockDetails.details.securityDetails.currency})`,
-                        data: stockDetails.details.securityDetails.annualFinancials
-                          .map(({revenue}) => revenue)
-                          .reverse(),
-                        color: theme.palette.success.main,
-                      },
-                      {
-                        name: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
-                        data: stockDetails.details.securityDetails.annualFinancials
-                          .map(({grossProfit}) => grossProfit)
-                          .reverse(),
-                        color: theme.palette.primary.main,
-                      },
-                      {
-                        name: `EBITDA (${stockDetails.details.securityDetails.currency})`,
-                        data: stockDetails.details.securityDetails.annualFinancials.map(({ebitda}) => ebitda).reverse(),
-                        color: theme.palette.primary.light,
-                      },
-                      {
-                        name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
-                        data: stockDetails.details.securityDetails.annualFinancials
-                          .map(({netIncome}) => netIncome)
-                          .reverse(),
-                        color: theme.palette.warning.light,
-                      },
-                    ]}
-                  />
-                </TabPanel>
-                <TabPanel idx={1} value={tabPane.financial}>
-                  <Chart
-                    type="bar"
-                    width={'100%'}
-                    height={300}
-                    options={{
-                      ...chartOptions,
-                      xaxis: {
-                        ...chartOptions.xaxis,
-                        categories: stockDetails?.details.securityDetails?.quarterlyFinancials
-                          .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
-                          .reverse(),
-                      },
-                    }}
-                    series={[
-                      {
-                        name: `Revenue (${stockDetails.details.securityDetails.currency})`,
-                        data: stockDetails.details.securityDetails.quarterlyFinancials
-                          .map(({revenue}) => revenue)
-                          .reverse(),
-                        color: theme.palette.success.main,
-                      },
-                      {
-                        name: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
-                        data: stockDetails.details.securityDetails.quarterlyFinancials
-                          .map(({grossProfit}) => grossProfit)
-                          .reverse(),
-                        color: theme.palette.primary.main,
-                      },
-                      {
-                        name: `EBITDA (${stockDetails.details.securityDetails.currency})`,
-                        data: stockDetails.details.securityDetails.quarterlyFinancials
-                          .map(({ebitda}) => ebitda)
-                          .reverse(),
-                        color: theme.palette.primary.light,
-                      },
-                      {
-                        name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
-                        data: stockDetails.details.securityDetails.quarterlyFinancials
-                          .map(({netIncome}) => netIncome)
-                          .reverse(),
-                        color: theme.palette.warning.light,
-                      },
-                    ]}
-                  />
-                </TabPanel>
-              </AccordionDetails>
-            </Accordion>
+            {loadingQuotes && (!quotes || quotes.length === 0) ? (
+              <CircularProgress />
+            ) : quotes ? (
+              <PriceChart data={preparedChartData} onTimeframeChange={setChartTimeframe} />
+            ) : (
+              <NoResults icon={<TimelineRounded />} text="No quotes found" />
+            )}
           </Grid>
-        )}
 
-        <Grid container item xs={12} md={12} spacing={2}>
-          {loadingRelatedStocks
-            ? Array.from({length: 6}).map((_, idx) => (
-                <Grid key={idx} item xs={6} md={4}>
-                  <RelatedStock isLoading />
-                </Grid>
-              ))
-            : relatedStocks.map((stock, idx) => (
-                <Grid key={idx} item xs={6} md={4}>
-                  <RelatedStock key={stock.asset._id.identifier} stock={stock} />
-                </Grid>
-              ))}
-        </Grid>
-      </Grid>
-
-      <Grid container item xs={12} md={12} lg={4} spacing={3}>
-        <Grid item xs={12} md={12}>
-          {loadingDetails ? (
-            <CircularProgress />
-          ) : stockDetails ? (
-            <CompanyInformation details={stockDetails} />
-          ) : (
-            <NoStockMessage />
-          )}
-        </Grid>
-
-        <Grid item xs={12} md={12}>
-          {loadingDetails ? (
-            <CircularProgress />
-          ) : stockDetails ? (
-            <DividendList dividends={stockDetails.details.futureDividends ?? []} />
-          ) : (
-            <NoStockMessage />
-          )}
-        </Grid>
-
-        {stockDetails && (
           <Grid item xs={12} md={12}>
-            <Accordion>
-              <AccordionSummary expandIcon={<ExpandMoreRounded />}>
-                <Typography variant="subtitle1" fontWeight={'bold'}>
-                  Company Information
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Typography variant="body2">
-                  {stockDetails?.details.securityDetails?.description ?? 'No description available'}
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
+            <StockPositionTable
+              isLoading={loadingStockPositions}
+              positions={displayedStockPositions}
+              onAddPosition={handler.showCreateDialog}
+              onEditPosition={handler.showEditDialog}
+              onDeletePosition={position => {
+                setShowDeletePositionDialog(true);
+                setDeletePosition(position);
+              }}
+            />
+          </Grid>
 
-            {stockDetails && (
+          {stockDetails && stockDetails.details.securityDetails && (
+            <Grid item xs={12} md={12}>
+              <Accordion defaultExpanded>
+                <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+                  <Typography variant="subtitle1" fontWeight={'bold'}>
+                    Profit & loss statements
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{px: 0}}>
+                  <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
+                    <Tabs
+                      value={tabPane.profit}
+                      onChange={(_, value) => setTabPane(prev => ({...prev, profit: value}))}
+                      sx={{mx: 2}}>
+                      <Tab label="Yearly" value={0} />
+                      <Tab label="Quarterly" value={1} />
+                    </Tabs>
+                  </Box>
+                  <TabPanel idx={0} value={tabPane.profit}>
+                    <Chart
+                      type="bar"
+                      width={'100%'}
+                      height={300}
+                      options={{
+                        ...chartOptions,
+                        xaxis: {
+                          ...chartOptions.xaxis,
+                          categories: stockDetails?.details.securityDetails?.annualFinancials
+                            .map(({date}) => date.getFullYear())
+                            .reverse(),
+                        },
+                      }}
+                      series={[
+                        {
+                          name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                          data: stockDetails.details.securityDetails.annualFinancials
+                            .map(({revenue}) => revenue)
+                            .reverse(),
+                          color: theme.palette.success.main,
+                        },
+                        {
+                          name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                          data: stockDetails.details.securityDetails.annualFinancials
+                            .map(({netIncome}) => netIncome)
+                            .reverse(),
+                          color: theme.palette.warning.light,
+                        },
+                      ]}
+                    />
+                  </TabPanel>
+                  <TabPanel idx={1} value={tabPane.profit}>
+                    <Chart
+                      type="bar"
+                      width={'100%'}
+                      height={300}
+                      options={{
+                        ...chartOptions,
+                        xaxis: {
+                          ...chartOptions.xaxis,
+                          categories: stockDetails?.details.securityDetails?.quarterlyFinancials
+                            .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
+                            .reverse(),
+                        },
+                      }}
+                      series={[
+                        {
+                          name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                          data: stockDetails.details.securityDetails.quarterlyFinancials
+                            .map(({revenue}) => revenue)
+                            .reverse(),
+                          color: theme.palette.success.main,
+                        },
+                        {
+                          name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                          data: stockDetails.details.securityDetails.quarterlyFinancials
+                            .map(({netIncome}) => netIncome)
+                            .reverse(),
+                          color: theme.palette.warning.light,
+                        },
+                      ]}
+                    />
+                  </TabPanel>
+                </AccordionDetails>
+              </Accordion>
+
               <Accordion>
                 <AccordionSummary expandIcon={<ExpandMoreRounded />}>
                   <Typography variant="subtitle1" fontWeight={'bold'}>
-                    Ratings
+                    Financial Statements
                   </Typography>
                 </AccordionSummary>
-                <AccordionDetails sx={{p: 0}}>
-                  <StockRating ratings={stockDetails.details.scorings} />
+                <AccordionDetails sx={{px: 0}}>
+                  <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
+                    <Tabs
+                      value={tabPane.financial}
+                      onChange={(_, value) => setTabPane(prev => ({...prev, financial: value}))}
+                      sx={{mx: 2}}>
+                      <Tab label="Yearly" value={0} />
+                      <Tab label="Quarterly" value={1} />
+                    </Tabs>
+                  </Box>
+                  <TabPanel idx={0} value={tabPane.financial}>
+                    <Chart
+                      type="bar"
+                      width={'100%'}
+                      height={300}
+                      options={{
+                        ...chartOptions,
+                        xaxis: {
+                          ...chartOptions.xaxis,
+                          categories: stockDetails?.details.securityDetails?.annualFinancials
+                            .map(({date}) => date.getFullYear())
+                            .reverse(),
+                        },
+                      }}
+                      series={[
+                        {
+                          name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                          data: stockDetails.details.securityDetails.annualFinancials
+                            .map(({revenue}) => revenue)
+                            .reverse(),
+                          color: theme.palette.success.main,
+                        },
+                        {
+                          name: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
+                          data: stockDetails.details.securityDetails.annualFinancials
+                            .map(({grossProfit}) => grossProfit)
+                            .reverse(),
+                          color: theme.palette.primary.main,
+                        },
+                        {
+                          name: `EBITDA (${stockDetails.details.securityDetails.currency})`,
+                          data: stockDetails.details.securityDetails.annualFinancials
+                            .map(({ebitda}) => ebitda)
+                            .reverse(),
+                          color: theme.palette.primary.light,
+                        },
+                        {
+                          name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                          data: stockDetails.details.securityDetails.annualFinancials
+                            .map(({netIncome}) => netIncome)
+                            .reverse(),
+                          color: theme.palette.warning.light,
+                        },
+                      ]}
+                    />
+                  </TabPanel>
+                  <TabPanel idx={1} value={tabPane.financial}>
+                    <Chart
+                      type="bar"
+                      width={'100%'}
+                      height={300}
+                      options={{
+                        ...chartOptions,
+                        xaxis: {
+                          ...chartOptions.xaxis,
+                          categories: stockDetails?.details.securityDetails?.quarterlyFinancials
+                            .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
+                            .reverse(),
+                        },
+                      }}
+                      series={[
+                        {
+                          name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                          data: stockDetails.details.securityDetails.quarterlyFinancials
+                            .map(({revenue}) => revenue)
+                            .reverse(),
+                          color: theme.palette.success.main,
+                        },
+                        {
+                          name: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
+                          data: stockDetails.details.securityDetails.quarterlyFinancials
+                            .map(({grossProfit}) => grossProfit)
+                            .reverse(),
+                          color: theme.palette.primary.main,
+                        },
+                        {
+                          name: `EBITDA (${stockDetails.details.securityDetails.currency})`,
+                          data: stockDetails.details.securityDetails.quarterlyFinancials
+                            .map(({ebitda}) => ebitda)
+                            .reverse(),
+                          color: theme.palette.primary.light,
+                        },
+                        {
+                          name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                          data: stockDetails.details.securityDetails.quarterlyFinancials
+                            .map(({netIncome}) => netIncome)
+                            .reverse(),
+                          color: theme.palette.warning.light,
+                        },
+                      ]}
+                    />
+                  </TabPanel>
                 </AccordionDetails>
               </Accordion>
+            </Grid>
+          )}
+
+          <Grid container item xs={12} md={12} spacing={2}>
+            {loadingRelatedStocks
+              ? Array.from({length: 6}).map((_, idx) => (
+                  <Grid key={idx} item xs={6} md={4}>
+                    <RelatedStock isLoading />
+                  </Grid>
+                ))
+              : relatedStocks.map((stock, idx) => (
+                  <Grid key={idx} item xs={6} md={4}>
+                    <RelatedStock key={stock.asset._id.identifier} stock={stock} />
+                  </Grid>
+                ))}
+          </Grid>
+        </Grid>
+
+        <Grid container item xs={12} md={12} lg={4} spacing={3}>
+          <Grid item xs={12} md={12}>
+            {loadingDetails ? (
+              <CircularProgress />
+            ) : stockDetails ? (
+              <CompanyInformation details={stockDetails} />
+            ) : (
+              <NoStockMessage />
             )}
           </Grid>
-        )}
 
-        <Grid item xs={12} md={12}>
-          {loadingDetails ? (
-            <CircularProgress />
-          ) : stockDetails ? (
-            <StockNews
-              news={stockDetails.details.news.map(({title, description, url}) => ({
-                heading: title,
-                summary: description,
-                link: url,
-              }))}
-            />
-          ) : (
-            <NoStockMessage />
+          <Grid item xs={12} md={12}>
+            {loadingDetails ? (
+              <CircularProgress />
+            ) : stockDetails ? (
+              <DividendList dividends={stockDetails.details.futureDividends ?? []} />
+            ) : (
+              <NoStockMessage />
+            )}
+          </Grid>
+
+          {stockDetails && (
+            <Grid item xs={12} md={12}>
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+                  <Typography variant="subtitle1" fontWeight={'bold'}>
+                    Company Information
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Typography variant="body2">
+                    {stockDetails?.details.securityDetails?.description ?? 'No description available'}
+                  </Typography>
+                </AccordionDetails>
+              </Accordion>
+
+              {stockDetails && (
+                <Accordion>
+                  <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+                    <Typography variant="subtitle1" fontWeight={'bold'}>
+                      Ratings
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails sx={{p: 0}}>
+                    <StockRating ratings={stockDetails.details.scorings} />
+                  </AccordionDetails>
+                </Accordion>
+              )}
+            </Grid>
           )}
+
+          <Grid item xs={12} md={12}>
+            {loadingDetails ? (
+              <CircularProgress />
+            ) : stockDetails ? (
+              <StockNews
+                news={stockDetails.details.news.map(({title, description, url}) => ({
+                  heading: title,
+                  summary: description,
+                  link: url,
+                }))}
+              />
+            ) : (
+              <NoStockMessage />
+            )}
+          </Grid>
         </Grid>
-      </Grid>
 
-      <StockPositionDrawer
-        {...stockPositionDrawer}
-        onClose={() => dispatchStockPositionDrawer({type: 'CLOSE'})}
-        closeOnBackdropClick
-        closeOnEscape
-      />
+        <StockPositionDrawer
+          {...stockPositionDrawer}
+          onClose={() => dispatchStockPositionDrawer({type: 'CLOSE'})}
+          closeOnBackdropClick
+          closeOnEscape
+        />
 
-      <DeleteDialog
-        open={showDeletePositionDialog}
-        onClose={handler.onCancelDeletePosition}
-        onCancel={handler.onCancelDeletePosition}
-        onConfirm={handler.onConfirmDeletePosition}
-        withTransition
-      />
-    </ContentGrid>
+        <DeleteDialog
+          open={showDeletePositionDialog}
+          onClose={handler.onCancelDeletePosition}
+          onCancel={handler.onCancelDeletePosition}
+          onConfirm={handler.onConfirmDeletePosition}
+          withTransition
+        />
+      </ContentGrid>
+    </StockLayout>
   );
 };
 

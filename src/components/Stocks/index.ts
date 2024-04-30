@@ -13,3 +13,4 @@ export * from './DividendList.component';
 export * from './DividendTable.component';
 export * from './StockRating.component';
 export * from './PriceChart.component';
+export * from './StockLayout.component';

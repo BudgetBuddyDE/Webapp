@@ -9,6 +9,7 @@ import {
   StockService,
   useStockStore,
   StockList,
+  StockLayout,
 } from '@/components/Stocks';
 import {getSocketIOClient} from '@/utils';
 import {CircularProgress} from '@/components/Loading';
@@ -20,15 +21,17 @@ import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/
 import {StockPositionDrawer, type TStockPositionDrawerValues} from '@/components/Stocks/StockPositionDrawer.component';
 import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
 import {Feature} from '@/app.config';
+import {useNavigate} from 'react-router-dom';
 
 interface IStocksHandler {
-  showCreateDialog: () => void;
+  showCreateDialog: (payload?: Partial<TStockPositionDrawerValues>) => void;
   showEditDialog: (stockPosition: TStockPositionWithQuote) => void;
   onCancelDeletePosition: () => void;
   onConfirmDeletePosition: () => void;
 }
 
 export const Stocks = () => {
+  const navigate = useNavigate();
   const {sessionUser} = useAuthContext();
   const {updateQuote} = useStockStore();
   const socket = getSocketIOClient();
@@ -46,8 +49,8 @@ export const Stocks = () => {
   );
 
   const handler: IStocksHandler = {
-    showCreateDialog() {
-      dispatchStockPositionDrawer({type: 'OPEN', drawerAction: 'CREATE'});
+    showCreateDialog(payload) {
+      dispatchStockPositionDrawer({type: 'OPEN', drawerAction: 'CREATE', payload: payload});
     },
     showEditDialog({id, bought_at, buy_in, quantity, currency, isin, name, logo, expand: {exchange}}) {
       dispatchStockPositionDrawer({
@@ -140,44 +143,50 @@ export const Stocks = () => {
   }, [sessionUser, socket, stockPositions, loadingStockPositions]);
 
   return (
-    <ContentGrid title="Stocks" description={'Manage your positions'}>
-      <Grid item xs={12} md={9} lg={9} xl={9}>
-        <StockPositionTable
-          withRedirect
-          onAddPosition={handler.showCreateDialog}
-          onEditPosition={handler.showEditDialog}
-          onDeletePosition={position => {
-            setShowDeletePositionDialog(true);
-            setDeletePosition(position);
-          }}
+    <StockLayout
+      onSelectAsset={({identifier}) => navigate(`/stocks/${identifier}`)}
+      onOpenPosition={({name, logo, identifier, type}) => {
+        handler.showCreateDialog({stock: {type, isin: identifier, label: name, logo}});
+      }}>
+      <ContentGrid title="Stocks" description={'Manage your positions'}>
+        <Grid item xs={12} md={9} lg={9} xl={9}>
+          <StockPositionTable
+            withRedirect
+            onAddPosition={handler.showCreateDialog}
+            onEditPosition={handler.showEditDialog}
+            onDeletePosition={position => {
+              setShowDeletePositionDialog(true);
+              setDeletePosition(position);
+            }}
+          />
+        </Grid>
+
+        <Grid container item xs={12} md={3} spacing={2}>
+          <Grid item xs={12}>
+            {loadingStockPositions ? <CircularProgress /> : <PortfolioDiversityChart positions={stockPositions} />}
+          </Grid>
+
+          <Grid item xs={12}>
+            <StockList title="Watchlist" data={[]} onAddItem={() => alert('open add-item-to-watchlist dialog')} />
+          </Grid>
+        </Grid>
+
+        <StockPositionDrawer
+          {...stockPositionDrawer}
+          onClose={() => dispatchStockPositionDrawer({type: 'CLOSE'})}
+          closeOnBackdropClick
+          closeOnEscape
         />
-      </Grid>
 
-      <Grid container item xs={12} md={3} spacing={2}>
-        <Grid item xs={12}>
-          {loadingStockPositions ? <CircularProgress /> : <PortfolioDiversityChart positions={stockPositions} />}
-        </Grid>
-
-        <Grid item xs={12}>
-          <StockList title="Watchlist" data={[]} />
-        </Grid>
-      </Grid>
-
-      <StockPositionDrawer
-        {...stockPositionDrawer}
-        onClose={() => dispatchStockPositionDrawer({type: 'CLOSE'})}
-        closeOnBackdropClick
-        closeOnEscape
-      />
-
-      <DeleteDialog
-        open={showDeletePositionDialog}
-        onClose={handler.onCancelDeletePosition}
-        onCancel={handler.onCancelDeletePosition}
-        onConfirm={handler.onConfirmDeletePosition}
-        withTransition
-      />
-    </ContentGrid>
+        <DeleteDialog
+          open={showDeletePositionDialog}
+          onClose={handler.onCancelDeletePosition}
+          onCancel={handler.onCancelDeletePosition}
+          onConfirm={handler.onConfirmDeletePosition}
+          withTransition
+        />
+      </ContentGrid>
+    </StockLayout>
   );
 };
 

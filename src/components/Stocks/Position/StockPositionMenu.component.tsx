@@ -14,8 +14,8 @@ export const StockPositionMenu: React.FC<
       event.stopPropagation();
       setAnchorEl(event.currentTarget);
     },
-    onClose(e: React.SyntheticEvent<HTMLElement>) {
-      e.stopPropagation();
+    onClose(event: React.SyntheticEvent<HTMLElement>) {
+      event.stopPropagation();
       setAnchorEl(null);
     },
   };

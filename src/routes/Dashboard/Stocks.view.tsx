@@ -11,12 +11,15 @@ import {
   useFetchStockPositions,
   useStockStore,
   useFetchStockDividends,
+  StockLayout,
 } from '@/components/Stocks';
 import {Formatter} from '@/services';
 import {Feature} from '@/app.config';
 import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
+import {useNavigate} from 'react-router-dom';
 
 const StocksView = () => {
+  const navigate = useNavigate();
   const {updateQuote} = useStockStore();
   const {sessionUser} = useAuthContext();
   const socket = getSocketIOClient();
@@ -85,7 +88,7 @@ const StocksView = () => {
   }, [loadingStockPositions, stockPositions]);
 
   return (
-    <React.Fragment>
+    <StockLayout onSelectAsset={({identifier}) => navigate(`/stocks/${identifier}`)}>
       <Grid container item xs={12} md={8} spacing={3} sx={{height: 'fit-content'}}>
         <Grid item xs={6} md={6} order={{xs: 1, md: 1}}>
           <StatsCard
@@ -115,7 +118,7 @@ const StocksView = () => {
           <StockList title="Stocks" subtitle="How are your stocks performing?" data={stockPositions} />
         </Grid>
       </Grid>
-    </React.Fragment>
+    </StockLayout>
   );
 };
 
