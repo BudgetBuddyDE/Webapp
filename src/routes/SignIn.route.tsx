@@ -98,6 +98,22 @@ const SignIn = () => {
 
           <form onSubmit={formHandler.formSubmit}>
             <Grid container spacing={2} sx={{mt: 1}}>
+              {Object.keys(AppConfig.authProvider).map(provider => (
+                <Grid item xs={6}>
+                  <SocialSignInBtn
+                    key={provider}
+                    provider={provider}
+                    onAuthProviderResponse={formHandler.handleAuthProviderLogin}
+                    data-umami-event={'social-sign-in'}
+                    data-umami-value={provider}
+                  />
+                </Grid>
+              ))}
+
+              <Grid item xs={12}>
+                <Divider>or with</Divider>
+              </Grid>
+
               <Grid item xs={12} md={12}>
                 <TextField
                   variant="outlined"
@@ -135,19 +151,6 @@ const SignIn = () => {
               </Button>
             </Box>
           </form>
-
-          <Divider sx={{my: 2}}>or with</Divider>
-
-          {Object.keys(AppConfig.authProvider).map((provider, idx, arr) => (
-            <SocialSignInBtn
-              key={provider}
-              provider={provider}
-              onAuthProviderResponse={formHandler.handleAuthProviderLogin}
-              sx={{mb: idx !== arr.length - 1 ? 2 : 0}}
-              data-umami-event={'social-sign-in'}
-              data-umami-value={provider}
-            />
-          ))}
 
           <Divider sx={{my: 2}} data-umami-event={'sign-in-no-account'}>
             No account?
