@@ -1,6 +1,6 @@
 import React from 'react';
-import {formatBalance} from '@/utils';
 import {LabelBadge, type TLabelBadgeProps} from '@/components/Base';
+import {Formatter} from '@/services';
 
 export type TStockPriceProps = {
   price: number;
@@ -11,7 +11,7 @@ export type TStockPriceProps = {
 export const StockPrice: React.FC<TStockPriceProps> = ({price, trend, currency = 'EUR', boxProps}) => {
   return (
     <LabelBadge color={trend ? (trend === 'up' ? 'success' : 'error') : 'primary'} {...boxProps}>
-      {formatBalance(price, currency)}
+      {Formatter.formatBalance(price, currency)}
     </LabelBadge>
   );
 };

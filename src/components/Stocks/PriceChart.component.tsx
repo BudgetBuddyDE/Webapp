@@ -4,8 +4,8 @@ import Chart from 'react-apexcharts';
 import {Box, useTheme} from '@mui/material';
 import {Card} from '@/components/Base';
 import {Timeframe} from './Timeframe.component';
-import {formatBalance} from '@/utils';
 import {useScreenSize} from '@/hooks';
+import {Formatter} from '@/services';
 
 export type TPriceChartPoint = {
   date: Date | string;
@@ -13,7 +13,6 @@ export type TPriceChartPoint = {
 };
 
 export type TPriceChartProps = {
-  timeframe?: TTimeframe;
   onTimeframeChange?: (timeframe: TTimeframe) => void;
   data: TPriceChartPoint[];
 };
@@ -45,12 +44,8 @@ export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, data}
           options={{
             chart: {
               type: 'area',
-              zoom: {
-                enabled: false,
-              },
-              toolbar: {
-                show: false,
-              },
+              zoom: {enabled: false},
+              toolbar: {show: false},
             },
             dataLabels: {
               enabled: false,
@@ -88,7 +83,7 @@ export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, data}
                   colors: theme.palette.text.primary,
                 },
                 formatter(val: number) {
-                  return formatBalance(val);
+                  return Formatter.formatBalance(val);
                 },
               },
             },
@@ -96,7 +91,7 @@ export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, data}
               theme: 'dark',
               y: {
                 formatter(val) {
-                  return formatBalance(val as number);
+                  return Formatter.formatBalance(val as number);
                 },
               },
             },

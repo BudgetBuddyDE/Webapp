@@ -65,7 +65,7 @@ export const Stock = () => {
   const {updateQuote} = useStockStore();
   const socket = getSocketIOClient();
   const [keyword, setKeyword] = React.useState('');
-  const [chartTimeframe, setChartTimeframe] = React.useState<TTimeframe>('1m');
+  const [chartTimeframe, setChartTimeframe] = React.useState<TTimeframe>('3m');
   const [tabPane, setTabPane] = React.useState({
     profit: 0,
     financial: 0,
@@ -268,7 +268,7 @@ export const Stock = () => {
           {loadingQuotes && (!quotes || quotes.length === 0) ? (
             <CircularProgress />
           ) : quotes ? (
-            <PriceChart data={preparedChartData} timeframe={chartTimeframe} onTimeframeChange={setChartTimeframe} />
+            <PriceChart data={preparedChartData} onTimeframeChange={setChartTimeframe} />
           ) : (
             <NoResults icon={<TimelineRounded />} text="No quotes found" />
           )}

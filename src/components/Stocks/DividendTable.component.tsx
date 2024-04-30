@@ -10,6 +10,8 @@ import {useFetchStockPositions} from '@/components/Stocks/hooks';
 import {StockService} from './Stock.service';
 import {ActionPaper, Image} from '@/components/Base';
 
+const SEPERATOR = '•';
+
 export type TDividendTableProps = {
   dividends: TDividendDetails[];
   withRedirect?: boolean;
@@ -68,7 +70,9 @@ export const DividendTable: React.FC<TDividendTableProps> = ({dividends, withRed
                 <Stack>
                   <Stack direction="row" spacing={0.5}>
                     <Typography variant="caption">{data.companyInfo.security.type}</Typography>
+                    <Typography variant="caption">{SEPERATOR}</Typography>
                     <Typography variant="caption">{data.companyInfo.security.isin}</Typography>
+                    <Typography variant="caption">{SEPERATOR}</Typography>
                     <Typography variant="caption">{data.companyInfo.security.wkn}</Typography>
                   </Stack>
 
