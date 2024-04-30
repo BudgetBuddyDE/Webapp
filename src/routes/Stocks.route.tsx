@@ -31,6 +31,7 @@ export const Stocks = () => {
     loading: loadingStockPositions,
     positions: stockPositions,
     refresh: refreshStockPositions,
+    error: stockPositionsError,
   } = useFetchStockPositions();
   const [stockPositionDrawer, dispatchStockPositionDrawer] = React.useReducer(
     useEntityDrawer<TStockPositionDrawerValues>,
@@ -130,6 +131,8 @@ export const Stocks = () => {
       socket.disconnect();
     };
   }, [sessionUser, socket, stockPositions, loadingStockPositions]);
+
+  React.useEffect(() => console.error('Stocks.route.tsx', stockPositionsError), [stockPositionsError]);
 
   return (
     <ContentGrid title="Stocks" description={'Manage your positions'}>
