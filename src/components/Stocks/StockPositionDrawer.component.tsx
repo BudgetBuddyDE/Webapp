@@ -177,7 +177,7 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
               />
             </LocalizationProvider>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={12}>
             <Controller
               control={control}
               name="stock"
@@ -197,7 +197,7 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={12}>
             <Controller
               control={control}
               name="exchange"
@@ -245,25 +245,3 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
     </EntityDrawer>
   );
 };
-
-{
-  /* <Grid item xs={12} md={12}>
-<Controller
-  control={control}
-  name="category"
-  rules={{required: 'Category is required'}}
-  render={({field: {onChange, value}}) => (
-    <CategoryAutocomplete
-      onChange={(_, value) => onChange(value)}
-      value={value}
-      textFieldProps={{
-        label: 'Category',
-        error: !!errors.category,
-        helperText: errors.category?.message,
-        required: true,
-      }}
-    />
-  )}
-/>
-</Grid> */
-}
