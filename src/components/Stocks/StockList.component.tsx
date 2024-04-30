@@ -1,7 +1,7 @@
 import React from 'react';
 import {useNavigate} from 'react-router';
-import {ArrowForwardRounded, FormatListBulletedRounded} from '@mui/icons-material';
-import {Box, Button, Chip, Link} from '@mui/material';
+import {AddRounded, ArrowForwardRounded, FormatListBulletedRounded} from '@mui/icons-material';
+import {Box, Button, Chip, IconButton, Link} from '@mui/material';
 import {Card, ListWithIcon, NoResults} from '@/components/Base';
 import {StockPrice} from './index';
 import {useSnackbarContext} from '@/components/Snackbar';
@@ -11,9 +11,10 @@ export type TStockListProps = {
   title: string;
   subtitle?: string;
   data: TStockPositionWithQuote[];
+  onAddItem?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 };
 
-export const StockList: React.FC<TStockListProps> = ({title, subtitle, data}) => {
+export const StockList: React.FC<TStockListProps> = ({title, subtitle, data, onAddItem}) => {
   const navigate = useNavigate();
   const {showSnackbar} = useSnackbarContext();
   return (
@@ -23,6 +24,14 @@ export const StockList: React.FC<TStockListProps> = ({title, subtitle, data}) =>
           <Card.Title>{title}</Card.Title>
           {subtitle && <Card.Subtitle>{subtitle}</Card.Subtitle>}
         </Box>
+
+        {onAddItem && (
+          <Card.HeaderActions>
+            <IconButton size="small" onClick={onAddItem}>
+              <AddRounded color="primary" />
+            </IconButton>
+          </Card.HeaderActions>
+        )}
       </Card.Header>
       <Card.Body>
         {data.length > 0 ? (
@@ -57,11 +66,7 @@ export const StockList: React.FC<TStockListProps> = ({title, subtitle, data}) =>
             />
           ))
         ) : (
-          <NoResults
-            icon={<FormatListBulletedRounded />}
-            text="You haven't added any stock-positions yet"
-            sx={{mt: 2}}
-          />
+          <NoResults icon={<FormatListBulletedRounded />} text="There arent any stocks" sx={{mt: 2}} />
         )}
       </Card.Body>
       {data.length > 0 && (

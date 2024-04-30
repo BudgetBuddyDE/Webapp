@@ -3,7 +3,13 @@ import {ContentGrid} from '@/components/Layout';
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {Button, Grid} from '@mui/material';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {PortfolioDiversityChart, useFetchStockPositions, StockService, useStockStore} from '@/components/Stocks';
+import {
+  PortfolioDiversityChart,
+  useFetchStockPositions,
+  StockService,
+  useStockStore,
+  StockList,
+} from '@/components/Stocks';
 import {getSocketIOClient} from '@/utils';
 import {CircularProgress} from '@/components/Loading';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
@@ -147,8 +153,14 @@ export const Stocks = () => {
         />
       </Grid>
 
-      <Grid item xs={12} md={3}>
-        {loadingStockPositions ? <CircularProgress /> : <PortfolioDiversityChart positions={stockPositions} />}
+      <Grid container item xs={12} md={3} spacing={2}>
+        <Grid item xs={12}>
+          {loadingStockPositions ? <CircularProgress /> : <PortfolioDiversityChart positions={stockPositions} />}
+        </Grid>
+
+        <Grid item xs={12}>
+          <StockList title="Watchlist" data={[]} />
+        </Grid>
       </Grid>
 
       <StockPositionDrawer
