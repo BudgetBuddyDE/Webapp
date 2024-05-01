@@ -1,24 +1,14 @@
 import {type TTransaction} from '@budgetbuddyde/types';
-import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
-import {Avatar, AvatarGroup, Checkbox, Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
-import {format} from 'date-fns';
+import {Grid} from '@mui/material';
 import React from 'react';
 
-import {AppConfig} from '@/app.config';
-import {useAuthContext} from '@/components/Auth';
 import {withAuthLayout} from '@/components/Auth/Layout';
-import {ActionPaper, Linkify} from '@/components/Base';
-import {SearchInput} from '@/components/Base/Search';
 import {type ISelectionHandler} from '@/components/Base/Select';
-import {Table} from '@/components/Base/Table';
-import {CategoryChip} from '@/components/Category';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
-import {DownloadButton} from '@/components/Download';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
-import {ToggleFilterDrawerButton, useFilterStore} from '@/components/Filter';
+import {useFilterStore} from '@/components/Filter';
 import {ImageViewDialog} from '@/components/ImageViewDialog.component';
 import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
-import {PaymentMethodChip} from '@/components/PaymentMethod';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {
   type TTransactionDrawerValues,
@@ -26,8 +16,7 @@ import {
   TransactionService,
   useFetchTransactions,
 } from '@/components/Transaction';
-import {pb} from '@/pocketbase';
-import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
+import {TransactionTable} from '@/components/Transaction/TransactionTable.component';
 import {filterTransactions} from '@/utils/filter.util';
 
 interface ITransactionsHandler {
@@ -40,10 +29,9 @@ interface ITransactionsHandler {
 }
 
 export const Transactions = () => {
-  const {fileToken} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const {filters} = useFilterStore();
-  const {transactions, loading: loadingTransactions, refresh: refreshTransactions} = useFetchTransactions();
+  const {transactions, refresh: refreshTransactions} = useFetchTransactions();
   const [transactionDrawer, dispatchTransactionDrawer] = React.useReducer(
     useEntityDrawer<TTransactionDrawerValues>,
     UseEntityDrawerDefaultState<TTransactionDrawerValues>(),
@@ -112,7 +100,7 @@ export const Transactions = () => {
         setSelectedTransactions(shouldSelectAll ? displayedTransactions : []);
       },
       onSelect(entity) {
-        if (this.isSelected(entity)) {
+        if (handler.selection.isSelected(entity)) {
           setSelectedTransactions(prev => prev.filter(({id}) => id !== entity.id));
         } else setSelectedTransactions(prev => [...prev, entity]);
       },
@@ -129,115 +117,16 @@ export const Transactions = () => {
   return (
     <ContentGrid title={'Transactions'}>
       <Grid item xs={12} md={12} lg={12} xl={12}>
-        <Table<TTransaction>
-          isLoading={loadingTransactions}
-          title="Transactions"
-          subtitle="Manage your transactions"
-          data={displayedTransactions}
-          headerCells={['Processed at', 'Category', 'Receiver', 'Amount', 'Payment Method', 'Information', 'Files', '']}
-          renderRow={transaction => (
-            <TableRow
-              key={transaction.id}
-              sx={{
-                '&:last-child td, &:last-child th': {border: 0},
-                whiteSpace: 'nowrap',
-              }}>
-              <TableCell size={AppConfig.table.cellSize}>
-                <Checkbox
-                  checked={handler.selection.isSelected(transaction)}
-                  onChange={() => handler.selection.onSelect(transaction)}
-                />
-              </TableCell>
-              <TableCell size={AppConfig.table.cellSize}>
-                <Typography fontWeight="bolder">{`${format(
-                  new Date(transaction.processed_at),
-                  'dd.MM.yy',
-                )}`}</Typography>
-              </TableCell>
-              <TableCell size={AppConfig.table.cellSize}>
-                <CategoryChip category={transaction.expand.category} />
-              </TableCell>
-              <TableCell size={AppConfig.table.cellSize}>
-                <Linkify>{transaction.receiver}</Linkify>
-              </TableCell>
-              <TableCell size={AppConfig.table.cellSize}>
-                <Typography>
-                  {transaction.transfer_amount.toLocaleString('de', {
-                    style: 'currency',
-                    currency: 'EUR',
-                  })}
-                </Typography>
-              </TableCell>
-              <TableCell size={AppConfig.table.cellSize}>
-                <PaymentMethodChip paymentMethod={transaction.expand.payment_method} />
-              </TableCell>
-              <TableCell sx={DescriptionTableCellStyle} size={AppConfig.table.cellSize}>
-                <Linkify>{transaction.information ?? 'No information available'}</Linkify>
-              </TableCell>
-              <TableCell size={AppConfig.table.cellSize}>
-                <AvatarGroup max={4} variant="rounded">
-                  {transaction.attachments?.map(fileName => (
-                    <Avatar
-                      key={fileName}
-                      variant="rounded"
-                      alt={fileName}
-                      src={pb.files.getUrl(transaction, fileName, {token: fileToken})}
-                      sx={{
-                        ':hover': {
-                          zIndex: 1,
-                          transform: 'scale(1.1)',
-                          transition: 'transform 0.2s ease-in-out',
-                        },
-                      }}
-                      onClick={() =>
-                        setImageDialog({
-                          open: true,
-                          fileName: fileName,
-                          fileUrl: pb.files.getUrl(transaction, fileName, {token: fileToken}),
-                        })
-                      }
-                    />
-                  ))}
-                </AvatarGroup>
-              </TableCell>
-              <TableCell align="right" size={AppConfig.table.cellSize}>
-                <ActionPaper sx={{width: 'fit-content', ml: 'auto'}}>
-                  <IconButton color="primary" onClick={() => handler.showEditDialog(transaction)}>
-                    <EditRounded />
-                  </IconButton>
-                  <IconButton color="primary" onClick={() => handler.onTransactionDelete(transaction)}>
-                    <DeleteRounded />
-                  </IconButton>
-                </ActionPaper>
-              </TableCell>
-            </TableRow>
-          )}
-          tableActions={
-            <React.Fragment>
-              <ToggleFilterDrawerButton />
-
-              <SearchInput onSearch={handler.onSearch} />
-
-              <IconButton color="primary" onClick={handler.showCreateDialog}>
-                <AddRounded fontSize="inherit" />
-              </IconButton>
-              {transactions.length > 0 && (
-                <DownloadButton
-                  data={transactions}
-                  exportFileName={`bb_transactions_${format(new Date(), 'yyyy_mm_dd')}`}
-                  exportFormat="JSON"
-                  withTooltip>
-                  Export
-                </DownloadButton>
-              )}
-            </React.Fragment>
-          }
-          withSelection
-          onSelectAll={handler.selection.onSelectAll}
+        <TransactionTable
+          onAddTransaction={handler.showCreateDialog}
+          onEditTransaction={handler.showEditDialog}
+          onDeleteTransaction={handler.onTransactionDelete}
+          onOpenImage={(fileName, fileUrl) => setImageDialog({open: true, fileName, fileUrl})}
           amountOfSelectedEntities={selectedTransactions.length}
-          onDelete={() => {
-            if (handler.selection.onDeleteMultiple) handler.selection.onDeleteMultiple();
-          }}
+          isSelected={handler.selection.isSelected}
+          onSelectAll={handler.selection.onSelectAll}
+          onSelect={handler.selection.onSelect}
+          onDelete={handler.selection.onDeleteMultiple}
         />
       </Grid>
 
