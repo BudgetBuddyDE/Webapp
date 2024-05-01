@@ -7,3 +7,4 @@ export * from './determineNextExecutionDate.util';
 export * from './getFirstDayOfMonth.util';
 export * from './getLastDayOfMonth.util';
 export * from './initSocket.util';
+export * from "./determineOS.util"
