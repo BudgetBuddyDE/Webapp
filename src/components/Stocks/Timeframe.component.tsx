@@ -10,9 +10,9 @@ export type TTimeframeProps = {
 export const Timeframe: React.FC<TTimeframeProps> = ({onChange}) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const parsedQueryTimeframe: TTimeframe = React.useMemo(() => {
-    if (!searchParams.has('timeframe') || searchParams.size === 0) return '1m';
+    if (!searchParams.has('timeframe') || searchParams.size === 0) return '3m';
     const parsingResult = ZTimeframe.safeParse(searchParams.get('timeframe'));
-    return parsingResult.success ? parsingResult.data : '1m';
+    return parsingResult.success ? parsingResult.data : '3m';
   }, [location.search]);
   const [timeframe, setTimeframe] = React.useState<TTimeframe>(parsedQueryTimeframe);
   return (
