@@ -88,11 +88,6 @@ export const SearchStockDialog: React.FC<TSearchStockDialogProps> = ({
 
   React.useEffect(() => {
     searchStocks();
-    return () => {
-      setLoading(false);
-      setSearchTerm('');
-      setSearchResults([]);
-    };
   }, [searchTerm]);
 
   return (
