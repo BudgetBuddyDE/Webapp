@@ -18,8 +18,7 @@ import {AppConfig} from '@/app.config';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
 import {type ISelectionHandler} from '@/components/Base/Select';
 import {ToggleFilterDrawerButton} from '@/components/Filter';
-import {pb} from '@/pocketbase';
-import {PocketBaseCollection, type TPaymentMethod} from '@budgetbuddyde/types';
+import {type TPaymentMethod} from '@budgetbuddyde/types';
 import {DownloadButton} from '@/components/Download';
 import {format} from 'date-fns';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
@@ -77,7 +76,7 @@ export const PaymentMethods = () => {
         if (deletePaymentMethods.length === 0) return;
 
         const deleteResponses = Promise.allSettled(
-          deletePaymentMethods.map(category => pb.collection(PocketBaseCollection.PAYMENT_METHOD).delete(category.id)),
+          deletePaymentMethods.map(({id}) => PaymentMethodService.deletePaymentMethod(id)),
         );
         console.debug('Deleting payment-methods', deleteResponses);
 

@@ -5,7 +5,6 @@ import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {
   ZCreateTransactionPayload,
-  PocketBaseCollection,
   ZUpdateTransactionPayload,
   type TCreateTransactionPayload,
   type TTransaction,
@@ -20,7 +19,7 @@ import {useAuthContext} from '@/components/Auth';
 import {parseNumber} from '@/utils';
 import {pb} from '@/pocketbase';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {useFetchTransactions} from '@/components/Transaction';
+import {TransactionService, useFetchTransactions} from '@/components/Transaction';
 import {FilePreview} from '@/components/FilePreview.component';
 
 export type TTransactionDrawerValues = {
@@ -88,7 +87,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
             formData.append('transfer_amount', String(payload.transfer_amount));
             formData.append('information', payload.information ?? '');
 
-            const record = await pb.collection(PocketBaseCollection.TRANSACTION).create(formData);
+            const record = await TransactionService.createTransaction(formData);
 
             onClose();
             React.startTransition(() => {
@@ -129,11 +128,10 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
             formData.append('transfer_amount', String(payload.transfer_amount));
             formData.append('information', payload.information ?? '');
 
-            const record = await pb.collection(PocketBaseCollection.TRANSACTION).update(defaultValues.id, formData);
+            const record = await TransactionService.updateTransaction(defaultValues.id, formData);
 
             if (markedForDeletion.length > 0) {
-              pb.collection(PocketBaseCollection.TRANSACTION)
-                .update(defaultValues.id, {'attachments-': markedForDeletion})
+              TransactionService.deleteImages(defaultValues.id, markedForDeletion)
                 .then(() => refreshTransactions())
                 .catch(error => {
                   console.error(error);

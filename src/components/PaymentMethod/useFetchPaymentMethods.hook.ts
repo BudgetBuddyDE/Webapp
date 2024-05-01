@@ -1,9 +1,7 @@
 import React from 'react';
-import {z} from 'zod';
 import {useAuthContext} from '../Auth';
 import {usePaymentMethodStore} from './PaymentMethod.store';
-import {pb} from '@/pocketbase';
-import {type TPaymentMethod, ZPaymentMethod, PocketBaseCollection} from '@budgetbuddyde/types';
+import {PaymentMethodService} from './PaymentMethod.service';
 
 let mounted = false;
 
@@ -18,14 +16,8 @@ export function useFetchPaymentMethods() {
     try {
       if (!sessionUser) return false;
       if (withLoading) setLoading(true);
-      const records = await pb.collection<TPaymentMethod>(PocketBaseCollection.PAYMENT_METHOD).getFullList();
-
-      const parsingResult = z.array(ZPaymentMethod).safeParse(records);
-      if (!parsingResult.success) {
-        console.error(parsingResult.error);
-        return false;
-      }
-      setFetchedData(parsingResult.data, sessionUser.id);
+      const paymentMethods = await PaymentMethodService.getPaymentMethods();
+      setFetchedData(paymentMethods, sessionUser.id);
       return true;
     } catch (error) {
       if ((error as Error).name === 'AbortError') return true;

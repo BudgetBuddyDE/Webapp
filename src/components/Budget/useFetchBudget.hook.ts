@@ -1,9 +1,9 @@
 import React from 'react';
 import {z} from 'zod';
-import {pb} from '@/pocketbase';
-import {PocketBaseCollection, ZBudget} from '@budgetbuddyde/types';
+import {ZBudget} from '@budgetbuddyde/types';
 import {useAuthContext} from '@/components/Auth';
 import {useBudgetStore} from './Budget.store';
+import {BudgetService} from './Budget.service';
 
 let mounted = false;
 
@@ -18,9 +18,7 @@ export function useFetchBudget() {
     try {
       if (!sessionUser) return false;
       if (withLoading) setLoading(true);
-      const records = await pb.collection(PocketBaseCollection.BUDGET).getFullList({
-        expand: 'category',
-      });
+      const records = await BudgetService.getBudgets();
 
       const parsingResult = z.array(ZBudget).safeParse(records);
       if (!parsingResult.success) {

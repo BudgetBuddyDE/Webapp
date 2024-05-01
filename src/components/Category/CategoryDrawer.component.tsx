@@ -1,5 +1,4 @@
 import {
-  PocketBaseCollection,
   ZCreateCategoryPayload,
   ZUpdateCategoryPayload,
   type TCategory,
@@ -10,9 +9,9 @@ import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/Enti
 import React from 'react';
 import {useAuthContext} from '@/components/Auth';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {pb} from '@/pocketbase';
 import {Grid, TextField} from '@mui/material';
 import {useFetchCategories} from './useFetchCategories.hook';
+import {CategoryService} from './Category.service';
 
 export type TCategoryDrawerValues = {
   id?: TCategory['id'];
@@ -51,7 +50,7 @@ export const CategoryDrawer: React.FC<TCategoryDrawerProps> = ({
             if (!parsedForm.success) throw new Error(parsedForm.error.message);
             const payload: TCreateCategoryPayload = parsedForm.data;
 
-            const record = await pb.collection(PocketBaseCollection.CATEGORY).create(payload);
+            const record = await CategoryService.createCategory(payload);
 
             onClose();
             React.startTransition(() => {
@@ -76,7 +75,7 @@ export const CategoryDrawer: React.FC<TCategoryDrawerProps> = ({
             if (!parsedForm.success) throw new Error(parsedForm.error.message);
             const payload: TUpdateCategoryPayload = parsedForm.data;
 
-            const record = await pb.collection(PocketBaseCollection.CATEGORY).update(defaultValues.id, payload);
+            const record = await CategoryService.updateCategory(defaultValues.id, payload);
 
             onClose();
             React.startTransition(() => {

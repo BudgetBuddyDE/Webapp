@@ -1,9 +1,7 @@
 import React from 'react';
-import {z} from 'zod';
 import {useAuthContext} from '@/components/Auth';
 import {useSubscriptionStore} from './Subscription.store';
-import {pb} from '@/pocketbase';
-import {ZSubscription, PocketBaseCollection} from '@budgetbuddyde/types';
+import {SubscriptionService} from './Subscription.service';
 
 let mounted = false;
 
@@ -18,16 +16,8 @@ export function useFetchSubscriptions() {
     try {
       if (!sessionUser) return false;
       if (withLoading) setLoading(true);
-      const records = await pb.collection(PocketBaseCollection.SUBSCRIPTION).getFullList({
-        expand: 'category,payment_method',
-      });
-
-      const parsingResult = z.array(ZSubscription).safeParse(records);
-      if (!parsingResult.success) {
-        console.error(parsingResult.error);
-        return false;
-      }
-      setFetchedData(parsingResult.data, sessionUser.id);
+      const subscriptions = await SubscriptionService.getSubscriptions();
+      setFetchedData(subscriptions, sessionUser.id);
       return true;
     } catch (error) {
       if ((error as Error).name === 'AbortError') return true;

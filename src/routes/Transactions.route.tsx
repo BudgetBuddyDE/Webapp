@@ -3,7 +3,12 @@ import {ActionPaper, Linkify} from '@/components/Base';
 import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {useFetchTransactions, TransactionDrawer, type TTransactionDrawerValues} from '@/components/Transaction';
+import {
+  useFetchTransactions,
+  TransactionDrawer,
+  type TTransactionDrawerValues,
+  TransactionService,
+} from '@/components/Transaction';
 import {Avatar, AvatarGroup, Checkbox, Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {SearchInput} from '@/components/Base/Search';
@@ -17,7 +22,7 @@ import {filterTransactions} from '@/utils/filter.util';
 import {CategoryChip} from '@/components/Category';
 import {PaymentMethodChip} from '@/components/PaymentMethod';
 import {type ISelectionHandler} from '@/components/Base/Select';
-import {PocketBaseCollection, type TTransaction} from '@budgetbuddyde/types';
+import {type TTransaction} from '@budgetbuddyde/types';
 import {pb} from '@/pocketbase';
 import {DownloadButton} from '@/components/Download';
 import {useAuthContext} from '@/components/Auth';
@@ -82,7 +87,7 @@ export const Transactions = () => {
         if (deleteTransactions.length === 0) return;
 
         const deleteResponses = Promise.allSettled(
-          deleteTransactions.map(transaction => pb.collection(PocketBaseCollection.TRANSACTION).delete(transaction.id)),
+          deleteTransactions.map(({id}) => TransactionService.deleteTransaction(id)),
         );
         console.debug('Deleting transactions', deleteResponses);
 

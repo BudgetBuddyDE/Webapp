@@ -1,5 +1,4 @@
 import {
-  PocketBaseCollection,
   ZCreateBudgetPayload,
   ZUpdateBudgetPayload,
   type TBudget,
@@ -10,12 +9,12 @@ import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/Enti
 import React from 'react';
 import {useAuthContext} from '@/components/Auth';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {pb} from '@/pocketbase';
 import {Grid, InputAdornment, TextField} from '@mui/material';
 import {CategoryAutocomplete, type TCategoryAutocompleteOption} from '@/components/Category';
 import {useFetchBudget} from './useFetchBudget.hook';
 import {parseNumber} from '@/utils';
 import {Controller} from 'react-hook-form';
+import {BudgetService} from './Budget.service';
 
 export type TBudgetDrawerValues = {
   id?: TBudget['id'];
@@ -55,7 +54,7 @@ export const BudgetDrawer: React.FC<TBudgetDrawerProps> = ({
             if (!parsedForm.success) throw new Error(parsedForm.error.message);
             const payload: TCreateBudgetPayload = parsedForm.data;
 
-            const record = await pb.collection(PocketBaseCollection.BUDGET).create(payload);
+            const record = await BudgetService.createBudget(payload);
 
             onClose();
             React.startTransition(() => {
@@ -80,7 +79,7 @@ export const BudgetDrawer: React.FC<TBudgetDrawerProps> = ({
             if (!parsedForm.success) throw new Error(parsedForm.error.message);
             const payload: TUpdateBudgetPayload = parsedForm.data;
 
-            const record = await pb.collection(PocketBaseCollection.BUDGET).update(defaultValues.id, payload);
+            const record = await BudgetService.updateBudget(defaultValues.id, payload);
 
             onClose();
             React.startTransition(() => {

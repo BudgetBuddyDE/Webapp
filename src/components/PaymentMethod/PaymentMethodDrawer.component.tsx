@@ -1,5 +1,4 @@
 import {
-  PocketBaseCollection,
   ZCreatePaymentMethodPayload,
   ZUpdatePaymentMethodPayload,
   type TCreatePaymentMethodPayload,
@@ -10,8 +9,7 @@ import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/Enti
 import React from 'react';
 import {useAuthContext} from '@/components/Auth';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {useFetchPaymentMethods} from '@/components/PaymentMethod';
-import {pb} from '@/pocketbase';
+import {PaymentMethodService, useFetchPaymentMethods} from '@/components/PaymentMethod';
 import {Grid, TextField} from '@mui/material';
 
 export type TPaymentMethodDrawerValues = {
@@ -53,7 +51,7 @@ export const PaymentMethodDrawer: React.FC<TPaymentMethodDrawerProps> = ({
             if (!parsedForm.success) throw new Error(parsedForm.error.message);
             const payload: TCreatePaymentMethodPayload = parsedForm.data;
 
-            const record = await pb.collection(PocketBaseCollection.PAYMENT_METHOD).create(payload);
+            const record = await PaymentMethodService.createPaymentMethod(payload);
 
             onClose();
             React.startTransition(() => {
@@ -80,7 +78,7 @@ export const PaymentMethodDrawer: React.FC<TPaymentMethodDrawerProps> = ({
             if (!parsedForm.success) throw new Error(parsedForm.error.message);
             const payload: TUpdatePaymentMethodPayload = parsedForm.data;
 
-            const record = await pb.collection(PocketBaseCollection.PAYMENT_METHOD).update(defaultValues.id, payload);
+            const record = await PaymentMethodService.updatePaymentMethod(defaultValues.id, payload);
 
             onClose();
             React.startTransition(() => {

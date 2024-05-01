@@ -1,9 +1,7 @@
 import React from 'react';
-import {z} from 'zod';
 import {useAuthContext} from '@/components/Auth';
 import {useCategoryStore} from './Category.store';
-import {pb} from '@/pocketbase.ts';
-import {PocketBaseCollection, ZCategory, type TCategory} from '@budgetbuddyde/types';
+import {CategoryService} from './Category.service';
 
 let mounted = false;
 
@@ -18,14 +16,8 @@ export function useFetchCategories() {
     try {
       if (!sessionUser) return false;
       if (withLoading) setLoading(true);
-      const records = await pb.collection<TCategory>(PocketBaseCollection.CATEGORY).getFullList();
-
-      const parsingResult = z.array(ZCategory).safeParse(records);
-      if (!parsingResult.success) {
-        console.error(parsingResult.error);
-        return false;
-      }
-      setFetchedData(parsingResult.data, sessionUser.id);
+      const categories = await CategoryService.getCategories();
+      setFetchedData(categories, sessionUser.id);
       return true;
     } catch (error) {
       if ((error as Error).name === 'AbortError') return true;

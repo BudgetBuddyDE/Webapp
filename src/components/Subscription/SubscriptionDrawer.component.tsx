@@ -1,5 +1,4 @@
 import {
-  PocketBaseCollection,
   ZCreateSubscriptionPayload,
   ZUpdateSubscriptionPayload,
   type TCreateSubscriptionPayload,
@@ -14,9 +13,8 @@ import React from 'react';
 import {useScreenSize} from '@/hooks';
 import {useAuthContext} from '@/components/Auth';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {useFetchSubscriptions} from '@/components/Subscription';
+import {SubscriptionService, useFetchSubscriptions} from '@/components/Subscription';
 import {parseNumber} from '@/utils';
-import {pb} from '@/pocketbase';
 import {Grid, InputAdornment, TextField} from '@mui/material';
 import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
@@ -69,7 +67,7 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
             if (!parsedForm.success) throw new Error(parsedForm.error.message);
             const payload: TCreateSubscriptionPayload = parsedForm.data;
 
-            const record = await pb.collection(PocketBaseCollection.SUBSCRIPTION).create(payload);
+            const record = await SubscriptionService.createSubscription(payload);
             console.debug('Created subscription', record);
 
             onClose();
@@ -99,7 +97,7 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
             if (!parsedForm.success) throw new Error(parsedForm.error.message);
             const payload: TUpdateSubscriptionPayload = parsedForm.data;
 
-            const record = await pb.collection(PocketBaseCollection.SUBSCRIPTION).update(defaultValues.id, payload);
+            const record = await SubscriptionService.updateSubscription(defaultValues.id, payload);
 
             onClose();
             React.startTransition(() => {

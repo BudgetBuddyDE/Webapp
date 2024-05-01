@@ -5,11 +5,11 @@ import React from 'react';
 import {useFetchBudget} from './useFetchBudget.hook';
 import {CircularProgress} from '@/components/Loading';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {type TBudget, PocketBaseCollection} from '@budgetbuddyde/types';
-import {pb} from '@/pocketbase';
+import {type TBudget} from '@budgetbuddyde/types';
 import {CategoryBudget} from './CategoryBudget.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {BudgetDrawer, type TBudgetDrawerValues} from './BudgetDrawer.component';
+import {BudgetService} from './Budget.service';
 
 interface IBudgetListHandler {
   showCreateDialog: () => void;
@@ -49,7 +49,7 @@ export const BudgetList: React.FC<TBudgetListProps> = () => {
     },
     async onDelete(budget) {
       try {
-        const deleteResponse = await pb.collection(PocketBaseCollection.BUDGET).delete(budget.id);
+        const deleteResponse = await BudgetService.deleteBudget(budget.id);
         console.debug('Deleting budget', deleteResponse);
 
         React.startTransition(() => {

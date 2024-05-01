@@ -1,11 +1,76 @@
-import {type TTransaction} from '@budgetbuddyde/types';
+import {PocketBaseCollection, ZTransaction, type TTransaction} from '@budgetbuddyde/types';
 import {isSameMonth, subDays} from 'date-fns';
 import {type ITransactionStore} from './Transaction.store';
+import {pb} from '@/pocketbase';
+import {z} from 'zod';
+import {type RecordModel} from 'pocketbase';
 
 /**
  * Service for managing transactions.
  */
 export class TransactionService {
+  /**
+   * Creates a new transaction record.
+   *
+   * @param payload - The data for the transaction. Fields from TCreateTransactionPayload should be fullfilled.
+   * @returns A promise that resolves to the created transaction record.
+   */
+  static async createTransaction(payload: FormData): Promise<RecordModel> {
+    const record = await pb.collection(PocketBaseCollection.TRANSACTION).create(payload);
+    return record;
+  }
+
+  /**
+   * Updates a transaction with the specified ID using the provided payload.
+   * @param transactionId - The ID of the transaction to update.
+   * @param payload - The data to update the transaction with.
+   * @returns A Promise that resolves to the updated record.
+   */
+  static async updateTransaction(transactionId: TTransaction['id'], payload: FormData): Promise<RecordModel> {
+    const record = await pb.collection(PocketBaseCollection.TRANSACTION).update(transactionId, payload);
+    return record;
+  }
+
+  /**
+   * Deletes the specified images from a transaction.
+   *
+   * @param transactionId - The ID of the transaction.
+   * @param imageIds - An array of image IDs to be deleted.
+   * @returns A Promise that resolves to a RecordModel object representing the updated transaction record.
+   */
+  static async deleteImages(transactionId: TTransaction['id'], imageIds: string[]): Promise<RecordModel> {
+    const record = await pb
+      .collection(PocketBaseCollection.TRANSACTION)
+      .update(transactionId, {'attachments-': imageIds});
+    return record;
+  }
+
+  /**
+   * Deletes a transaction with the specified ID.
+   * @param transactionId - The ID of the transaction to delete.
+   * @returns A promise that resolves to a boolean indicating whether the transaction was successfully deleted.
+   */
+  static async deleteTransaction(transactionId: TTransaction['id']): Promise<boolean> {
+    const record = await pb.collection(PocketBaseCollection.TRANSACTION).delete(transactionId);
+    return record;
+  }
+
+  /**
+   * Retrieves a list of transactions.
+   * @returns A promise that resolves to an array of transactions.
+   * @throws If there is an error parsing the retrieved records.
+   */
+  static async getTransactions(): Promise<TTransaction[]> {
+    const records = await pb.collection(PocketBaseCollection.TRANSACTION).getFullList({
+      expand: 'category,payment_method',
+      sort: '-processed_at',
+    });
+
+    const parsingResult = z.array(ZTransaction).safeParse(records);
+    if (!parsingResult.success) throw parsingResult.error;
+    return parsingResult.data;
+  }
+
   /**
    * Returns an array of unique receivers from the given transactions within a specified number of days.
    * The receivers are sorted based on their frequency of occurrence in the transactions.

@@ -21,8 +21,7 @@ import React from 'react';
 import {SearchInput} from '@/components/Base/Search';
 import {type ISelectionHandler} from '@/components/Base/Select';
 import {ToggleFilterDrawerButton} from '@/components/Filter';
-import {pb} from '@/pocketbase';
-import {PocketBaseCollection, type TCategory} from '@budgetbuddyde/types';
+import {type TCategory} from '@budgetbuddyde/types';
 import {DownloadButton} from '@/components/Download';
 import {format} from 'date-fns';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
@@ -73,9 +72,7 @@ export const Categories = () => {
       try {
         if (deleteCategories.length === 0) return;
 
-        const deleteResponses = Promise.allSettled(
-          deleteCategories.map(category => pb.collection(PocketBaseCollection.CATEGORY).delete(category.id)),
-        );
+        const deleteResponses = Promise.allSettled(deleteCategories.map(({id}) => CategoryService.deleteCategory(id)));
         console.debug('Deleting categories', deleteResponses);
 
         setShowDeleteCategoryDialog(false);

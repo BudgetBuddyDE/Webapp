@@ -1,8 +1,63 @@
 import {subDays} from 'date-fns';
-import {type TCategory, type TTransaction} from '@budgetbuddyde/types';
+import {
+  PocketBaseCollection,
+  ZCategory,
+  type TCreateCategoryPayload,
+  type TUpdateCategoryPayload,
+  type TCategory,
+  type TTransaction,
+} from '@budgetbuddyde/types';
 import {type TCategoryAutocompleteOption} from './Autocomplete';
+import {pb} from '@/pocketbase';
+import {z} from 'zod';
+import {type RecordModel} from 'pocketbase';
 
 export class CategoryService {
+  /**
+   * Creates a new category.
+   * @param payload - The payload containing the data for the new category.
+   * @returns A promise that resolves to the created category record.
+   */
+  static async createCategory(payload: TCreateCategoryPayload): Promise<RecordModel> {
+    const record = await pb.collection(PocketBaseCollection.CATEGORY).create(payload);
+    return record;
+  }
+
+  /**
+   * Updates a category with the specified ID using the provided payload.
+   * @param categoryId - The ID of the category to update.
+   * @param payload - The payload containing the updated category data.
+   * @returns A Promise that resolves to the updated category record.
+   */
+  static async updateCategory(categoryId: TCategory['id'], payload: TUpdateCategoryPayload): Promise<RecordModel> {
+    const record = await pb.collection(PocketBaseCollection.CATEGORY).update(categoryId, payload);
+    return record;
+  }
+
+  /**
+   * Deletes a category with the specified ID.
+   *
+   * @param categoryId - The ID of the category to delete.
+   * @returns A promise that resolves to a boolean indicating whether the deletion was successful.
+   */
+  static async deleteCategory(categoryId: TCategory['id']): Promise<boolean> {
+    const record = await pb.collection(PocketBaseCollection.CATEGORY).delete(categoryId);
+    return record;
+  }
+
+  /**
+   * Retrieves the list of categories from the database.
+   * @returns A promise that resolves to an array of TCategory objects.
+   * @throws If there is an error parsing the retrieved records.
+   */
+  static async getCategories(): Promise<TCategory[]> {
+    const records = await pb.collection(PocketBaseCollection.CATEGORY).getFullList();
+
+    const parsingResult = z.array(ZCategory).safeParse(records);
+    if (!parsingResult.success) throw parsingResult.error;
+    return parsingResult.data;
+  }
+
   /**
    * Sorts the autocomplete options for categories based on transaction usage.
    *

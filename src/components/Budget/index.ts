@@ -4,3 +4,4 @@ export * from './BudgetList.component';
 export * from './CategoryBudget.component';
 export * from './StatsWrapper.component';
 export * from './BudgetDrawer.component';
+export * from './Budget.service';

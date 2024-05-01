@@ -1,9 +1,7 @@
 import React from 'react';
-import {z} from 'zod';
 import {useAuthContext} from '@/components/Auth';
-import {pb} from '@/pocketbase';
-import {PocketBaseCollection, ZTransaction} from '@budgetbuddyde/types';
 import {useTransactionStore} from './Transaction.store';
+import {TransactionService} from './Transaction.service';
 
 let mounted = false;
 
@@ -18,17 +16,8 @@ export function useFetchTransactions() {
     try {
       if (!sessionUser) return false;
       if (withLoading) setLoading(true);
-      const records = await pb.collection(PocketBaseCollection.TRANSACTION).getFullList({
-        expand: 'category,payment_method',
-        sort: '-processed_at',
-      });
-
-      const parsingResult = z.array(ZTransaction).safeParse(records);
-      if (!parsingResult.success) {
-        console.error(parsingResult.error);
-        return false;
-      }
-      setFetchedData(parsingResult.data, sessionUser.id);
+      const transactions = await TransactionService.getTransactions();
+      setFetchedData(transactions, sessionUser.id);
       return true;
     } catch (error) {
       if ((error as Error).name === 'AbortError') return true;
