@@ -277,6 +277,12 @@ export const Stock = () => {
     refreshQuotes();
   }, [chartTimeframe]);
 
+  React.useEffect(() => {
+    if (!params.isin || params.isin.length !== 12) return;
+    refreshStockDetails();
+    refreshStockPositions();
+  }, [params.isin]);
+
   if (!params.isin || params.isin.length !== 12) return <Navigate to={'/stocks'} />;
   return (
     <StockLayout
