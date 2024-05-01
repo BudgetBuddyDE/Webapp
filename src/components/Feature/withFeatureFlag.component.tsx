@@ -1,10 +1,11 @@
 import React from 'react';
 
-import {AppConfig, Feature} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {AuthLayout, UnauthentificatedLayout} from '@/components/Auth/Layout';
 
+import {Feature} from './Feature.enum';
 import {FeatureNotEnabled} from './FeatureNotEnabled.component';
+import {isFeatureEnabled} from './isFeatureEnabled';
 
 export function withFeatureFlag<P extends object>(
   feature: Feature,
@@ -14,8 +15,7 @@ export function withFeatureFlag<P extends object>(
   return function WrappedComponent(props: P & {isAuthenticated?: boolean}) {
     const {sessionUser} = useAuthContext();
 
-    const isFeatureEnabled = AppConfig.feature[feature];
-    if (!isFeatureEnabled) {
+    if (!isFeatureEnabled(feature)) {
       if (!wrapWithLayout) return <FeatureNotEnabled />;
       return sessionUser ? (
         <AuthLayout>

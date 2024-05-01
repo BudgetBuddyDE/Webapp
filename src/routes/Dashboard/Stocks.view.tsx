@@ -4,9 +4,8 @@ import {Grid} from '@mui/material';
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
 
-import {Feature} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
-import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
+import {Feature, withFeatureFlag} from '@/components/Feature';
 import {StatsCard} from '@/components/StatsCard.component';
 import {
   DividendTable,

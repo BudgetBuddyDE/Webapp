@@ -3,6 +3,7 @@ import {BrowserRouter, Navigate, Route, Routes} from 'react-router-dom';
 
 import {FullPageLoader} from '@/components/Loading';
 
+import AssistantRoute from './routes/Assistant.route';
 import CategoriesRoute from './routes/Categories.route';
 import {BudgetView, DashboardLayout, DashboardView, InsightsView, StocksView} from './routes/Dashboard';
 import PaymentMethodsRoute from './routes/PaymentMethods.route';
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="/subscriptions" element={<SubscriptionsRoute />} />
           <Route path="/payment-methods" element={<PaymentMethodsRoute />} />
           <Route path="/categories" element={<CategoriesRoute />} />
+          <Route path="/assistant" element={<AssistantRoute />} />
           <Route path="/settings/profile" element={<SettingsRoute />} />
           <Route path="/sign-in" element={<SignInRoute />} />
           <Route path="/sign-up" element={<SignUpRoute />} />

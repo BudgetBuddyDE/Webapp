@@ -1,10 +1,11 @@
+import react from '@vitejs/plugin-react-swc';
 import dotenv from 'dotenv';
-dotenv.config();
-
+import path from 'path';
 import {defineConfig} from 'vite';
 import {ViteEjsPlugin} from 'vite-plugin-ejs';
-import path from 'path';
-import react from '@vitejs/plugin-react-swc';
+
+dotenv.config();
+
 // import dns from 'dns';
 
 // Due to https://stackoverflow.com/a/75191787
@@ -14,15 +15,17 @@ const production = process.env.NODE_ENV === 'production';
 
 const STOCK_SERVICE_HOST = process.env.STOCK_SERVICE_HOST || 'http://localhost:7080';
 const POCKETBASE_URL = process.env.POCKETBASE_URL || '';
+const OPEN_AI_KEY = process.env.OPEN_AI_KEY || '';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   // https://github.com/vitejs/vite/issues/1973#issuecomment-787571499
   define: {
     'process.env': {
+      NODE_ENV: process.env.NODE_ENV,
       STOCK_SERVICE_HOST: STOCK_SERVICE_HOST,
       POCKETBASE_URL: POCKETBASE_URL,
-      NODE_ENV: process.env.NODE_ENV,
+      OPEN_AI_KEY: OPEN_AI_KEY,
     },
   },
   server: {

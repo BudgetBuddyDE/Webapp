@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest';
 
-import {AppConfig, Feature} from './app.config';
+import {AppConfig} from './app.config';
+import {Feature} from './components/Feature';
 
 describe('AppConfig', () => {
   it('should have the correct feature', () => {

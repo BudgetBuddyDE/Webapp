@@ -1,5 +1,6 @@
-import { determineOS } from '@/utils';
 import React from 'react';
+
+import {determineOS} from '@/utils';
 
 /**
  * Hook to listen for key presses.
@@ -24,7 +25,12 @@ export const useKeyPress = (
 
   const handleKeyPress = React.useCallback(
     (event: KeyboardEvent) => {
-      if (keys.some(key => event.key === key && (requireCtrl ? (event.ctrlKey || determineOS() === "MacOS" && event.metaKey) : true))) {
+      if (
+        keys.some(
+          key =>
+            event.key === key && (requireCtrl ? event.ctrlKey || (determineOS() === 'MacOS' && event.metaKey) : true),
+        )
+      ) {
         callbackRef.current(event);
       }
     },

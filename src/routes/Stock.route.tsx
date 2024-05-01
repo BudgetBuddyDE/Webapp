@@ -23,13 +23,12 @@ import React from 'react';
 import Chart from 'react-apexcharts';
 import {Navigate, useNavigate, useParams} from 'react-router-dom';
 
-import {Feature} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {ApexPieChart, Card, NoResults, TabPanel} from '@/components/Base';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
-import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
+import {Feature, withFeatureFlag} from '@/components/Feature';
 import {ContentGrid} from '@/components/Layout';
 import {CircularProgress} from '@/components/Loading';
 import {useSnackbarContext} from '@/components/Snackbar';

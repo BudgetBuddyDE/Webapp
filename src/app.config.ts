@@ -3,10 +3,7 @@ import {type TableCellProps, type Theme} from '@mui/material';
 import BlueTheme from '@/style/theme/theme';
 
 import {version} from '../package.json';
-
-export enum Feature {
-  STOCKS = 'stocks',
-}
+import {Feature} from './components/Feature/Feature.enum';
 
 export type TAppConfig = {
   production: boolean;
@@ -44,5 +41,6 @@ export const AppConfig: TAppConfig = {
   },
   feature: {
     [Feature.STOCKS]: process.env.STOCK_SERVICE_HOST !== undefined,
+    [Feature.AI_ASSISTANT]: process.env.OPEN_AI_KEY !== undefined,
   },
 };

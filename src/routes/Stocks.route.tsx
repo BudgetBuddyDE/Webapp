@@ -3,12 +3,11 @@ import {Button, Grid} from '@mui/material';
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
 
-import {Feature} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
-import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
+import {Feature, withFeatureFlag} from '@/components/Feature';
 import {ContentGrid} from '@/components/Layout';
 import {CircularProgress} from '@/components/Loading';
 import {useSnackbarContext} from '@/components/Snackbar';
