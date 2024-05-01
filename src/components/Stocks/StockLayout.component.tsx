@@ -51,12 +51,30 @@ export const StockLayout: React.FC<TStockLayoutProps> = ({
         ref={dialogRef}
         open={showStockDialog}
         onClose={() => setShowStockDialog(false)}
-        onSelectAsset={asset => {
-          setShowStockDialog(false);
-          onSelectAsset && onSelectAsset(asset);
-        }}
-        onOpenPosition={onOpenPosition}
-        onWatchlistInteraction={onWatchlistInteraction}
+        onSelectAsset={
+          onSelectAsset
+            ? asset => {
+                setShowStockDialog(false);
+                onSelectAsset(asset);
+              }
+            : undefined
+        }
+        onOpenPosition={
+          onOpenPosition
+            ? asset => {
+                setShowStockDialog(false);
+                onOpenPosition(asset);
+              }
+            : undefined
+        }
+        onWatchlistInteraction={
+          onWatchlistInteraction
+            ? (event, asset) => {
+                setShowStockDialog(false);
+                onWatchlistInteraction(event, asset);
+              }
+            : undefined
+        }
       />
     </React.Fragment>
   );
