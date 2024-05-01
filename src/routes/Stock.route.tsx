@@ -7,7 +7,11 @@ import {
   AccordionSummary,
   Box,
   Button,
+  Divider,
   Grid,
+  List,
+  ListItem,
+  ListItemText,
   Tab,
   Tabs,
   Typography,
@@ -545,6 +549,35 @@ export const Stock = () => {
                   <Typography variant="body2">
                     {stockDetails?.details.securityDetails?.description ?? 'No description available'}
                   </Typography>
+                </AccordionDetails>
+              </Accordion>
+
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+                  <Typography variant="subtitle1" fontWeight={'bold'}>
+                    Symbols
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{p: 0}}>
+                  {loadingDetails ? (
+                    <CircularProgress />
+                  ) : stockDetails.asset.security.symbols.length > 0 ? (
+                    <List sx={{py: 0}}>
+                      {stockDetails.asset.security.symbols.map(({symbol, exchange}, idx, arr) => (
+                        <React.Fragment key={symbol}>
+                          <ListItem
+                            alignItems="flex-start"
+                            secondaryAction={<Typography variant="body2">{symbol}</Typography>}
+                            dense>
+                            <ListItemText primary={exchange} />
+                          </ListItem>
+                          {idx + 1 !== arr.length && <Divider />}
+                        </React.Fragment>
+                      ))}
+                    </List>
+                  ) : (
+                    <NoResults text="No symbols found for this asset" sx={{m: 2, mt: 0}} />
+                  )}
                 </AccordionDetails>
               </Accordion>
 
