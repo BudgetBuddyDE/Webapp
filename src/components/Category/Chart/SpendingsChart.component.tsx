@@ -83,7 +83,9 @@ export const CategorySpendingsChart: React.FC<TCategorySpendingsChartProps> = ()
         ) : currentChartData.length > 0 ? (
           <Box sx={{display: 'flex', flex: 1, mt: '1rem', flexDirection: 'column'}}>
             <ParentSize>
-              {({width}) => <ApexPieChart width={width} height={width} data={currentChartData} />}
+              {({width}) => (
+                <ApexPieChart width={width} height={width} data={currentChartData} formatAsCurrency showTotal />
+              )}
             </ParentSize>
           </Box>
         ) : (

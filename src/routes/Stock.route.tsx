@@ -14,9 +14,11 @@ import {
   ListItemText,
   Tab,
   Tabs,
+  Tooltip,
   Typography,
   useTheme,
 } from '@mui/material';
+import {format} from 'date-fns';
 import React from 'react';
 import Chart from 'react-apexcharts';
 import {Navigate, useNavigate, useParams} from 'react-router-dom';
@@ -24,7 +26,7 @@ import {Navigate, useNavigate, useParams} from 'react-router-dom';
 import {Feature} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {withAuthLayout} from '@/components/Auth/Layout';
-import {Card, NoResults, TabPanel} from '@/components/Base';
+import {ApexPieChart, Card, NoResults, TabPanel} from '@/components/Base';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
@@ -79,7 +81,11 @@ export const Stock = () => {
     profit: 0,
     financial: 0,
   });
-  const {loading: loadingDetails, details: stockDetails} = useFetchStockDetails(params.isin || '');
+  const {
+    loading: loadingDetails,
+    details: stockDetails,
+    refresh: refreshStockDetails,
+  } = useFetchStockDetails(params.isin || '');
   const {
     loading: loadingQuotes,
     quotes,
@@ -547,10 +553,48 @@ export const Stock = () => {
                 </AccordionSummary>
                 <AccordionDetails>
                   <Typography variant="body2">
-                    {stockDetails?.details.securityDetails?.description ?? 'No description available'}
+                    {stockDetails.details.securityDetails?.description ?? 'No description available'}
                   </Typography>
                 </AccordionDetails>
               </Accordion>
+
+              {stockDetails.asset.security.type === 'ETF' && stockDetails.details.etfBreakdown && (
+                <Accordion>
+                  <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+                    <Tooltip
+                      title={`As of ${format(stockDetails.details.etfBreakdown.updatedAt, 'dd.MM.yyyy')}`}
+                      placement="right">
+                      <Typography variant="subtitle1" fontWeight={'bold'}>
+                        ETF Breakdown
+                      </Typography>
+                    </Tooltip>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <ApexPieChart
+                      data={stockDetails.details.etfBreakdown.holdings.map(({marketValue, name}) => ({
+                        label: name,
+                        value: marketValue,
+                      }))}
+                      formatAsCurrency
+                    />
+                  </AccordionDetails>
+                </Accordion>
+              )}
+
+              {stockDetails.asset.security.type === 'ETF' && (
+                <Accordion>
+                  <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+                    <Typography variant="subtitle1" fontWeight={'bold'}>
+                      Region Breakdown
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <ApexPieChart
+                      data={stockDetails.asset.security.regions.map(({id, share}) => ({label: id, value: share}))}
+                    />
+                  </AccordionDetails>
+                </Accordion>
+              )}
 
               <Accordion>
                 <AccordionSummary expandIcon={<ExpandMoreRounded />}>
@@ -581,18 +625,16 @@ export const Stock = () => {
                 </AccordionDetails>
               </Accordion>
 
-              {stockDetails && (
-                <Accordion>
-                  <AccordionSummary expandIcon={<ExpandMoreRounded />}>
-                    <Typography variant="subtitle1" fontWeight={'bold'}>
-                      Ratings
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails sx={{p: 0}}>
-                    <StockRating ratings={stockDetails.details.scorings} />
-                  </AccordionDetails>
-                </Accordion>
-              )}
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+                  <Typography variant="subtitle1" fontWeight={'bold'}>
+                    Ratings
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{p: 0}}>
+                  <StockRating ratings={stockDetails.details.scorings} />
+                </AccordionDetails>
+              </Accordion>
             </Grid>
           )}
 

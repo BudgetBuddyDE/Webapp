@@ -40,7 +40,11 @@ export const PortfolioDiversityChart: React.FC<TPortfolioDiversityChartProps> = 
       <Card.Body>
         {preparedData.length > 0 ? (
           <Box sx={{display: 'flex', flex: 1, mt: '1rem', flexDirection: 'column'}}>
-            <ParentSize>{({width}) => <ApexPieChart width={width} height={width} data={preparedData} />}</ParentSize>
+            <ParentSize>
+              {({width}) => (
+                <ApexPieChart width={width} height={width} data={preparedData} formatAsCurrency showTotal />
+              )}
+            </ParentSize>
           </Box>
         ) : (
           <NoResults text="No positions provided" sx={{m: 2}} />

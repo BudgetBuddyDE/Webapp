@@ -69,7 +69,9 @@ export const CategoryIncomeChart: React.FC<TCategoryIncomeChartProps> = () => {
         ) : currentChartData.length > 0 ? (
           <Box sx={{display: 'flex', flex: 1, mt: '1rem'}}>
             <ParentSize>
-              {({width}) => <ApexPieChart width={width} height={width} data={currentChartData} />}
+              {({width}) => (
+                <ApexPieChart width={width} height={width} data={currentChartData} formatAsCurrency showTotal />
+              )}
             </ParentSize>
           </Box>
         ) : (

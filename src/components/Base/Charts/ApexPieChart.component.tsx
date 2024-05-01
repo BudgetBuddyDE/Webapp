@@ -8,9 +8,16 @@ import {type TPieChartData} from './index';
 
 export type TApexPieChartProps = Omit<Props, 'series'> & {
   data: TPieChartData[];
+  formatAsCurrency?: boolean;
+  showTotal?: boolean;
 };
 
-export const ApexPieChart: React.FC<TApexPieChartProps> = ({data, ...props}) => {
+export const ApexPieChart: React.FC<TApexPieChartProps> = ({
+  data,
+  formatAsCurrency = false,
+  showTotal = false,
+  ...props
+}) => {
   const theme = useTheme();
 
   const sortedChartData: TPieChartData[] = React.useMemo(() => {
@@ -43,14 +50,16 @@ export const ApexPieChart: React.FC<TApexPieChartProps> = ({data, ...props}) => 
               size: '50%',
               labels: {
                 show: true,
+
                 total: {
-                  show: true,
-                  showAlways: true,
+                  show: showTotal,
+                  showAlways: showTotal,
                   label: 'Total',
                   fontWeight: 'bolder',
                   color: theme.palette.text.primary,
                   formatter: () => {
-                    return Formatter.formatBalance(data.reduce((acc, {value}) => acc + value, 0));
+                    const sum: number = data.reduce((acc, {value}) => acc + value, 0);
+                    return formatAsCurrency ? Formatter.formatBalance(sum) : sum.toFixed(2);
                   },
                 },
                 value: {
@@ -68,17 +77,19 @@ export const ApexPieChart: React.FC<TApexPieChartProps> = ({data, ...props}) => 
           // @ts-ignore
           formatter(val, opts) {
             const name = opts.w.globals.labels[opts.seriesIndex];
-            return [
-              name as string,
-              Formatter.formatBalance(data[opts.seriesIndex].value),
-              (val as number).toFixed(2) + '%',
-            ];
+            return formatAsCurrency
+              ? [
+                  name as string,
+                  Formatter.formatBalance(data[opts.seriesIndex].value),
+                  (val as number).toFixed(2) + '%',
+                ]
+              : [name as string, (val as number).toFixed(2) + '%'];
           },
         },
         colors: colorRange,
         tooltip: {
           theme: 'dark',
-          y: {formatter: val => Formatter.formatBalance(val)},
+          y: formatAsCurrency ? {formatter: val => Formatter.formatBalance(val)} : {},
         },
       }}
       series={sortedChartData.map(({value}) => value)}
