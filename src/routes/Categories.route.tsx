@@ -1,30 +1,31 @@
+import {type TCategory} from '@budgetbuddyde/types';
+import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
+import {Checkbox, Grid, IconButton, TableCell, TableRow} from '@mui/material';
+import {format} from 'date-fns';
+import React from 'react';
+
 import {AppConfig} from '@/app.config';
-import {ActionPaper, Linkify} from '@/components/Base';
-import {Table} from '@/components/Base/Table';
-import {DeleteDialog} from '@/components/DeleteDialog.component';
-import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
 import {withAuthLayout} from '@/components/Auth/Layout';
+import {ActionPaper, Linkify} from '@/components/Base';
+import {SearchInput} from '@/components/Base/Search';
+import {type ISelectionHandler} from '@/components/Base/Select';
+import {Table} from '@/components/Base/Table';
 import {
   CategoryChip,
   CategoryDrawer,
   CategoryService,
   CategorySpendingsChart,
-  useFetchCategories,
   type TCategoryDrawerValues,
+  useFetchCategories,
 } from '@/components/Category';
 import {CategoryIncomeChart} from '@/components/Category/Chart/IncomeChart.component';
+import {DeleteDialog} from '@/components/DeleteDialog.component';
+import {DownloadButton} from '@/components/Download';
+import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
+import {ToggleFilterDrawerButton} from '@/components/Filter';
+import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
-import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
-import {Checkbox, Grid, IconButton, TableCell, TableRow} from '@mui/material';
-import React from 'react';
-import {SearchInput} from '@/components/Base/Search';
-import {type ISelectionHandler} from '@/components/Base/Select';
-import {ToggleFilterDrawerButton} from '@/components/Filter';
-import {type TCategory} from '@budgetbuddyde/types';
-import {DownloadButton} from '@/components/Download';
-import {format} from 'date-fns';
-import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 
 interface ICategoriesHandler {
   showCreateDialog: () => void;

@@ -1,33 +1,34 @@
-import {z} from 'zod';
-import {preparePockebaseRequestOptions} from '@/utils';
-import {isRunningInProdEnv} from '@/utils/isRunningInProdEnv.util';
 import {
   ApiResponse,
-  ZStockExchange,
-  ZStockPositionWithQuote,
-  ZDividendDetails,
-  ZAssetSearchResult,
-  ZStockQuote,
-  ZAssetChartQuote,
-  ZAssetDetails,
-  ZRelatedStockWithQuotes,
-  type TId,
   type TApiResponse,
+  type TAssetChartQuote,
+  type TAssetDetails,
+  type TAssetSearchResult,
+  type TCreateStockPositionPayload,
+  type TDividendDetailList,
+  type TDividendDetails,
+  type TId,
+  type TIsin,
+  type TRelatedStockWithQuotes,
   type TServiceResponse,
   type TStockExchange,
   type TStockPositionWithQuote,
-  type TUpdateStockPositionPayload,
-  type TDividendDetailList,
-  type TAssetSearchResult,
   type TStockQuote,
   type TTimeframe,
-  type TAssetChartQuote,
-  type TDividendDetails,
-  type TAssetDetails,
-  type TCreateStockPositionPayload,
-  type TIsin,
-  type TRelatedStockWithQuotes,
+  type TUpdateStockPositionPayload,
+  ZAssetChartQuote,
+  ZAssetDetails,
+  ZAssetSearchResult,
+  ZDividendDetails,
+  ZRelatedStockWithQuotes,
+  ZStockExchange,
+  ZStockPositionWithQuote,
+  ZStockQuote,
 } from '@budgetbuddyde/types';
+import {z} from 'zod';
+
+import {preparePockebaseRequestOptions} from '@/utils';
+import {isRunningInProdEnv} from '@/utils/isRunningInProdEnv.util';
 
 /**
  * The StockService class provides methods for interacting with stock-related data and services.

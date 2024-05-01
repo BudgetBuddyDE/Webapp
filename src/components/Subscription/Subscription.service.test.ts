@@ -1,5 +1,6 @@
-import {describe, expect, it} from 'vitest';
 import {type TSubscription} from '@budgetbuddyde/types';
+import {describe, expect, it} from 'vitest';
+
 import {SubscriptionService} from './Subscription.service';
 
 describe('getPlannedBalanceByType', () => {

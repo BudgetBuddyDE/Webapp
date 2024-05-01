@@ -1,10 +1,10 @@
-import React from 'react';
 import {
-  TableContainer as MuiTableContainer,
-  type TableContainerProps,
   Table as MuiTable,
+  TableContainer as MuiTableContainer,
   type TableProps as MuiTableProps,
+  type TableContainerProps,
 } from '@mui/material';
+import React from 'react';
 
 export type TTableContainerProps = React.PropsWithChildren<{
   tableContainerProps?: TableContainerProps;

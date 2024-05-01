@@ -5,8 +5,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Slide,
   type DialogProps as MuiDialogProps,
+  Slide,
 } from '@mui/material';
 import {type TransitionProps} from '@mui/material/transitions';
 import React from 'react';

@@ -1,7 +1,8 @@
-import React from 'react';
 import {Box, type SxProps, TextField, type TextFieldProps, type Theme} from '@mui/material';
 import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import React from 'react';
+
 import {useScreenSize} from '@/hooks';
 
 export const DATE_RANGE_INPUT_FORMAT = 'dd.MM.yyyy';

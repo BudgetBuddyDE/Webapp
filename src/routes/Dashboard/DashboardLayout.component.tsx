@@ -1,11 +1,13 @@
-import React from 'react';
 import {Grid, ToggleButton, ToggleButtonGroup} from '@mui/material';
+import React from 'react';
 import {Outlet, useLocation, useNavigate} from 'react-router-dom';
-import {withAuthLayout} from '@/components/Auth/Layout';
+
 import {useAuthContext} from '@/components/Auth';
-import {ContentGrid} from '@/components/Layout';
-import {type TDashboardView, DashboardViewMapping, DashboardViewDescriptionMapping} from './index';
+import {withAuthLayout} from '@/components/Auth/Layout';
 import {ActionPaper} from '@/components/Base';
+import {ContentGrid} from '@/components/Layout';
+
+import {DashboardViewDescriptionMapping, DashboardViewMapping, type TDashboardView} from './index';
 
 export type TDashboardLayoutProps = React.PropsWithChildren<{
   useOutletInsteadOfChildren?: boolean;

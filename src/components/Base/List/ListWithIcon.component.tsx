@@ -1,9 +1,11 @@
-import React from 'react';
 import {Box, Chip, Typography} from '@mui/material';
-import {Image} from '../Image.component';
+import React from 'react';
+
 import {Icon} from '@/components/Icon.component';
 import {formatBalance} from '@/utils';
+
 import {ActionPaper} from '../ActionPaper.component';
+import {Image} from '../Image.component';
 
 export type TListWithIconProps = {
   icon?: JSX.Element;

@@ -1,22 +1,23 @@
-import React from 'react';
+import {type TDividendDetails} from '@budgetbuddyde/types';
 import {AccountBalanceRounded, TimelineRounded} from '@mui/icons-material';
 import {Grid} from '@mui/material';
-import {type TDividendDetails} from '@budgetbuddyde/types';
-import {StatsCard} from '@/components/StatsCard.component';
+import React from 'react';
+import {useNavigate} from 'react-router-dom';
+
+import {Feature} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
-import {getSocketIOClient} from '@/utils';
+import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
+import {StatsCard} from '@/components/StatsCard.component';
 import {
-  StockList,
   DividendTable,
+  StockLayout,
+  StockList,
+  useFetchStockDividends,
   useFetchStockPositions,
   useStockStore,
-  useFetchStockDividends,
-  StockLayout,
 } from '@/components/Stocks';
 import {Formatter} from '@/services';
-import {Feature} from '@/app.config';
-import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
-import {useNavigate} from 'react-router-dom';
+import {getSocketIOClient} from '@/utils';
 
 const StocksView = () => {
   const navigate = useNavigate();

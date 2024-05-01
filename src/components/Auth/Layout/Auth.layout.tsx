@@ -1,9 +1,10 @@
-import React from 'react';
 import {Box, Container} from '@mui/material';
-import {AppBar, Footer} from '@/components/Layout';
-import {Drawer} from '@/components/Layout/Drawer';
+import React from 'react';
+
 import {Main} from '@/components/Base';
 import {FilterDrawer} from '@/components/Filter';
+import {AppBar, Footer} from '@/components/Layout';
+import {Drawer} from '@/components/Layout/Drawer';
 
 export type TAuthLayout = React.PropsWithChildren;
 

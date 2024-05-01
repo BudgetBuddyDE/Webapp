@@ -1,7 +1,8 @@
-import React from 'react';
-import {Chip, Tooltip, type ChipProps} from '@mui/material';
-import {useFilterStore} from '@/components/Filter';
 import {type TCategory} from '@budgetbuddyde/types';
+import {Chip, type ChipProps, Tooltip} from '@mui/material';
+import React from 'react';
+
+import {useFilterStore} from '@/components/Filter';
 import {useTransactionStore} from '@/components/Transaction';
 
 export type TCategoryChipProps = ChipProps & {category: TCategory; showUsage?: boolean};

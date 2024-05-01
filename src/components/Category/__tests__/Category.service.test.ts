@@ -1,7 +1,8 @@
-import {describe, it, expect} from 'vitest';
-import {subDays} from 'date-fns';
-import {CategoryService, type TCategoryAutocompleteOption} from '@/components/Category';
 import {type TCategory, type TTransaction} from '@budgetbuddyde/types';
+import {subDays} from 'date-fns';
+import {describe, expect, it} from 'vitest';
+
+import {CategoryService, type TCategoryAutocompleteOption} from '@/components/Category';
 
 describe('sortAutocompleteOptionsByTransactionUsage', () => {
   it('should return an empty array if categories is empty', () => {

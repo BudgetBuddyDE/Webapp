@@ -1,5 +1,5 @@
-import React from 'react';
 import {Grid, type GridProps, Typography} from '@mui/material';
+import React from 'react';
 
 export type TPageHeaderProps = {
   title: string;

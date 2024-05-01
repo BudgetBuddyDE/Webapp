@@ -1,16 +1,18 @@
-import {subDays} from 'date-fns';
 import {
   PocketBaseCollection,
-  ZPaymentMethod,
   type TCreatePaymentMethodPayload,
-  type TUpdatePaymentMethodPayload,
   type TPaymentMethod,
   type TTransaction,
+  type TUpdatePaymentMethodPayload,
+  ZPaymentMethod,
 } from '@budgetbuddyde/types';
-import {type TPaymentMethodAutocompleteOption} from './Autocomplete/PaymentMethodAutocomplete.component';
-import {pb} from '@/pocketbase';
-import {z} from 'zod';
+import {subDays} from 'date-fns';
 import {RecordModel} from 'pocketbase';
+import {z} from 'zod';
+
+import {pb} from '@/pocketbase';
+
+import {type TPaymentMethodAutocompleteOption} from './Autocomplete/PaymentMethodAutocomplete.component';
 
 export class PaymentMethodService {
   private static paymentMethodLabelSeperator = '•';

@@ -1,6 +1,8 @@
 import React from 'react';
-import {SearchStockDialog, type TSearchStockDialogProps} from './SearchStockDialog.component';
+
 import {useKeyPress} from '@/hooks';
+
+import {SearchStockDialog, type TSearchStockDialogProps} from './SearchStockDialog.component';
 
 /**
  * Props for the StockLayout component.

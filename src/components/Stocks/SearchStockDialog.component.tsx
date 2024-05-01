@@ -1,23 +1,25 @@
-import React from 'react';
 import {type TAssetSearchResult} from '@budgetbuddyde/types';
+import {AddRounded, SearchRounded, StarRounded} from '@mui/icons-material';
 import {
   Box,
-  CircularProgress as MuiCircularProgress,
   Dialog,
   DialogContent,
+  type DialogProps,
   Grid,
   IconButton,
+  CircularProgress as MuiCircularProgress,
   TextField,
   Tooltip,
   Typography,
-  type DialogProps,
 } from '@mui/material';
-import {ActionPaper, Image} from '@/components/Base';
-import {StockService} from './Stock.service';
-import {useSnackbarContext} from '@/components/Snackbar';
 import {debounce} from 'lodash';
-import {AddRounded, SearchRounded, StarRounded} from '@mui/icons-material';
+import React from 'react';
+
+import {ActionPaper, Image} from '@/components/Base';
 import {CircularProgress} from '@/components/Loading';
+import {useSnackbarContext} from '@/components/Snackbar';
+
+import {StockService} from './Stock.service';
 
 /**
  * Props for the SearchStockDialog component.

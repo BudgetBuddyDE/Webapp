@@ -1,10 +1,11 @@
-import React from 'react';
+import {type TBudget} from '@budgetbuddyde/types';
 import {Delete as DeleteIcon, Edit as EditIcon, Label as LabelIcon} from '@mui/icons-material';
 import {Box, IconButton, Tooltip, Typography} from '@mui/material';
-import {Icon} from '@/components/Icon.component';
+import React from 'react';
+
 import {ActionPaper} from '@/components/Base';
+import {Icon} from '@/components/Icon.component';
 import {formatBalance} from '@/utils';
-import {type TBudget} from '@budgetbuddyde/types';
 
 export type TCategoryBudgetProps = {
   budget: TBudget;

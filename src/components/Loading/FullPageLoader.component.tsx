@@ -1,6 +1,8 @@
-import {motion} from 'framer-motion';
-import {Footer} from '@/components/Layout';
 import {Box, CircularProgress, styled} from '@mui/material';
+import {motion} from 'framer-motion';
+
+import {Footer} from '@/components/Layout';
+
 import {Brand} from '../Brand.component';
 
 const Main = styled('main')(() => ({

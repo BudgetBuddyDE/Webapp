@@ -1,6 +1,7 @@
-import React from 'react';
-import {IconBackground, type TColorKeys} from '../Icon.component';
 import {type BoxProps} from '@mui/material';
+import React from 'react';
+
+import {IconBackground, type TColorKeys} from '../Icon.component';
 
 export type TLabelBadgeProps = {
   color?: TColorKeys;

@@ -1,15 +1,16 @@
-import {Card, PasswordInput} from '@/components/Base';
-import {Box, Button, CircularProgress, Divider, Grid, Typography} from '@mui/material';
+import {PocketBaseCollection} from '@budgetbuddyde/types';
 import {AppRegistrationRounded, ExitToAppRounded, SendRounded} from '@mui/icons-material';
+import {Box, Button, CircularProgress, Divider, Grid, Typography} from '@mui/material';
+import React from 'react';
+import {Link as RouterLink, useNavigate} from 'react-router-dom';
+import {z} from 'zod';
+
 import {AppLogo} from '@/components/AppLogo.component';
 import {useAuthContext} from '@/components/Auth';
-import {Link as RouterLink, useNavigate} from 'react-router-dom';
-import {useSnackbarContext} from '@/components/Snackbar';
-import React from 'react';
-import {z} from 'zod';
-import {pb} from '@/pocketbase';
 import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
-import {PocketBaseCollection} from '@budgetbuddyde/types';
+import {Card, PasswordInput} from '@/components/Base';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {pb} from '@/pocketbase';
 
 const ZPassword = z.string().min(8, 'The password needs to fullfill a minimum of 8 characters').max(64);
 

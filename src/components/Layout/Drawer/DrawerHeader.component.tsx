@@ -1,7 +1,7 @@
 import {Brand} from '../../Brand.component';
 import {useDrawerStore} from './Drawer.store';
-import {StyledDrawerHeader} from './StyledDrawerHeader.component';
 import {DrawerHamburger} from './DrawerHamburger.component';
+import {StyledDrawerHeader} from './StyledDrawerHeader.component';
 
 export const DrawerHeader = () => {
   const {open} = useDrawerStore();

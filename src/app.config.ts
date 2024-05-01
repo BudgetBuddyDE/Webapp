@@ -1,5 +1,7 @@
 import {type TableCellProps, type Theme} from '@mui/material';
+
 import BlueTheme from '@/style/theme/theme';
+
 import {version} from '../package.json';
 
 export enum Feature {

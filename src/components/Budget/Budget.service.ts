@@ -1,4 +1,3 @@
-import {pb} from '@/pocketbase';
 import {
   PocketBaseCollection,
   type TBudget,
@@ -8,6 +7,8 @@ import {
 } from '@budgetbuddyde/types';
 import {type RecordModel} from 'pocketbase';
 import {z} from 'zod';
+
+import {pb} from '@/pocketbase';
 
 export class BudgetService {
   /**

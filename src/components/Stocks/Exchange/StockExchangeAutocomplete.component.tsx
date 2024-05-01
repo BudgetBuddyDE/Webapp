@@ -1,16 +1,18 @@
 import {type TStockExchange} from '@budgetbuddyde/types';
 import {
-  Box,
-  Typography,
   Autocomplete,
+  type AutocompleteChangeReason,
+  Box,
+  FilterOptionsState,
   TextField,
   type TextFieldProps,
-  type AutocompleteChangeReason,
+  Typography,
   createFilterOptions,
-  FilterOptionsState,
 } from '@mui/material';
-import {useFetchStockExchanges} from './useFetchStockExchanges.hook';
+
 import {StyledAutocompleteOption} from '@/components/Base';
+
+import {useFetchStockExchanges} from './useFetchStockExchanges.hook';
 
 export type TStockExchangeAutocompleteOption = {
   value: TStockExchange['id'];

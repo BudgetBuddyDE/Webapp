@@ -1,10 +1,11 @@
-import React from 'react';
 import {
   TablePagination as MuiTablePagination,
   type TablePaginationProps as MuiTablePaginationProps,
 } from '@mui/material';
-import {type TPaginationState} from './Pagination.reducer';
+import React from 'react';
+
 import {ActionPaper} from '../ActionPaper.component';
+import {type TPaginationState} from './Pagination.reducer';
 
 export type TPaginationProps = Pick<MuiTablePaginationProps, 'count' | 'page' | 'rowsPerPage' | 'labelRowsPerPage'> & {
   onPageChange: (newPage: number) => void;

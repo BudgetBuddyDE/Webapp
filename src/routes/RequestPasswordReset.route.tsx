@@ -1,14 +1,15 @@
-import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
-import {Card} from '@/components/Base';
-import {Box, Button, CircularProgress, Divider, Grid, TextField, Typography} from '@mui/material';
+import {PocketBaseCollection} from '@budgetbuddyde/types';
 import {AppRegistrationRounded, ExitToAppRounded, SendRounded} from '@mui/icons-material';
+import {Box, Button, CircularProgress, Divider, Grid, TextField, Typography} from '@mui/material';
+import React from 'react';
+import {Link as RouterLink} from 'react-router-dom';
+
 import {AppLogo} from '@/components/AppLogo.component';
 import {useAuthContext} from '@/components/Auth';
-import {Link as RouterLink} from 'react-router-dom';
+import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
+import {Card} from '@/components/Base';
 import {useSnackbarContext} from '@/components/Snackbar';
-import React from 'react';
 import {pb} from '@/pocketbase.ts';
-import {PocketBaseCollection} from '@budgetbuddyde/types';
 
 const RequestPasswordReset = () => {
   const {sessionUser, logout} = useAuthContext();

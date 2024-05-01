@@ -1,16 +1,17 @@
-import React from 'react';
-import {debounce} from 'lodash';
-import {BarChart, Card, StyledAutocompleteOption, type TBarChartData} from '@/components/Base';
-import {ArrowRightRounded} from '@mui/icons-material';
-import {Autocomplete, TextField, Button, Box, Skeleton, Paper, Typography} from '@mui/material';
-import {ParentSize} from '@visx/responsive';
-import {useFetchTransactions} from '@/components/Transaction';
-import {format, isBefore, isSameMonth, isSameYear} from 'date-fns';
-import {DateService} from '@/services';
-import {useSnackbarContext} from '@/components/Snackbar';
-import {formatBalance} from '@/utils';
-import {useFetchCategories} from '@/components/Category';
 import {type TCategory} from '@budgetbuddyde/types';
+import {ArrowRightRounded} from '@mui/icons-material';
+import {Autocomplete, Box, Button, Paper, Skeleton, TextField, Typography} from '@mui/material';
+import {ParentSize} from '@visx/responsive';
+import {format, isBefore, isSameMonth, isSameYear} from 'date-fns';
+import {debounce} from 'lodash';
+import React from 'react';
+
+import {BarChart, Card, StyledAutocompleteOption, type TBarChartData} from '@/components/Base';
+import {useFetchCategories} from '@/components/Category';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {useFetchTransactions} from '@/components/Transaction';
+import {DateService} from '@/services';
+import {formatBalance} from '@/utils';
 
 const MONTH_BACKLOG = 8;
 

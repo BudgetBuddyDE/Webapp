@@ -1,9 +1,10 @@
-import {Card, NoResults} from '@/components/Base';
+import {PersonRounded} from '@mui/icons-material';
 import {Box, Button, Grid, TextField} from '@mui/material';
 import React from 'react';
+
 import {useAuthContext} from '@/components/Auth';
+import {Card, NoResults} from '@/components/Base';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {PersonRounded} from '@mui/icons-material';
 import {pb} from '@/pocketbase.ts';
 
 interface IEditProfileHandler {

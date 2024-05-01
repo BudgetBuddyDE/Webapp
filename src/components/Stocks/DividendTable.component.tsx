@@ -1,14 +1,16 @@
+import {type TDividendDetails, type TTimeframe} from '@budgetbuddyde/types';
+import {Stack, TableCell, TableRow, Typography} from '@mui/material';
+import {format} from 'date-fns';
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
-import {format} from 'date-fns';
-import {Stack, TableCell, TableRow, Typography} from '@mui/material';
-import {type TTimeframe, type TDividendDetails} from '@budgetbuddyde/types';
-import {type TTableProps, Table} from '@/components/Base/Table';
+
 import {AppConfig} from '@/app.config';
-import {StockPrice} from './StockPrice.component';
-import {useFetchStockPositions} from '@/components/Stocks/hooks';
-import {StockService} from './Stock.service';
 import {ActionPaper, Image} from '@/components/Base';
+import {type TTableProps, Table} from '@/components/Base/Table';
+import {useFetchStockPositions} from '@/components/Stocks/hooks';
+
+import {StockService} from './Stock.service';
+import {StockPrice} from './StockPrice.component';
 
 const SEPERATOR = '•';
 

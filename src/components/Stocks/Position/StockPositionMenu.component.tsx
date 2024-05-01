@@ -1,7 +1,8 @@
-import React from 'react';
-import {IconButton, ListItemIcon, ListItemText, Menu, MenuItem} from '@mui/material';
-import {DeleteRounded, EditRounded, MoreVertRounded} from '@mui/icons-material';
 import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
+import {DeleteRounded, EditRounded, MoreVertRounded} from '@mui/icons-material';
+import {IconButton, ListItemIcon, ListItemText, Menu, MenuItem} from '@mui/material';
+import React from 'react';
+
 import {type TStockPositionTableProps} from './StockPositionTable.component';
 
 export const StockPositionMenu: React.FC<

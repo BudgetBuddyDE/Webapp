@@ -1,8 +1,9 @@
-import React from 'react';
+import {type TDividend} from '@budgetbuddyde/types';
+import {EventBusyRounded} from '@mui/icons-material';
 import {Box, Divider, List, ListItem, ListItemText} from '@mui/material';
 import {format} from 'date-fns';
-import {EventBusyRounded} from '@mui/icons-material';
-import {type TDividend} from '@budgetbuddyde/types';
+import React from 'react';
+
 import {Card, NoResults} from '../Base';
 import {StockPrice} from './StockPrice.component';
 

@@ -1,10 +1,11 @@
-import React from 'react';
-import {Button, CircularProgress, Drawer, DrawerProps, IconButton, Stack, Typography} from '@mui/material';
-import {useScreenSize, useKeyPress} from '@/hooks';
-import {ActionPaper} from '@/components/Base';
 import {CloseRounded} from '@mui/icons-material';
+import {Button, CircularProgress, Drawer, DrawerProps, IconButton, Stack, Typography} from '@mui/material';
+import React from 'react';
+import {type DefaultValues, type FieldValues, type UseFormReturn, useForm} from 'react-hook-form';
+
+import {ActionPaper} from '@/components/Base';
+import {useKeyPress, useScreenSize} from '@/hooks';
 import {drawerWidth} from '@/style/theme/theme';
-import {useForm, type FieldValues, type DefaultValues, type UseFormReturn} from 'react-hook-form';
 
 export type IEntityDrawer<T extends FieldValues> = {
   closeOnBackdropClick?: boolean;

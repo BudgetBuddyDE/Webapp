@@ -1,18 +1,20 @@
-import React from 'react';
+import {DeleteRounded} from '@mui/icons-material';
 import {Box, Button, Skeleton, TableBody, TableCell, TableHead, TableRow, Typography} from '@mui/material';
-import {ActionPaper, Card, NoResults, type TNoResultsProps} from '../index';
+import React from 'react';
+
+import {AppConfig} from '@/app.config';
+import {CircularProgress} from '@/components/Loading';
+
 import {
   type IPaginationHandler,
   InitialPaginationState,
   Pagination,
-  usePagination,
   PaginationReducer,
+  usePagination,
 } from '../Pagination';
-import {TableContainer} from './TableContainer.component';
-import {CircularProgress} from '@/components/Loading';
 import {type ISelectionHandler, SelectAll} from '../Select';
-import {DeleteRounded} from '@mui/icons-material';
-import {AppConfig} from '@/app.config';
+import {ActionPaper, Card, NoResults, type TNoResultsProps} from '../index';
+import {TableContainer} from './TableContainer.component';
 
 export type TTableProps<T> = {
   title?: string;

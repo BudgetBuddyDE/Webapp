@@ -1,6 +1,6 @@
-import React from 'react';
-import {IconButton, type IconButtonProps} from '@mui/material';
 import {UploadFileRounded} from '@mui/icons-material';
+import {IconButton, type IconButtonProps} from '@mui/material';
+import React from 'react';
 
 export type TUploadedFile = FileList;
 

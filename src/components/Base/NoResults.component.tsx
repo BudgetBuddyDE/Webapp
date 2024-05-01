@@ -1,5 +1,6 @@
+import {Box, type BoxProps, Typography, useTheme} from '@mui/material';
 import React from 'react';
-import {Box, Typography, useTheme, type BoxProps} from '@mui/material';
+
 import {Icon} from '../Icon.component';
 
 export type TNoResultsProps = {

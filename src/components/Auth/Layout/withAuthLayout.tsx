@@ -1,6 +1,8 @@
 import React from 'react';
 import {Navigate, useLocation} from 'react-router-dom';
+
 import {FullPageLoader} from '@/components/Loading';
+
 import {useAuthContext} from '../Auth.context';
 import {AuthLayout} from './Auth.layout';
 

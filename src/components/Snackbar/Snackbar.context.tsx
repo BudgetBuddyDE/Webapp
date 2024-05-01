@@ -1,5 +1,5 @@
-import React from 'react';
 import {Snackbar, darken} from '@mui/material';
+import React from 'react';
 
 export type TShowSnackbarProps = {
   message: string;

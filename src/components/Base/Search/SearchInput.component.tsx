@@ -1,7 +1,7 @@
-import {debounce} from 'lodash';
-import React from 'react';
 import {SearchRounded as SearchIcon} from '@mui/icons-material';
 import {InputBase, type SxProps, type Theme, alpha, styled} from '@mui/material';
+import {debounce} from 'lodash';
+import React from 'react';
 
 const Search = styled('div')(({theme}) => ({
   position: 'relative',

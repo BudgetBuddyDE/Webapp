@@ -1,6 +1,7 @@
-import {describe, it, expect} from 'vitest';
-import {subDays} from 'date-fns';
 import {type TPaymentMethod, type TTransaction} from '@budgetbuddyde/types';
+import {subDays} from 'date-fns';
+import {describe, expect, it} from 'vitest';
+
 import {PaymentMethodService} from '@/components/PaymentMethod';
 import {type TPaymentMethodAutocompleteOption} from '@/components/PaymentMethod/Autocomplete';
 

@@ -1,6 +1,10 @@
+import {type TCategory, type TTransaction} from '@budgetbuddyde/types';
+import {Autocomplete, Box, CircularProgress, TextField, Typography, useTheme} from '@mui/material';
+import {format, subMonths} from 'date-fns';
 import React from 'react';
-import {useNavigate} from 'react-router-dom';
 import Chart from 'react-apexcharts';
+import {useNavigate} from 'react-router-dom';
+
 import {
   ActionPaper,
   DateRange,
@@ -9,14 +13,11 @@ import {
   type TDateRange,
   type TFullScreenDialogProps,
 } from '@/components/Base';
-import {Formatter} from '@/services';
-import {Autocomplete, Box, TextField, CircularProgress, useTheme, Typography} from '@mui/material';
 import {useFetchCategories} from '@/components/Category';
-import {type TCategory, type TTransaction} from '@budgetbuddyde/types';
-import {format, subMonths} from 'date-fns';
+import {DownloadButton} from '@/components/Download';
 import {useFetchTransactions} from '@/components/Transaction';
 import {useKeyPress} from '@/hooks/useKeyPress.hook.ts';
-import {DownloadButton} from '@/components/Download';
+import {Formatter} from '@/services';
 
 export type TInsightsViewProps =
   | {navigateOnClose: true; navigateTo: string}

@@ -1,5 +1,6 @@
-import React from 'react';
 import {Grid, type GridProps} from '@mui/material';
+import React from 'react';
+
 import {PageHeader, TPageHeaderProps} from './PageHeader.component';
 
 export type TContentGrid = React.PropsWithChildren<TPageHeaderProps & GridProps>;

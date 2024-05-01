@@ -1,11 +1,12 @@
+import {Box, Grid, Typography} from '@mui/material';
 import React from 'react';
+
+import {useAuthContext} from '@/components/Auth';
+import {withAuthLayout} from '@/components/Auth/Layout';
 import {Card} from '@/components/Base';
 import {PageHeader} from '@/components/Layout';
-import {Box, Grid, Typography} from '@mui/material';
-import {withAuthLayout} from '@/components/Auth/Layout';
 import {AppInformation, EditProfile} from '@/components/Settings';
 import {UserAvatar} from '@/components/User';
-import {useAuthContext} from '@/components/Auth';
 
 export type TSettingsRouteProps = unknown;
 

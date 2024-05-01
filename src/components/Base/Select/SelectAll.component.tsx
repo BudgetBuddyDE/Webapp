@@ -1,5 +1,6 @@
+import {type CheckboxProps, Checkbox as MuiCheckbox, TableCell, type TableCellProps} from '@mui/material';
 import React from 'react';
-import {Checkbox as MuiCheckbox, type CheckboxProps, TableCell, type TableCellProps} from '@mui/material';
+
 import {AppConfig} from '@/app.config';
 
 export type TSelectAllProps = CheckboxProps &

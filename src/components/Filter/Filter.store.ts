@@ -1,7 +1,8 @@
-import {getFirstDayOfMonth, getLastDayOfMonth} from '@/utils';
+import {type TCategory, type TPaymentMethod} from '@budgetbuddyde/types';
 import {subMonths} from 'date-fns';
 import {create} from 'zustand';
-import {type TCategory, type TPaymentMethod} from '@budgetbuddyde/types';
+
+import {getFirstDayOfMonth, getLastDayOfMonth} from '@/utils';
 
 export type TFilters = {
   keyword: string | null;

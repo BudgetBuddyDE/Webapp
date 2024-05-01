@@ -1,7 +1,9 @@
 import React from 'react';
+
 import {useAuthContext} from '@/components/Auth';
-import {useStockStore} from '../Stock.store';
+
 import {StockService} from '../Stock.service';
+import {useStockStore} from '../Stock.store';
 
 let mounted = false;
 

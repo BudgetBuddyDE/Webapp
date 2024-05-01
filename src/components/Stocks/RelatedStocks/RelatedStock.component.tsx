@@ -1,12 +1,14 @@
-import React from 'react';
-import {Box, Skeleton, Typography, useTheme} from '@mui/material';
 import {type TRelatedStockWithQuotes} from '@budgetbuddyde/types';
-import Chart from 'react-apexcharts';
+import {Box, Skeleton, Typography, useTheme} from '@mui/material';
 import {format} from 'date-fns';
+import React from 'react';
+import Chart from 'react-apexcharts';
+import {useNavigate} from 'react-router-dom';
+
 import {ActionPaper, Card, Image} from '@/components/Base';
 import {Formatter} from '@/services';
+
 import {StockPrice} from '../StockPrice.component';
-import {useNavigate} from 'react-router-dom';
 
 export type TRelatedStockProps = {
   isLoading?: boolean;

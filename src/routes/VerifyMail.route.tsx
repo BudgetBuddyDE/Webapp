@@ -1,10 +1,11 @@
-import React from 'react';
-import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
-import {Card} from '@/components/Base';
-import {Button, Typography} from '@mui/material';
 import {ExitToAppRounded} from '@mui/icons-material';
+import {Button, Typography} from '@mui/material';
+import React from 'react';
+
 import {AppLogo} from '@/components/AppLogo.component';
 import {useAuthContext} from '@/components/Auth';
+import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
+import {Card} from '@/components/Base';
 
 const VerifyMail = () => {
   const {sessionUser, logout} = useAuthContext();

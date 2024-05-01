@@ -1,11 +1,13 @@
-import React from 'react';
 import {LogoutRounded as LogoutIcon} from '@mui/icons-material';
-import {Box, Button, type ButtonProps, useTheme, Divider, Typography, Chip} from '@mui/material';
-import {useDrawerStore} from './Drawer.store';
-import {useScreenSize, useWindowDimensions} from '@/hooks';
+import {Box, Button, type ButtonProps, Chip, Divider, Typography, useTheme} from '@mui/material';
+import React from 'react';
+import {useNavigate} from 'react-router-dom';
+
 import {useAuthContext} from '@/components/Auth';
 import {UserAvatar} from '@/components/User';
-import {useNavigate} from 'react-router-dom';
+import {useScreenSize, useWindowDimensions} from '@/hooks';
+
+import {useDrawerStore} from './Drawer.store';
 
 export type TDrawerProfileProps = {};
 

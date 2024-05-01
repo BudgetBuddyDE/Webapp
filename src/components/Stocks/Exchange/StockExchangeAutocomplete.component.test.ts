@@ -1,6 +1,7 @@
-import {describe, it, expect} from 'vitest';
-import {type TStockExchangeAutocompleteOption, applyStockExchangeOptionsFilter} from '.';
 import {FilterOptionsState} from '@mui/material';
+import {describe, expect, it} from 'vitest';
+
+import {type TStockExchangeAutocompleteOption, applyStockExchangeOptionsFilter} from '.';
 
 describe('Validate if correct items are returned by filter', () => {
   const filterState: (keyword: string) => FilterOptionsState<TStockExchangeAutocompleteOption> = keyword => ({

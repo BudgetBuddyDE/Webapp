@@ -1,6 +1,7 @@
-import React from 'react';
 import {NewspaperRounded} from '@mui/icons-material';
 import {Box, Divider, Link, List, ListItem, ListItemButton, ListItemText} from '@mui/material';
+import React from 'react';
+
 import {Card, NoResults} from '@/components/Base';
 
 export type TStockNewsProps = {

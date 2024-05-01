@@ -1,6 +1,6 @@
-import React from 'react';
-import {Navigate, useNavigate, useParams} from 'react-router-dom';
-import Chart from 'react-apexcharts';
+import {type TTimeframe} from '@budgetbuddyde/types';
+import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
+import {ExpandMoreRounded, HelpOutlineRounded, TimelineRounded} from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
@@ -13,38 +13,39 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import {type TTimeframe} from '@budgetbuddyde/types';
-import {ExpandMoreRounded, HelpOutlineRounded, TimelineRounded} from '@mui/icons-material';
-import {Card, NoResults, TabPanel} from '@/components/Base';
-import {ContentGrid} from '@/components/Layout';
+import React from 'react';
+import Chart from 'react-apexcharts';
+import {Navigate, useNavigate, useParams} from 'react-router-dom';
+
+import {Feature} from '@/app.config';
+import {useAuthContext} from '@/components/Auth';
 import {withAuthLayout} from '@/components/Auth/Layout';
+import {Card, NoResults, TabPanel} from '@/components/Base';
+import {DeleteDialog} from '@/components/DeleteDialog.component';
+import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
+import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
+import {ContentGrid} from '@/components/Layout';
+import {CircularProgress} from '@/components/Loading';
+import {useSnackbarContext} from '@/components/Snackbar';
 import {
-  StockNews,
-  StockService,
   CompanyInformation,
   DividendList,
-  StockRating,
   PriceChart,
-  useFetchStockPositions,
-  useStockStore,
-  useFetchStockQuotes,
-  useFetchStockDetails,
   StockLayout,
+  StockNews,
+  StockRating,
+  StockService,
   type TPriceChartPoint,
+  useFetchStockDetails,
+  useFetchStockPositions,
+  useFetchStockQuotes,
+  useStockStore,
 } from '@/components/Stocks';
-import {getSocketIOClient} from '@/utils';
-import {useAuthContext} from '@/components/Auth';
-import {useSnackbarContext} from '@/components/Snackbar';
-import {DeleteDialog} from '@/components/DeleteDialog.component';
-import {CircularProgress} from '@/components/Loading';
-import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
-import {Formatter} from '@/services';
-import {RelatedStock, useFetchRelatedStocks} from '@/components/Stocks/RelatedStocks';
 import {StockPositionTable} from '@/components/Stocks/Position';
-import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
+import {RelatedStock, useFetchRelatedStocks} from '@/components/Stocks/RelatedStocks';
 import {StockPositionDrawer, type TStockPositionDrawerValues} from '@/components/Stocks/StockPositionDrawer.component';
-import {Feature} from '@/app.config';
-import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
+import {Formatter} from '@/services';
+import {getSocketIOClient} from '@/utils';
 
 const NoStockMessage = () => (
   <Card>

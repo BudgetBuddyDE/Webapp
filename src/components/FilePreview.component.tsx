@@ -1,6 +1,6 @@
-import React from 'react';
-import {Avatar, Box, type AvatarProps, IconButton} from '@mui/material';
 import {DeleteRounded} from '@mui/icons-material';
+import {Avatar, type AvatarProps, Box, IconButton} from '@mui/material';
+import React from 'react';
 
 export type TFilePreview = {
   fileName: string;

@@ -1,8 +1,9 @@
-import React from 'react';
-import {Box, Chip, Divider, List, ListItem, ListItemText, Rating, Typography} from '@mui/material';
-import {StarRounded} from '@mui/icons-material';
-import {NoResults} from '@/components/Base';
 import {type TAssetDetails} from '@budgetbuddyde/types';
+import {StarRounded} from '@mui/icons-material';
+import {Box, Chip, Divider, List, ListItem, ListItemText, Rating, Typography} from '@mui/material';
+import React from 'react';
+
+import {NoResults} from '@/components/Base';
 
 export type TStockRatingProps = {
   ratings: TAssetDetails['details']['scorings'];

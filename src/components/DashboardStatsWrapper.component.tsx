@@ -1,15 +1,17 @@
+import {PocketBaseCollection, type TUser} from '@budgetbuddyde/types';
+import {AddRounded, BalanceRounded, RemoveRounded} from '@mui/icons-material';
 import {Grid} from '@mui/material';
+import {format} from 'date-fns';
 import React from 'react';
-import {StatsCard, type TStatsCardProps} from './StatsCard.component';
-import {AddRounded, RemoveRounded, BalanceRounded} from '@mui/icons-material';
-import {type IBaseStore, useTransactionStore} from '@/components/Transaction';
 import {create} from 'zustand';
+
 import {useAuthContext} from '@/components/Auth';
 import {useSubscriptionStore} from '@/components/Subscription';
-import {formatBalance} from '@/utils';
-import {type TUser, PocketBaseCollection} from '@budgetbuddyde/types';
+import {type IBaseStore, useTransactionStore} from '@/components/Transaction';
 import {pb} from '@/pocketbase.ts';
-import {format} from 'date-fns';
+import {formatBalance} from '@/utils';
+
+import {StatsCard, type TStatsCardProps} from './StatsCard.component';
 
 export type TDashboardStats = {
   earnings: number;

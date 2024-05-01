@@ -1,11 +1,12 @@
-import {useScreenSize} from '@/hooks';
-import {drawerWidth} from '@/style/theme/theme';
-import {Box, Drawer, Typography, type DrawerProps, Button, IconButton, Alert, CircularProgress} from '@mui/material';
-import React from 'react';
-import {ActionPaper} from '@/components/Base';
 import {CloseRounded, DoneRounded, ErrorRounded} from '@mui/icons-material';
+import {Alert, Box, Button, CircularProgress, Drawer, type DrawerProps, IconButton, Typography} from '@mui/material';
+import React from 'react';
+
+import {ActionPaper} from '@/components/Base';
 import {type TFormDrawerState} from '@/components/Drawer';
+import {useScreenSize} from '@/hooks';
 import {useKeyPress} from '@/hooks/useKeyPress.hook.ts';
+import {drawerWidth} from '@/style/theme/theme';
 
 /**
  * @deprecated

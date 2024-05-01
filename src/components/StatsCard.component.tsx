@@ -1,7 +1,8 @@
-import React from 'react';
-import {Skeleton, Typography, type SxProps, type Theme} from '@mui/material';
-import {Card} from './Base';
 import {QuestionMarkRounded} from '@mui/icons-material';
+import {Skeleton, type SxProps, type Theme, Typography} from '@mui/material';
+import React from 'react';
+
+import {Card} from './Base';
 
 export type TStatsCardProps = {
   label: string | number;

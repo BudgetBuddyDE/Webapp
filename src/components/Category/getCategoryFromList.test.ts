@@ -1,5 +1,6 @@
-import {describe, it, expect} from 'vitest';
 import {type TCategory} from '@budgetbuddyde/types';
+import {describe, expect, it} from 'vitest';
+
 import {getCategoryFromList} from './getCategoryFromList.util';
 
 // Sample categories for testing

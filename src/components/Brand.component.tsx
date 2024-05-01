@@ -1,7 +1,8 @@
-import React from 'react';
 import {SavingsRounded as SavingsIcon} from '@mui/icons-material';
-import {Box, Typography, type BoxProps, type IconProps, type TypographyProps} from '@mui/material';
+import {Box, type BoxProps, type IconProps, Typography, type TypographyProps} from '@mui/material';
+import React from 'react';
 import {Link} from 'react-router-dom';
+
 import {AppConfig} from '@/app.config';
 
 export type TBrandProps = {

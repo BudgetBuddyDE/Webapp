@@ -1,6 +1,7 @@
+import {type TSubscription, type TTransaction} from '@budgetbuddyde/types';
 import {isSameDay} from 'date-fns';
+
 import {type TFilters} from '@/components/Filter';
-import {type TTransaction, type TSubscription} from '@budgetbuddyde/types';
 
 /**
  * Filters an array of transactions or subscriptions based on a keyword.

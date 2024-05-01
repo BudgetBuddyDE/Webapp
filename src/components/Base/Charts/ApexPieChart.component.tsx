@@ -1,7 +1,9 @@
+import {alpha, hexToRgb, useTheme} from '@mui/material';
 import React from 'react';
-import {useTheme, alpha, hexToRgb} from '@mui/material';
 import Chart, {type Props} from 'react-apexcharts';
+
 import {Formatter} from '@/services';
+
 import {type TPieChartData} from './index';
 
 export type TApexPieChartProps = Omit<Props, 'series'> & {

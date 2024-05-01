@@ -1,17 +1,19 @@
-import React from 'react';
+import {type TAssetSearchResult} from '@budgetbuddyde/types';
 import {
   Autocomplete,
+  type AutocompleteChangeReason,
   Grid,
   TextField,
-  Typography,
-  type AutocompleteChangeReason,
   type TextFieldProps,
+  Typography,
 } from '@mui/material';
-import {useSnackbarContext} from '@/components/Snackbar';
-import {type TAssetSearchResult} from '@budgetbuddyde/types';
-import {StockService} from './Stock.service';
-import {StyledAutocompleteOption, Image} from '@/components/Base';
 import {debounce} from 'lodash';
+import React from 'react';
+
+import {Image, StyledAutocompleteOption} from '@/components/Base';
+import {useSnackbarContext} from '@/components/Snackbar';
+
+import {StockService} from './Stock.service';
 
 export type TStockAutocompleteOption = {
   /**

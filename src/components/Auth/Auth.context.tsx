@@ -1,6 +1,7 @@
-import React from 'react';
-import {pb} from '@/pocketbase.ts';
 import {type TUser, ZUser} from '@budgetbuddyde/types';
+import React from 'react';
+
+import {pb} from '@/pocketbase.ts';
 
 export interface IAuthContext {
   loading: boolean;

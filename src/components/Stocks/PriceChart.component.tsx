@@ -1,11 +1,13 @@
-import React from 'react';
 import {type TTimeframe} from '@budgetbuddyde/types';
-import Chart from 'react-apexcharts';
 import {Box, useTheme} from '@mui/material';
+import React from 'react';
+import Chart from 'react-apexcharts';
+
 import {Card} from '@/components/Base';
-import {Timeframe} from './Timeframe.component';
 import {useScreenSize} from '@/hooks';
 import {Formatter} from '@/services';
+
+import {Timeframe} from './Timeframe.component';
 
 export type TPriceChartPoint = {
   date: Date | string;

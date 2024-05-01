@@ -1,6 +1,4 @@
-import React from 'react';
-import {DEFAULT_FILTERS, useFilterStore} from './Filter.store';
-import {FormDrawer} from '@/components/Drawer';
+import {type TCategory, type TPaymentMethod} from '@budgetbuddyde/types';
 import {
   Box,
   Button,
@@ -13,10 +11,15 @@ import {
   Select,
   type SelectChangeEvent,
 } from '@mui/material';
+import React from 'react';
+
 import {DateRange, type TDateRangeProps} from '@/components/Base';
 import {CreateCategoryAlert, useFetchCategories} from '@/components/Category';
+import {FormDrawer} from '@/components/Drawer';
 import {CreatePaymentMethodAlert, useFetchPaymentMethods} from '@/components/PaymentMethod';
-import {type TCategory, type TPaymentMethod} from '@budgetbuddyde/types';
+
+import {DEFAULT_FILTERS, useFilterStore} from './Filter.store';
+
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {

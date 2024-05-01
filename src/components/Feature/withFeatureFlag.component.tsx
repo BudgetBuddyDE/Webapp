@@ -1,7 +1,9 @@
 import React from 'react';
-import {Feature, AppConfig} from '@/app.config';
+
+import {AppConfig, Feature} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {AuthLayout, UnauthentificatedLayout} from '@/components/Auth/Layout';
+
 import {FeatureNotEnabled} from './FeatureNotEnabled.component';
 
 export function withFeatureFlag<P extends object>(

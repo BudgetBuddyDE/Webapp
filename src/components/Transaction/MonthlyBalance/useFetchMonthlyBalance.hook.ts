@@ -1,9 +1,11 @@
+import {PocketBaseCollection, ZMonthlyBalance} from '@budgetbuddyde/types';
 import React from 'react';
-import {useAuthContext} from '@/components/Auth';
-import {useMonthlyBalanceStore} from './MonthlyBalance.store';
-import {pb} from '@/pocketbase';
 import {z} from 'zod';
-import {ZMonthlyBalance, PocketBaseCollection} from '@budgetbuddyde/types';
+
+import {useAuthContext} from '@/components/Auth';
+import {pb} from '@/pocketbase';
+
+import {useMonthlyBalanceStore} from './MonthlyBalance.store';
 
 let mounted = false;
 

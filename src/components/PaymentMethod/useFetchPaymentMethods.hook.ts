@@ -1,7 +1,8 @@
 import React from 'react';
+
 import {useAuthContext} from '../Auth';
-import {usePaymentMethodStore} from './PaymentMethod.store';
 import {PaymentMethodService} from './PaymentMethod.service';
+import {usePaymentMethodStore} from './PaymentMethod.store';
 
 let mounted = false;
 

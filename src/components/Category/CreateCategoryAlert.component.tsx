@@ -1,5 +1,5 @@
-import React from 'react';
 import {Alert, type AlertProps, AlertTitle, type AlertTitleProps} from '@mui/material';
+import React from 'react';
 
 export type CreateCategoryAlertProps = AlertProps & {
   alerTitle?: AlertTitleProps;

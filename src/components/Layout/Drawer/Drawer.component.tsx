@@ -1,11 +1,12 @@
-import React from 'react';
 import {Divider, List, Drawer as MuiDrawer} from '@mui/material';
+import React from 'react';
+
 import {useDrawerStore} from './Drawer.store';
-import {StyledDrawer} from './StyledDrawer.component';
 import {DrawerHeader} from './DrawerHeader.component';
-import {DrawerLinks} from './DrawerLinks';
 import {DrawerItem} from './DrawerItem.component';
+import {DrawerLinks} from './DrawerLinks';
 import {DrawerProfile} from './DrawerProfile.component';
+import {StyledDrawer} from './StyledDrawer.component';
 
 /**
  * We're inverting the showDrawer-value on mobile devices because it should be hidden by default on mobile devices for better UX

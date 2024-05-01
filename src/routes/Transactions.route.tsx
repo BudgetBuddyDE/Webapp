@@ -1,33 +1,34 @@
+import {type TTransaction} from '@budgetbuddyde/types';
+import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
+import {Avatar, AvatarGroup, Checkbox, Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
+import {format} from 'date-fns';
 import React from 'react';
-import {ActionPaper, Linkify} from '@/components/Base';
-import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
+
+import {AppConfig} from '@/app.config';
+import {useAuthContext} from '@/components/Auth';
 import {withAuthLayout} from '@/components/Auth/Layout';
+import {ActionPaper, Linkify} from '@/components/Base';
+import {SearchInput} from '@/components/Base/Search';
+import {type ISelectionHandler} from '@/components/Base/Select';
+import {Table} from '@/components/Base/Table';
+import {CategoryChip} from '@/components/Category';
+import {DeleteDialog} from '@/components/DeleteDialog.component';
+import {DownloadButton} from '@/components/Download';
+import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
+import {ToggleFilterDrawerButton, useFilterStore} from '@/components/Filter';
+import {ImageViewDialog} from '@/components/ImageViewDialog.component';
+import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
+import {PaymentMethodChip} from '@/components/PaymentMethod';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {
-  useFetchTransactions,
-  TransactionDrawer,
   type TTransactionDrawerValues,
+  TransactionDrawer,
   TransactionService,
+  useFetchTransactions,
 } from '@/components/Transaction';
-import {Avatar, AvatarGroup, Checkbox, Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
-import {DeleteDialog} from '@/components/DeleteDialog.component';
-import {SearchInput} from '@/components/Base/Search';
-import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
-import {Table} from '@/components/Base/Table';
-import {AppConfig} from '@/app.config';
-import {format} from 'date-fns';
-import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
-import {ToggleFilterDrawerButton, useFilterStore} from '@/components/Filter';
-import {filterTransactions} from '@/utils/filter.util';
-import {CategoryChip} from '@/components/Category';
-import {PaymentMethodChip} from '@/components/PaymentMethod';
-import {type ISelectionHandler} from '@/components/Base/Select';
-import {type TTransaction} from '@budgetbuddyde/types';
 import {pb} from '@/pocketbase';
-import {DownloadButton} from '@/components/Download';
-import {useAuthContext} from '@/components/Auth';
-import {ImageViewDialog} from '@/components/ImageViewDialog.component';
-import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
+import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
+import {filterTransactions} from '@/utils/filter.util';
 
 interface ITransactionsHandler {
   showCreateDialog: () => void;

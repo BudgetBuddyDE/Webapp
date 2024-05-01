@@ -1,8 +1,9 @@
-import React from 'react';
+import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
 import {Box} from '@mui/material';
 import {ParentSize} from '@visx/responsive';
-import {Card, NoResults, type TPieChartData, ApexPieChart} from '@/components/Base';
-import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
+import React from 'react';
+
+import {ApexPieChart, Card, NoResults, type TPieChartData} from '@/components/Base';
 
 export type TPortfolioDiversityChartProps = {
   positions: TStockPositionWithQuote[];

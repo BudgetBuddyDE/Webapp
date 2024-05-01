@@ -1,13 +1,14 @@
-import {pb} from '@/pocketbase';
 import {
   PocketBaseCollection,
-  ZSubscription,
   type TCreateSubscriptionPayload,
-  type TUpdateSubscriptionPayload,
   type TSubscription,
+  type TUpdateSubscriptionPayload,
+  ZSubscription,
 } from '@budgetbuddyde/types';
 import {type RecordModel} from 'pocketbase';
 import {z} from 'zod';
+
+import {pb} from '@/pocketbase';
 
 export class SubscriptionService {
   /**

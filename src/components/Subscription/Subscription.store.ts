@@ -1,6 +1,8 @@
-import {create} from 'zustand';
-import {type IBaseStore} from '@/components/Transaction';
 import {type TSubscription, type TUser} from '@budgetbuddyde/types';
+import {create} from 'zustand';
+
+import {type IBaseStore} from '@/components/Transaction';
+
 import {SubscriptionService} from './Subscription.service';
 
 export interface ISubscriptionStore<T> extends IBaseStore<T[]> {

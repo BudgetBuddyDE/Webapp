@@ -1,6 +1,6 @@
-import React from 'react';
+import {type TTimeframe, ZTimeframe} from '@budgetbuddyde/types';
 import {ToggleButton, ToggleButtonGroup} from '@mui/material';
-import {ZTimeframe, type TTimeframe} from '@budgetbuddyde/types';
+import React from 'react';
 import {useSearchParams} from 'react-router-dom';
 
 export type TTimeframeProps = {

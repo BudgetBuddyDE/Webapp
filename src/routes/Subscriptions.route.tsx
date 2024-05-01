@@ -1,33 +1,34 @@
-import React from 'react';
-import {ActionPaper, Linkify} from '@/components/Base';
-import {SearchInput} from '@/components/Base/Search';
-import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
-import {withAuthLayout} from '@/components/Auth/Layout';
-import {
-  SubscriptionActionMenu,
-  useFetchSubscriptions,
-  SubscriptionDrawer,
-  type TSusbcriptionDrawerValues,
-} from '@/components/Subscription';
+import {PocketBaseCollection, type TSubscription} from '@budgetbuddyde/types';
 import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
 import {Box, Checkbox, Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
-import {useSnackbarContext} from '@/components/Snackbar';
-import {Table} from '@/components/Base/Table';
+import {format} from 'date-fns';
+import React from 'react';
+
 import {AppConfig} from '@/app.config';
-import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
+import {withAuthLayout} from '@/components/Auth/Layout';
+import {ActionPaper, Linkify} from '@/components/Base';
+import {SearchInput} from '@/components/Base/Search';
+import {type ISelectionHandler} from '@/components/Base/Select';
+import {Table} from '@/components/Base/Table';
+import {CategoryChip} from '@/components/Category';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
+import {DownloadButton} from '@/components/Download';
+import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
+import {ToggleFilterDrawerButton, useFilterStore} from '@/components/Filter';
+import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
+import {PaymentMethodChip} from '@/components/PaymentMethod';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {
+  SubscriptionActionMenu,
+  SubscriptionDrawer,
+  type TSusbcriptionDrawerValues,
+  useFetchSubscriptions,
+} from '@/components/Subscription';
+import {type TTransactionDrawerValues, TransactionDrawer} from '@/components/Transaction';
+import {pb} from '@/pocketbase';
+import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
 import {determineNextExecution, determineNextExecutionDate} from '@/utils';
 import {filterSubscriptions} from '@/utils/filter.util';
-import {ToggleFilterDrawerButton, useFilterStore} from '@/components/Filter';
-import {CategoryChip} from '@/components/Category';
-import {PaymentMethodChip} from '@/components/PaymentMethod';
-import {type ISelectionHandler} from '@/components/Base/Select';
-import {PocketBaseCollection, type TSubscription} from '@budgetbuddyde/types';
-import {pb} from '@/pocketbase';
-import {DownloadButton} from '@/components/Download';
-import {format} from 'date-fns';
-import {type TTransactionDrawerValues, TransactionDrawer} from '@/components/Transaction';
-import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 
 interface ISubscriptionsHandler {
   showCreateTransactionDialog: (subscription: TSubscription) => void;

@@ -1,5 +1,6 @@
+import {type TCategory, type TPaymentMethod, type TTransaction, type TUser} from '@budgetbuddyde/types';
 import {create} from 'zustand';
-import {type TTransaction, type TUser, type TPaymentMethod, type TCategory} from '@budgetbuddyde/types';
+
 import {TransactionService} from './Transaction.service';
 
 export interface IBaseStore<T> {

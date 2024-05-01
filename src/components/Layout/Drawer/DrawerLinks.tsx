@@ -1,10 +1,11 @@
-import {DashboardViewIconMapping} from '@/routes/Dashboard';
 import {
   CompareArrowsRounded as CompareArrowsIcon,
   LabelRounded as LabelIcon,
   PaymentsRounded as PaymentsIcon,
   ScheduleSendRounded as ScheduleSendIcon,
 } from '@mui/icons-material';
+
+import {DashboardViewIconMapping} from '@/routes/Dashboard';
 
 export const DrawerLinks = [
   {

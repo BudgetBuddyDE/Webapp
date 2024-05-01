@@ -1,11 +1,13 @@
-import React from 'react';
-import {useNavigate} from 'react-router';
+import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
 import {AddRounded, ArrowForwardRounded, FormatListBulletedRounded} from '@mui/icons-material';
 import {Box, Button, Chip, IconButton, Link} from '@mui/material';
+import React from 'react';
+import {useNavigate} from 'react-router';
+
 import {Card, ListWithIcon, NoResults} from '@/components/Base';
-import {StockPrice} from './index';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
+
+import {StockPrice} from './index';
 
 export type TStockListProps = {
   title: string;

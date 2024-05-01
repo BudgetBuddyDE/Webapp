@@ -1,5 +1,6 @@
+import {Box, Paper, type PaperProps, Typography} from '@mui/material';
 import React from 'react';
-import {Box, Paper, Typography, type PaperProps} from '@mui/material';
+
 import {ActionPaper} from './ActionPaper.component';
 
 export type TCardProps = React.PropsWithChildren<PaperProps>;

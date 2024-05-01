@@ -1,7 +1,8 @@
+import {ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip, alpha, useTheme} from '@mui/material';
 import React from 'react';
-import {useTheme, ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip, alpha} from '@mui/material';
-import {useDrawerStore} from './Drawer.store';
 import {useLocation, useNavigate} from 'react-router-dom';
+
+import {useDrawerStore} from './Drawer.store';
 
 export type TDrawerItemProps = {
   open: boolean;

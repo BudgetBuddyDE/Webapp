@@ -1,16 +1,17 @@
-import React from 'react';
-import {ExitToAppRounded, SendRounded} from '@mui/icons-material';
-import {SocialSignInBtn, useAuthContext} from '@/components/Auth';
-import {useSnackbarContext} from '@/components/Snackbar';
-import {Box, Button, Checkbox, Divider, FormControlLabel, Grid, Link, TextField, Typography} from '@mui/material';
-import {Card, PasswordInput} from '@/components/Base';
-import {AppLogo} from '@/components/AppLogo.component';
-import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
-import {useNavigate, Link as RouterLink} from 'react-router-dom';
-import {AppConfig} from '@/app.config';
-import {pb} from '@/pocketbase.ts';
-import {type RecordAuthResponse, type RecordModel} from 'pocketbase';
 import {PocketBaseCollection} from '@budgetbuddyde/types';
+import {ExitToAppRounded, SendRounded} from '@mui/icons-material';
+import {Box, Button, Checkbox, Divider, FormControlLabel, Grid, Link, TextField, Typography} from '@mui/material';
+import {type RecordAuthResponse, type RecordModel} from 'pocketbase';
+import React from 'react';
+import {Link as RouterLink, useNavigate} from 'react-router-dom';
+
+import {AppConfig} from '@/app.config';
+import {AppLogo} from '@/components/AppLogo.component';
+import {SocialSignInBtn, useAuthContext} from '@/components/Auth';
+import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
+import {Card, PasswordInput} from '@/components/Base';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {pb} from '@/pocketbase.ts';
 
 const SignUp = () => {
   const navigate = useNavigate();

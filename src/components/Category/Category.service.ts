@@ -1,16 +1,18 @@
-import {subDays} from 'date-fns';
 import {
   PocketBaseCollection,
-  ZCategory,
-  type TCreateCategoryPayload,
-  type TUpdateCategoryPayload,
   type TCategory,
+  type TCreateCategoryPayload,
   type TTransaction,
+  type TUpdateCategoryPayload,
+  ZCategory,
 } from '@budgetbuddyde/types';
-import {type TCategoryAutocompleteOption} from './Autocomplete';
-import {pb} from '@/pocketbase';
-import {z} from 'zod';
+import {subDays} from 'date-fns';
 import {type RecordModel} from 'pocketbase';
+import {z} from 'zod';
+
+import {pb} from '@/pocketbase';
+
+import {type TCategoryAutocompleteOption} from './Autocomplete';
 
 export class CategoryService {
   /**

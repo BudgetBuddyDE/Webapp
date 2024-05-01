@@ -1,6 +1,7 @@
-import {describe, it, expect} from 'vitest';
 import {type TTransaction} from '@budgetbuddyde/types';
 import {subDays} from 'date-fns';
+import {describe, expect, it} from 'vitest';
+
 import {TransactionService} from '@/components/Transaction';
 
 describe('getUniqueReceivers', () => {

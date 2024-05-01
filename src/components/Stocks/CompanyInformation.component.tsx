@@ -1,19 +1,21 @@
-import React from 'react';
-import {Divider, List, ListItem, ListItemIcon, ListItemText, Typography} from '@mui/material';
-import {
-  BusinessRounded,
-  PublicRounded,
-  BookmarkRounded,
-  TodayRounded,
-  PeopleRounded,
-  AttachMoneyRounded,
-  PieChartRounded,
-  SportsMartialArtsRounded,
-} from '@mui/icons-material';
-import {format} from 'date-fns';
 import {type TAssetDetails} from '@budgetbuddyde/types';
-import {Card} from '../Base';
+import {
+  AttachMoneyRounded,
+  BookmarkRounded,
+  BusinessRounded,
+  PeopleRounded,
+  PieChartRounded,
+  PublicRounded,
+  SportsMartialArtsRounded,
+  TodayRounded,
+} from '@mui/icons-material';
+import {Divider, List, ListItem, ListItemIcon, ListItemText, Typography} from '@mui/material';
+import {format} from 'date-fns';
+import React from 'react';
+
 import {formatBalance} from '@/utils';
+
+import {Card} from '../Base';
 
 export type TCompanyInformationProps = {
   details: TAssetDetails;

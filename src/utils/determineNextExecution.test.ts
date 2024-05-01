@@ -1,6 +1,8 @@
-import {describe, it, expect} from 'vitest';
 import {addMonths} from 'date-fns';
+import {describe, expect, it} from 'vitest';
+
 import {DateService} from '@/services';
+
 import {determineNextExecution} from './determineNextExecution.util';
 
 describe('determineNextExecution', () => {

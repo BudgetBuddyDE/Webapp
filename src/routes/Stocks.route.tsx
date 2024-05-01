@@ -1,27 +1,28 @@
-import React from 'react';
-import {ContentGrid} from '@/components/Layout';
-import {withAuthLayout} from '@/components/Auth/Layout';
+import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
 import {Button, Grid} from '@mui/material';
+import React from 'react';
+import {useNavigate} from 'react-router-dom';
+
+import {Feature} from '@/app.config';
+import {useAuthContext} from '@/components/Auth';
+import {withAuthLayout} from '@/components/Auth/Layout';
+import {DeleteDialog} from '@/components/DeleteDialog.component';
+import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
+import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
+import {ContentGrid} from '@/components/Layout';
+import {CircularProgress} from '@/components/Loading';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {
   PortfolioDiversityChart,
-  useFetchStockPositions,
-  StockService,
-  useStockStore,
-  StockList,
   StockLayout,
+  StockList,
+  StockService,
+  useFetchStockPositions,
+  useStockStore,
 } from '@/components/Stocks';
-import {getSocketIOClient} from '@/utils';
-import {CircularProgress} from '@/components/Loading';
-import {DeleteDialog} from '@/components/DeleteDialog.component';
-import {useAuthContext} from '@/components/Auth';
-import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
 import {StockPositionTable} from '@/components/Stocks/Position';
-import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {StockPositionDrawer, type TStockPositionDrawerValues} from '@/components/Stocks/StockPositionDrawer.component';
-import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
-import {Feature} from '@/app.config';
-import {useNavigate} from 'react-router-dom';
+import {getSocketIOClient} from '@/utils';
 
 interface IStocksHandler {
   showCreateDialog: (payload?: Partial<TStockPositionDrawerValues>) => void;

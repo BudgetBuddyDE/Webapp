@@ -1,4 +1,5 @@
 import {io} from 'socket.io-client';
+
 import {pb} from '@/pocketbase.ts';
 
 export function getSocketIOClient() {

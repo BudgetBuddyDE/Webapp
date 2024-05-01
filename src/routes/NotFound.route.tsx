@@ -1,9 +1,10 @@
-import {ActionPaper} from '@/components/Base';
-import {StackedIconButton} from '@/components/StackedIconButton.component';
+import {ExitToAppRounded, HomeRounded} from '@mui/icons-material';
+import {Grid, Link, Typography} from '@mui/material';
+
 import {useAuthContext} from '@/components/Auth';
 import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
-import {ExitToAppRounded, HomeRounded} from '@mui/icons-material';
-import {Grid, Typography, Link} from '@mui/material';
+import {ActionPaper} from '@/components/Base';
+import {StackedIconButton} from '@/components/StackedIconButton.component';
 
 const PageNotFound = () => {
   const {sessionUser} = useAuthContext();

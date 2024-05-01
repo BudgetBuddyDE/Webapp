@@ -1,17 +1,18 @@
+import {PocketBaseCollection} from '@budgetbuddyde/types';
+import {AppRegistrationRounded, ExitToAppRounded, SendRounded} from '@mui/icons-material';
+import {Box, Button, Divider, Grid, Link, TextField, Typography} from '@mui/material';
+import {type RecordAuthResponse, type RecordModel} from 'pocketbase';
 import React from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
-import {AppRegistrationRounded, ExitToAppRounded, SendRounded} from '@mui/icons-material';
 import {Link as RouterLink} from 'react-router-dom';
-import {Box, Button, Divider, Link, Grid, TextField, Typography} from '@mui/material';
-import {SocialSignInBtn, useAuthContext} from '@/components/Auth';
-import {useSnackbarContext} from '@/components/Snackbar';
-import {Card, PasswordInput} from '@/components/Base';
-import {AppLogo} from '@/components/AppLogo.component';
+
 import {AppConfig} from '@/app.config.ts';
+import {AppLogo} from '@/components/AppLogo.component';
+import {SocialSignInBtn, useAuthContext} from '@/components/Auth';
 import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
+import {Card, PasswordInput} from '@/components/Base';
+import {useSnackbarContext} from '@/components/Snackbar';
 import {pb} from '@/pocketbase.ts';
-import {type RecordAuthResponse, type RecordModel} from 'pocketbase';
-import {PocketBaseCollection} from '@budgetbuddyde/types';
 
 const SignIn = () => {
   const location = useLocation();

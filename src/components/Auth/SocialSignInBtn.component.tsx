@@ -1,11 +1,12 @@
-import React from 'react';
-import {Google, GitHub} from '@mui/icons-material';
+import {PocketBaseCollection} from '@budgetbuddyde/types';
+import {GitHub, Google} from '@mui/icons-material';
 import {Button, type ButtonProps} from '@mui/material';
 import {RecordAuthResponse, RecordModel} from 'pocketbase';
-import {pb} from '@/pocketbase.ts';
-import {type TAppConfig, AppConfig} from '@/app.config.ts';
-import {PocketBaseCollection} from '@budgetbuddyde/types';
+import React from 'react';
+
+import {AppConfig, type TAppConfig} from '@/app.config.ts';
 import {useSnackbarContext} from '@/components/Snackbar';
+import {pb} from '@/pocketbase.ts';
 
 const IconMapping: Record<keyof TAppConfig['authProvider'], React.ReactNode> = {
   github: <GitHub />,

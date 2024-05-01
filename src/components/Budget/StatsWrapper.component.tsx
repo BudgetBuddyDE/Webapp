@@ -1,10 +1,12 @@
-import React from 'react';
-import {Grid, type GridProps} from '@mui/material';
-import {StatsCard, type TStatsCardProps} from '@/components/StatsCard.component';
-import {formatBalance} from '@/utils';
-import {useFetchBudget} from './useFetchBudget.hook';
-import {SubscriptionService, useFetchSubscriptions} from '@/components/Subscription';
 import {AddRounded, BalanceRounded, RemoveRounded} from '@mui/icons-material';
+import {Grid, type GridProps} from '@mui/material';
+import React from 'react';
+
+import {StatsCard, type TStatsCardProps} from '@/components/StatsCard.component';
+import {SubscriptionService, useFetchSubscriptions} from '@/components/Subscription';
+import {formatBalance} from '@/utils';
+
+import {useFetchBudget} from './useFetchBudget.hook';
 
 export type TStatsWrapperProps = {
   containerProps?: GridProps;

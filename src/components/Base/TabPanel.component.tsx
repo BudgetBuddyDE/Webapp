@@ -1,5 +1,5 @@
-import React from 'react';
 import {Box, type BoxProps} from '@mui/material';
+import React from 'react';
 
 export type TTabPanelProps = React.PropsWithChildren<
   {

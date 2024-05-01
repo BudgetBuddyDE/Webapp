@@ -1,12 +1,13 @@
-import React from 'react';
-import {isSameMonth} from 'date-fns';
 import {Box, ToggleButton, ToggleButtonGroup} from '@mui/material';
 import {ParentSize} from '@visx/responsive';
+import {isSameMonth} from 'date-fns';
+import React from 'react';
+
 import {Card, NoResults, type TPieChartData} from '@/components/Base';
+import {ApexPieChart} from '@/components/Base/Charts/ApexPieChart.component';
+import {SPENDING_CHART_TYPES, type TChartType} from '@/components/Category';
 import {CircularProgress} from '@/components/Loading';
 import {useFetchTransactions} from '@/components/Transaction';
-import {SPENDING_CHART_TYPES, type TChartType} from '@/components/Category';
-import {ApexPieChart} from '@/components/Base/Charts/ApexPieChart.component';
 
 export type TCategoryIncomeChartProps = {};
 

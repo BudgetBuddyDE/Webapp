@@ -1,7 +1,9 @@
 import React from 'react';
+
 import {useAuthContext} from '@/components/Auth';
-import {useCategoryStore} from './Category.store';
+
 import {CategoryService} from './Category.service';
+import {useCategoryStore} from './Category.store';
 
 let mounted = false;
 

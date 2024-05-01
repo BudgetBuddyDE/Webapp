@@ -1,7 +1,9 @@
-import React from 'react';
 import {MenuRounded as MenuIcon, MenuOpenRounded as MenuOpenIcon} from '@mui/icons-material';
 import {IconButton, type IconButtonProps} from '@mui/material';
+import React from 'react';
+
 import {useScreenSize} from '@/hooks';
+
 import {useDrawerStore} from './Drawer.store';
 
 export type TDrawerHeaderProps = IconButtonProps;

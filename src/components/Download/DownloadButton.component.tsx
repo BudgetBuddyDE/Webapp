@@ -1,5 +1,6 @@
+import {Button, type ButtonProps, Tooltip} from '@mui/material';
 import React from 'react';
-import {Button, Tooltip, type ButtonProps} from '@mui/material';
+
 import {useSnackbarContext} from '@/components/Snackbar';
 
 export type TDownloadButtonProps = ButtonProps & {

@@ -1,7 +1,8 @@
-import {AppConfig} from '@/app.config';
-import {Card, StyledLink} from '@/components/Base';
 import {AlternateEmailRounded, AppSettingsAltRounded, CodeRounded, LanguageRounded} from '@mui/icons-material';
 import {Box, Stack, Typography} from '@mui/material';
+
+import {AppConfig} from '@/app.config';
+import {Card, StyledLink} from '@/components/Base';
 
 export const AppInformation = () => {
   return (

@@ -1,5 +1,5 @@
-import React from 'react';
 import {Box, type BoxProps, alpha, styled} from '@mui/material';
+import React from 'react';
 
 export type TColorKeys = 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success';
 

@@ -1,4 +1,5 @@
-import {describe, it, expect} from 'vitest';
+import {describe, expect, it} from 'vitest';
+
 import {type TReceiverAutocompleteOption, applyReceiverOptionsFilter} from './ReceiverAutocomplete.component';
 
 describe('Validate if correct items are returned by filter', () => {

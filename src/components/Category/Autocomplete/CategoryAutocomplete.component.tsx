@@ -1,16 +1,17 @@
-import React from 'react';
 import {type TCategory} from '@budgetbuddyde/types';
 import {
-  createFilterOptions,
   Autocomplete,
-  TextField,
-  type FilterOptionsState,
   type AutocompleteChangeReason,
+  type FilterOptionsState,
+  TextField,
   type TextFieldProps,
+  createFilterOptions,
 } from '@mui/material';
+import React from 'react';
+
+import {StyledAutocompleteOption} from '@/components/Base';
 import {CategoryService, useFetchCategories} from '@/components/Category';
 import {useFetchTransactions} from '@/components/Transaction';
-import {StyledAutocompleteOption} from '@/components/Base';
 
 export type TCategoryAutocompleteOption = {
   label: TCategory['name'];

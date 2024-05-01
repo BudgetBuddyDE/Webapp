@@ -1,5 +1,6 @@
-import React from 'react';
 import {type SxProps, type Theme} from '@mui/material';
+import React from 'react';
+
 import {Image} from './Base';
 
 export type TAppLogoProps = React.DetailedHTMLProps<React.ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement> & {

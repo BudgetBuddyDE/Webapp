@@ -1,13 +1,15 @@
-import {Card} from '@/components/Base';
-import {Box, Paper, Skeleton, Typography, useTheme} from '@mui/material';
-import React from 'react';
-import {useFetchMonthlyBalance} from './useFetchMonthlyBalance.hook';
 import {type TMonthlyBalance} from '@budgetbuddyde/types';
+import {Box, Paper, Skeleton, Typography, useTheme} from '@mui/material';
 import {format, isSameYear} from 'date-fns';
-import {formatBalance} from '@/utils';
-import {Formatter} from '@/services';
+import React from 'react';
 import ApexChart from 'react-apexcharts';
+
+import {Card} from '@/components/Base';
 import {useScreenSize} from '@/hooks';
+import {Formatter} from '@/services';
+import {formatBalance} from '@/utils';
+
+import {useFetchMonthlyBalance} from './useFetchMonthlyBalance.hook';
 
 export type TMonthlyBalanceChartCardProps = {};
 

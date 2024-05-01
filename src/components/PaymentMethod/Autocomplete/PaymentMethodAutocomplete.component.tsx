@@ -1,16 +1,17 @@
-import React from 'react';
 import {type TPaymentMethod} from '@budgetbuddyde/types';
 import {
-  createFilterOptions,
   Autocomplete,
-  TextField,
-  type FilterOptionsState,
   type AutocompleteChangeReason,
+  type FilterOptionsState,
+  TextField,
   type TextFieldProps,
+  createFilterOptions,
 } from '@mui/material';
-import {useFetchTransactions} from '@/components/Transaction';
+import React from 'react';
+
 import {StyledAutocompleteOption} from '@/components/Base';
 import {PaymentMethodService, useFetchPaymentMethods} from '@/components/PaymentMethod';
+import {useFetchTransactions} from '@/components/Transaction';
 
 export type TPaymentMethodAutocompleteOption = {
   label: TPaymentMethod['name'];

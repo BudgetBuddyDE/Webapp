@@ -1,9 +1,10 @@
-import React from 'react';
-import {format} from 'date-fns';
-import {Box, Chip, IconButton, type ChipProps} from '@mui/material';
-import {AddRounded as AddIcon, ReceiptRounded as ReceiptIcon} from '@mui/icons-material';
-import {Card, ListWithIcon, NoResults} from '@/components/Base';
 import {type TSubscription} from '@budgetbuddyde/types';
+import {AddRounded as AddIcon, ReceiptRounded as ReceiptIcon} from '@mui/icons-material';
+import {Box, Chip, type ChipProps, IconButton} from '@mui/material';
+import {format} from 'date-fns';
+import React from 'react';
+
+import {Card, ListWithIcon, NoResults} from '@/components/Base';
 
 export type TSubscriptionList = {
   data: TSubscription[];

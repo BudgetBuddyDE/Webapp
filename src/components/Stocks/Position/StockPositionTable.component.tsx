@@ -1,16 +1,18 @@
+import {type TStockPositionWithQuote, type TTimeframe} from '@budgetbuddyde/types';
+import {AddRounded, ArrowForwardRounded} from '@mui/icons-material';
+import {Button, IconButton, Stack, TableCell, TableRow, Typography} from '@mui/material';
+import {format} from 'date-fns';
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
-import {format} from 'date-fns';
-import {type TStockPositionWithQuote, type TTimeframe} from '@budgetbuddyde/types';
-import {Button, IconButton, Stack, TableCell, TableRow, Typography} from '@mui/material';
-import {AddRounded, ArrowForwardRounded} from '@mui/icons-material';
+
 import {AppConfig} from '@/app.config';
-import {Table} from '@/components/Base/Table/Table.component';
-import {useFetchStockPositions} from '@/components/Stocks';
 import {ActionPaper, Image} from '@/components/Base';
-import {Formatter} from '@/services';
 import {SearchInput} from '@/components/Base/Search';
+import {Table} from '@/components/Base/Table/Table.component';
 import {DownloadButton} from '@/components/Download';
+import {useFetchStockPositions} from '@/components/Stocks';
+import {Formatter} from '@/services';
+
 import {StockPositionMenu} from './StockPositionMenu.component';
 
 export type TStockPositionTableProps = {

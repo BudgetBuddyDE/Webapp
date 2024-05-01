@@ -1,28 +1,29 @@
+import {type TPaymentMethod} from '@budgetbuddyde/types';
+import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
+import {Checkbox, Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
+import {format} from 'date-fns';
 import React from 'react';
-import {ActionPaper, Linkify} from '@/components/Base';
-import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
+
+import {AppConfig} from '@/app.config';
 import {withAuthLayout} from '@/components/Auth/Layout';
+import {ActionPaper, Linkify} from '@/components/Base';
+import {SearchInput} from '@/components/Base/Search';
+import {type ISelectionHandler} from '@/components/Base/Select';
+import {Table} from '@/components/Base/Table';
+import {DeleteDialog} from '@/components/DeleteDialog.component';
+import {DownloadButton} from '@/components/Download';
+import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
+import {ToggleFilterDrawerButton} from '@/components/Filter';
+import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
 import {
   PaymentMethodChip,
   PaymentMethodDrawer,
   PaymentMethodService,
   useFetchPaymentMethods,
 } from '@/components/PaymentMethod';
-import {useSnackbarContext} from '@/components/Snackbar';
-import {Checkbox, Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
-import {DeleteDialog} from '@/components/DeleteDialog.component';
-import {SearchInput} from '@/components/Base/Search';
-import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
-import {Table} from '@/components/Base/Table';
-import {AppConfig} from '@/app.config';
-import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
-import {type ISelectionHandler} from '@/components/Base/Select';
-import {ToggleFilterDrawerButton} from '@/components/Filter';
-import {type TPaymentMethod} from '@budgetbuddyde/types';
-import {DownloadButton} from '@/components/Download';
-import {format} from 'date-fns';
-import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {type TPaymentMethodDrawerValues} from '@/components/PaymentMethod';
+import {useSnackbarContext} from '@/components/Snackbar';
+import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
 
 interface IPaymentMethodsHandler {
   showCreateDialog: () => void;

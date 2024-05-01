@@ -1,8 +1,10 @@
-import {ActionPaper} from '@/components/Base';
-import {Button, Typography} from '@mui/material';
-import {Icon} from '../Icon.component';
 import {LockRounded, RefreshRounded} from '@mui/icons-material';
+import {Button, Typography} from '@mui/material';
+
+import {ActionPaper} from '@/components/Base';
 import {DashboardViewIconMapping} from '@/routes/Dashboard';
+
+import {Icon} from '../Icon.component';
 
 export const FeatureNotEnabled = () => {
   return (

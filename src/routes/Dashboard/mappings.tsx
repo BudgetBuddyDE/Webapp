@@ -1,4 +1,5 @@
 import {DashboardRounded, DonutSmallRounded, TrendingUpRounded} from '@mui/icons-material';
+
 import {type TDashboardView} from './index';
 
 export const DashboardViewMapping: Record<string, TDashboardView> = {

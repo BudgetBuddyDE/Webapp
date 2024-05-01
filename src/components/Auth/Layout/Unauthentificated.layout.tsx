@@ -1,7 +1,9 @@
-import React from 'react';
 import {Box} from '@mui/material';
-import {Main} from './Main.component';
+import React from 'react';
+
 import {Footer} from '@/components/Layout';
+
+import {Main} from './Main.component';
 
 export type TUnauthentificatedLayout = React.PropsWithChildren;
 

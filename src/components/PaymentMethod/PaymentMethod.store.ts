@@ -1,6 +1,7 @@
-import {create} from 'zustand';
-import {type IBaseStore} from '@/components/Transaction';
 import {type TPaymentMethod, type TUser} from '@budgetbuddyde/types';
+import {create} from 'zustand';
+
+import {type IBaseStore} from '@/components/Transaction';
 
 export interface IPaymentMethodStore<T> extends IBaseStore<T[]> {
   fetchedBy: NonNullable<TUser>['id'] | null;

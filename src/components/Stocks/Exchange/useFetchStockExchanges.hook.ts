@@ -1,9 +1,10 @@
+import {PocketBaseCollection, ZStockExchange} from '@budgetbuddyde/types';
 import React from 'react';
 import {z} from 'zod';
+
 import {useAuthContext} from '@/components/Auth';
-import {pb} from '@/pocketbase';
-import {PocketBaseCollection, ZStockExchange} from '@budgetbuddyde/types';
 import {useStockExchangeStore} from '@/components/Stocks/Exchange';
+import {pb} from '@/pocketbase';
 
 let mounted = false;
 

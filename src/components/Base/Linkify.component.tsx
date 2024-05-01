@@ -1,5 +1,6 @@
-import React from 'react';
 import {Typography} from '@mui/material';
+import React from 'react';
+
 import {StyledLink} from './Link.component';
 
 const URL_REGEX =

@@ -1,7 +1,9 @@
-import React from 'react';
-import {useAuthContext} from '@/components/Auth';
-import {StockService} from '../Stock.service';
 import {type TIsin} from '@budgetbuddyde/types';
+import React from 'react';
+
+import {useAuthContext} from '@/components/Auth';
+
+import {StockService} from '../Stock.service';
 import {useRelatedStocksStore} from './RelatedStocks.store';
 
 let mounted = false;

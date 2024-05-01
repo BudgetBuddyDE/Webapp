@@ -1,4 +1,3 @@
-import React from 'react';
 import {LogoutRounded as LogoutIcon, SettingsRounded as SettingsIcon} from '@mui/icons-material';
 import {
   Box,
@@ -13,12 +12,15 @@ import {
   Toolbar,
   Tooltip,
 } from '@mui/material';
-import {Brand} from '../Brand.component';
-import {UserAvatar} from '@/components/User';
-import {DrawerHamburger} from './Drawer/DrawerHamburger.component';
-import {useAuthContext} from '@/components/Auth';
+import React from 'react';
 import {useNavigate} from 'react-router-dom';
+
 import {AppConfig} from '@/app.config';
+import {useAuthContext} from '@/components/Auth';
+import {UserAvatar} from '@/components/User';
+
+import {Brand} from '../Brand.component';
+import {DrawerHamburger} from './Drawer/DrawerHamburger.component';
 
 export const AppBar = () => {
   const navigate = useNavigate();

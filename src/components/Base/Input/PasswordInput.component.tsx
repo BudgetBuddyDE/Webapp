@@ -2,12 +2,12 @@ import {VisibilityOffRounded, VisibilityRounded} from '@mui/icons-material';
 import {
   FormControl,
   type FormControlProps,
+  IconButton,
+  InputAdornment,
   InputLabel,
   type InputLabelProps,
   OutlinedInput,
   type OutlinedInputProps,
-  InputAdornment,
-  IconButton,
 } from '@mui/material';
 import React from 'react';
 

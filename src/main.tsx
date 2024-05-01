@@ -1,11 +1,13 @@
+import {CssBaseline, ThemeProvider} from '@mui/material';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App.tsx';
-import '@/style/global.css';
-import {CssBaseline, ThemeProvider} from '@mui/material';
-import {AppConfig} from './app.config.ts';
+
 import {AuthProvider} from '@/components/Auth';
 import {SnackbarProvider} from '@/components/Snackbar';
+import '@/style/global.css';
+
+import App from './App.tsx';
+import {AppConfig} from './app.config.ts';
 
 const Wrapper = () => (
   <ThemeProvider theme={AppConfig.theme}>

@@ -1,5 +1,6 @@
-import {describe, it, expect} from 'vitest';
 import {addMonths, isSameDay} from 'date-fns';
+import {describe, expect, it} from 'vitest';
+
 import {determineNextExecutionDate} from './determineNextExecutionDate.util';
 
 describe('determineNextExecutionDate', () => {

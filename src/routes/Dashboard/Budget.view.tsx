@@ -1,7 +1,8 @@
-import React from 'react';
-import {BudgetList, StatsWrapper} from '@/components/Budget';
-import {CategorySpendingsChart, CategoryIncomeChart} from '@/components/Category';
 import {Grid} from '@mui/material';
+import React from 'react';
+
+import {BudgetList, StatsWrapper} from '@/components/Budget';
+import {CategoryIncomeChart, CategorySpendingsChart} from '@/components/Category';
 import {MonthlyBalanceChartCard, MonthlyBalanceWidget} from '@/components/Transaction/MonthlyBalance';
 
 export const BudgetView = () => {

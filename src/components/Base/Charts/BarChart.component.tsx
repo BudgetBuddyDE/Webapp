@@ -1,10 +1,11 @@
-import {useState, useMemo} from 'react';
 import {alpha, useTheme} from '@mui/material';
-import {Bar} from '@visx/shape';
-import {scaleBand, scaleLinear} from '@visx/scale';
 import {AxisBottom} from '@visx/axis';
 import {Group} from '@visx/group';
+import {scaleBand, scaleLinear} from '@visx/scale';
+import {Bar} from '@visx/shape';
 import {format} from 'date-fns';
+import {useMemo, useState} from 'react';
+
 export type TBarChartData = {
   label: string;
   value: number;

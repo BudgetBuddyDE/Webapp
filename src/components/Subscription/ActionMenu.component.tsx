@@ -1,7 +1,7 @@
-import React from 'react';
+import {type TSubscription} from '@budgetbuddyde/types';
 import {CompareArrowsRounded, MoreVertRounded, PauseRounded, PlayArrowRounded} from '@mui/icons-material';
 import {IconButton, ListItemIcon, ListItemText, Menu, MenuItem} from '@mui/material';
-import {type TSubscription} from '@budgetbuddyde/types';
+import React from 'react';
 
 export type TSubscriptionActionMenuProps = {
   subscription: TSubscription;

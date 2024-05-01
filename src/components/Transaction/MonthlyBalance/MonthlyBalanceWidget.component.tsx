@@ -1,5 +1,7 @@
 import React from 'react';
+
 import {SparklineWidget, type TSparklineWidget} from '@/components/Base';
+
 import {useFetchMonthlyBalance} from './useFetchMonthlyBalance.hook';
 
 export type TMonthlyBalanceWidget = {

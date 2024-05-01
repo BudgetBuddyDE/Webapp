@@ -1,13 +1,14 @@
-import React from 'react';
-import {Group} from '@visx/group';
-import {BarGroup} from '@visx/shape';
-import {AxisBottom} from '@visx/axis';
-import {scaleBand, scaleLinear, scaleOrdinal} from '@visx/scale';
+import {type TMonthlyBalance} from '@budgetbuddyde/types';
 import {Tooltip, useTheme} from '@mui/material';
+import {AxisBottom} from '@visx/axis';
+import {Group} from '@visx/group';
+import {scaleBand, scaleLinear, scaleOrdinal} from '@visx/scale';
+import {BarGroup} from '@visx/shape';
 import {format, isSameYear} from 'date-fns';
+import React from 'react';
+
 import {DateService} from '@/services';
 import {formatBalance} from '@/utils';
-import {type TMonthlyBalance} from '@budgetbuddyde/types';
 
 export type TMontlyBalanceChartProps = {
   data: TMonthlyBalance[];

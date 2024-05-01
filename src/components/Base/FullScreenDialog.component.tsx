@@ -1,6 +1,7 @@
-import React from 'react';
-import {AppBar, Box, type BoxProps, Dialog, type DialogProps, IconButton, Toolbar, Typography} from '@mui/material';
 import {CloseRounded} from '@mui/icons-material';
+import {AppBar, Box, type BoxProps, Dialog, type DialogProps, IconButton, Toolbar, Typography} from '@mui/material';
+import React from 'react';
+
 import {Transition} from '@/components/DeleteDialog.component.tsx';
 
 export type TFullScreenDialogProps = DialogProps & {

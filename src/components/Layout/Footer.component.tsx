@@ -1,5 +1,6 @@
-import {AppConfig} from '@/app.config';
 import {Box, Link, Typography} from '@mui/material';
+
+import {AppConfig} from '@/app.config';
 
 export const Footer = () => {
   return (
