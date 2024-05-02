@@ -175,4 +175,22 @@ export class TransactionService {
     }
     return usage;
   }
+
+  /**
+   * Calculates the total upcoming income or expenses from a list of transactions.
+   * Only transactions that have a future processed date are considered.
+   *
+   * @param data - The type of data to calculate: 'INCOME' or 'EXPENSES'.
+   * @param transactions - The list of transactions to calculate the upcoming income or expenses from.
+   * @returns The total upcoming income or expenses.
+   */
+  static getUpcomingX(data: 'INCOME' | 'EXPENSES', transactions: TTransaction[]): number {
+    const today = new Date();
+    return transactions.reduce((acc, {transfer_amount, processed_at}) => {
+      if ((data === 'INCOME' && transfer_amount > 0) || (data === 'EXPENSES' && transfer_amount < 0)) {
+        return processed_at > today ? acc + transfer_amount : acc;
+      }
+      return acc;
+    }, 0);
+  }
 }

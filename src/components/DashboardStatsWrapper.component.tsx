@@ -6,10 +6,10 @@ import React from 'react';
 import {create} from 'zustand';
 
 import {useAuthContext} from '@/components/Auth';
-import {useSubscriptionStore} from '@/components/Subscription';
-import {type IBaseStore, useTransactionStore} from '@/components/Transaction';
+import {SubscriptionService, useFetchSubscriptions, useSubscriptionStore} from '@/components/Subscription';
+import {type IBaseStore, TransactionService, useFetchTransactions, useTransactionStore} from '@/components/Transaction';
 import {pb} from '@/pocketbase.ts';
-import {formatBalance} from '@/utils';
+import {Formatter} from '@/services';
 
 import {StatsCard, type TStatsCardProps} from './StatsCard.component';
 
@@ -52,27 +52,41 @@ export type TDashboardStatsWrapperProps = unknown;
 export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () => {
   const {sessionUser} = useAuthContext();
   const {data: fetchedStats, setFetchedData, fetchedBy} = useDashboardStatsStore();
+  const {loading: isLoadingTransactions, transactions} = useFetchTransactions();
+  const {loading: isLoadingSubscriptions, subscriptions} = useFetchSubscriptions();
   const [loading, setLoading] = React.useState(false);
 
   const stats: TStatsCardProps[] = React.useMemo(() => {
-    return [
+    const cardData: TStatsCardProps[] = [
       {
+        isLoading: isLoadingTransactions || isLoadingSubscriptions || loading,
         icon: <AddRounded />,
         label: 'Income',
-        value: formatBalance(fetchedStats.earnings),
+        value: Formatter.formatBalance(fetchedStats.earnings),
+        valueInformation: `Upcoming: ${Formatter.formatBalance(
+          TransactionService.getUpcomingX('INCOME', transactions) +
+            SubscriptionService.getUpcomingX('INCOME', subscriptions),
+        )}`,
       },
       {
+        isLoading: isLoadingTransactions || isLoadingSubscriptions || loading,
         icon: <RemoveRounded />,
         label: 'Spendings',
-        value: formatBalance(fetchedStats.expenses),
+        value: Formatter.formatBalance(fetchedStats.expenses),
+        valueInformation: `Upcoming: ${Formatter.formatBalance(
+          TransactionService.getUpcomingX('EXPENSES', transactions) +
+            SubscriptionService.getUpcomingX('EXPENSES', subscriptions),
+        )}`,
       },
       {
         icon: <BalanceRounded />,
         label: 'Balance',
-        value: formatBalance(fetchedStats.balance),
+        value: Formatter.formatBalance(fetchedStats.balance),
       },
     ];
-  }, [fetchedStats]);
+
+    return cardData;
+  }, [fetchedStats, loading, isLoadingTransactions, isLoadingSubscriptions, transactions, subscriptions]);
 
   const fetchData = React.useCallback(async () => {
     if (!sessionUser) return;

@@ -86,4 +86,21 @@ export class SubscriptionService {
       subscriptions.filter(({transfer_amount}) => (type === 'INCOME' ? transfer_amount > 0 : transfer_amount < 0)),
     );
   }
+
+  /**
+   * Calculates the total upcoming transfer amount for a given data type ('INCOME' or 'EXPENSES') and a list of subscriptions.
+   *
+   * @param data - The data type to filter the subscriptions ('INCOME' or 'EXPENSES').
+   * @param subscriptions - The list of subscriptions to calculate the total upcoming transfer amount.
+   * @returns The total upcoming transfer amount for the specified data type and subscriptions.
+   */
+  static getUpcomingX(data: 'INCOME' | 'EXPENSES', subscriptions: TSubscription[]) {
+    const today = new Date().getDate();
+    return subscriptions.reduce((acc, {transfer_amount, execute_at}) => {
+      if ((data === 'INCOME' && transfer_amount > 0) || (data === 'EXPENSES' && transfer_amount < 0)) {
+        return execute_at > today ? acc + transfer_amount : acc;
+      }
+      return acc;
+    }, 0);
+  }
 }
