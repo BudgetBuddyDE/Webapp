@@ -9,12 +9,23 @@ describe('Validate if correct items are returned by filter', () => {
       return option.label;
     },
   });
-  const options: TReceiverAutocompleteOption[] = [
-    {label: 'Landlord', value: 'Landlord'},
-    {label: 'McDonalds', value: 'McDonalds'},
-    {label: 'State Office', value: 'State Office'},
-    {label: 'Tax Office', value: 'Tax Office'},
-  ];
+  const options: TReceiverAutocompleteOption[] = ['Landlord', 'McDonalds', 'State Office', 'Tax Office'].map(
+    string => ({label: string, value: string}),
+  );
+
+  it('should return all partial matches', () => {
+    const state = filterOptionsState('Google');
+    const moreOptions: TReceiverAutocompleteOption[] = [
+      ...options,
+      ...['Google', 'Google Cloud', 'Google One'].map(string => ({label: string, value: string})),
+    ];
+    const filteredOptions = applyReceiverOptionsFilter(moreOptions, state);
+    expect(filteredOptions).toEqual([
+      {label: 'Google', value: 'Google'},
+      {label: 'Google Cloud', value: 'Google Cloud'},
+      {label: 'Google One', value: 'Google One'},
+    ]);
+  });
 
   it('filters options based on inputValue', () => {
     const state = filterOptionsState('landlord');

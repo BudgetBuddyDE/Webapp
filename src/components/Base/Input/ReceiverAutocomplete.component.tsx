@@ -35,13 +35,10 @@ export function applyReceiverOptionsFilter(
 ): TReceiverAutocompleteOption[] {
   if (state.inputValue.length < 1) return options;
   const filtered = filter(options, state);
-  const matches = filtered.filter(option => option.label.toLowerCase().includes(state.inputValue.toLowerCase()));
-  if (matches.length > 0) {
-    const completeMatch = matches.find(match => match.label === state.inputValue);
-    return completeMatch
-      ? [completeMatch]
-      : [{label: `Create "${state.inputValue}"`, value: state.inputValue}, ...matches];
-  } else return [{label: `Create "${state.inputValue}"`, value: state.inputValue}];
+  if (filtered.length > 0) {
+    const doesOptionExist = filtered.find(match => match.label === state.inputValue) !== undefined;
+    return doesOptionExist ? filtered : [{label: `Create "${state.inputValue}"`, value: state.inputValue}, ...filtered];
+  } else return [{label: `Add "${state.inputValue}"`, value: state.inputValue}];
 }
 
 export const ReceiverAutocomplete: React.FC<IReceiverAutocompleteProps> = ({
