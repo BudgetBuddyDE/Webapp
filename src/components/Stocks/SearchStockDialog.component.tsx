@@ -91,9 +91,19 @@ export const SearchStockDialog: React.FC<TSearchStockDialogProps> = ({
   }, [searchTerm]);
 
   return (
-    <Dialog fullWidth scroll={'paper'} PaperProps={{elevation: 0}} {...dialogProps}>
+    <Dialog
+      fullWidth
+      scroll={'paper'}
+      sx={{
+        '& .MuiDialog-container': {
+          alignItems: 'flex-start',
+        },
+      }}
+      PaperProps={{elevation: 0, sx: {mt: theme => theme.spacing(30)}}}
+      {...dialogProps}>
       <Box sx={{p: 2}}>
         <TextField
+          type="search"
           placeholder="Search stock"
           onChange={debounce(e => setSearchTerm(e.target.value), 500)}
           fullWidth
@@ -169,11 +179,13 @@ export const SearchStockDialog: React.FC<TSearchStockDialogProps> = ({
           ))}
         </DialogContent>
       ) : (
-        <ActionPaper sx={{m: 2, mt: 0, p: 2}}>
-          <Typography variant={'body1'} textAlign={'center'}>
-            {searchTerm.length > 0 ? `No results for '${searchTerm}'!` : 'No results found!'}
-          </Typography>
-        </ActionPaper>
+        searchTerm.length > 0 && (
+          <ActionPaper sx={{m: 2, mt: 0, p: 2}}>
+            <Typography variant={'body1'} textAlign={'center'}>
+              No results for '{searchTerm}'!
+            </Typography>
+          </ActionPaper>
+        )
       )}
     </Dialog>
   );
