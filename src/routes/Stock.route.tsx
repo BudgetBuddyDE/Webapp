@@ -279,6 +279,7 @@ export const Stock = () => {
 
   React.useEffect(() => {
     if (!params.isin || params.isin.length !== 12) return;
+    refreshQuotes();
     refreshStockDetails();
     refreshStockPositions();
   }, [params.isin]);
