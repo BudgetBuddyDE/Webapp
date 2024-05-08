@@ -11,17 +11,19 @@ import {ImageViewDialog} from '@/components/ImageViewDialog.component';
 import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {
+  CreateMultipleTransactionsDialog,
   type TTransactionDrawerValues,
   TransactionDrawer,
   TransactionService,
+  TransactionTable,
   useFetchTransactions,
 } from '@/components/Transaction';
-import {TransactionTable} from '@/components/Transaction/TransactionTable.component';
 import {filterTransactions} from '@/utils/filter.util';
 
 interface ITransactionsHandler {
   showCreateDialog: () => void;
   showEditDialog: (transaction: TTransaction) => void;
+  showCreateMultipleDialog: (showDialog: boolean) => void;
   onSearch: (keyword: string) => void;
   onTransactionDelete: (transaction: TTransaction) => void;
   onConfirmTransactionDelete: () => void;
@@ -36,6 +38,7 @@ export const Transactions = () => {
     useEntityDrawer<TTransactionDrawerValues>,
     UseEntityDrawerDefaultState<TTransactionDrawerValues>(),
   );
+  const [showCreateMultipleDialog, setShowCreateMultipleDialog] = React.useState(false);
   const [showDeleteTransactionDialog, setShowDeleteTransactionDialog] = React.useState(false);
   const [deleteTransactions, setDeleteTransactions] = React.useState<TTransaction[]>([]);
   const [selectedTransactions, setSelectedTransactions] = React.useState<TTransaction[]>([]);
@@ -52,6 +55,9 @@ export const Transactions = () => {
   const handler: ITransactionsHandler = {
     showCreateDialog() {
       dispatchTransactionDrawer({type: 'OPEN', drawerAction: 'CREATE'});
+    },
+    showCreateMultipleDialog(showDialog) {
+      setShowCreateMultipleDialog(showDialog);
     },
     showEditDialog({id, processed_at, receiver, transfer_amount, information, expand: {category, payment_method}}) {
       dispatchTransactionDrawer({
@@ -119,6 +125,7 @@ export const Transactions = () => {
       <Grid item xs={12} md={12} lg={12} xl={12}>
         <TransactionTable
           onAddTransaction={handler.showCreateDialog}
+          onAddMultiple={() => handler.showCreateMultipleDialog(true)}
           onEditTransaction={handler.showEditDialog}
           onDeleteTransaction={handler.onTransactionDelete}
           onOpenImage={(fileName, fileUrl) => setImageDialog({open: true, fileName, fileUrl})}
@@ -135,6 +142,11 @@ export const Transactions = () => {
         onClose={() => dispatchTransactionDrawer({type: 'CLOSE'})}
         closeOnBackdropClick
         closeOnEscape
+      />
+
+      <CreateMultipleTransactionsDialog
+        open={showCreateMultipleDialog}
+        onClose={() => handler.showCreateMultipleDialog(false)}
       />
 
       <DeleteDialog

@@ -1,5 +1,17 @@
 import {CloseRounded} from '@mui/icons-material';
-import {AppBar, Box, type BoxProps, Dialog, type DialogProps, IconButton, Toolbar, Typography} from '@mui/material';
+import {
+  AppBar,
+  Box,
+  type BoxProps,
+  Dialog,
+  DialogActions,
+  type DialogActionsProps,
+  DialogContent,
+  type DialogProps,
+  IconButton,
+  Toolbar,
+  Typography,
+} from '@mui/material';
 import React from 'react';
 
 import {Transition} from '@/components/DeleteDialog.component.tsx';
@@ -9,6 +21,8 @@ export type TFullScreenDialogProps = DialogProps & {
   onClose: () => void;
   appBarActions?: React.ReactNode;
   boxProps?: BoxProps;
+  dialogActionsProps?: DialogActionsProps;
+  wrapInDialogContent?: boolean;
 };
 
 export const FullScreenDialog: React.FC<TFullScreenDialogProps> = ({
@@ -16,10 +30,12 @@ export const FullScreenDialog: React.FC<TFullScreenDialogProps> = ({
   onClose,
   appBarActions,
   boxProps,
+  dialogActionsProps,
+  wrapInDialogContent = false,
   ...dialogProps
 }) => {
-  return (
-    <Dialog fullScreen TransitionComponent={Transition} PaperProps={{elevation: 0}} {...dialogProps}>
+  const Content = (
+    <React.Fragment>
       <AppBar
         elevation={0}
         sx={{position: 'relative', border: 0, borderBottom: theme => `1px solid ${theme.palette.divider}`}}>
@@ -43,9 +59,22 @@ export const FullScreenDialog: React.FC<TFullScreenDialogProps> = ({
         </Toolbar>
       </AppBar>
 
-      <Box {...boxProps} sx={{p: 2, ...boxProps?.sx}}>
+      <Box {...boxProps} sx={{p: 2, flex: 1, ...boxProps?.sx}}>
         {dialogProps.children}
       </Box>
+    </React.Fragment>
+  );
+
+  return (
+    <Dialog fullScreen TransitionComponent={Transition} PaperProps={{elevation: 0}} {...dialogProps}>
+      {wrapInDialogContent ? <DialogContent>{Content}</DialogContent> : Content}
+
+      {dialogActionsProps && (
+        <DialogActions
+          {...dialogActionsProps}
+          sx={{border: 0, borderTop: theme => `1px solid ${theme.palette.divider}`, ...dialogActionsProps.sx}}
+        />
+      )}
     </Dialog>
   );
 };

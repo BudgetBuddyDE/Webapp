@@ -6,7 +6,7 @@ import React from 'react';
 
 import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
-import {ActionPaper, Linkify} from '@/components/Base';
+import {ActionPaper, Linkify, Menu} from '@/components/Base';
 import {SearchInput} from '@/components/Base/Search';
 import {type TTableSelectionProps, Table} from '@/components/Base/Table';
 import {CategoryChip} from '@/components/Category';
@@ -23,6 +23,7 @@ import {useFetchTransactions} from './useFetchTransactions.hook';
 export type TTransactionTableProps = {
   isLoading?: boolean;
   onAddTransaction?: () => void;
+  onAddMultiple?: () => void;
   onEditTransaction?: (transaction: TTransaction) => void;
   onDeleteTransaction?: (transaction: TTransaction) => void;
   onOpenImage?: (fileName: string, fileUrl: string) => void;
@@ -32,6 +33,7 @@ export type TTransactionTableProps = {
 export const TransactionTable: React.FC<TTransactionTableProps> = ({
   isLoading = false,
   onAddTransaction,
+  onAddMultiple,
   onEditTransaction,
   onDeleteTransaction,
   onOpenImage,
@@ -139,6 +141,17 @@ export const TransactionTable: React.FC<TTransactionTableProps> = ({
             <IconButton color="primary" onClick={onAddTransaction}>
               <AddRounded fontSize="inherit" />
             </IconButton>
+          )}
+
+          {onAddMultiple && (
+            <Menu
+              actions={[
+                {
+                  children: 'Create multiple',
+                  onClick: onAddMultiple,
+                },
+              ]}
+            />
           )}
           {displayedTransactions.length > 0 && (
             <DownloadButton
