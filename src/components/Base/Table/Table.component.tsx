@@ -16,6 +16,12 @@ import {type ISelectionHandler, SelectAll} from '../Select';
 import {ActionPaper, Card, NoResults, type TNoResultsProps} from '../index';
 import {TableContainer} from './TableContainer.component';
 
+export type TTableSelectionProps<T> = {
+  onSelectAll: ISelectionHandler<T>['onSelectAll'];
+  onDelete?: () => void;
+  amountOfSelectedEntities: number;
+};
+
 export type TTableProps<T> = {
   title?: string;
   subtitle?: string;
@@ -27,12 +33,9 @@ export type TTableProps<T> = {
   isLoading?: boolean;
   noResultsMessage?: TNoResultsProps['text'];
 } & (
-  | {
+  | ({
       withSelection: true;
-      onSelectAll: ISelectionHandler<T>['onSelectAll'];
-      onDelete?: () => void;
-      amountOfSelectedEntities: number;
-    }
+    } & TTableSelectionProps<T>)
   | {withSelection?: false}
 );
 
