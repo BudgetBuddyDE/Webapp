@@ -1,4 +1,4 @@
-import {PocketBaseCollection, type TTransaction, ZTransaction} from '@budgetbuddyde/types';
+import {PocketBaseCollection, TCreateTransactionPayload, type TTransaction, ZTransaction} from '@budgetbuddyde/types';
 import {isSameMonth, subDays} from 'date-fns';
 import {type RecordModel} from 'pocketbase';
 import {z} from 'zod';
@@ -17,8 +17,8 @@ export class TransactionService {
    * @param payload - The data for the transaction. Fields from TCreateTransactionPayload should be fullfilled.
    * @returns A promise that resolves to the created transaction record.
    */
-  static async createTransaction(payload: FormData): Promise<RecordModel> {
-    const record = await pb.collection(PocketBaseCollection.TRANSACTION).create(payload);
+  static async createTransaction(payload: FormData | TCreateTransactionPayload): Promise<RecordModel> {
+    const record = await pb.collection(PocketBaseCollection.TRANSACTION).create(payload, {requestKey: null});
     return record;
   }
 

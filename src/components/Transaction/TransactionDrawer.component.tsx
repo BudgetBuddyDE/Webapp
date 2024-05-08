@@ -27,7 +27,6 @@ export type TTransactionDrawerValues = {
   id?: TTransaction['id'];
   receiver: TReceiverAutocompleteOption | null;
   category: TCategoryAutocompleteOption | null;
-  test_category: TCategoryAutocompleteOption | null;
   payment_method: TPaymentMethodAutocompleteOption | null;
   attachments?: TTransaction['attachments'];
 } & Pick<TTransaction, 'processed_at' | 'transfer_amount' | 'information'>;
