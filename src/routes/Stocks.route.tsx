@@ -18,6 +18,7 @@ import {
   StockList,
   StockService,
   useFetchStockPositions,
+  useFetchStockWatchlist,
   useStockStore,
 } from '@/components/Stocks';
 import {StockPositionTable} from '@/components/Stocks/Position';
@@ -44,6 +45,7 @@ export const Stocks = () => {
     positions: stockPositions,
     refresh: refreshStockPositions,
   } = useFetchStockPositions();
+  const {loading: isLoadingWatchlist, assets: watchedAssets} = useFetchStockWatchlist();
   const [stockPositionDrawer, dispatchStockPositionDrawer] = React.useReducer(
     useEntityDrawer<TStockPositionDrawerValues>,
     UseEntityDrawerDefaultState<TStockPositionDrawerValues>(),
@@ -168,7 +170,7 @@ export const Stocks = () => {
           </Grid>
 
           <Grid item xs={12}>
-            <StockList title="Watchlist" data={[]} onAddItem={() => alert('open add-item-to-watchlist dialog')} />
+            {!isLoadingWatchlist ? <StockList title="Watchlist" data={watchedAssets} /> : <CircularProgress />}
           </Grid>
         </Grid>
 

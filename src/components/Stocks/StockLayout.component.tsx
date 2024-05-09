@@ -1,14 +1,20 @@
+import {ZAddWatchlistAssetPayload, ZDeleteWatchlistAssetPayload} from '@budgetbuddyde/types';
 import React from 'react';
 
+import {useAuthContext} from '@/components/Auth';
+import {useSnackbarContext} from '@/components/Snackbar';
 import {useKeyPress} from '@/hooks';
 
+import {useFetchStockExchanges} from './Exchange';
 import {SearchStockDialog, type TSearchStockDialogProps} from './SearchStockDialog.component';
+import {StockService} from './Stock.service';
+import {useFetchStockWatchlist, useStockWatchlistStore} from './Watchlist';
 
 /**
  * Props for the StockLayout component.
  */
 export type TStockLayoutProps = React.PropsWithChildren<
-  Pick<TSearchStockDialogProps, 'onSelectAsset' | 'onOpenPosition' | 'onWatchlistInteraction'>
+  Pick<TSearchStockDialogProps, 'onSelectAsset' | 'onOpenPosition'>
 >;
 
 /**
@@ -27,12 +33,12 @@ export type TStockLayoutProps = React.PropsWithChildren<
  *   </StockLayout>
  * );
  */
-export const StockLayout: React.FC<TStockLayoutProps> = ({
-  onSelectAsset,
-  onOpenPosition,
-  onWatchlistInteraction,
-  children,
-}) => {
+export const StockLayout: React.FC<TStockLayoutProps> = ({onSelectAsset, onOpenPosition, children}) => {
+  const {sessionUser} = useAuthContext();
+  const {showSnackbar} = useSnackbarContext();
+  const {set: setStockWatchlist} = useStockWatchlistStore();
+  const {stockExchanges} = useFetchStockExchanges();
+  const {loading: isLoadingWatchlist, assets: watchedAssets} = useFetchStockWatchlist();
   const dialogRef = React.useRef<HTMLDivElement | null>(null);
   const [showStockDialog, setShowStockDialog] = React.useState(false);
 
@@ -69,14 +75,57 @@ export const StockLayout: React.FC<TStockLayoutProps> = ({
               }
             : undefined
         }
-        onWatchlistInteraction={
-          onWatchlistInteraction
-            ? (event, asset) => {
-                setShowStockDialog(false);
-                onWatchlistInteraction(event, asset);
+        onWatchlistInteraction={async (event, asset) => {
+          setShowStockDialog(false);
+          if (!sessionUser || isLoadingWatchlist) return;
+
+          if (event === 'ADD_TO_WATCHLIST') {
+            try {
+              const langSchwarzExchange = stockExchanges.find(exchange => exchange.symbol === 'LSX');
+              if (!langSchwarzExchange) {
+                throw new Error('Lang & Schwarz exchange not found');
               }
-            : undefined
-        }
+
+              const parsedPayload = ZAddWatchlistAssetPayload.safeParse({
+                owner: sessionUser?.id,
+                isin: asset.identifier,
+                exchange: langSchwarzExchange.id,
+              });
+              if (!parsedPayload.success) throw parsedPayload.error;
+              const [result, err] = await StockService.addAssetToWatchlist(parsedPayload.data);
+              if (err) throw err;
+              if (!result) throw new Error('Error adding asset to watchlist');
+              setStockWatchlist(result);
+              showSnackbar({message: 'Asset added to watchlist'});
+            } catch (error) {
+              console.error(error);
+              showSnackbar({message: 'Error adding asset to watchlist'});
+            }
+          } else if (event === 'REMOVE_FROM_WATCHLIST') {
+            try {
+              const langSchwarzExchange = stockExchanges.find(exchange => exchange.symbol === 'LSX');
+              if (!langSchwarzExchange) {
+                throw new Error('Lang & Schwarz exchange not found');
+              }
+
+              const watchlistItem = watchedAssets.find(
+                ({isin, exchange}) => isin === asset.identifier && exchange === langSchwarzExchange.id,
+              );
+              if (!watchlistItem) throw new Error("Asset isn't in watchlist");
+
+              const parsedPayload = ZDeleteWatchlistAssetPayload.safeParse({id: watchlistItem.id});
+              if (!parsedPayload.success) throw parsedPayload.error;
+              const [result, err] = await StockService.deleteAssetFromWatchlist(parsedPayload.data);
+              if (err) throw err;
+              if (!result) throw new Error('Error removing asset from watchlist');
+              setStockWatchlist(watchedAssets.filter(({id}) => id !== watchlistItem.id));
+              showSnackbar({message: 'Asset removed from watchlist'});
+            } catch (error) {
+              console.error(error);
+              showSnackbar({message: 'Error removing asset from watchlist'});
+            }
+          }
+        }}
       />
     </React.Fragment>
   );

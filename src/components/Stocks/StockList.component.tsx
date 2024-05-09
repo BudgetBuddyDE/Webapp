@@ -1,4 +1,4 @@
-import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
+import {type TAssetWatchlistWithQuote, type TStockPositionWithQuote} from '@budgetbuddyde/types';
 import {AddRounded, ArrowForwardRounded, FormatListBulletedRounded} from '@mui/icons-material';
 import {Box, Button, Chip, IconButton, Link} from '@mui/material';
 import React from 'react';
@@ -12,7 +12,7 @@ import {StockPrice} from './index';
 export type TStockListProps = {
   title: string;
   subtitle?: string;
-  data: TStockPositionWithQuote[];
+  data: TStockPositionWithQuote[] | TAssetWatchlistWithQuote[];
   onAddItem?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 };
 
@@ -60,7 +60,14 @@ export const StockList: React.FC<TStockListProps> = ({title, subtitle, data, onA
               amount={
                 <StockPrice
                   price={position.quote.price}
-                  trend={position.quote.price >= position.buy_in ? 'up' : 'down'}
+                  // FIXME:
+                  // trend={
+                  //   position.buy_in !== undefined
+                  //     ? position.quote.price >= position.buy_in
+                  //       ? 'up'
+                  //       : 'down'
+                  //     : undefined
+                  // }
                 />
               }
               imageUrl={position.logo}

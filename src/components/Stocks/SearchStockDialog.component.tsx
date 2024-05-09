@@ -1,5 +1,5 @@
 import {type TAssetSearchResult} from '@budgetbuddyde/types';
-import {AddRounded, SearchRounded, StarRounded} from '@mui/icons-material';
+import {AddRounded, SearchRounded, StarBorderRounded, StarRounded} from '@mui/icons-material';
 import {
   Box,
   Dialog,
@@ -20,6 +20,7 @@ import {CircularProgress} from '@/components/Loading';
 import {useSnackbarContext} from '@/components/Snackbar';
 
 import {StockService} from './Stock.service';
+import {useFetchStockWatchlist} from './Watchlist';
 
 /**
  * Props for the SearchStockDialog component.
@@ -66,9 +67,17 @@ export const SearchStockDialog: React.FC<TSearchStockDialogProps> = ({
   ...dialogProps
 }) => {
   const {showSnackbar} = useSnackbarContext();
+  const {loading: isLoadingWatchlist, assets: watchedAssets} = useFetchStockWatchlist();
   const [loading, setLoading] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [searchResults, setSearchResults] = React.useState<TAssetSearchResult[]>([]);
+
+  const isStockWatched = React.useCallback(
+    (isin: string): boolean => {
+      return watchedAssets.some(watched => watched.isin === isin);
+    },
+    [watchedAssets],
+  );
 
   const searchStocks = async () => {
     if (searchTerm.length < 1) return setSearchResults([]);
@@ -77,7 +86,6 @@ export const SearchStockDialog: React.FC<TSearchStockDialogProps> = ({
       const [matches, error] = await StockService.searchAsset(searchTerm);
       if (error) throw error;
       if (!matches) return setSearchResults([]);
-      console.log(matches);
       setSearchResults(matches);
     } catch (err) {
       console.error(err);
@@ -114,69 +122,72 @@ export const SearchStockDialog: React.FC<TSearchStockDialogProps> = ({
           }}
         />
       </Box>
-      {loading && searchResults.length === 0 ? (
+      {loading && isLoadingWatchlist && searchResults.length === 0 ? (
         <CircularProgress />
       ) : searchResults.length > 0 ? (
         <DialogContent sx={{maxHeight: theme => theme.spacing(40), p: 2}} dividers>
-          {searchResults.map(asset => (
-            <Grid
-              key={asset.identifier}
-              container
-              alignItems="center"
-              sx={{
-                mb: 1,
-                borderRadius: theme => theme.shape.borderRadius + 'px',
-                ':hover': onSelectAsset && {
-                  backgroundColor: theme => theme.palette.action.hover,
-                  cursor: 'pointer',
-                },
-              }}
-              onClick={() => onSelectAsset && onSelectAsset(asset)}>
-              <Grid item sx={{display: 'flex', width: '56px'}}>
-                <ActionPaper sx={{width: '56px', height: '56px'}}>
-                  <Image src={asset.logo} alt={asset.name + ' logo'} sx={{width: 'inherit', height: 'inherit'}} />
-                </ActionPaper>
-              </Grid>
-              <Grid item sx={{flex: 1, wordWrap: 'break-word', pl: 1}}>
-                <Typography variant="body1" fontWeight={'bolder'}>
-                  {asset.name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {asset.type} - {asset.identifier}
-                </Typography>
-              </Grid>
-              {onOpenPosition && (
-                <Grid item>
-                  <Tooltip title="Open position">
-                    <IconButton
-                      size="large"
-                      color="primary"
-                      onClick={event => {
-                        event.stopPropagation();
-                        onOpenPosition(asset);
-                      }}>
-                      <AddRounded />
-                    </IconButton>
-                  </Tooltip>
+          {searchResults.map(asset => {
+            const isWatched = isStockWatched(asset.identifier);
+            return (
+              <Grid
+                key={asset.identifier}
+                container
+                alignItems="center"
+                sx={{
+                  mb: 1,
+                  borderRadius: theme => theme.shape.borderRadius + 'px',
+                  ':hover': onSelectAsset && {
+                    backgroundColor: theme => theme.palette.action.hover,
+                    cursor: 'pointer',
+                  },
+                }}
+                onClick={() => onSelectAsset && onSelectAsset(asset)}>
+                <Grid item sx={{display: 'flex', width: '56px'}}>
+                  <ActionPaper sx={{width: '56px', height: '56px'}}>
+                    <Image src={asset.logo} alt={asset.name + ' logo'} sx={{width: 'inherit', height: 'inherit'}} />
+                  </ActionPaper>
                 </Grid>
-              )}
-              {onWatchlistInteraction && (
-                <Grid item>
-                  <Tooltip title="Add to watchlist">
-                    <IconButton
-                      size="large"
-                      color="primary"
-                      onClick={event => {
-                        event.stopPropagation();
-                        onWatchlistInteraction('ADD_TO_WATCHLIST', asset);
-                      }}>
-                      <StarRounded />
-                    </IconButton>
-                  </Tooltip>
+                <Grid item sx={{flex: 1, wordWrap: 'break-word', pl: 1}}>
+                  <Typography variant="body1" fontWeight={'bolder'}>
+                    {asset.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {asset.type} - {asset.identifier}
+                  </Typography>
                 </Grid>
-              )}
-            </Grid>
-          ))}
+                {onOpenPosition && (
+                  <Grid item>
+                    <Tooltip title="Open position">
+                      <IconButton
+                        size="large"
+                        color="primary"
+                        onClick={event => {
+                          event.stopPropagation();
+                          onOpenPosition(asset);
+                        }}>
+                        <AddRounded />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+                )}
+                {onWatchlistInteraction && (
+                  <Grid item>
+                    <Tooltip title={isWatched ? 'Remove from watchlist' : 'Add to watchlist'}>
+                      <IconButton
+                        size="large"
+                        color="primary"
+                        onClick={event => {
+                          event.stopPropagation();
+                          onWatchlistInteraction(isWatched ? 'REMOVE_FROM_WATCHLIST' : 'ADD_TO_WATCHLIST', asset);
+                        }}>
+                        {isWatched ? <StarRounded /> : <StarBorderRounded />}
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+                )}
+              </Grid>
+            );
+          })}
         </DialogContent>
       ) : (
         searchTerm.length > 0 && (

@@ -1,10 +1,13 @@
 import {
   ApiResponse,
+  type TAddWatchlistAssetPayload,
   type TApiResponse,
   type TAssetChartQuote,
   type TAssetDetails,
   type TAssetSearchResult,
+  type TAssetWatchlistWithQuote,
   type TCreateStockPositionPayload,
+  type TDeleteWatchlistAssetPayload,
   type TDividendDetailList,
   type TDividendDetails,
   type TId,
@@ -19,6 +22,7 @@ import {
   ZAssetChartQuote,
   ZAssetDetails,
   ZAssetSearchResult,
+  ZAssetWatchlistWithQuote,
   ZDividendDetails,
   ZRelatedStockWithQuotes,
   ZStockExchange,
@@ -336,6 +340,71 @@ export class StockService {
       const parsingResult = z.array(ZRelatedStockWithQuotes).safeParse(json.data);
       if (!parsingResult.success) throw parsingResult.error;
       return [parsingResult.data, null];
+    } catch (error) {
+      return [null, error as Error];
+    }
+  }
+
+  /**
+   * Retrieves the watchlist of assets with quotes.
+   * @returns A promise that resolves to a tuple containing the watchlist data and an error, if any.
+   */
+  static async getWatchlist(): Promise<TServiceResponse<TAssetWatchlistWithQuote[]>> {
+    try {
+      const response = await fetch(this.host + '/v1/asset/watchlist', {
+        ...preparePockebaseRequestOptions(),
+      });
+      const json = (await response.json()) as TApiResponse<TAssetWatchlistWithQuote[]>;
+      if (json.status != 200) return [null, new Error(json.message!)];
+      const parsingResult = z.array(ZAssetWatchlistWithQuote).safeParse(json.data);
+      if (!parsingResult.success) throw parsingResult.error;
+      return [parsingResult.data, null];
+    } catch (error) {
+      return [null, error as Error];
+    }
+  }
+
+  /**
+   * Adds an asset to the watchlist.
+   *
+   * @param payload - The payload containing the asset information.
+   * @returns A promise that resolves to a tuple containing the watchlist with quotes and an error, if any.
+   */
+  static async addAssetToWatchlist(
+    payload: TAddWatchlistAssetPayload,
+  ): Promise<TServiceResponse<TAssetWatchlistWithQuote[]>> {
+    try {
+      const response = await fetch(this.host + '/v1/asset/watchlist', {
+        method: 'POST',
+        body: JSON.stringify([payload]),
+        ...preparePockebaseRequestOptions(),
+      });
+      const json = (await response.json()) as TApiResponse<TAssetWatchlistWithQuote[]>;
+      if (json.status != 200) return [null, new Error(json.message!)];
+      const parsingResult = z.array(ZAssetWatchlistWithQuote).safeParse(json.data);
+      if (!parsingResult.success) throw parsingResult.error;
+      return [parsingResult.data, null];
+    } catch (error) {
+      return [null, error as Error];
+    }
+  }
+
+  /**
+   * Deletes an asset from the watchlist.
+   *
+   * @param payload - The payload containing the asset information to be deleted.
+   * @returns A promise that resolves to a tuple containing the response data and any error that occurred.
+   */
+  static async deleteAssetFromWatchlist(payload: TDeleteWatchlistAssetPayload): Promise<TServiceResponse<boolean>> {
+    try {
+      const response = await fetch(this.host + '/v1/asset/watchlist', {
+        method: 'DELETE',
+        body: JSON.stringify([payload]),
+        ...preparePockebaseRequestOptions(),
+      });
+      const json = (await response.json()) as TApiResponse<{success: boolean}>;
+      if (json.status != 200) return [null, new Error(json.message!)];
+      return [json.data ? json.data.success : false, null];
     } catch (error) {
       return [null, error as Error];
     }
