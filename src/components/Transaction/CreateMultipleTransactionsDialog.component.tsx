@@ -1,6 +1,16 @@
 import {type TCreateTransactionPayload, type TTransaction, ZCreateTransactionPayload} from '@budgetbuddyde/types';
 import {AddRounded, DeleteRounded} from '@mui/icons-material';
-import {AutocompleteChangeReason, Box, Button, Grid, IconButton, InputAdornment, Stack, TextField} from '@mui/material';
+import {
+  AutocompleteChangeReason,
+  Box,
+  Button,
+  Grid,
+  IconButton,
+  InputAdornment,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import {DesktopDatePicker, LocalizationProvider} from '@mui/x-date-pickers';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {RecordModel} from 'pocketbase';
@@ -9,6 +19,7 @@ import {z} from 'zod';
 
 import {useAuthContext} from '@/components/Auth';
 import {
+  ActionPaper,
   FullScreenDialog,
   ReceiverAutocomplete,
   type TFullScreenDialogProps,
@@ -17,7 +28,7 @@ import {
 import {CategoryAutocomplete, type TCategoryAutocompleteOption} from '@/components/Category';
 import {PaymentMethodAutocomplete, type TPaymentMethodAutocompleteOption} from '@/components/PaymentMethod';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {useKeyPress} from '@/hooks';
+import {useKeyPress, useScreenSize} from '@/hooks';
 import {parseNumber} from '@/utils';
 
 import {TransactionService} from './Transaction.service';
@@ -44,6 +55,7 @@ const DEFAULT_VALUE: () => TRow = () => ({
 export const CreateMultipleTransactionsDialog: React.FC<TCreateMultipleTransactionsDialogProps> = ({
   ...dialogProps
 }) => {
+  const screenSize = useScreenSize();
   const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const {refresh: refreshTransactions} = useFetchTransactions();
@@ -178,92 +190,113 @@ export const CreateMultipleTransactionsDialog: React.FC<TCreateMultipleTransacti
     <FullScreenDialog
       ref={dialogRef}
       title="Create Transactions"
-      wrapInDialogContent
+      wrapInDialogContent={screenSize !== 'small'}
       {...dialogProps}
-      dialogActionsProps={{
-        sx: {justifyContent: 'unset'},
-        children: (
-          <Stack direction="row" spacing={2} sx={{width: '100%', justifyContent: 'space-between'}}>
-            <Button startIcon={<AddRounded />} onClick={handler.addRow}>
-              Add row
-            </Button>
-            <Box>
-              <Button onClick={handler.close} sx={{mr: 1}}>
-                Cancel
-              </Button>
-              <Button onClick={handler.onSubmit} variant="contained" color="primary">
-                Save
-              </Button>
-            </Box>
-          </Stack>
-        ),
-      }}>
-      <form onSubmit={handler.onSubmit}>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <Grid container spacing={2}>
-            {form.map((row, idx) => (
-              <Grid key={row.tempId} container item md={12} spacing={2}>
-                {idx !== 0 && (
-                  <Grid item xs={0.6} md={0.55}>
-                    <IconButton
-                      onClick={() => handler.removeRow(row.tempId)}
-                      size="large"
-                      sx={{width: '54px', height: '54px'}}>
-                      <DeleteRounded />
-                    </IconButton>
+      dialogContentProps={{sx: {p: 0}}}
+      dialogActionsProps={
+        screenSize !== 'small'
+          ? {
+              sx: {justifyContent: 'unset'},
+              children: (
+                <Stack direction="row" spacing={2} sx={{width: '100%', justifyContent: 'space-between'}}>
+                  <Button startIcon={<AddRounded />} onClick={handler.addRow}>
+                    Add row
+                  </Button>
+                  <Box>
+                    <Button onClick={handler.close} sx={{mr: 1}}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handler.onSubmit} variant="contained" color="primary">
+                      Save
+                    </Button>
+                  </Box>
+                </Stack>
+              ),
+            }
+          : undefined
+      }>
+      {screenSize !== 'small' ? (
+        <form onSubmit={handler.onSubmit}>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <Grid container spacing={2}>
+              {form.map((row, idx) => (
+                <Grid key={row.tempId} container item md={12} spacing={2}>
+                  {idx !== 0 && (
+                    <Grid item xs={0.6} md={0.55}>
+                      <IconButton
+                        onClick={() => handler.removeRow(row.tempId)}
+                        size="large"
+                        sx={{width: '54px', height: '54px'}}>
+                        <DeleteRounded />
+                      </IconButton>
+                    </Grid>
+                  )}
+                  <Grid item md={idx === 0 ? 2 : 1.45}>
+                    <DesktopDatePicker
+                      label="Processed at"
+                      inputFormat="dd.MM.yyyy"
+                      onChange={(value, keyboardInputValue) => handler.changeDate(idx, value, keyboardInputValue)}
+                      value={row.processed_at}
+                      renderInput={params => <TextField fullWidth {...params} required />}
+                    />
                   </Grid>
-                )}
-                <Grid item md={idx === 0 ? 2 : 1.45}>
-                  <DesktopDatePicker
-                    label="Processed at"
-                    inputFormat="dd.MM.yyyy"
-                    onChange={(value, keyboardInputValue) => handler.changeDate(idx, value, keyboardInputValue)}
-                    value={row.processed_at}
-                    renderInput={params => <TextField fullWidth {...params} required />}
-                  />
+                  <Grid item md={2}>
+                    <CategoryAutocomplete
+                      value={row.category}
+                      onChange={(event, value, reason) => handler.changeCategory(idx, event, value, reason)}
+                    />
+                  </Grid>
+                  <Grid item md={2}>
+                    <PaymentMethodAutocomplete
+                      value={row.payment_method}
+                      onChange={(event, value, reason) => handler.changePaymentMethod(idx, event, value, reason)}
+                    />
+                  </Grid>
+                  <Grid item xs md={2}>
+                    <ReceiverAutocomplete
+                      value={row.receiver}
+                      onChange={(event, value, reason) => handler.changeReceiver(idx, event, value, reason)}
+                    />
+                  </Grid>
+                  <Grid item md={2}>
+                    <TextField
+                      label="Amount"
+                      value={row.transfer_amount}
+                      onChange={e => handler.changeTransferAmount(idx, e.target.value)}
+                      InputProps={{startAdornment: <InputAdornment position="start">€</InputAdornment>}}
+                      required
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item md={2}>
+                    <TextField
+                      label="Information"
+                      value={row.information}
+                      onChange={event => handler.changeInformation(idx, event.target.value)}
+                      fullWidth
+                      multiline
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item md={2}>
-                  <CategoryAutocomplete
-                    value={row.category}
-                    onChange={(event, value, reason) => handler.changeCategory(idx, event, value, reason)}
-                  />
-                </Grid>
-                <Grid item md={2}>
-                  <PaymentMethodAutocomplete
-                    value={row.payment_method}
-                    onChange={(event, value, reason) => handler.changePaymentMethod(idx, event, value, reason)}
-                  />
-                </Grid>
-                <Grid item xs md={2}>
-                  <ReceiverAutocomplete
-                    value={row.receiver}
-                    onChange={(event, value, reason) => handler.changeReceiver(idx, event, value, reason)}
-                  />
-                </Grid>
-                <Grid item md={2}>
-                  <TextField
-                    label="Amount"
-                    value={row.transfer_amount}
-                    onChange={e => handler.changeTransferAmount(idx, e.target.value)}
-                    InputProps={{startAdornment: <InputAdornment position="start">€</InputAdornment>}}
-                    required
-                    fullWidth
-                  />
-                </Grid>
-                <Grid item md={2}>
-                  <TextField
-                    label="Information"
-                    value={row.information}
-                    onChange={event => handler.changeInformation(idx, event.target.value)}
-                    fullWidth
-                    multiline
-                  />
-                </Grid>
-              </Grid>
-            ))}
-          </Grid>
-        </LocalizationProvider>
-      </form>
+              ))}
+            </Grid>
+          </LocalizationProvider>
+        </form>
+      ) : (
+        <ActionPaper
+          sx={{
+            display: 'flex',
+            width: '100%',
+            height: '100%',
+            p: 2,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <Typography variant={'h2'} textAlign={'center'}>
+            This feature is desktop only
+          </Typography>
+        </ActionPaper>
+      )}
     </FullScreenDialog>
   );
 };

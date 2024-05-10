@@ -154,11 +154,13 @@ export const StockPositionTable: React.FC<TStockPositionTableProps> = ({
             </TableCell>
             <TableCell align="right">
               <ActionPaper sx={{display: 'flex', width: 'fit-content', ml: 'auto'}}>
-                <StockPositionMenu
-                  position={position}
-                  onEditPosition={onEditPosition}
-                  onDeletePosition={onDeletePosition}
-                />
+                {(onEditPosition || onDeletePosition) && (
+                  <StockPositionMenu
+                    position={position}
+                    onEditPosition={onEditPosition}
+                    onDeletePosition={onDeletePosition}
+                  />
+                )}
                 {withRedirect && (
                   <IconButton color="primary" onClick={() => navigate('/stocks/' + position.isin)}>
                     <ArrowForwardRounded />

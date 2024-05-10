@@ -7,15 +7,18 @@ import {useNavigate} from 'react-router-dom';
 import {Feature} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
+import {CircularProgress} from '@/components/Loading';
 import {StatsCard} from '@/components/StatsCard.component';
 import {
   DividendTable,
   StockLayout,
-  StockList,
+  StockWatchlist,
   useFetchStockDividends,
   useFetchStockPositions,
+  useFetchStockWatchlist,
   useStockStore,
 } from '@/components/Stocks';
+import {StockPositionTable} from '@/components/Stocks/Position';
 import {Formatter} from '@/services';
 import {getSocketIOClient} from '@/utils';
 
@@ -25,6 +28,7 @@ const StocksView = () => {
   const {sessionUser} = useAuthContext();
   const socket = getSocketIOClient();
   const {loading: loadingStockPositions, positions: stockPositions} = useFetchStockPositions();
+  const {loading: isLoadingWatchlist, assets: watchedAssets} = useFetchStockWatchlist();
   const {
     loading: loadingDividends,
     dividends,
@@ -110,13 +114,21 @@ const StocksView = () => {
         </Grid>
 
         <Grid item xs={12} md={12} order={{xs: 4}}>
+          <StockPositionTable withRedirect />
+        </Grid>
+
+        <Grid item xs={12} md={12} order={{xs: 5}}>
           <DividendTable dividends={preparedDividends} isLoading={loadingDividends} withRedirect />
         </Grid>
       </Grid>
 
       <Grid container item xs={12} md={4} spacing={3}>
         <Grid item xs={12}>
-          <StockList title="Stocks" subtitle="How are your stocks performing?" data={stockPositions} />
+          {isLoadingWatchlist ? (
+            <CircularProgress />
+          ) : (
+            <StockWatchlist title="Watchlist" subtitle="Watched assets" data={watchedAssets} />
+          )}
         </Grid>
       </Grid>
     </StockLayout>

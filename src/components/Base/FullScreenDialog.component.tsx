@@ -7,6 +7,7 @@ import {
   DialogActions,
   type DialogActionsProps,
   DialogContent,
+  type DialogContentProps,
   type DialogProps,
   IconButton,
   Toolbar,
@@ -22,6 +23,7 @@ export type TFullScreenDialogProps = DialogProps & {
   appBarActions?: React.ReactNode;
   boxProps?: BoxProps;
   dialogActionsProps?: DialogActionsProps;
+  dialogContentProps?: DialogContentProps;
   wrapInDialogContent?: boolean;
 };
 
@@ -31,6 +33,7 @@ export const FullScreenDialog: React.FC<TFullScreenDialogProps> = ({
   appBarActions,
   boxProps,
   dialogActionsProps,
+  dialogContentProps,
   wrapInDialogContent = false,
   ...dialogProps
 }) => {
@@ -67,12 +70,18 @@ export const FullScreenDialog: React.FC<TFullScreenDialogProps> = ({
 
   return (
     <Dialog fullScreen TransitionComponent={Transition} PaperProps={{elevation: 0}} {...dialogProps}>
-      {wrapInDialogContent ? <DialogContent>{Content}</DialogContent> : Content}
+      {wrapInDialogContent ? <DialogContent {...dialogContentProps}>{Content}</DialogContent> : Content}
 
       {dialogActionsProps && (
         <DialogActions
           {...dialogActionsProps}
-          sx={{border: 0, borderTop: theme => `1px solid ${theme.palette.divider}`, ...dialogActionsProps.sx}}
+          sx={{
+            border: 0,
+            borderTop: theme => `1px solid ${theme.palette.divider}`,
+            px: 4,
+            py: 2,
+            ...dialogActionsProps.sx,
+          }}
         />
       )}
     </Dialog>

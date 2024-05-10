@@ -65,7 +65,12 @@ export const TransactionTable: React.FC<TTransactionTableProps> = ({
       headerCells={['Date', 'Details', 'Amount', 'Information', 'Files', '']}
       renderRow={transaction => {
         return (
-          <TableRow key={transaction.id}>
+          <TableRow
+            key={transaction.id}
+            sx={{
+              '&:last-child td, &:last-child th': {border: 0},
+              whiteSpace: 'nowrap',
+            }}>
             <TableCell size={AppConfig.table.cellSize}>
               <Checkbox checked={isSelected(transaction)} onChange={() => onSelect(transaction)} />
             </TableCell>

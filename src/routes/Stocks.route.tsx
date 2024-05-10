@@ -15,8 +15,8 @@ import {useSnackbarContext} from '@/components/Snackbar';
 import {
   PortfolioDiversityChart,
   StockLayout,
-  StockList,
   StockService,
+  StockWatchlist,
   useFetchStockPositions,
   useFetchStockWatchlist,
   useStockStore,
@@ -170,7 +170,11 @@ export const Stocks = () => {
           </Grid>
 
           <Grid item xs={12}>
-            {!isLoadingWatchlist ? <StockList title="Watchlist" data={watchedAssets} /> : <CircularProgress />}
+            {!isLoadingWatchlist ? (
+              <StockWatchlist title="Watchlist" subtitle="Watched assets" data={watchedAssets} />
+            ) : (
+              <CircularProgress />
+            )}
           </Grid>
         </Grid>
 
