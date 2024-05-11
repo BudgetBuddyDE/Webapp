@@ -21,7 +21,7 @@ export class CategoryService {
    * @returns A promise that resolves to the created category record.
    */
   static async createCategory(payload: TCreateCategoryPayload): Promise<RecordModel> {
-    const record = await pb.collection(PocketBaseCollection.CATEGORY).create(payload);
+    const record = await pb.collection(PocketBaseCollection.CATEGORY).create(payload, {requestKey: null});
     return record;
   }
 

@@ -6,7 +6,7 @@ import React from 'react';
 
 import {AppConfig} from '@/app.config';
 import {withAuthLayout} from '@/components/Auth/Layout';
-import {ActionPaper, Linkify} from '@/components/Base';
+import {ActionPaper, Linkify, Menu} from '@/components/Base';
 import {SearchInput} from '@/components/Base/Search';
 import {type ISelectionHandler} from '@/components/Base/Select';
 import {Table} from '@/components/Base/Table';
@@ -15,6 +15,7 @@ import {
   CategoryDrawer,
   CategoryService,
   CategorySpendingsChart,
+  CreateMultipleCategoriesDialog,
   type TCategoryDrawerValues,
   useFetchCategories,
 } from '@/components/Category';
@@ -44,6 +45,7 @@ export const Categories = () => {
     useEntityDrawer<TCategoryDrawerValues>,
     UseEntityDrawerDefaultState<TCategoryDrawerValues>(),
   );
+  const [showCreateMultipleDialog, setShowCreateMultipleDialog] = React.useState(false);
   const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] = React.useState(false);
   const [deleteCategories, setDeleteCategories] = React.useState<TCategory[]>([]);
   const [selectedCategories, setSelectedCategories] = React.useState<TCategory[]>([]);
@@ -156,6 +158,15 @@ export const Categories = () => {
 
               <SearchInput onSearch={handler.onSearch} />
 
+              <Menu
+                actions={[
+                  {
+                    children: 'Create multiple',
+                    onClick: () => setShowCreateMultipleDialog(true),
+                  },
+                ]}
+              />
+
               <IconButton color="primary" onClick={handler.showCreateDialog}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
@@ -196,6 +207,11 @@ export const Categories = () => {
         closeOnEscape
       />
 
+      <CreateMultipleCategoriesDialog
+        open={showCreateMultipleDialog}
+        onClose={() => setShowCreateMultipleDialog(false)}
+      />
+
       <DeleteDialog
         open={showDeleteCategoryDialog}
         onClose={() => {
@@ -209,6 +225,7 @@ export const Categories = () => {
         onConfirm={() => handler.onConfirmCategoryDelete()}
         withTransition
       />
+
       <FabContainer>
         <OpenFilterDrawerFab />
         <AddFab onClick={handler.showCreateDialog} />

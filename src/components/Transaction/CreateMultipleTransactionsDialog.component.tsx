@@ -1,16 +1,6 @@
 import {type TCreateTransactionPayload, type TTransaction, ZCreateTransactionPayload} from '@budgetbuddyde/types';
 import {AddRounded, DeleteRounded} from '@mui/icons-material';
-import {
-  AutocompleteChangeReason,
-  Box,
-  Button,
-  Grid,
-  IconButton,
-  InputAdornment,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+import {AutocompleteChangeReason, Box, Button, Grid, IconButton, InputAdornment, Stack, TextField} from '@mui/material';
 import {DesktopDatePicker, LocalizationProvider} from '@mui/x-date-pickers';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {RecordModel} from 'pocketbase';
@@ -19,7 +9,6 @@ import {z} from 'zod';
 
 import {useAuthContext} from '@/components/Auth';
 import {
-  ActionPaper,
   FullScreenDialog,
   ReceiverAutocomplete,
   type TFullScreenDialogProps,
@@ -31,6 +20,7 @@ import {useSnackbarContext} from '@/components/Snackbar';
 import {useKeyPress, useScreenSize} from '@/hooks';
 import {parseNumber} from '@/utils';
 
+import {DesktopFeatureOnly} from '../DesktopFeatureOnly.component';
 import {TransactionService} from './Transaction.service';
 import {type TTransactionDrawerValues} from './TransactionDrawer.component';
 import {useFetchTransactions} from './useFetchTransactions.hook';
@@ -222,7 +212,7 @@ export const CreateMultipleTransactionsDialog: React.FC<TCreateMultipleTransacti
               {form.map((row, idx) => (
                 <Grid key={row.tempId} container item md={12} spacing={2}>
                   {idx !== 0 && (
-                    <Grid item xs={0.6} md={0.55}>
+                    <Grid item md={0.55}>
                       <IconButton
                         onClick={() => handler.removeRow(row.tempId)}
                         size="large"
@@ -283,7 +273,7 @@ export const CreateMultipleTransactionsDialog: React.FC<TCreateMultipleTransacti
           </LocalizationProvider>
         </form>
       ) : (
-        <ActionPaper
+        <DesktopFeatureOnly
           sx={{
             display: 'flex',
             width: '100%',
@@ -291,11 +281,8 @@ export const CreateMultipleTransactionsDialog: React.FC<TCreateMultipleTransacti
             p: 2,
             justifyContent: 'center',
             alignItems: 'center',
-          }}>
-          <Typography variant={'h2'} textAlign={'center'}>
-            This feature is desktop only
-          </Typography>
-        </ActionPaper>
+          }}
+        />
       )}
     </FullScreenDialog>
   );
