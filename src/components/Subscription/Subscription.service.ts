@@ -18,7 +18,7 @@ export class SubscriptionService {
    * @returns A promise that resolves to the created subscription record.
    */
   static async createSubscription(payload: TCreateSubscriptionPayload): Promise<RecordModel> {
-    const record = await pb.collection(PocketBaseCollection.SUBSCRIPTION).create(payload);
+    const record = await pb.collection(PocketBaseCollection.SUBSCRIPTION).create(payload, {requestKey: null});
     return record;
   }
 

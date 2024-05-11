@@ -6,7 +6,7 @@ import React from 'react';
 
 import {AppConfig} from '@/app.config';
 import {withAuthLayout} from '@/components/Auth/Layout';
-import {ActionPaper, Linkify} from '@/components/Base';
+import {ActionPaper, Linkify, Menu} from '@/components/Base';
 import {SearchInput} from '@/components/Base/Search';
 import {type ISelectionHandler} from '@/components/Base/Select';
 import {Table} from '@/components/Base/Table';
@@ -19,6 +19,7 @@ import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/componen
 import {PaymentMethodChip} from '@/components/PaymentMethod';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {
+  CreateMultipleSubscriptionsDialog,
   SubscriptionActionMenu,
   SubscriptionDrawer,
   type TSusbcriptionDrawerValues,
@@ -49,6 +50,7 @@ export const Subscriptions = () => {
     useEntityDrawer<TTransactionDrawerValues>,
     UseEntityDrawerDefaultState<TTransactionDrawerValues>(),
   );
+  const [showCreateMultipleDialog, setShowCreateMultipleDialog] = React.useState(false);
   const [subscriptionDrawer, dispatchSubscriptionDrawer] = React.useReducer(
     useEntityDrawer<TSusbcriptionDrawerValues>,
     UseEntityDrawerDefaultState<TSusbcriptionDrawerValues>(),
@@ -260,6 +262,16 @@ export const Subscriptions = () => {
               <IconButton color="primary" onClick={handler.showCreateSubscriptionDialog}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
+
+              <Menu
+                actions={[
+                  {
+                    children: 'Create multiple',
+                    onClick: () => setShowCreateMultipleDialog(true),
+                  },
+                ]}
+              />
+
               {subscriptions.length > 0 && (
                 <DownloadButton
                   data={subscriptions}
@@ -299,6 +311,11 @@ export const Subscriptions = () => {
         onClose={() => dispatchTransactionDrawer({type: 'CLOSE'})}
         closeOnBackdropClick
         closeOnEscape
+      />
+
+      <CreateMultipleSubscriptionsDialog
+        open={showCreateMultipleDialog}
+        onClose={() => setShowCreateMultipleDialog(false)}
       />
 
       <SubscriptionDrawer
