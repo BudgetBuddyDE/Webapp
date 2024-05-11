@@ -56,6 +56,26 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
   const {loading: isLoadingSubscriptions, subscriptions} = useFetchSubscriptions();
   const [loading, setLoading] = React.useState(false);
 
+  const upcomingIncome: number = React.useMemo(() => {
+    return (
+      TransactionService.getUpcomingX('INCOME', transactions) +
+      SubscriptionService.getUpcomingX('INCOME', subscriptions)
+    );
+  }, [transactions, subscriptions]);
+
+  const upcomingExpenses: number = React.useMemo(() => {
+    return (
+      TransactionService.getUpcomingX('EXPENSES', transactions) +
+      SubscriptionService.getUpcomingX('EXPENSES', subscriptions)
+    );
+  }, [transactions, subscriptions]);
+
+  const estimatedBalance: number = React.useMemo(() => {
+    const income = fetchedStats.earnings + upcomingIncome;
+    const expenses = Math.abs(fetchedStats.expenses + upcomingExpenses);
+    return income - expenses;
+  }, [fetchedStats, upcomingIncome, upcomingExpenses]);
+
   const stats: TStatsCardProps[] = React.useMemo(() => {
     const cardData: TStatsCardProps[] = [
       {
@@ -63,25 +83,20 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
         icon: <AddRounded />,
         label: 'Income',
         value: Formatter.formatBalance(fetchedStats.earnings),
-        valueInformation: `Upcoming: ${Formatter.formatBalance(
-          TransactionService.getUpcomingX('INCOME', transactions) +
-            SubscriptionService.getUpcomingX('INCOME', subscriptions),
-        )}`,
+        valueInformation: `Upcoming: ${Formatter.formatBalance(upcomingIncome)}`,
       },
       {
         isLoading: isLoadingTransactions || isLoadingSubscriptions || loading,
         icon: <RemoveRounded />,
         label: 'Spendings',
         value: Formatter.formatBalance(fetchedStats.expenses),
-        valueInformation: `Upcoming: ${Formatter.formatBalance(
-          TransactionService.getUpcomingX('EXPENSES', transactions) +
-            SubscriptionService.getUpcomingX('EXPENSES', subscriptions),
-        )}`,
+        valueInformation: `Upcoming: ${Formatter.formatBalance(Math.abs(upcomingExpenses))}`,
       },
       {
         icon: <BalanceRounded />,
         label: 'Balance',
         value: Formatter.formatBalance(fetchedStats.balance),
+        valueInformation: `Exstimated: ${Formatter.formatBalance(estimatedBalance)}`,
       },
     ];
 
