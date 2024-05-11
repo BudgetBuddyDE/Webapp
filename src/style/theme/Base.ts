@@ -16,7 +16,7 @@ export const breakpoints: BreakpointsOptions = {
 export const direction: Direction = 'ltr';
 
 export const shape: Theme['shape'] = {
-  borderRadius: 10,
+  borderRadius: 8,
 };
 
 export const unstable_strictMode: Theme['unstable_strictMode'] = false;
@@ -43,7 +43,7 @@ export const components: Theme['components'] = {
   MuiMenuItem: {
     styleOverrides: {
       root: {
-        borderRadius: 10,
+        borderRadius: shape.borderRadius,
       },
     },
   },
@@ -57,10 +57,10 @@ export const components: Theme['components'] = {
             border: 0,
           },
           '&:not(:first-of-type)': {
-            borderRadius: 10,
+            borderRadius: shape.borderRadius,
           },
           '&:first-of-type': {
-            borderRadius: 10,
+            borderRadius: shape.borderRadius,
           },
         },
       },
@@ -69,18 +69,18 @@ export const components: Theme['components'] = {
   MuiIconButton: {
     styleOverrides: {
       root: {
-        borderRadius: 10,
+        borderRadius: shape.borderRadius,
       },
     },
   },
-  MuiPaper: {
-    styleOverrides: {
-      root: {
-        boxShadow: 'none',
-        border: '1px solid rgba(194, 224, 255, 0.08)',
-      },
-    },
-  },
+  // MuiPaper: {
+  //   styleOverrides: {
+  //     root: {
+  //       boxShadow: 'none',
+  //       border: '1px solid rgba(194, 224, 255, 0.08)',
+  //     },
+  //   },
+  // },
 };
 
 export const typography: TypographyOptions = {
