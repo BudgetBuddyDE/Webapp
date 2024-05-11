@@ -158,6 +158,10 @@ export const Categories = () => {
 
               <SearchInput onSearch={handler.onSearch} />
 
+              <IconButton color="primary" onClick={handler.showCreateDialog}>
+                <AddRounded fontSize="inherit" />
+              </IconButton>
+
               <Menu
                 actions={[
                   {
@@ -167,9 +171,6 @@ export const Categories = () => {
                 ]}
               />
 
-              <IconButton color="primary" onClick={handler.showCreateDialog}>
-                <AddRounded fontSize="inherit" />
-              </IconButton>
               {categories.length > 0 && (
                 <DownloadButton
                   data={categories}

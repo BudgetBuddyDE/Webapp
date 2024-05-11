@@ -6,7 +6,7 @@ import React from 'react';
 
 import {AppConfig} from '@/app.config';
 import {withAuthLayout} from '@/components/Auth/Layout';
-import {ActionPaper, Linkify} from '@/components/Base';
+import {ActionPaper, Linkify, Menu} from '@/components/Base';
 import {SearchInput} from '@/components/Base/Search';
 import {type ISelectionHandler} from '@/components/Base/Select';
 import {Table} from '@/components/Base/Table';
@@ -21,7 +21,7 @@ import {
   PaymentMethodService,
   useFetchPaymentMethods,
 } from '@/components/PaymentMethod';
-import {type TPaymentMethodDrawerValues} from '@/components/PaymentMethod';
+import {CreateMultiplePaymentMethodsDialog, type TPaymentMethodDrawerValues} from '@/components/PaymentMethod';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
 
@@ -41,6 +41,7 @@ export const PaymentMethods = () => {
     useEntityDrawer<TPaymentMethodDrawerValues>,
     UseEntityDrawerDefaultState<TPaymentMethodDrawerValues>(),
   );
+  const [showCreateMultipleDialog, setShowCreateMultipleDialog] = React.useState(false);
   const [showDeletePaymentMethodDialog, setShowDeletePaymentMethodDialog] = React.useState(false);
   const [deletePaymentMethods, setDeletePaymentMethods] = React.useState<TPaymentMethod[]>([]);
   const [selectedPaymentMethods, setSelectedPaymentMethods] = React.useState<TPaymentMethod[]>([]);
@@ -171,6 +172,16 @@ export const PaymentMethods = () => {
               <IconButton color="primary" onClick={handler.showCreateDialog}>
                 <AddRounded fontSize="inherit" />
               </IconButton>
+
+              <Menu
+                actions={[
+                  {
+                    children: 'Create multiple',
+                    onClick: () => setShowCreateMultipleDialog(true),
+                  },
+                ]}
+              />
+
               {paymentMethods.length > 0 && (
                 <DownloadButton
                   data={paymentMethods}
@@ -196,6 +207,11 @@ export const PaymentMethods = () => {
         onClose={() => dispatchPaymentMethodDrawer({type: 'CLOSE'})}
         closeOnBackdropClick
         closeOnEscape
+      />
+
+      <CreateMultiplePaymentMethodsDialog
+        open={showCreateMultipleDialog}
+        onClose={() => setShowCreateMultipleDialog(false)}
       />
 
       <DeleteDialog

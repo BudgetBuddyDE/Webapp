@@ -24,7 +24,7 @@ export class PaymentMethodService {
    * @returns A Promise that resolves to the created payment method record.
    */
   static async createPaymentMethod(payload: TCreatePaymentMethodPayload): Promise<RecordModel> {
-    const record = await pb.collection(PocketBaseCollection.PAYMENT_METHOD).create(payload);
+    const record = await pb.collection(PocketBaseCollection.PAYMENT_METHOD).create(payload, {requestKey: null});
     return record;
   }
 
