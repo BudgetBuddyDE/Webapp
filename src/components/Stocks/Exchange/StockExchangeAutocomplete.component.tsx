@@ -7,7 +7,6 @@ import {
   TextField,
   type TextFieldProps,
   Typography,
-  createFilterOptions,
 } from '@mui/material';
 
 import {StyledAutocompleteOption} from '@/components/Base';
@@ -32,16 +31,6 @@ export interface IStockExchangeAutocompleteProps {
 }
 
 /**
- * The filter function used for creating options in the stock exchange autocomplete component.
- * @typeParam T - The type of the options.
- * @param option - The option to filter.
- * @returns Whether the option should be included in the filtered list.
- */
-const filter = createFilterOptions<TStockExchangeAutocompleteOption>({
-  stringify: option => option.label + option.ticker,
-});
-
-/**
  * Applies a filter to the stock exchange options based on the provided state.
  *
  * @param options - The array of stock exchange options to filter.
@@ -52,13 +41,11 @@ export function applyStockExchangeOptionsFilter(
   options: TStockExchangeAutocompleteOption[],
   state: FilterOptionsState<TStockExchangeAutocompleteOption>,
 ): TStockExchangeAutocompleteOption[] {
-  const filtered = filter(options, state);
-  const matches = filtered.filter(
+  return options.filter(
     option =>
       option.label.toLowerCase().includes(state.inputValue.toLowerCase()) ||
       option.ticker.toLowerCase().includes(state.inputValue.toLowerCase()),
   );
-  return matches;
 }
 
 export const StockExchangeAutocomplete: React.FC<IStockExchangeAutocompleteProps> = ({
@@ -77,6 +64,7 @@ export const StockExchangeAutocomplete: React.FC<IStockExchangeAutocompleteProps
         return option.label;
       }}
       value={value}
+      filterOptions={applyStockExchangeOptionsFilter}
       onChange={onChange}
       isOptionEqualToValue={(option, value) => option.value === value.value}
       defaultValue={defaultValue}
