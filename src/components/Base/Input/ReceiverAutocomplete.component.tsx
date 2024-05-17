@@ -66,8 +66,7 @@ export const ReceiverAutocomplete: React.FC<IReceiverAutocompleteProps> = ({
       value={value}
       onChange={onChange}
       filterOptions={applyReceiverOptionsFilter}
-      // FIXME:
-      isOptionEqualToValue={(option, value) => option.value === value?.value || typeof value.value === 'string'}
+      isOptionEqualToValue={(option, value) => option.value == value.value && option.label == value.label}
       defaultValue={defaultValue}
       loadingText="Loading..."
       loading={loading}
