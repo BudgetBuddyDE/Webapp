@@ -9,7 +9,7 @@ import {Grid, InputAdornment, TextField} from '@mui/material';
 import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
-import {Controller} from 'react-hook-form';
+import {Controller, DefaultValues} from 'react-hook-form';
 
 import {useAuthContext} from '@/components/Auth';
 import {ReceiverAutocomplete, type TReceiverAutocompleteOption} from '@/components/Base';
@@ -26,8 +26,9 @@ export type TSusbcriptionDrawerValues = {
   receiver: TReceiverAutocompleteOption | null;
   category: TCategoryAutocompleteOption | null;
   payment_method: TPaymentMethodAutocompleteOption | null;
+  transfer_amount: TSubscription['transfer_amount'] | null;
   execute_at: Date;
-} & Pick<TSubscription, 'paused' | 'information' | 'transfer_amount'>;
+} & Pick<TSubscription, 'paused' | 'information'>;
 
 export type TSubscriptionDrawerProps = TUseEntityDrawerState<TSusbcriptionDrawerValues> & {
   onClose: () => void;
@@ -49,7 +50,7 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
   const {refresh: refreshSubscriptions} = useFetchSubscriptions();
 
   const handler = {
-    async handleSubmit(data: TSusbcriptionDrawerValues) {
+    async handleSubmit(data: TSusbcriptionDrawerValues, onSuccess: () => void) {
       if (!sessionUser) throw new Error('No session-user not found');
 
       switch (drawerAction) {
@@ -72,6 +73,7 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
             console.debug('Created subscription', record);
 
             onClose();
+            onSuccess();
             React.startTransition(() => {
               refreshSubscriptions();
             });
@@ -101,6 +103,7 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
             const record = await SubscriptionService.updateSubscription(defaultValues.id, payload);
 
             onClose();
+            onSuccess();
             React.startTransition(() => {
               refreshSubscriptions();
             });
@@ -112,12 +115,24 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
           break;
       }
     },
+    resetValues() {
+      return {
+        execute_at: new Date(),
+        receiver: null,
+        category: null,
+        payment_method: null,
+        transfer_amount: null,
+        information: null,
+        paused: false,
+      } as DefaultValues<TSusbcriptionDrawerValues>;
+    },
   };
 
   return (
     <EntityDrawer<TSusbcriptionDrawerValues>
       open={open}
       onClose={onClose}
+      onResetForm={handler.resetValues}
       title="Subscription"
       subtitle={drawerAction === 'CREATE' ? 'Create a new subscription' : 'Update subscription'}
       defaultValues={defaultValues}

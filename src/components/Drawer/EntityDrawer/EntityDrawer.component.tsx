@@ -12,17 +12,19 @@ export type IEntityDrawer<T extends FieldValues> = {
   closeOnEscape?: boolean;
   open: boolean;
   onClose: () => void;
+  onResetForm?: () => T | DefaultValues<T> | undefined;
   title: string;
   subtitle?: string;
   defaultValues?: DefaultValues<T> | undefined;
   children: (props: {form: UseFormReturn<T, any, undefined>}) => React.ReactNode;
-  onSubmit: (data: T) => void;
+  onSubmit: (data: T, onSuccess: () => void) => void;
   isLoading?: boolean;
 };
 
 export const EntityDrawer = <T extends FieldValues>({
   open,
   onClose,
+  onResetForm,
   title,
   subtitle,
   children,
@@ -61,10 +63,16 @@ export const EntityDrawer = <T extends FieldValues>({
       }
 
       onClose();
-      form.reset();
+      handler.handleFormReset();
     },
     handleSubmit(data: T) {
-      onSubmit(data);
+      onSubmit(data, handler.handleFormReset);
+    },
+    handleFormReset() {
+      if (onResetForm) {
+        const newValues = onResetForm();
+        form.reset(newValues);
+      }
     },
   };
 
@@ -108,6 +116,10 @@ export const EntityDrawer = <T extends FieldValues>({
         onSubmit={form.handleSubmit(handler.handleSubmit)}
         style={{display: 'flex', flexDirection: 'column', flex: 1}}
         noValidate>
+        <Button size="large" variant="contained" fullWidth onClick={handler.handleFormReset}>
+          Reset
+        </Button>
+
         {children({form})}
 
         <Stack direction={'row'} justifyContent={'flex-end'} sx={{mt: 'auto', p: 2, pt: 0}}>

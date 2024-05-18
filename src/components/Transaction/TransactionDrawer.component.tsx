@@ -9,7 +9,7 @@ import {Grid, InputAdornment, TextField} from '@mui/material';
 import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
-import {Controller} from 'react-hook-form';
+import {Controller, DefaultValues} from 'react-hook-form';
 
 import {useAuthContext} from '@/components/Auth';
 import {FileUpload, FileUploadPreview, ReceiverAutocomplete, type TReceiverAutocompleteOption} from '@/components/Base';
@@ -28,8 +28,9 @@ export type TTransactionDrawerValues = {
   receiver: TReceiverAutocompleteOption | null;
   category: TCategoryAutocompleteOption | null;
   payment_method: TPaymentMethodAutocompleteOption | null;
+  transfer_amount: TTransaction['transfer_amount'] | null;
   attachments?: TTransaction['attachments'];
-} & Pick<TTransaction, 'processed_at' | 'transfer_amount' | 'information'>;
+} & Pick<TTransaction, 'processed_at' | 'information'>;
 
 export type TTransactionDrawerProps = TUseEntityDrawerState<TTransactionDrawerValues> & {
   onClose: () => void;
@@ -57,7 +58,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
     onFileUpload(files: FileList) {
       setUploadedFiles(Array.from(files));
     },
-    async handleSubmit(data: TTransactionDrawerValues) {
+    async handleSubmit(data: TTransactionDrawerValues, onSuccess: () => void) {
       if (!sessionUser) throw new Error('No session-user not found');
 
       switch (drawerAction) {
@@ -90,6 +91,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
             const record = await TransactionService.createTransaction(formData);
 
             onClose();
+            onSuccess();
             React.startTransition(() => {
               refreshTransactions();
             });
@@ -140,6 +142,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
             }
 
             onClose();
+            onSuccess();
             React.startTransition(() => {
               refreshTransactions();
             });
@@ -150,6 +153,17 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
           }
           break;
       }
+    },
+    resetValues() {
+      return {
+        processed_at: new Date(),
+        receiver: null,
+        category: null,
+        payment_method: null,
+        transfer_amount: null,
+        information: null,
+        attachments: [],
+      } as DefaultValues<TTransactionDrawerValues>;
     },
   };
 
@@ -175,6 +189,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
     <EntityDrawer<TTransactionDrawerValues>
       open={open}
       onClose={onClose}
+      onResetForm={handler.resetValues}
       title="Transaction"
       subtitle={`${drawerAction === 'CREATE' ? 'Create a new' : 'Update an'} transaction`}
       defaultValues={defaultValues}

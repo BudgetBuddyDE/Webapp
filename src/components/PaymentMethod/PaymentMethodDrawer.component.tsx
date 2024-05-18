@@ -7,6 +7,7 @@ import {
 } from '@budgetbuddyde/types';
 import {Grid, TextField} from '@mui/material';
 import React from 'react';
+import {DefaultValues} from 'react-hook-form';
 
 import {useAuthContext} from '@/components/Auth';
 import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/EntityDrawer';
@@ -15,7 +16,11 @@ import {useSnackbarContext} from '@/components/Snackbar';
 
 export type TPaymentMethodDrawerValues = {
   id?: TPaymentMethod['id'];
-} & Pick<TPaymentMethod, 'address' | 'provider' | 'name' | 'description'>;
+  name: TPaymentMethod['name'] | null;
+  address: TPaymentMethod['address'] | null;
+  provider: TPaymentMethod['provider'] | null;
+  description: TPaymentMethod['description'] | null;
+};
 
 export type TPaymentMethodDrawerProps = TUseEntityDrawerState<TPaymentMethodDrawerValues> & {
   onClose: () => void;
@@ -36,7 +41,7 @@ export const PaymentMethodDrawer: React.FC<TPaymentMethodDrawerProps> = ({
   const {refresh: refreshPaymentMethods} = useFetchPaymentMethods();
 
   const handler = {
-    async handleSubmit(data: TPaymentMethodDrawerValues) {
+    async handleSubmit(data: TPaymentMethodDrawerValues, onSuccess: () => void) {
       if (!sessionUser) throw new Error('No session-user not found');
 
       switch (drawerAction) {
@@ -55,6 +60,7 @@ export const PaymentMethodDrawer: React.FC<TPaymentMethodDrawerProps> = ({
             const record = await PaymentMethodService.createPaymentMethod(payload);
 
             onClose();
+            onSuccess();
             React.startTransition(() => {
               refreshPaymentMethods();
             });
@@ -82,6 +88,7 @@ export const PaymentMethodDrawer: React.FC<TPaymentMethodDrawerProps> = ({
             const record = await PaymentMethodService.updatePaymentMethod(defaultValues.id, payload);
 
             onClose();
+            onSuccess();
             React.startTransition(() => {
               refreshPaymentMethods();
             });
@@ -93,12 +100,21 @@ export const PaymentMethodDrawer: React.FC<TPaymentMethodDrawerProps> = ({
           break;
       }
     },
+    resetValues() {
+      return {
+        name: null,
+        address: null,
+        provider: null,
+        description: null,
+      } as DefaultValues<TPaymentMethodDrawerValues>;
+    },
   };
 
   return (
     <EntityDrawer<TPaymentMethodDrawerValues>
       open={open}
       onClose={onClose}
+      onResetForm={handler.resetValues}
       title="Payment Method"
       subtitle={`${drawerAction === 'CREATE' ? 'Create a new' : 'Update an'} payment-method`}
       defaultValues={defaultValues}
