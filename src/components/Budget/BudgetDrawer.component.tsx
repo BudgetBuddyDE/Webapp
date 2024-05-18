@@ -7,7 +7,7 @@ import {
 } from '@budgetbuddyde/types';
 import {Grid, InputAdornment, TextField} from '@mui/material';
 import React from 'react';
-import {Controller} from 'react-hook-form';
+import {Controller, DefaultValues} from 'react-hook-form';
 
 import {useAuthContext} from '@/components/Auth';
 import {CategoryAutocomplete, type TCategoryAutocompleteOption} from '@/components/Category';
@@ -21,7 +21,8 @@ import {useFetchBudget} from './useFetchBudget.hook';
 export type TBudgetDrawerValues = {
   id?: TBudget['id'];
   category: TCategoryAutocompleteOption | null;
-} & Pick<TBudget, 'budget'>;
+  budget: TBudget['budget'] | null;
+};
 
 export type TBudgetDrawerProps = TUseEntityDrawerState<TBudgetDrawerValues> & {
   onClose: () => void;
@@ -42,7 +43,7 @@ export const BudgetDrawer: React.FC<TBudgetDrawerProps> = ({
   const {refresh: refreshBudgets} = useFetchBudget();
 
   const handler = {
-    async handleSubmit(data: TBudgetDrawerValues) {
+    async handleSubmit(data: TBudgetDrawerValues, onSuccess: () => void) {
       if (!sessionUser) throw new Error('No session-user not found');
 
       switch (drawerAction) {
@@ -59,6 +60,7 @@ export const BudgetDrawer: React.FC<TBudgetDrawerProps> = ({
             const record = await BudgetService.createBudget(payload);
 
             onClose();
+            onSuccess();
             React.startTransition(() => {
               refreshBudgets();
             });
@@ -84,6 +86,7 @@ export const BudgetDrawer: React.FC<TBudgetDrawerProps> = ({
             const record = await BudgetService.updateBudget(defaultValues.id, payload);
 
             onClose();
+            onSuccess();
             React.startTransition(() => {
               refreshBudgets();
             });
@@ -95,12 +98,19 @@ export const BudgetDrawer: React.FC<TBudgetDrawerProps> = ({
           break;
       }
     },
+    resetValues() {
+      return {
+        category: null,
+        budget: null,
+      } as DefaultValues<TBudgetDrawerValues>;
+    },
   };
 
   return (
     <EntityDrawer<TBudgetDrawerValues>
       open={open}
       onClose={onClose}
+      onResetForm={handler.resetValues}
       title="Payment Method"
       subtitle={`${drawerAction === 'CREATE' ? 'Create a new' : 'Update an'} category`}
       defaultValues={defaultValues}

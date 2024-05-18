@@ -19,6 +19,7 @@ export type TUseEntityDrawerAction<T> =
           payload: NonUndefined<TUseEntityDrawerState<T>['defaultValues']>;
         }
     )
+  // | {type: 'RESET_PAYLOAD'}
   | {type: 'CLOSE'};
 
 export function UseEntityDrawerDefaultState<T>(): TUseEntityDrawerState<T> {
@@ -33,8 +34,10 @@ export function useEntityDrawer<T>(
     case 'OPEN':
       return {...state, open: true, drawerAction: action.drawerAction, defaultValues: action.payload || undefined};
 
+    // case 'RESET_PAYLOAD':
+    //   return {...state, defaultValues: undefined};
+
     case 'CLOSE':
-      console.log('Closing drawer');
       return {...state, open: false, drawerAction: undefined, defaultValues: undefined};
 
     default:

@@ -10,7 +10,7 @@ import {Grid, InputAdornment, TextField} from '@mui/material';
 import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
-import {Controller} from 'react-hook-form';
+import {Controller, DefaultValues} from 'react-hook-form';
 
 import {useAuthContext} from '@/components/Auth';
 import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/EntityDrawer';
@@ -27,7 +27,11 @@ export type TStockPositionDrawerValues = {
   id?: TStockPosition['id'];
   stock: TStockAutocompleteOption | null;
   exchange: TStockExchangeAutocompleteOption | null;
-} & Pick<TStockPosition, 'bought_at' | 'buy_in' | 'currency' | 'quantity'>;
+  bought_at: TStockPosition['bought_at'] | null;
+  buy_in: TStockPosition['buy_in'] | null;
+  quantity: TStockPosition['quantity'] | null;
+  currency: TStockPosition['currency'] | null;
+};
 
 export type TStockPositionDrawerProps = TUseEntityDrawerState<TStockPositionDrawerValues> & {
   onClose: () => void;
@@ -49,7 +53,7 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
   const {refresh: refreshStockPositions} = useFetchStockPositions();
 
   const handler = {
-    async handleSubmit(data: TStockPositionDrawerValues) {
+    async handleSubmit(data: TStockPositionDrawerValues, onSuccess: () => void) {
       if (!sessionUser) throw new Error('No session-user not found');
 
       switch (drawerAction) {
@@ -69,6 +73,7 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
             const record = await pb.collection(PocketBaseCollection.STOCK_POSITION).create(payload);
 
             onClose();
+            onSuccess();
             React.startTransition(() => {
               refreshStockPositions();
             });
@@ -99,6 +104,7 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
             const record = await pb.collection(PocketBaseCollection.STOCK_POSITION).update(defaultValues.id, payload);
 
             onClose();
+            onSuccess();
             React.startTransition(() => {
               refreshStockPositions();
             });
@@ -110,12 +116,23 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
           break;
       }
     },
+    resetValues() {
+      return {
+        bought_at: new Date(),
+        buy_in: null,
+        quantity: null,
+        stock: null,
+        exchange: null,
+        currency: 'EUR',
+      } as DefaultValues<TStockPositionDrawerValues>;
+    },
   };
 
   return (
     <EntityDrawer<TStockPositionDrawerValues>
       open={open}
       onClose={onClose}
+      onResetForm={handler.resetValues}
       title="Stock Position"
       subtitle={`${drawerAction === 'CREATE' ? 'Open a new' : 'Update an'} stock position`}
       defaultValues={defaultValues}
@@ -140,7 +157,7 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
                 render={({field: {onChange, value, ref}}) =>
                   screenSize === 'small' ? (
                     <MobileDatePicker
-                      label="Bought at "
+                      label="Bought at"
                       inputFormat="dd.MM.yyyy"
                       onChange={onChange}
                       onAccept={onChange}

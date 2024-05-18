@@ -7,6 +7,7 @@ import {
 } from '@budgetbuddyde/types';
 import {Grid, TextField} from '@mui/material';
 import React from 'react';
+import {DefaultValues} from 'react-hook-form';
 
 import {useAuthContext} from '@/components/Auth';
 import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/EntityDrawer';
@@ -17,7 +18,9 @@ import {useFetchCategories} from './useFetchCategories.hook';
 
 export type TCategoryDrawerValues = {
   id?: TCategory['id'];
-} & Pick<TCategory, 'name' | 'description'>;
+  name: TCategory['name'] | null;
+  description: TCategory['description'] | null;
+};
 
 export type TCategoryDrawerProps = TUseEntityDrawerState<TCategoryDrawerValues> & {
   onClose: () => void;
@@ -38,7 +41,7 @@ export const CategoryDrawer: React.FC<TCategoryDrawerProps> = ({
   const {refresh: refreshCategories} = useFetchCategories();
 
   const handler = {
-    async handleSubmit(data: TCategoryDrawerValues) {
+    async handleSubmit(data: TCategoryDrawerValues, onSuccess: () => void) {
       if (!sessionUser) throw new Error('No session-user not found');
 
       switch (drawerAction) {
@@ -55,6 +58,7 @@ export const CategoryDrawer: React.FC<TCategoryDrawerProps> = ({
             const record = await CategoryService.createCategory(payload);
 
             onClose();
+            onSuccess();
             React.startTransition(() => {
               refreshCategories();
             });
@@ -80,6 +84,7 @@ export const CategoryDrawer: React.FC<TCategoryDrawerProps> = ({
             const record = await CategoryService.updateCategory(defaultValues.id, payload);
 
             onClose();
+            onSuccess();
             React.startTransition(() => {
               refreshCategories();
             });
@@ -91,12 +96,19 @@ export const CategoryDrawer: React.FC<TCategoryDrawerProps> = ({
           break;
       }
     },
+    resetValues() {
+      return {
+        name: null,
+        description: null,
+      } as DefaultValues<TCategoryDrawerValues>;
+    },
   };
 
   return (
     <EntityDrawer<TCategoryDrawerValues>
       open={open}
       onClose={onClose}
+      onResetForm={handler.resetValues}
       title="Payment Method"
       subtitle={`${drawerAction === 'CREATE' ? 'Create a new' : 'Update an'} category`}
       defaultValues={defaultValues}
