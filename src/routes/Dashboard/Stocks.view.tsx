@@ -1,5 +1,5 @@
 import {type TDividendDetails} from '@budgetbuddyde/types';
-import {AccountBalanceRounded, TimelineRounded} from '@mui/icons-material';
+import {AccountBalanceRounded, AddRounded, PaymentsRounded, RemoveRounded} from '@mui/icons-material';
 import {Grid} from '@mui/material';
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
@@ -35,12 +35,6 @@ const StocksView = () => {
     refresh: refreshDividends,
   } = useFetchStockDividends(stockPositions.map(({isin}) => isin));
 
-  const depotBuyIn: number = React.useMemo(() => {
-    return stockPositions.reduce((acc, position) => {
-      return acc + position.buy_in * position.quantity;
-    }, 0);
-  }, [stockPositions]);
-
   const depotValue: number = React.useMemo(() => {
     return stockPositions.reduce((acc, position) => {
       return acc + position.quote.price * position.quantity;
@@ -52,6 +46,31 @@ const StocksView = () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     return Object.entries(dividends).map(([_, dividendDetails]) => dividendDetails);
   }, [dividends]);
+
+  const unrealisedProfits: number = React.useMemo(() => {
+    return stockPositions
+      .filter(position => position.buy_in < position.quote.price)
+      .reduce((acc, position) => acc + (position.quote.price - position.buy_in) * position.quantity, 0);
+  }, [stockPositions]);
+
+  const unrealisedLosses: number = React.useMemo(() => {
+    return stockPositions
+      .filter(position => position.buy_in > position.quote.price)
+      .reduce((acc, position) => acc + Math.abs(position.quote.price - position.buy_in) * position.quantity, 0);
+  }, [stockPositions]);
+
+  const upcomingDividends: number = React.useMemo(() => {
+    if (!dividends || !stockPositions || stockPositions.length === 0) return 0;
+    return Object.entries(dividends)
+      .flatMap(([_, dividendDetails]) => dividendDetails.futureDividends)
+      .reduce((acc, dividend) => {
+        if (!dividend) return acc;
+        const matchingPositions = stockPositions.filter(({isin}) => isin === dividend.security);
+        const totalStockQuantity = matchingPositions.reduce((acc, position) => acc + position.quantity, 0);
+        if (totalStockQuantity <= 0) return acc;
+        return acc + totalStockQuantity * dividend.price;
+      }, 0);
+  }, [dividends, stockPositions]);
 
   React.useLayoutEffect(() => {
     if (!sessionUser || loadingStockPositions || stockPositions.length === 0) return;
@@ -94,8 +113,8 @@ const StocksView = () => {
 
   return (
     <StockLayout onSelectAsset={({identifier}) => navigate(`/stocks/${identifier}`)}>
-      <Grid container item xs={12} md={8} spacing={3} sx={{height: 'fit-content'}}>
-        <Grid item xs={6} md={6} order={{xs: 1, md: 1}}>
+      <Grid container item xs={12} md={12} spacing={3}>
+        <Grid item xs={6} md={3}>
           <StatsCard
             label={'Depot'}
             value={Formatter.formatBalance(depotValue)}
@@ -104,15 +123,36 @@ const StocksView = () => {
             valueInformation="Current value of your depot"
           />
         </Grid>
-        <Grid item xs={6} md={6} order={{xs: 2, md: 3}}>
+        <Grid item xs={6} md={3}>
           <StatsCard
-            label={'Performance'}
-            value={Formatter.formatBalance(depotValue - depotBuyIn)}
-            valueInformation="All-time performance"
-            icon={<TimelineRounded />}
+            label="Unrealised profits"
+            value={Formatter.formatBalance(unrealisedProfits)}
+            icon={<AddRounded />}
+            isLoading={loadingStockPositions}
+            valueInformation={`Capital gain: ${Formatter.formatBalance(unrealisedProfits - unrealisedLosses)}`}
           />
         </Grid>
+        <Grid item xs={6} md={3}>
+          <StatsCard
+            label="Unrealised profits"
+            value={Formatter.formatBalance(unrealisedLosses)}
+            icon={<RemoveRounded />}
+            isLoading={loadingStockPositions}
+            valueInformation={`Capital gain: ${Formatter.formatBalance(unrealisedProfits - unrealisedLosses)}`}
+          />
+        </Grid>
+        <Grid item xs={6} md={3}>
+          <StatsCard
+            label="Upcoming dividends"
+            value={Formatter.formatBalance(upcomingDividends)}
+            icon={<PaymentsRounded />}
+            isLoading={loadingDividends || loadingStockPositions}
+            valueInformation="Expected upcoming dividend payments"
+          />
+        </Grid>
+      </Grid>
 
+      <Grid container item xs={12} md={8} spacing={3} sx={{height: 'fit-content'}}>
         <Grid item xs={12} md={12} order={{xs: 4}}>
           <StockPositionTable withRedirect />
         </Grid>
