@@ -73,14 +73,13 @@ export const components: Theme['components'] = {
       },
     },
   },
-  // MuiPaper: {
-  //   styleOverrides: {
-  //     root: {
-  //       boxShadow: 'none',
-  //       border: '1px solid rgba(194, 224, 255, 0.08)',
-  //     },
-  //   },
-  // },
+  MuiPaper: {
+    styleOverrides: {
+      root: {
+        border: '1px solid transparent',
+      },
+    },
+  },
 };
 
 export const typography: TypographyOptions = {
