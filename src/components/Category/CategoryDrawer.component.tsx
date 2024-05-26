@@ -9,6 +9,7 @@ import {Grid, TextField} from '@mui/material';
 import React from 'react';
 import {DefaultValues} from 'react-hook-form';
 
+import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/EntityDrawer';
 import {useSnackbarContext} from '@/components/Snackbar';
@@ -121,7 +122,7 @@ export const CategoryDrawer: React.FC<TCategoryDrawerProps> = ({
           formState: {errors},
         },
       }) => (
-        <Grid container spacing={2} sx={{p: 2}}>
+        <Grid container spacing={AppConfig.baseSpacing} sx={{p: 2}}>
           <Grid item xs={12} md={12}>
             <TextField
               label="Name"

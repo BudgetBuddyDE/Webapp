@@ -191,7 +191,7 @@ export const Categories = () => {
         />
       </Grid>
 
-      <Grid container item xs={12} md={12} lg={4} xl={4} spacing={3} sx={{height: 'max-content'}}>
+      <Grid container item xs={12} md={12} lg={4} xl={4} spacing={AppConfig.baseSpacing} sx={{height: 'max-content'}}>
         <Grid item xs={12} md={12}>
           <CategorySpendingsChart />
         </Grid>

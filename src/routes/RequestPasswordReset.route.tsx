@@ -4,6 +4,7 @@ import {Box, Button, CircularProgress, Divider, Grid, TextField, Typography} fro
 import React from 'react';
 import {Link as RouterLink} from 'react-router-dom';
 
+import {AppConfig} from '@/app.config';
 import {AppLogo} from '@/components/AppLogo.component';
 import {useAuthContext} from '@/components/Auth';
 import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
@@ -77,7 +78,7 @@ const RequestPasswordReset = () => {
         </Card.Header>
         <Card.Body>
           <form onSubmit={handler.onSubmit}>
-            <Grid container spacing={2} sx={{mt: 1}}>
+            <Grid container spacing={AppConfig.baseSpacing} sx={{mt: 1}}>
               <Grid item xs={12} md={12}>
                 <TextField
                   variant="outlined"

@@ -9,6 +9,7 @@ import {Grid, InputAdornment, TextField} from '@mui/material';
 import React from 'react';
 import {Controller, DefaultValues} from 'react-hook-form';
 
+import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {CategoryAutocomplete, type TCategoryAutocompleteOption} from '@/components/Category';
 import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/EntityDrawer';
@@ -124,7 +125,7 @@ export const BudgetDrawer: React.FC<TBudgetDrawerProps> = ({
           control,
         },
       }) => (
-        <Grid container spacing={2} sx={{p: 2}}>
+        <Grid container spacing={AppConfig.baseSpacing} sx={{p: 2}}>
           <Grid item xs={12} md={12}>
             <Controller
               control={control}

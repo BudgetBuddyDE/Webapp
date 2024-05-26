@@ -21,6 +21,7 @@ export type TAppConfig = {
   table: {
     cellSize: TableCellProps['size'];
   };
+  baseSpacing: number;
   authProvider: Record<string, string>;
   feature: Record<Feature, boolean>;
 };
@@ -38,6 +39,7 @@ export const AppConfig: TAppConfig = {
   table: {
     cellSize: 'medium',
   },
+  baseSpacing: 2,
   authProvider: {
     google: 'Google',
     github: 'GitHub',

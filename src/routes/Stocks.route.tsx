@@ -3,7 +3,7 @@ import {Button, Grid} from '@mui/material';
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
 
-import {Feature} from '@/app.config';
+import {AppConfig, Feature} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
@@ -152,7 +152,7 @@ export const Stocks = () => {
         handler.showCreateDialog({stock: {type, isin: identifier, label: name, logo}});
       }}>
       <ContentGrid title="Stocks" description={'Manage your positions'}>
-        <Grid item xs={12} md={9} lg={9} xl={9}>
+        <Grid item xs={12} md={8.5} lg={8.5} xl={9}>
           <StockPositionTable
             withRedirect
             onAddPosition={handler.showCreateDialog}
@@ -164,7 +164,7 @@ export const Stocks = () => {
           />
         </Grid>
 
-        <Grid container item xs={12} md={3} spacing={2}>
+        <Grid container item xs={12} md={3.5} lg={3.5} xl={3} spacing={AppConfig.baseSpacing}>
           <Grid item xs={12}>
             {loadingStockPositions ? <CircularProgress /> : <PortfolioDiversityChart positions={stockPositions} />}
           </Grid>

@@ -11,6 +11,7 @@ import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import {Controller, DefaultValues} from 'react-hook-form';
 
+import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {FileUpload, FileUploadPreview, ReceiverAutocomplete, type TReceiverAutocompleteOption} from '@/components/Base';
 import {CategoryAutocomplete, type TCategoryAutocompleteOption} from '@/components/Category';
@@ -203,7 +204,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
           control,
         },
       }) => (
-        <Grid container spacing={2} sx={{p: 2}}>
+        <Grid container spacing={AppConfig.baseSpacing} sx={{p: 2}}>
           <Grid item xs={12} md={12}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Controller
@@ -336,7 +337,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
               rows={2}
             />
           </Grid>
-          <Grid container item xs={12} md={12} columns={10} spacing={2}>
+          <Grid container item xs={12} md={12} columns={10} spacing={AppConfig.baseSpacing}>
             <Grid item xs={2}>
               <FileUpload sx={{width: '100%'}} onFileUpload={handler.onFileUpload} multiple />
             </Grid>

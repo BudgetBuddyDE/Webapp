@@ -2,9 +2,10 @@ import {AddRounded, BalanceRounded, RemoveRounded} from '@mui/icons-material';
 import {Grid, type GridProps} from '@mui/material';
 import React from 'react';
 
+import {AppConfig} from '@/app.config';
 import {StatsCard, type TStatsCardProps} from '@/components/StatsCard.component';
 import {SubscriptionService, useFetchSubscriptions} from '@/components/Subscription';
-import {formatBalance} from '@/utils';
+import {Formatter} from '@/services';
 
 import {useFetchBudget} from './useFetchBudget.hook';
 
@@ -42,27 +43,27 @@ export const StatsWrapper: React.FC<TStatsWrapperProps> = ({containerProps}) => 
 
   const cards: TStatsCardProps[] = [
     {
-      value: formatBalance(values.subscriptions.income),
+      value: Formatter.formatBalance(values.subscriptions.income),
       label: 'Income',
       valueInformation: 'Based on your income subscriptions',
       isLoading: loadingSubscriptions,
       icon: <AddRounded />,
     },
     {
-      value: formatBalance(values.subscriptions.spendings),
+      value: Formatter.formatBalance(values.subscriptions.spendings),
       label: 'Spendings',
       valueInformation: 'Based on your spending subscriptions',
       icon: <RemoveRounded />,
     },
     {
-      value: `${formatBalance(values.budgets.totalPlanned)} / ${formatBalance(values.subscriptions.income)}`,
+      value: `${Formatter.formatBalance(values.budgets.totalPlanned)} / ${Formatter.formatBalance(values.subscriptions.income)}`,
       label: 'Planned Budget',
       valueInformation: 'Already planned budget against planned available income',
       isLoading: loadingBudgets,
       icon: <BalanceRounded />,
     },
     {
-      value: formatBalance(values.subscriptions.income - values.budgets.totalPlanned),
+      value: Formatter.formatBalance(values.subscriptions.income - values.budgets.totalPlanned),
       label: 'Available Budget',
       valueInformation: 'Available budget based on planned income and budget',
       isLoading: loadingBudgets || loadingSubscriptions,
@@ -70,7 +71,7 @@ export const StatsWrapper: React.FC<TStatsWrapperProps> = ({containerProps}) => 
   ];
 
   return (
-    <Grid container spacing={3} item xs={12} md={12} {...containerProps}>
+    <Grid container spacing={AppConfig.baseSpacing} item xs={12} md={12} {...containerProps}>
       {cards.map((card, idx) => (
         <Grid key={idx} item xs={6} md={6} sx={{height: 'unset'}}>
           <StatsCard {...card} />

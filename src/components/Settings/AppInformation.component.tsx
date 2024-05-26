@@ -16,26 +16,26 @@ export const AppInformation = () => {
         </Box>
       </Card.Header>
       <Card.Body>
-        <Stack spacing={2} direction="row" alignItems="center" sx={{mt: 1}}>
+        <Stack spacing={AppConfig.baseSpacing} direction="row" alignItems="center" sx={{mt: 1}}>
           <LanguageRounded />
           <StyledLink href="https://budget-buddy.de" target="_blank">
             Website
           </StyledLink>
         </Stack>
 
-        <Stack spacing={2} direction="row" alignItems="center" sx={{mt: 1}}>
+        <Stack spacing={AppConfig.baseSpacing} direction="row" alignItems="center" sx={{mt: 1}}>
           <AlternateEmailRounded />
           <StyledLink href="mailto:contact@budget-buddy.de">Contact</StyledLink>
         </Stack>
 
-        <Stack spacing={2} direction="row" alignItems="center" sx={{mt: 1}}>
+        <Stack spacing={AppConfig.baseSpacing} direction="row" alignItems="center" sx={{mt: 1}}>
           <CodeRounded />
           <StyledLink href="https://github.com/BudgetBuddyDE/Webapp" target="_blank">
             Source Code
           </StyledLink>
         </Stack>
 
-        <Stack spacing={2} direction="row" alignItems="center" sx={{mt: 1}}>
+        <Stack spacing={AppConfig.baseSpacing} direction="row" alignItems="center" sx={{mt: 1}}>
           <AppSettingsAltRounded />
           <Typography noWrap>Version v{AppConfig.version}</Typography>
         </Stack>

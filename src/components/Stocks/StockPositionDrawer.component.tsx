@@ -12,6 +12,7 @@ import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
 import {Controller, DefaultValues} from 'react-hook-form';
 
+import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/EntityDrawer';
 import {useSnackbarContext} from '@/components/Snackbar';
@@ -146,7 +147,7 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
           control,
         },
       }) => (
-        <Grid container spacing={2} sx={{p: 2}}>
+        <Grid container spacing={AppConfig.baseSpacing} sx={{p: 2}}>
           <Grid item xs={12} md={12}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Controller

@@ -2,6 +2,7 @@ import {PersonRounded} from '@mui/icons-material';
 import {Box, Button, Grid, TextField} from '@mui/material';
 import React from 'react';
 
+import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {Card, NoResults} from '@/components/Base';
 import {useSnackbarContext} from '@/components/Snackbar';
@@ -66,7 +67,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
       </Card.Header>
       <Card.Body>
         <form onSubmit={handler.onSubmit}>
-          <Grid container spacing={2} rowSpacing={1}>
+          <Grid container spacing={AppConfig.baseSpacing} rowSpacing={Math.round(AppConfig.baseSpacing / 2)}>
             <Grid item xs={12} md={12}>
               <TextField
                 fullWidth

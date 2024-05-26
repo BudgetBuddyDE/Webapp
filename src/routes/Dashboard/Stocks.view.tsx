@@ -4,7 +4,7 @@ import {Grid} from '@mui/material';
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
 
-import {Feature} from '@/app.config';
+import {AppConfig, Feature} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
 import {CircularProgress} from '@/components/Loading';
@@ -113,7 +113,7 @@ const StocksView = () => {
 
   return (
     <StockLayout onSelectAsset={({identifier}) => navigate(`/stocks/${identifier}`)}>
-      <Grid container item xs={12} md={12} spacing={3}>
+      <Grid container item xs={12} md={12} spacing={AppConfig.baseSpacing}>
         <Grid item xs={6} md={3}>
           <StatsCard
             label={'Depot'}
@@ -152,7 +152,7 @@ const StocksView = () => {
         </Grid>
       </Grid>
 
-      <Grid container item xs={12} md={8} spacing={3} sx={{height: 'fit-content'}}>
+      <Grid container item xs={12} md={8} spacing={AppConfig.baseSpacing} sx={{height: 'fit-content'}}>
         <Grid item xs={12} md={12} order={{xs: 4}}>
           <StockPositionTable withRedirect />
         </Grid>
@@ -162,7 +162,7 @@ const StocksView = () => {
         </Grid>
       </Grid>
 
-      <Grid container item xs={12} md={4} spacing={3}>
+      <Grid container item xs={12} md={4} spacing={AppConfig.baseSpacing}>
         <Grid item xs={12}>
           {isLoadingWatchlist ? (
             <CircularProgress />

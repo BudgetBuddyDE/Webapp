@@ -83,7 +83,7 @@ const SignUp = () => {
           </Box>
 
           <form onSubmit={formHandler.formSubmit}>
-            <Grid container spacing={2} sx={{mt: 1}}>
+            <Grid container spacing={AppConfig.baseSpacing} sx={{mt: 1}}>
               {Object.keys(AppConfig.authProvider).map(provider => (
                 <Grid item xs={6}>
                   <SocialSignInBtn

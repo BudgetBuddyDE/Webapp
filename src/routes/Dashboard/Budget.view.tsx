@@ -1,6 +1,7 @@
 import {Grid} from '@mui/material';
 import React from 'react';
 
+import {AppConfig} from '@/app.config';
 import {BudgetList, StatsWrapper} from '@/components/Budget';
 import {CategoryIncomeChart, CategorySpendingsChart} from '@/components/Category';
 import {MonthlyBalanceChartCard, MonthlyBalanceWidget} from '@/components/Transaction/MonthlyBalance';
@@ -14,7 +15,7 @@ export const BudgetView = () => {
         <MonthlyBalanceChartCard />
       </Grid>
 
-      <Grid container item xs={12} md={12} lg={7} xl={7} spacing={3}>
+      <Grid container item xs={12} md={12} lg={7} xl={7} spacing={AppConfig.baseSpacing}>
         <StatsWrapper />
 
         <Grid item xs={12} md={12} lg={12} xl={12}>

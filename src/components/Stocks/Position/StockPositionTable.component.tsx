@@ -99,7 +99,7 @@ export const StockPositionTable: React.FC<TStockPositionTableProps> = ({
                 </ActionPaper>
 
                 <Stack>
-                  <Stack direction="row" spacing={0.5}>
+                  <Stack direction="row" spacing={AppConfig.baseSpacing / 4}>
                     {/* <Typography variant="caption">{position.expand.exchange.symbol}</Typography> */}
                     <Typography variant="caption">{position.isin}</Typography>
                     {/* <Typography variant="caption">{'WKN'}</Typography> */}

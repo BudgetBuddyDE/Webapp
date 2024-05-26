@@ -5,6 +5,7 @@ import {format} from 'date-fns';
 import React from 'react';
 import {create} from 'zustand';
 
+import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {SubscriptionService, useFetchSubscriptions, useSubscriptionStore} from '@/components/Subscription';
 import {type IBaseStore, TransactionService, useFetchTransactions, useTransactionStore} from '@/components/Transaction';
@@ -145,7 +146,7 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
   }, [sessionUser]);
 
   return (
-    <Grid container item xs={12} md={12} columns={12} spacing={3}>
+    <Grid container item xs={12} md={12} columns={12} spacing={AppConfig.baseSpacing}>
       {stats.map((props, idx, list) => (
         <Grid
           key={props.label.toString().toLowerCase().replace(' ', '_')}

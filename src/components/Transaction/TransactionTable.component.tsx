@@ -87,7 +87,7 @@ export const TransactionTable: React.FC<TTransactionTableProps> = ({
                 <Typography variant="body1" fontWeight={'bolder'}>
                   {transaction.receiver}
                 </Typography>
-                <Stack direction="row" spacing={0.5}>
+                <Stack direction="row" spacing={AppConfig.baseSpacing / 4}>
                   <CategoryChip category={transaction.expand.category} size="small" />
                   <PaymentMethodChip paymentMethod={transaction.expand.payment_method} size="small" />
                 </Stack>

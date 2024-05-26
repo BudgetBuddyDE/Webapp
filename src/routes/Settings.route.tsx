@@ -1,6 +1,7 @@
 import {Box, Grid, Typography} from '@mui/material';
 import React from 'react';
 
+import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {Card} from '@/components/Base';
@@ -15,7 +16,7 @@ const SettingsRoute: React.FC<TSettingsRouteProps> = () => {
 
   if (!sessionUser) return null;
   return (
-    <Grid container spacing={3}>
+    <Grid container spacing={AppConfig.baseSpacing}>
       <PageHeader title="Settings" />
 
       <Grid item xs={12} md={12} lg={12}>
@@ -61,7 +62,7 @@ const SettingsRoute: React.FC<TSettingsRouteProps> = () => {
         </Grid>
       </Grid>
 
-      <Grid container item xs={12} md={8} lg={8} xl={9} order={{xs: 0, md: 1}} spacing={3}>
+      <Grid container item xs={12} md={8} lg={8} xl={9} order={{xs: 0, md: 1}} spacing={AppConfig.baseSpacing}>
         <Grid item xs={12} md={8} lg={6} xl={6}>
           <EditProfile />
         </Grid>

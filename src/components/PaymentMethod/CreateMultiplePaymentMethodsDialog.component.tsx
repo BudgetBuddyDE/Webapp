@@ -7,6 +7,7 @@ import {RecordModel} from 'pocketbase';
 import React from 'react';
 import {z} from 'zod';
 
+import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {FullScreenDialog, type TFullScreenDialogProps} from '@/components/Base';
 import {useSnackbarContext} from '@/components/Snackbar';
@@ -146,7 +147,10 @@ export const CreateMultiplePaymentMethodsDialog: React.FC<TCreateMultiplePayment
           ? {
               sx: {justifyContent: 'unset'},
               children: (
-                <Stack direction="row" spacing={2} sx={{width: '100%', justifyContent: 'space-between'}}>
+                <Stack
+                  direction="row"
+                  spacing={AppConfig.baseSpacing}
+                  sx={{width: '100%', justifyContent: 'space-between'}}>
                   <Button startIcon={<AddRounded />} onClick={handler.addRow}>
                     Add row
                   </Button>
@@ -166,9 +170,9 @@ export const CreateMultiplePaymentMethodsDialog: React.FC<TCreateMultiplePayment
       {screenSize !== 'small' ? (
         <form onSubmit={handler.onSubmit}>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <Grid container spacing={2}>
+            <Grid container spacing={AppConfig.baseSpacing}>
               {form.map((row, idx) => (
-                <Grid key={row.tempId} container item md={12} spacing={2}>
+                <Grid key={row.tempId} container item md={12} spacing={AppConfig.baseSpacing}>
                   {idx !== 0 && (
                     <Grid item md={0.55}>
                       <IconButton

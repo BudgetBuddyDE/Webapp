@@ -70,7 +70,7 @@ export const DividendTable: React.FC<TDividendTableProps> = ({dividends, withRed
                 </ActionPaper>
 
                 <Stack>
-                  <Stack direction="row" spacing={0.5}>
+                  <Stack direction="row" spacing={AppConfig.baseSpacing / 4}>
                     <Typography variant="caption">{data.companyInfo.security.type}</Typography>
                     <Typography variant="caption">{SEPERATOR}</Typography>
                     <Typography variant="caption">{data.companyInfo.security.isin}</Typography>

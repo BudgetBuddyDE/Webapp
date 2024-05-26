@@ -23,7 +23,7 @@ import React from 'react';
 import Chart from 'react-apexcharts';
 import {Navigate, useNavigate, useParams} from 'react-router-dom';
 
-import {Feature} from '@/app.config';
+import {AppConfig, Feature} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {ApexPieChart, Card, NoResults, TabPanel} from '@/components/Base';
@@ -292,7 +292,7 @@ export const Stock = () => {
         handler.showCreateDialog({stock: {type, isin: identifier, label: name, logo}});
       }}>
       <ContentGrid title={stockDetails?.asset.name ?? ''} description={params.isin}>
-        <Grid container item xs={12} md={12} lg={8} spacing={3}>
+        <Grid container item xs={12} md={12} lg={8} spacing={AppConfig.baseSpacing}>
           <Grid item xs={12} md={12}>
             {loadingQuotes && (!quotes || quotes.length === 0) ? (
               <CircularProgress />
@@ -514,7 +514,7 @@ export const Stock = () => {
             </Grid>
           )}
 
-          <Grid container item xs={12} md={12} spacing={2}>
+          <Grid container item xs={12} md={12} spacing={AppConfig.baseSpacing}>
             {loadingRelatedStocks
               ? Array.from({length: 6}).map((_, idx) => (
                   <Grid key={idx} item xs={6} md={4}>
@@ -529,7 +529,7 @@ export const Stock = () => {
           </Grid>
         </Grid>
 
-        <Grid container item xs={12} md={12} lg={4} spacing={3}>
+        <Grid container item xs={12} md={12} lg={4} spacing={AppConfig.baseSpacing}>
           <Grid item xs={12} md={12}>
             {loadingDetails ? (
               <CircularProgress />
