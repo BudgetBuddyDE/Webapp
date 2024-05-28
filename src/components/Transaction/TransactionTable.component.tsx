@@ -10,7 +10,7 @@ import {ActionPaper, Linkify, Menu} from '@/components/Base';
 import {SearchInput} from '@/components/Base/Search';
 import {type TTableSelectionProps, Table} from '@/components/Base/Table';
 import {CategoryChip} from '@/components/Category';
-import {useFilterStore} from '@/components/Filter';
+import {ToggleFilterDrawerButton, useFilterStore} from '@/components/Filter';
 import {PaymentMethodChip} from '@/components/PaymentMethod';
 import {pb} from '@/pocketbase';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
@@ -140,6 +140,7 @@ export const TransactionTable: React.FC<TTransactionTableProps> = ({
       }}
       tableActions={
         <React.Fragment>
+          <ToggleFilterDrawerButton />
           <SearchInput placeholder="Search" onSearch={setKeyword} />
           {onAddTransaction && (
             <IconButton color="primary" onClick={onAddTransaction}>
