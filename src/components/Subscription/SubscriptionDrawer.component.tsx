@@ -90,11 +90,12 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
             if (!defaultValues?.id) throw new Error('No subscription-id found in default-values');
 
             const parsedForm = ZUpdateSubscriptionPayload.safeParse({
+              paused: defaultValues?.paused,
               category: data.category?.id,
               payment_method: data.payment_method?.id,
               receiver: data.receiver?.value,
               information: data.information,
-              execute_at: data.execute_at,
+              execute_at: data.execute_at.getDate(),
               transfer_amount: parseNumber(String(data.transfer_amount)),
               owner: sessionUser.id,
             });
