@@ -12,7 +12,6 @@ import {type ISelectionHandler} from '@/components/Base/Select';
 import {Table} from '@/components/Base/Table';
 import {CategoryChip} from '@/components/Category';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
-import {DownloadButton} from '@/components/Download';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {ToggleFilterDrawerButton, useFilterStore} from '@/components/Filter';
 import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
@@ -28,8 +27,7 @@ import {
 import {type TTransactionDrawerValues, TransactionDrawer} from '@/components/Transaction';
 import {pb} from '@/pocketbase';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
-import {determineNextExecution, determineNextExecutionDate} from '@/utils';
-import {filterSubscriptions} from '@/utils/filter.util';
+import {determineNextExecution, determineNextExecutionDate, downloadAsJson, filterSubscriptions} from '@/utils';
 
 interface ISubscriptionsHandler {
   showCreateTransactionDialog: (subscription: TSubscription) => void;
@@ -269,18 +267,14 @@ export const Subscriptions = () => {
                     children: 'Create multiple',
                     onClick: () => setShowCreateMultipleDialog(true),
                   },
+                  {
+                    children: 'Export',
+                    onClick: () => {
+                      downloadAsJson(subscriptions, `bb_subscriptions_${format(new Date(), 'yyyy_mm_dd')}`);
+                    },
+                  },
                 ]}
               />
-
-              {subscriptions.length > 0 && (
-                <DownloadButton
-                  data={subscriptions}
-                  exportFileName={`bb_subscriptions_${format(new Date(), 'yyyy_mm_dd')}`}
-                  exportFormat="JSON"
-                  withTooltip>
-                  Export
-                </DownloadButton>
-              )}
             </React.Fragment>
           }
           withSelection

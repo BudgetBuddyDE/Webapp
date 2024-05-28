@@ -11,7 +11,6 @@ import {SearchInput} from '@/components/Base/Search';
 import {type ISelectionHandler} from '@/components/Base/Select';
 import {Table} from '@/components/Base/Table';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
-import {DownloadButton} from '@/components/Download';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {ToggleFilterDrawerButton} from '@/components/Filter';
 import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
@@ -24,6 +23,7 @@ import {
 import {CreateMultiplePaymentMethodsDialog, type TPaymentMethodDrawerValues} from '@/components/PaymentMethod';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
+import {downloadAsJson} from '@/utils';
 
 interface IPaymentMethodsHandler {
   showCreateDialog: () => void;
@@ -179,18 +179,14 @@ export const PaymentMethods = () => {
                     children: 'Create multiple',
                     onClick: () => setShowCreateMultipleDialog(true),
                   },
+                  {
+                    children: 'Export',
+                    onClick: () => {
+                      downloadAsJson(paymentMethodDrawer, `bb_payment_methods_${format(new Date(), 'yyyy_mm_dd')}`);
+                    },
+                  },
                 ]}
               />
-
-              {paymentMethods.length > 0 && (
-                <DownloadButton
-                  data={paymentMethods}
-                  exportFileName={`bb_payment_methods_${format(new Date(), 'yyyy_mm_dd')}`}
-                  exportFormat="JSON"
-                  withTooltip>
-                  Export
-                </DownloadButton>
-              )}
             </React.Fragment>
           }
           withSelection

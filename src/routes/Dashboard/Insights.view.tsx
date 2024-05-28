@@ -1,5 +1,6 @@
 import {type TCategory, type TTransaction} from '@budgetbuddyde/types';
-import {Autocomplete, Box, CircularProgress, TextField, Typography, useTheme} from '@mui/material';
+import {CloudDownloadRounded} from '@mui/icons-material';
+import {Autocomplete, Box, Button, CircularProgress, TextField, Typography, useTheme} from '@mui/material';
 import {format, subMonths} from 'date-fns';
 import React from 'react';
 import Chart from 'react-apexcharts';
@@ -14,10 +15,10 @@ import {
   type TFullScreenDialogProps,
 } from '@/components/Base';
 import {useFetchCategories} from '@/components/Category';
-import {DownloadButton} from '@/components/Download';
 import {useFetchTransactions} from '@/components/Transaction';
 import {useKeyPress} from '@/hooks/useKeyPress.hook.ts';
 import {Formatter} from '@/services';
+import {downloadAsJson} from '@/utils';
 
 export type TInsightsViewProps =
   | {navigateOnClose: true; navigateTo: string}
@@ -163,15 +164,16 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
                 multiple
               />
 
-              <DownloadButton
-                exportFormat={'JSON'}
-                exportFileName={`bb_category_analytics_${format(new Date(), 'yyyy_mm_dd')}`}
-                data={chartData}
-                size={'large'}
-                sx={{ml: 1}}
-                withTooltip>
-                Export data
-              </DownloadButton>
+              {chartData.length > 0 && (
+                <Button
+                  sx={{ml: 2, px: 2}}
+                  startIcon={<CloudDownloadRounded />}
+                  onClick={() => {
+                    downloadAsJson(chartData, `bb_category_analytics_${format(new Date(), 'yyyy_mm_dd')}`);
+                  }}>
+                  Export
+                </Button>
+              )}
             </Box>
 
             <Box>

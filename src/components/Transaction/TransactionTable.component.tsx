@@ -10,12 +10,11 @@ import {ActionPaper, Linkify, Menu} from '@/components/Base';
 import {SearchInput} from '@/components/Base/Search';
 import {type TTableSelectionProps, Table} from '@/components/Base/Table';
 import {CategoryChip} from '@/components/Category';
-import {DownloadButton} from '@/components/Download';
 import {useFilterStore} from '@/components/Filter';
 import {PaymentMethodChip} from '@/components/PaymentMethod';
 import {pb} from '@/pocketbase';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
-import {filterTransactions} from '@/utils/filter.util';
+import {downloadAsJson, filterTransactions} from '@/utils';
 
 import {type ISelectionHandler} from '../Base/Select';
 import {useFetchTransactions} from './useFetchTransactions.hook';
@@ -155,17 +154,14 @@ export const TransactionTable: React.FC<TTransactionTableProps> = ({
                   children: 'Create multiple',
                   onClick: onAddMultiple,
                 },
+                {
+                  children: 'Export',
+                  onClick: () => {
+                    downloadAsJson(displayedTransactions, `bb_transactions_${format(new Date(), 'yyyy_mm_dd')}`);
+                  },
+                },
               ]}
             />
-          )}
-          {displayedTransactions.length > 0 && (
-            <DownloadButton
-              data={displayedTransactions}
-              exportFileName={`bb_transactions_${format(new Date(), 'yyyy_mm_dd')}`}
-              exportFormat="JSON"
-              withTooltip>
-              Export
-            </DownloadButton>
           )}
         </React.Fragment>
       }

@@ -1,5 +1,5 @@
 import {type TStockPositionWithQuote, type TTimeframe} from '@budgetbuddyde/types';
-import {AddRounded, ArrowForwardRounded} from '@mui/icons-material';
+import {AddRounded, ArrowForwardRounded, CloudDownloadRounded} from '@mui/icons-material';
 import {Button, IconButton, Stack, TableCell, TableRow, Typography} from '@mui/material';
 import {format} from 'date-fns';
 import React from 'react';
@@ -9,9 +9,9 @@ import {AppConfig} from '@/app.config';
 import {ActionPaper, Image} from '@/components/Base';
 import {SearchInput} from '@/components/Base/Search';
 import {Table} from '@/components/Base/Table/Table.component';
-import {DownloadButton} from '@/components/Download';
 import {useFetchStockPositions} from '@/components/Stocks';
 import {Formatter} from '@/services';
+import {downloadAsJson} from '@/utils';
 
 import {StockPositionMenu} from './StockPositionMenu.component';
 
@@ -180,13 +180,13 @@ export const StockPositionTable: React.FC<TStockPositionTableProps> = ({
             </IconButton>
           )}
           {displayedStockPositions.length > 0 && (
-            <DownloadButton
-              data={displayedStockPositions}
-              exportFileName={`bb_stock_positions_${format(new Date(), 'yyyy_mm_dd')}`}
-              exportFormat="JSON"
-              withTooltip>
+            <Button
+              startIcon={<CloudDownloadRounded />}
+              onClick={() => {
+                downloadAsJson(displayedStockPositions, `bb_stock_positions_${format(new Date(), 'yyyy_mm_dd')}`);
+              }}>
               Export
-            </DownloadButton>
+            </Button>
           )}
         </React.Fragment>
       }

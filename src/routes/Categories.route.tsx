@@ -21,12 +21,12 @@ import {
 } from '@/components/Category';
 import {CategoryIncomeChart} from '@/components/Category/Chart/IncomeChart.component';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
-import {DownloadButton} from '@/components/Download';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {ToggleFilterDrawerButton} from '@/components/Filter';
 import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
+import {downloadAsJson} from '@/utils';
 
 interface ICategoriesHandler {
   showCreateDialog: () => void;
@@ -168,18 +168,14 @@ export const Categories = () => {
                     children: 'Create multiple',
                     onClick: () => setShowCreateMultipleDialog(true),
                   },
+                  {
+                    children: 'Export',
+                    onClick: () => {
+                      downloadAsJson(categories, `bb_categories_${format(new Date(), 'yyyy_mm_dd')}`);
+                    },
+                  },
                 ]}
               />
-
-              {categories.length > 0 && (
-                <DownloadButton
-                  data={categories}
-                  exportFileName={`bb_categories_${format(new Date(), 'yyyy_mm_dd')}`}
-                  exportFormat="JSON"
-                  withTooltip>
-                  Export
-                </DownloadButton>
-              )}
             </React.Fragment>
           }
           withSelection
