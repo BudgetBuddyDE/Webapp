@@ -1,10 +1,11 @@
+import react from '@vitejs/plugin-react-swc';
 import dotenv from 'dotenv';
-dotenv.config();
-
+import path from 'path';
 import {defineConfig} from 'vite';
 import {ViteEjsPlugin} from 'vite-plugin-ejs';
-import path from 'path';
-import react from '@vitejs/plugin-react-swc';
+
+dotenv.config();
+
 // import dns from 'dns';
 
 // Due to https://stackoverflow.com/a/75191787
@@ -13,6 +14,7 @@ import react from '@vitejs/plugin-react-swc';
 const production = process.env.NODE_ENV === 'production';
 
 const STOCK_SERVICE_HOST = process.env.STOCK_SERVICE_HOST || 'http://localhost:7080';
+const MAIL_SERVICE_HOST = process.env.MAIL_SERVICE_HOST;
 const POCKETBASE_URL = process.env.POCKETBASE_URL || '';
 
 // https://vitejs.dev/config/
@@ -21,6 +23,7 @@ export default defineConfig({
   define: {
     'process.env': {
       STOCK_SERVICE_HOST: STOCK_SERVICE_HOST,
+      MAIL_SERVICE_HOST: MAIL_SERVICE_HOST,
       POCKETBASE_URL: POCKETBASE_URL,
       NODE_ENV: process.env.NODE_ENV,
     },
@@ -35,6 +38,11 @@ export default defineConfig({
             target: STOCK_SERVICE_HOST,
             changeOrigin: true,
             rewrite: path => path.replace('/stock_service', ''),
+          },
+          '/mail_service': {
+            target: MAIL_SERVICE_HOST,
+            changeOrigin: true,
+            rewrite: path => path.replace('/mail_service', ''),
           },
           // "/socket": {
           //   target: "http://localhost:7070",

@@ -1,11 +1,13 @@
 import {Box, Grid, Typography} from '@mui/material';
 import React from 'react';
 
-import {AppConfig} from '@/app.config';
+import {AppConfig, Feature} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {withAuthLayout} from '@/components/Auth/Layout';
 import {Card} from '@/components/Base';
+import {isFeatureEnabled} from '@/components/Feature';
 import {PageHeader} from '@/components/Layout';
+import {SubscribeToNewsletters} from '@/components/Newsletter';
 import {AppInformation, EditProfile} from '@/components/Settings';
 import {UserAvatar} from '@/components/User';
 
@@ -63,9 +65,15 @@ const SettingsRoute: React.FC<TSettingsRouteProps> = () => {
       </Grid>
 
       <Grid container item xs={12} md={8} lg={8} xl={9} order={{xs: 0, md: 1}} spacing={AppConfig.baseSpacing}>
-        <Grid item xs={12} md={8} lg={6} xl={6}>
+        <Grid item xs={12} md={7} lg={7} xl={7}>
           <EditProfile />
         </Grid>
+
+        {isFeatureEnabled(Feature.NEWSLETTER) && (
+          <Grid item xs={12} md={5} lg={5} xl={5}>
+            <SubscribeToNewsletters />
+          </Grid>
+        )}
       </Grid>
     </Grid>
   );
