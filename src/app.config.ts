@@ -6,6 +6,7 @@ import {version} from '../package.json';
 
 export enum Feature {
   STOCKS = 'stocks',
+  NEWSLETTER = 'newsletter',
 }
 
 export type TAppConfig = {
@@ -46,5 +47,6 @@ export const AppConfig: TAppConfig = {
   },
   feature: {
     [Feature.STOCKS]: process.env.STOCK_SERVICE_HOST !== undefined,
+    [Feature.NEWSLETTER]: process.env.MAIL_SERVICE_HOST !== undefined,
   },
 };

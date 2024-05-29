@@ -1,4 +1,3 @@
-import {PocketBaseCollection} from '@budgetbuddyde/types';
 import {AppRegistrationRounded, ExitToAppRounded, SendRounded} from '@mui/icons-material';
 import {Box, Button, Divider, Grid, Link, TextField, Typography} from '@mui/material';
 import {type RecordAuthResponse, type RecordModel} from 'pocketbase';
@@ -12,7 +11,7 @@ import {SocialSignInBtn, useAuthContext} from '@/components/Auth';
 import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
 import {Card, PasswordInput} from '@/components/Base';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {pb} from '@/pocketbase.ts';
+import {AuthService} from '@/services';
 
 const SignIn = () => {
   const location = useLocation();
@@ -41,18 +40,13 @@ const SignIn = () => {
     formSubmit: React.useCallback(
       async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
-        try {
-          const loginResponse = await pb
-            .collection(PocketBaseCollection.USERS)
-            .authWithPassword(form.email, form.password);
-          handleSuccessfullLogin(loginResponse.record.username);
-        } catch (error) {
+        const [result, error] = await AuthService.login(form.email, form.password);
+        if (error) {
           console.error(error);
-          showSnackbar({
-            message: error instanceof Error ? error.message : 'Authentication failed',
-          });
+          showSnackbar({message: error instanceof Error ? error.message : 'Authentication failed'});
+          return;
         }
+        handleSuccessfullLogin(result.record.username);
       },
       [form, location],
     ),
@@ -114,6 +108,7 @@ const SignIn = () => {
                 <Grid item xs={12} md={12}>
                   <TextField
                     variant="outlined"
+                    placeholder="Enter email"
                     type="email"
                     label="E-Mail"
                     name="email"

@@ -1,14 +1,17 @@
 import {LockRounded, RefreshRounded} from '@mui/icons-material';
-import {Button, Typography} from '@mui/material';
+import {Button, type PaperProps, Typography} from '@mui/material';
 
 import {ActionPaper} from '@/components/Base';
 import {DashboardViewIconMapping} from '@/routes/Dashboard';
 
 import {Icon} from '../Icon.component';
 
-export const FeatureNotEnabled = () => {
+export type TFeatureNotEnabledProps = PaperProps;
+
+export const FeatureNotEnabled: React.FC<TFeatureNotEnabledProps> = ({...paperProps}) => {
   return (
     <ActionPaper
+      {...paperProps}
       sx={{
         width: {xs: '90%', md: '40%', lg: '35%'},
         maxWidth: '480px',
@@ -16,6 +19,7 @@ export const FeatureNotEnabled = () => {
         px: 3,
         py: 2,
         textAlign: 'center',
+        ...paperProps.sx,
       }}>
       <Icon icon={<LockRounded fontSize="large" />} sx={{width: '58px', mx: 'auto'}} />
       <Typography variant="h2" sx={{mt: 1.5}}>
