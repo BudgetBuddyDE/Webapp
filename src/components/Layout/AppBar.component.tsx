@@ -19,7 +19,7 @@ import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {UserAvatar} from '@/components/User';
 
-import {Brand} from '../Brand.component';
+import {Brand} from '../Brand/Brand.component';
 import {DrawerHamburger} from './Drawer/DrawerHamburger.component';
 
 export const AppBar = () => {

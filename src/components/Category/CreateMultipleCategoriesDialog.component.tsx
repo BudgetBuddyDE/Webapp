@@ -14,7 +14,7 @@ import {CategoryService, type TCategoryDrawerValues, useFetchCategories} from '@
 import {useSnackbarContext} from '@/components/Snackbar';
 import {useKeyPress, useScreenSize} from '@/hooks';
 
-import {DesktopFeatureOnly} from '../DesktopFeatureOnly.component';
+import {DesktopFeatureOnly} from '../DesktopFeatureOnly/DesktopFeatureOnly.component';
 
 export type TCreateMultipleTransactionsDialogProps = Omit<TFullScreenDialogProps, 'title'>;
 

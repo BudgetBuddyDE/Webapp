@@ -1,4 +1,4 @@
-import {Brand} from '../../Brand.component';
+import {Brand} from '../../Brand/Brand.component';
 import {useDrawerStore} from './Drawer.store';
 import {DrawerHamburger} from './DrawerHamburger.component';
 import {StyledDrawerHeader} from './StyledDrawerHeader.component';

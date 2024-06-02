@@ -13,7 +13,7 @@ import {FullScreenDialog, type TFullScreenDialogProps} from '@/components/Base';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {useKeyPress, useScreenSize} from '@/hooks';
 
-import {DesktopFeatureOnly} from '../DesktopFeatureOnly.component';
+import {DesktopFeatureOnly} from '../DesktopFeatureOnly/DesktopFeatureOnly.component';
 import {PaymentMethodService} from './PaymentMethod.service';
 import {type TPaymentMethodDrawerValues} from './PaymentMethodDrawer.component';
 import {useFetchPaymentMethods} from './useFetchPaymentMethods.hook';

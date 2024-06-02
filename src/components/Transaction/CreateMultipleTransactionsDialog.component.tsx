@@ -21,7 +21,7 @@ import {useSnackbarContext} from '@/components/Snackbar';
 import {useKeyPress, useScreenSize} from '@/hooks';
 import {parseNumber} from '@/utils';
 
-import {DesktopFeatureOnly} from '../DesktopFeatureOnly.component';
+import {DesktopFeatureOnly} from '../DesktopFeatureOnly/DesktopFeatureOnly.component';
 import {TransactionService} from './Transaction.service';
 import {type TTransactionDrawerValues} from './TransactionDrawer.component';
 import {useFetchTransactions} from './useFetchTransactions.hook';

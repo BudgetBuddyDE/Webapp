@@ -21,7 +21,7 @@ import {useSnackbarContext} from '@/components/Snackbar';
 import {useKeyPress, useScreenSize} from '@/hooks';
 import {parseNumber} from '@/utils';
 
-import {DesktopFeatureOnly} from '../DesktopFeatureOnly.component';
+import {DesktopFeatureOnly} from '../DesktopFeatureOnly/DesktopFeatureOnly.component';
 import {SubscriptionService} from './Subscription.service';
 import {type TSusbcriptionDrawerValues} from './SubscriptionDrawer.component';
 import {useFetchSubscriptions} from './useFetchSubscriptions.hook';

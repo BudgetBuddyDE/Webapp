@@ -6,7 +6,7 @@ export * from './List';
 export * from './NoResults.component';
 export * from './Image.component';
 export * from './Link.component';
-export * from './Linkify.component';
+export * from './Linkify/Linkify.component';
 export * from './Input';
 export * from './Charts';
 export * from './SparklineWidget.component';

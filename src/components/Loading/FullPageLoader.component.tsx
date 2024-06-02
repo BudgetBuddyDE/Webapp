@@ -3,7 +3,7 @@ import {motion} from 'framer-motion';
 
 import {Footer} from '@/components/Layout';
 
-import {Brand} from '../Brand.component';
+import {Brand} from '../Brand/Brand.component';
 
 const Main = styled('main')(() => ({
   display: 'flex',

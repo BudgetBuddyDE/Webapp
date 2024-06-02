@@ -33,6 +33,7 @@ export const PasswordInput: React.FC<TPasswordInputProps> = ({
         type={showPassword ? 'text' : 'password'}
         name="password"
         label="Password"
+        placeholder="Enter password"
         endAdornment={
           <InputAdornment position="end">
             <IconButton
