@@ -6,6 +6,26 @@ import {AuthLayout, UnauthentificatedLayout} from '@/components/Auth/Layout';
 
 import {FeatureNotEnabled} from './FeatureNotEnabled.component';
 
+/**
+ * Checks if a specific feature is enabled.
+ *
+ * @param feature - The feature to check.
+ * @returns `true` if the feature is enabled, `false` otherwise.
+ */
+export function isFeatureEnabled(feature: Feature) {
+  return AppConfig.feature[feature];
+}
+
+/**
+ * Higher-order component that wraps a component with a feature flag check.
+ * If the feature is enabled, it renders the wrapped component. Otherwise, it renders a fallback component.
+ *
+ * @template P - The props type of the wrapped component.
+ * @param {Feature} feature - The feature flag to check.
+ * @param {React.ComponentType<P>} Component - The component to wrap.
+ * @param {boolean} [wrapWithLayout=false] - Whether to wrap the fallback component with a layout component.
+ * @returns {React.ComponentType<P & {isAuthenticated?: boolean}>} - The wrapped component.
+ */
 export function withFeatureFlag<P extends object>(
   feature: Feature,
   Component: React.ComponentType<P>,
@@ -13,9 +33,7 @@ export function withFeatureFlag<P extends object>(
 ) {
   return function WrappedComponent(props: P & {isAuthenticated?: boolean}) {
     const {sessionUser} = useAuthContext();
-
-    const isFeatureEnabled = AppConfig.feature[feature];
-    if (!isFeatureEnabled) {
+    if (!isFeatureEnabled(feature)) {
       if (!wrapWithLayout) return <FeatureNotEnabled />;
       return sessionUser ? (
         <AuthLayout>

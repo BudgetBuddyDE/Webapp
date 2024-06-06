@@ -5,6 +5,8 @@ import {
   ScheduleSendRounded as ScheduleSendIcon,
 } from '@mui/icons-material';
 
+import {Feature} from '@/app.config';
+import {isFeatureEnabled} from '@/components/Feature';
 import {DashboardViewIconMapping} from '@/routes/Dashboard';
 
 export const DrawerLinks = [
@@ -13,11 +15,15 @@ export const DrawerLinks = [
     path: '/dashboard',
     icon: DashboardViewIconMapping['overview'] as JSX.Element,
   },
-  {
-    text: 'Stocks',
-    path: '/stocks',
-    icon: DashboardViewIconMapping['stocks'] as JSX.Element,
-  },
+  ...(isFeatureEnabled(Feature.STOCKS)
+    ? [
+        {
+          text: 'Stocks',
+          path: '/stocks',
+          icon: DashboardViewIconMapping['stocks'] as JSX.Element,
+        },
+      ]
+    : []),
   {
     text: 'Transactions',
     path: '/transactions',
@@ -38,4 +44,4 @@ export const DrawerLinks = [
     path: '/categories',
     icon: <LabelIcon />,
   },
-];
+].filter(Boolean);
