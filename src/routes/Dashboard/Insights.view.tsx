@@ -1,13 +1,34 @@
 import {type TCategory, type TTransaction} from '@budgetbuddyde/types';
 import {CloudDownloadRounded} from '@mui/icons-material';
-import {Autocomplete, Box, Button, CircularProgress, TextField, Typography, useTheme} from '@mui/material';
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  Divider,
+  FormControlLabel,
+  Grid,
+  List,
+  ListItem,
+  ListItemText,
+  Stack,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import {format, subMonths} from 'date-fns';
 import React from 'react';
 import Chart from 'react-apexcharts';
 import {useNavigate} from 'react-router-dom';
 
+import {AppConfig} from '@/app.config';
 import {
   ActionPaper,
+  Card,
   DateRange,
   FullScreenDialog,
   StyledAutocompleteOption,
@@ -30,6 +51,10 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
   const autocompleteRef = React.useRef<HTMLInputElement | null>(null);
   const {loading: loadingCategories, categories} = useFetchCategories();
   const {loading: loadingTransactions, transactions} = useFetchTransactions();
+  const [options, setOptions] = React.useState<{view: 'INCOME' | 'SPENDINGS'; showStats: boolean}>({
+    view: 'SPENDINGS',
+    showStats: false,
+  });
   const [dateRange, setDateRange] = React.useState<TDateRange>({
     startDate: subMonths(new Date(), 12),
     endDate: new Date(),
@@ -69,7 +94,7 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
   const chartData: {name: string; data: number[]}[] = React.useMemo(() => {
     const relevantTransactions: TTransaction[] = transactions
       // currently only interested in expenses
-      .filter(({transfer_amount}) => transfer_amount < 0)
+      .filter(({transfer_amount}) => (options.view === 'SPENDINGS' ? transfer_amount < 0 : transfer_amount > 0))
       // determine if transaction is within date range
       .filter(({processed_at}) => processed_at >= dateRange.startDate && processed_at <= dateRange.endDate)
       // determine if transaction is within selected categories
@@ -118,7 +143,19 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
       name,
       data: dateRangeLabels.map(label => data.get(label) ?? 0),
     }));
-  }, [categories, transactions, dateRange, dateRangeLabels, selectedCategories]);
+  }, [options.view, categories, transactions, dateRange, dateRangeLabels, selectedCategories]);
+
+  const stats = React.useMemo(() => {
+    if (!options.showStats) return [];
+    return chartData.map(({name, data}) => {
+      const total = data.reduce((acc, val) => acc + val, 0);
+      return {
+        name,
+        total,
+        average: total / data.length,
+      };
+    });
+  }, [chartData, options.showStats]);
 
   const handleClose = () => {
     if (props.navigateOnClose) {
@@ -138,33 +175,63 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
         </Box>
       ) : (
         <React.Fragment>
-          <Box sx={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap'}}>
-            <Box sx={{display: 'flex', flexDirection: 'row', flex: 1}}>
-              <Autocomplete
-                sx={{width: {xs: '100%', sm: '30%'}, maxWidth: {xs: 'unset', sm: '500px'}, mb: {xs: 2, sm: 0}}}
-                renderInput={params => (
-                  <TextField
-                    {...params}
-                    inputRef={input => {
-                      autocompleteRef.current = input;
-                    }}
-                    label="Categories"
-                    placeholder={'Select categories'}
-                  />
-                )}
-                onChange={(_event, value) => setSelectedCategories(value)}
-                value={selectedCategories}
-                options={filterOptions}
-                renderOption={(props, option, {selected}) => (
-                  <StyledAutocompleteOption {...props} selected={selected}>
-                    {option.label}
-                  </StyledAutocompleteOption>
-                )}
-                disableCloseOnSelect
-                multiple
-              />
+          <Stack>
+            <Stack flexDirection={'row'} flexWrap={'wrap'}>
+              <Stack flex={1} flexDirection={'row'}>
+                <Autocomplete
+                  sx={{width: {xs: '100%', sm: '50%'}, maxWidth: {xs: 'unset', sm: '500px'}, mb: {xs: 2, sm: 0}}}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      inputRef={input => {
+                        autocompleteRef.current = input;
+                      }}
+                      label="Categories"
+                      placeholder={'Select categories'}
+                    />
+                  )}
+                  onChange={(_event, value) => setSelectedCategories(value)}
+                  value={selectedCategories}
+                  options={filterOptions}
+                  renderOption={(props, option, {selected}) => (
+                    <StyledAutocompleteOption {...props} selected={selected}>
+                      {option.label}
+                    </StyledAutocompleteOption>
+                  )}
+                  disableCloseOnSelect
+                  multiple
+                />
+              </Stack>
 
-              {chartData.length > 0 && (
+              <Box>
+                <DateRange
+                  defaultStartDate={dateRange.startDate}
+                  defaultEndDate={dateRange.endDate}
+                  onDateChange={setDateRange}
+                />
+              </Box>
+            </Stack>
+
+            <Stack columnGap={AppConfig.baseSpacing} sx={{flex: 1, flexDirection: 'row', mt: 2}}>
+              <ActionPaper sx={{width: 'min-content'}}>
+                <ToggleButtonGroup
+                  size="small"
+                  color="primary"
+                  value={options.view}
+                  onChange={(_, value) => setOptions(prev => ({...prev, view: value}))}
+                  exclusive>
+                  {[
+                    {name: 'Insome', value: 'INCOME'},
+                    {name: 'Spendings', value: 'SPENDINGS'},
+                  ].map(({name, value}) => (
+                    <ToggleButton key={name.toLowerCase()} value={value}>
+                      {name}
+                    </ToggleButton>
+                  ))}
+                </ToggleButtonGroup>
+              </ActionPaper>
+
+              {chartData.length > 10 && (
                 <Button
                   sx={{ml: 2, px: 2}}
                   startIcon={<CloudDownloadRounded />}
@@ -174,78 +241,130 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
                   Export
                 </Button>
               )}
-            </Box>
 
-            <Box>
-              <DateRange
-                defaultStartDate={dateRange.startDate}
-                defaultEndDate={dateRange.endDate}
-                onDateChange={setDateRange}
+              <FormControlLabel
+                control={<Checkbox />}
+                onChange={(_, checked) => setOptions(prev => ({...prev, showStats: checked}))}
+                label="Show stats"
               />
-            </Box>
-          </Box>
+            </Stack>
+          </Stack>
 
           <Box sx={{flex: 1, mt: 2}}>
             {selectedCategories.length > 0 && chartData.length > 0 ? (
-              <Chart
-                type={'bar'}
-                with={'100%'}
-                height={'99.99%'}
-                series={chartData}
-                options={{
-                  chart: {
-                    type: 'bar',
-                    toolbar: {
-                      show: false,
-                    },
-                  },
-                  xaxis: {
-                    labels: {
-                      style: {
-                        colors: theme.palette.text.primary,
+              <Grid container spacing={AppConfig.baseSpacing} sx={{height: '100%'}}>
+                <Grid item md={options.showStats ? 10 : 12} sx={{height: 'inherit'}}>
+                  <Chart
+                    type={'line'}
+                    width={'100%'}
+                    height={'99.99%'}
+                    series={chartData.flatMap(({name, data}) => ({name, data, type: 'bar'}))}
+                    options={{
+                      chart: {
+                        type: 'bar',
+                        toolbar: {
+                          show: false,
+                        },
                       },
-                    },
-                    categories: dateRangeLabels.map(dateStr => {
-                      const date = new Date(dateStr);
-                      return `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`;
-                    }),
-                  },
-                  dataLabels: {
-                    enabled: false,
-                  },
-                  grid: {
-                    borderColor: theme.palette.action.disabled,
-                    strokeDashArray: 5,
-                  },
-                  yaxis: {
-                    forceNiceScale: true,
-                    opposite: true,
-                    labels: {
-                      style: {
-                        colors: theme.palette.text.primary,
+                      xaxis: {
+                        labels: {
+                          style: {
+                            colors: theme.palette.text.primary,
+                          },
+                        },
+                        categories: dateRangeLabels.map(dateStr => {
+                          const date = new Date(dateStr);
+                          return `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`;
+                        }),
                       },
-                      formatter(val: number) {
-                        return Formatter.formatBalance(val);
+                      dataLabels: {
+                        enabled: false,
                       },
-                    },
-                  },
-                  legend: {
-                    position: 'bottom',
-                    horizontalAlign: 'left',
-                    labels: {
-                      colors: 'white',
-                    },
-                  },
-                  tooltip: {
-                    theme: 'dark',
-                    y: {
-                      formatter(val: number) {
-                        return Formatter.formatBalance(val);
+                      grid: {
+                        borderColor: theme.palette.action.disabled,
+                        strokeDashArray: 5,
                       },
-                    },
-                  },
-                }}
-              />
+                      yaxis: {
+                        forceNiceScale: true,
+                        opposite: true,
+                        labels: {
+                          style: {
+                            colors: theme.palette.text.primary,
+                          },
+                          formatter(val: number) {
+                            return Formatter.formatBalance(val);
+                          },
+                        },
+                      },
+                      legend: {
+                        position: 'bottom',
+                        horizontalAlign: 'left',
+                        labels: {
+                          colors: 'white',
+                        },
+                      },
+                      tooltip: {
+                        theme: 'dark',
+                        y: {
+                          formatter(val: number) {
+                            return Formatter.formatBalance(val);
+                          },
+                        },
+                      },
+                    }}
+                  />
+                </Grid>
+
+                <Grid item md={options.showStats ? 2 : 0}>
+                  <Card sx={{p: 0}}>
+                    <Card.Header sx={{px: 2, pt: 2}}>
+                      <Card.Title>Stats</Card.Title>
+                    </Card.Header>
+                    <Card.Body>
+                      <List dense>
+                        <React.Fragment>
+                          <ListItem
+                            secondaryAction={
+                              <Stack textAlign={'right'}>
+                                <Tooltip placement={'left'} title={'Average'}>
+                                  <Typography variant="caption">
+                                    {Formatter.formatBalance(stats.reduce((acc, curr) => acc + curr.average, 0))}
+                                  </Typography>
+                                </Tooltip>
+                                <Tooltip placement={'left'} title={'Total'}>
+                                  <Typography variant="caption">
+                                    {Formatter.formatBalance(stats.reduce((acc, curr) => acc + curr.total, 0))}
+                                  </Typography>
+                                </Tooltip>
+                              </Stack>
+                            }>
+                            <ListItemText primary={'Combined'} />
+                          </ListItem>
+                          <Divider />
+                        </React.Fragment>
+                        {stats.map(({name, total, average}, idx, arr) => (
+                          <React.Fragment key={name.toLowerCase()}>
+                            <ListItem
+                              secondaryAction={
+                                <Stack textAlign={'right'}>
+                                  <Tooltip placement={'left'} title={'Average'}>
+                                    <Typography variant="caption">{Formatter.formatBalance(average)}</Typography>
+                                  </Tooltip>
+                                  <Tooltip placement={'left'} title={'Total'}>
+                                    <Typography variant="caption">{Formatter.formatBalance(total)}</Typography>
+                                  </Tooltip>
+                                </Stack>
+                              }>
+                              <ListItemText primary={name} />
+                            </ListItem>
+                            {idx !== arr.length - 1 && <Divider />}
+                          </React.Fragment>
+                        ))}
+                      </List>
+                    </Card.Body>
+                  </Card>
+                </Grid>
+              </Grid>
             ) : (
               <ActionPaper
                 sx={{
