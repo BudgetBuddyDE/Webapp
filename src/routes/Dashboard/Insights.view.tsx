@@ -231,7 +231,7 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
                 </ToggleButtonGroup>
               </ActionPaper>
 
-              {chartData.length > 10 && (
+              {chartData.length > 0 && (
                 <Button
                   sx={{ml: 2, px: 2}}
                   startIcon={<CloudDownloadRounded />}
