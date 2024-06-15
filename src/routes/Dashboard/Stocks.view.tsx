@@ -8,6 +8,7 @@ import {AppConfig, Feature} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
 import {CircularProgress} from '@/components/Loading';
+import {MetalQuoteList} from '@/components/Metals';
 import {StatsCard} from '@/components/StatsCard.component';
 import {
   DividendTable,
@@ -163,6 +164,10 @@ const StocksView = () => {
       </Grid>
 
       <Grid container item xs={12} md={4} spacing={AppConfig.baseSpacing}>
+        <Grid item xs={12}>
+          <MetalQuoteList />
+        </Grid>
+
         <Grid item xs={12}>
           {isLoadingWatchlist ? (
             <CircularProgress />
