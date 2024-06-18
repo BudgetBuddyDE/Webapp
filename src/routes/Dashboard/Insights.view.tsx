@@ -238,7 +238,7 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
 
                 {chartData.length > 0 && (
                   <Button
-                    sx={{ml: 2, px: 2}}
+                    sx={{px: 2}}
                     startIcon={<CloudDownloadRounded />}
                     onClick={() => {
                       downloadAsJson(chartData, `bb_category_analytics_${format(new Date(), 'yyyy_mm_dd')}`);
@@ -320,33 +320,35 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
                     />
                   </Grid>
 
-                  <Grid item md={options.showStats ? 2 : 0}>
+                  <Grid item md={options.showStats ? 2 : 0} sx={{display: options.showStats ? 'unset' : 'none'}}>
                     <Card sx={{p: 0}}>
                       <Card.Header sx={{px: 2, pt: 2}}>
                         <Card.Title>Stats</Card.Title>
                       </Card.Header>
                       <Card.Body>
                         <List dense>
-                          <React.Fragment>
-                            <ListItem
-                              secondaryAction={
-                                <Stack textAlign={'right'}>
-                                  <Tooltip placement={'left'} title={'Average'}>
-                                    <Typography variant="caption">
-                                      {Formatter.formatBalance(stats.reduce((acc, curr) => acc + curr.average, 0))}
-                                    </Typography>
-                                  </Tooltip>
-                                  <Tooltip placement={'left'} title={'Total'}>
-                                    <Typography variant="caption">
-                                      {Formatter.formatBalance(stats.reduce((acc, curr) => acc + curr.total, 0))}
-                                    </Typography>
-                                  </Tooltip>
-                                </Stack>
-                              }>
-                              <ListItemText primary={'Combined'} />
-                            </ListItem>
-                            <Divider />
-                          </React.Fragment>
+                          {selectedCategories.length > 1 && (
+                            <React.Fragment>
+                              <ListItem
+                                secondaryAction={
+                                  <Stack textAlign={'right'}>
+                                    <Tooltip placement={'left'} title={'Average'}>
+                                      <Typography variant="caption">
+                                        {Formatter.formatBalance(stats.reduce((acc, curr) => acc + curr.average, 0))}
+                                      </Typography>
+                                    </Tooltip>
+                                    <Tooltip placement={'left'} title={'Total'}>
+                                      <Typography variant="caption">
+                                        {Formatter.formatBalance(stats.reduce((acc, curr) => acc + curr.total, 0))}
+                                      </Typography>
+                                    </Tooltip>
+                                  </Stack>
+                                }>
+                                <ListItemText primary={'Combined'} />
+                              </ListItem>
+                              <Divider />
+                            </React.Fragment>
+                          )}
                           {stats.map(({name, total, average}, idx, arr) => (
                             <React.Fragment key={name.toLowerCase()}>
                               <ListItem
