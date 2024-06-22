@@ -96,11 +96,13 @@ export class SubscriptionService {
    */
   static getUpcomingX(data: 'INCOME' | 'EXPENSES', subscriptions: TSubscription[]) {
     const today = new Date().getDate();
-    return subscriptions.reduce((acc, {transfer_amount, execute_at}) => {
-      if ((data === 'INCOME' && transfer_amount > 0) || (data === 'EXPENSES' && transfer_amount < 0)) {
-        return execute_at > today ? acc + transfer_amount : acc;
-      }
-      return acc;
-    }, 0);
+    return subscriptions
+      .filter(({paused}) => !paused)
+      .reduce((acc, {transfer_amount, execute_at}) => {
+        if ((data === 'INCOME' && transfer_amount > 0) || (data === 'EXPENSES' && transfer_amount < 0)) {
+          return execute_at > today ? acc + transfer_amount : acc;
+        }
+        return acc;
+      }, 0);
   }
 }
