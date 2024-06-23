@@ -72,7 +72,7 @@ export const CookieDisclaimer: React.FC<TCookieDisclaimerProps> = ({cookieName =
                 <Icon icon={<CookieRounded />} />
               </Box>
               <Box>
-                <Typography fontWeight="bold">This website uses cookies {showDisclaimer + ''}</Typography>
+                <Typography fontWeight="bold">This website uses cookies</Typography>
                 <Typography variant="body2">
                   {AppConfig.appName} relies on cookies to provide this experience. We do not track you or your actions!
                 </Typography>
