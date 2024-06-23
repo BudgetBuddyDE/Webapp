@@ -44,7 +44,7 @@ import {Formatter} from '@/services';
 import {downloadAsJson} from '@/utils';
 
 export type TInsightsViewProps =
-  | {navigateOnClose: true; navigateTo: string}
+  | {navigateOnClose: true; navigateTo?: string}
   | ({navigateOnClose: false} & Pick<TFullScreenDialogProps, 'onClose'>);
 
 export const InsightsView: React.FC<TInsightsViewProps> = props => {
@@ -162,7 +162,7 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
 
   const handleClose = () => {
     if (props.navigateOnClose) {
-      navigate(props.navigateTo);
+      props.navigateTo ? navigate(props.navigateTo) : navigate(-1);
     } else props.onClose();
   };
 

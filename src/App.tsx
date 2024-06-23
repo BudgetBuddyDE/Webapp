@@ -29,7 +29,7 @@ const App = () => {
             <Route index element={<DashboardView />} />
             <Route path="budget" element={<BudgetView />} />
             <Route path="stocks" element={<StocksView />} />
-            <Route path="insights" element={<InsightsView navigateOnClose navigateTo="/dashboard" />} />
+            <Route path="insights" element={<InsightsView navigateOnClose />} />
             <Route path="*" element={<Navigate to="/dashboard" />} />
           </Route>
           <Route path="/stocks">
