@@ -64,123 +64,125 @@ const SignUp = () => {
           Sign out
         </Button>
       )}
-      <Box sx={{width: {xs: '90%', md: '40%', lg: '30%', xl: '25%'}, maxWidth: '480px', mx: 'auto'}}>
-        <Card sx={{py: 3, px: 4}}>
-          <Box display="flex" flexDirection="column">
-            <AppLogo
-              style={{
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                borderRadius: '5px',
-              }}
-              width={96}
-              height={96}
-            />
+      <Grid container justifyContent={'center'}>
+        <Grid item xs={12} sm={12} md={4} lg={4} xl={3}>
+          <Card sx={{py: 3, px: 4}}>
+            <Box display="flex" flexDirection="column">
+              <AppLogo
+                style={{
+                  marginLeft: 'auto',
+                  marginRight: 'auto',
+                  borderRadius: '5px',
+                }}
+                width={96}
+                height={96}
+              />
 
-            <Typography variant={'h4'} textAlign={'center'} fontWeight={'bolder'} sx={{mt: 2}}>
-              Sign up
-            </Typography>
-          </Box>
+              <Typography variant={'h4'} textAlign={'center'} fontWeight={'bolder'} sx={{mt: 2}}>
+                Sign up
+              </Typography>
+            </Box>
 
-          <form onSubmit={formHandler.formSubmit}>
-            <Grid container spacing={AppConfig.baseSpacing} sx={{mt: 1}}>
-              {Object.keys(AppConfig.authProvider).map(provider => (
-                <Grid item xs={6}>
-                  <SocialSignInBtn
-                    key={provider}
-                    provider={provider}
-                    onAuthProviderResponse={formHandler.handleAuthProviderLogin}
-                    data-umami-event={'social-sign-up'}
-                    data-umami-value={provider}
+            <form onSubmit={formHandler.formSubmit}>
+              <Grid container spacing={AppConfig.baseSpacing} sx={{mt: 1}}>
+                {Object.keys(AppConfig.authProvider).map(provider => (
+                  <Grid key={provider} item xs={6}>
+                    <SocialSignInBtn
+                      key={provider}
+                      provider={provider}
+                      onAuthProviderResponse={formHandler.handleAuthProviderLogin}
+                      data-umami-event={'social-sign-up'}
+                      data-umami-value={provider}
+                    />
+                  </Grid>
+                ))}
+
+                <Grid item xs={12}>
+                  <Divider>or with</Divider>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    variant="outlined"
+                    label="Name"
+                    name="name"
+                    onChange={formHandler.inputChange}
+                    fullWidth
+                    required
                   />
                 </Grid>
-              ))}
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    variant="outlined"
+                    label="Surname"
+                    name="surname"
+                    onChange={formHandler.inputChange}
+                    fullWidth
+                    required
+                  />
+                </Grid>
 
-              <Grid item xs={12}>
-                <Divider>or with</Divider>
-              </Grid>
+                <Grid item xs={12} md={12}>
+                  <TextField
+                    variant="outlined"
+                    type="email"
+                    label="E-Mail"
+                    name="email"
+                    onChange={formHandler.inputChange}
+                    fullWidth
+                    required
+                  />
+                </Grid>
 
-              <Grid item xs={12} md={6}>
-                <TextField
-                  variant="outlined"
-                  label="Name"
-                  name="name"
-                  onChange={formHandler.inputChange}
-                  fullWidth
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  variant="outlined"
-                  label="Surname"
-                  name="surname"
-                  onChange={formHandler.inputChange}
-                  fullWidth
-                  required
-                />
-              </Grid>
+                <Grid item xs={12} md={12}>
+                  <PasswordInput outlinedInputProps={{onChange: formHandler.inputChange}} />
+                </Grid>
 
-              <Grid item xs={12} md={12}>
-                <TextField
-                  variant="outlined"
-                  type="email"
-                  label="E-Mail"
-                  name="email"
-                  onChange={formHandler.inputChange}
-                  fullWidth
-                  required
-                />
+                <Grid item xs={12} md={12}>
+                  <FormControlLabel
+                    required
+                    control={<Checkbox />}
+                    label={
+                      <React.Fragment>
+                        I accept the{' '}
+                        <Link href={AppConfig.website + '/tos'} target="_blank">
+                          Terms of Service
+                        </Link>
+                      </React.Fragment>
+                    }
+                    sx={{mt: 1}}
+                  />
+                </Grid>
               </Grid>
-
-              <Grid item xs={12} md={12}>
-                <PasswordInput outlinedInputProps={{onChange: formHandler.inputChange}} />
-              </Grid>
-
-              <Grid item xs={12} md={12}>
-                <FormControlLabel
-                  required
-                  control={<Checkbox />}
-                  label={
-                    <React.Fragment>
-                      I accept the{' '}
-                      <Link href={AppConfig.website + '/tos'} target="_blank">
-                        Terms of Service
-                      </Link>
-                    </React.Fragment>
-                  }
+              <Box sx={{display: 'flex', justifyContent: 'center'}}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  endIcon={<SendRounded />}
                   sx={{mt: 1}}
-                />
-              </Grid>
-            </Grid>
-            <Box sx={{display: 'flex', justifyContent: 'center'}}>
-              <Button
-                type="submit"
-                variant="contained"
-                endIcon={<SendRounded />}
-                sx={{mt: 1}}
-                data-umami-event={'default-sign-up'}>
-                Sign up
-              </Button>
-            </Box>
-          </form>
+                  data-umami-event={'default-sign-up'}>
+                  Sign up
+                </Button>
+              </Box>
+            </form>
 
-          <Divider sx={{my: 2}}>Already registered?</Divider>
+            <Divider sx={{my: 2}}>Already registered?</Divider>
 
-          {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-          {/*@ts-expect-error*/}
-          <Button
-            LinkComponent={RouterLink}
-            to={'/sign-in'}
-            variant={'contained'}
-            size={'large'}
-            startIcon={<SendRounded />}
-            fullWidth
-            data-umami-event={'sign-up-redirect-login'}>
-            Sign in
-          </Button>
-        </Card>
-      </Box>
+            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+            {/*@ts-expect-error*/}
+            <Button
+              LinkComponent={RouterLink}
+              to={'/sign-in'}
+              variant={'contained'}
+              size={'large'}
+              startIcon={<SendRounded />}
+              fullWidth
+              data-umami-event={'sign-up-redirect-login'}>
+              Sign in
+            </Button>
+          </Card>
+        </Grid>
+      </Grid>
     </React.Fragment>
   );
 };

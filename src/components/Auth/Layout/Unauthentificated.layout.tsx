@@ -1,6 +1,7 @@
-import {Box} from '@mui/material';
+import {Box, Container} from '@mui/material';
 import React from 'react';
 
+import {CookieDisclaimer} from '@/components/CookieDisclaimer';
 import {Footer} from '@/components/Layout';
 
 import {Main} from './Main.component';
@@ -9,9 +10,12 @@ export type TUnauthentificatedLayout = React.PropsWithChildren;
 
 export const UnauthentificatedLayout: React.FC<TUnauthentificatedLayout> = ({children}) => {
   return (
-    <Main>
-      <Box sx={{width: '100%', mt: 'auto'}}>{children}</Box>
+    <Main sx={{position: 'relative'}}>
+      <Container maxWidth="xl" sx={{mt: 'auto', p: {xs: 2, md: 4}}}>
+        {children}
+      </Container>
       <Box sx={{mt: 'auto'}} children={<Footer />} />
+      <CookieDisclaimer />
     </Main>
   );
 };

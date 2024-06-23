@@ -2,6 +2,7 @@ import {Box, Container} from '@mui/material';
 import React from 'react';
 
 import {Main} from '@/components/Base';
+import {CookieDisclaimer} from '@/components/CookieDisclaimer';
 import {FilterDrawer} from '@/components/Filter';
 import {AppBar, Footer} from '@/components/Layout';
 import {Drawer} from '@/components/Layout/Drawer';
@@ -14,6 +15,7 @@ export const AuthLayout: React.FC<TAuthLayout> = ({children}) => {
       <Drawer />
       <Main
         sx={{
+          position: 'relative',
           display: 'flex',
           flexDirection: 'column',
           flexGrow: 1,
@@ -27,9 +29,8 @@ export const AuthLayout: React.FC<TAuthLayout> = ({children}) => {
           {children}
         </Container>
 
-        <Box sx={{mt: 'auto'}}>
-          <Footer />
-        </Box>
+        <Box sx={{mt: 'auto'}} children={<Footer />} />
+        <CookieDisclaimer />
       </Main>
 
       <FilterDrawer />

@@ -74,103 +74,100 @@ const SignIn = () => {
           Sign out
         </Button>
       )}
-      <Box
-        sx={{
-          width: {xs: '90%', md: '40%', lg: '30%', xl: '25%'},
-          maxWidth: '480px',
-          mx: 'auto',
-        }}>
-        <Card sx={{py: 3, px: 4}}>
-          <Box display="flex" flexDirection="column">
-            <AppLogo
-              style={{
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                borderRadius: '5px',
-              }}
-              width={96}
-              height={96}
-            />
+      <Grid container justifyContent={'center'}>
+        <Grid item xs={12} sm={12} md={4} lg={4} xl={3}>
+          <Card sx={{py: 3, px: 4}}>
+            <Box display="flex" flexDirection="column">
+              <AppLogo
+                style={{
+                  marginLeft: 'auto',
+                  marginRight: 'auto',
+                  borderRadius: '5px',
+                }}
+                width={96}
+                height={96}
+              />
 
-            <Typography variant={'h4'} textAlign={'center'} fontWeight={'bolder'} sx={{mt: 2}}>
-              {sessionUser ? `Welcome ${sessionUser.username}!` : 'Sign in'}
-            </Typography>
-          </Box>
+              <Typography variant={'h5'} textAlign={'center'} fontWeight={'bolder'} sx={{mt: 2}}>
+                {sessionUser ? `Welcome ${sessionUser.username}!` : 'Sign in'}
+              </Typography>
+            </Box>
 
-          <form onSubmit={formHandler.formSubmit}>
-            <Grid container spacing={AppConfig.baseSpacing} sx={{mt: 1}}>
-              {Object.keys(AppConfig.authProvider).map(provider => (
-                <Grid item xs={6}>
-                  <SocialSignInBtn
-                    key={provider}
-                    provider={provider}
-                    onAuthProviderResponse={formHandler.handleAuthProviderLogin}
-                    data-umami-event={'social-sign-in'}
-                    data-umami-value={provider}
+            <form onSubmit={formHandler.formSubmit}>
+              <Grid container spacing={AppConfig.baseSpacing} sx={{mt: 1}}>
+                {Object.keys(AppConfig.authProvider).map(provider => (
+                  <Grid key={provider} item xs={6}>
+                    <SocialSignInBtn
+                      key={provider}
+                      provider={provider}
+                      onAuthProviderResponse={formHandler.handleAuthProviderLogin}
+                      data-umami-event={'social-sign-in'}
+                      data-umami-value={provider}
+                    />
+                  </Grid>
+                ))}
+
+                <Grid item xs={12}>
+                  <Divider>or with</Divider>
+                </Grid>
+
+                <Grid item xs={12} md={12}>
+                  <TextField
+                    variant="outlined"
+                    type="email"
+                    label="E-Mail"
+                    name="email"
+                    onChange={formHandler.inputChange}
+                    defaultValue={form.email || ''}
+                    fullWidth
+                    required
                   />
                 </Grid>
-              ))}
 
-              <Grid item xs={12}>
-                <Divider>or with</Divider>
+                <Grid item xs={12} md={12}>
+                  <PasswordInput outlinedInputProps={{onChange: formHandler.inputChange}} />
+
+                  <Link
+                    tabIndex={-1}
+                    variant="caption"
+                    href="/request-password-reset"
+                    sx={{textDecoration: 'none', mt: 0.5}}
+                    component={Button}>
+                    Forgot password?
+                  </Link>
+                </Grid>
               </Grid>
+              <Box sx={{display: 'flex', justifyContent: 'center'}}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  endIcon={<SendRounded />}
+                  sx={{mt: 1}}
+                  data-umami-event={'default-sign-in'}>
+                  Sign in
+                </Button>
+              </Box>
+            </form>
 
-              <Grid item xs={12} md={12}>
-                <TextField
-                  variant="outlined"
-                  type="email"
-                  label="E-Mail"
-                  name="email"
-                  onChange={formHandler.inputChange}
-                  defaultValue={form.email || ''}
-                  fullWidth
-                  required
-                />
-              </Grid>
+            <Divider sx={{my: 2}} data-umami-event={'sign-in-no-account'}>
+              No account?
+            </Divider>
 
-              <Grid item xs={12} md={12}>
-                <PasswordInput outlinedInputProps={{onChange: formHandler.inputChange}} />
-
-                <Link
-                  tabIndex={-1}
-                  variant="caption"
-                  href="/request-password-reset"
-                  sx={{textDecoration: 'none', mt: 0.5}}
-                  component={Button}>
-                  Forgot password?
-                </Link>
-              </Grid>
-            </Grid>
-            <Box sx={{display: 'flex', justifyContent: 'center'}}>
-              <Button
-                type="submit"
-                variant="contained"
-                endIcon={<SendRounded />}
-                sx={{mt: 1}}
-                data-umami-event={'default-sign-in'}>
-                Sign in
-              </Button>
-            </Box>
-          </form>
-
-          <Divider sx={{my: 2}} data-umami-event={'sign-in-no-account'}>
-            No account?
-          </Divider>
-
-          {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-          {/*@ts-expect-error*/}
-          <Button
-            LinkComponent={RouterLink}
-            to={'/sign-up'}
-            variant={'contained'}
-            size={'large'}
-            startIcon={<AppRegistrationRounded />}
-            fullWidth
-            data-umami-event={'sign-in-redirect-register'}>
-            Sign up
-          </Button>
-        </Card>
-      </Box>
+            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+            {/*@ts-expect-error*/}
+            <Button
+              LinkComponent={RouterLink}
+              to={'/sign-up'}
+              variant={'contained'}
+              size={'large'}
+              startIcon={<AppRegistrationRounded />}
+              fullWidth
+              data-umami-event={'sign-in-redirect-register'}>
+              Sign up
+            </Button>
+          </Card>
+        </Grid>
+      </Grid>
     </React.Fragment>
   );
 };
