@@ -1,11 +1,21 @@
 import {CloseRounded} from '@mui/icons-material';
-import {Button, CircularProgress, Drawer, DrawerProps, IconButton, Stack, Typography} from '@mui/material';
+import {
+  Button,
+  CircularProgress,
+  Drawer,
+  DrawerProps,
+  IconButton,
+  Stack,
+  SwipeableDrawer,
+  Typography,
+} from '@mui/material';
 import React from 'react';
 import {type DefaultValues, type FieldValues, type UseFormReturn, useForm} from 'react-hook-form';
 
 import {ActionPaper} from '@/components/Base';
 import {useKeyPress, useScreenSize} from '@/hooks';
 import {drawerWidth} from '@/style/theme/theme';
+import {determineOS} from '@/utils';
 
 export type IEntityDrawer<T extends FieldValues> = {
   closeOnBackdropClick?: boolean;
@@ -51,6 +61,8 @@ export const EntityDrawer = <T extends FieldValues>({
     true,
   );
 
+  const iOS = determineOS(navigator.userAgent) === 'iOS';
+
   const drawerAnchor: DrawerProps['anchor'] = React.useMemo(
     () => (screenSize === 'small' ? 'bottom' : 'right'),
     [screenSize],
@@ -80,23 +92,8 @@ export const EntityDrawer = <T extends FieldValues>({
     form.reset(defaultValues);
   }, [defaultValues]);
 
-  return (
-    <Drawer
-      ref={drawerRef}
-      open={open}
-      anchor={drawerAnchor}
-      onClose={handler.handleDrawerClose}
-      PaperProps={{
-        elevation: 0,
-        sx: {
-          boxSizing: 'border-box',
-          width: {xs: 'unset', md: drawerWidth * 2},
-          margin: {xs: 1, md: 0},
-          mb: {xs: 2, md: 0},
-          borderRadius: theme => ({xs: `${theme.shape.borderRadius}px`, md: 0}),
-          backgroundColor: theme => theme.palette.background.paper,
-        },
-      }}>
+  const Content = () => (
+    <React.Fragment>
       <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} sx={{p: 2, pb: 0}}>
         <Stack>
           <Typography variant="subtitle1" fontWeight="bold">
@@ -132,6 +129,45 @@ export const EntityDrawer = <T extends FieldValues>({
           </Button>
         </Stack>
       </form>
-    </Drawer>
+    </React.Fragment>
+  );
+
+  return drawerAnchor === 'right' ? (
+    <Drawer
+      ref={drawerRef}
+      open={open}
+      anchor={drawerAnchor}
+      onClose={handler.handleDrawerClose}
+      PaperProps={{
+        elevation: 0,
+        sx: {
+          boxSizing: 'border-box',
+          width: drawerWidth * 2,
+        },
+      }}
+      children={<Content />}
+    />
+  ) : (
+    <SwipeableDrawer
+      anchor={'bottom'}
+      open={open}
+      onOpen={() => {}}
+      onClose={() => handler.handleDrawerClose({}, 'backdropClick')}
+      PaperProps={{
+        elevation: 0,
+        sx: {
+          borderTopLeftRadius: theme => `${theme.shape.borderRadius}px`,
+          borderTopRightRadius: theme => `${theme.shape.borderRadius}px`,
+        },
+      }}
+      children={<Content />}
+      /**
+       * The following properties are used for optimal usability of the component:
+       * - iOS is hosted on high-end devices. The backdrop transition can be enabled without dropping frames. The performance will be good enough.
+       * - iOS has a "swipe to go back" feature that interferes with the discovery feature, so discovery has to be disabled.
+       */
+      disableBackdropTransition={!iOS}
+      disableDiscovery={iOS}
+    />
   );
 };
