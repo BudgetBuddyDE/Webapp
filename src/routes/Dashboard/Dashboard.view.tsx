@@ -2,6 +2,7 @@ import {type TSubscription, type TTransaction} from '@budgetbuddyde/types';
 import {Grid} from '@mui/material';
 import React from 'react';
 
+import {AppConfig} from '@/app.config';
 import {CategorySpendingsChart} from '@/components/Category';
 import {DashboardStatsWrapper} from '@/components/DashboardStatsWrapper.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
@@ -18,10 +19,12 @@ import {
   TransactionList,
   useFetchTransactions,
 } from '@/components/Transaction';
+import {useDocumentTitle} from '@/hooks';
 
 const LIST_ITEM_COUNT = 6;
 
 export const DashboardView = () => {
+  useDocumentTitle(`${AppConfig.appName} - Dashboard`, true);
   const {transactions, loading: loadingTransactions} = useFetchTransactions();
   const {subscriptions, loading: loadingSubscriptions} = useFetchSubscriptions();
   const [transactionDrawer, dispatchTransactionDrawer] = React.useReducer(

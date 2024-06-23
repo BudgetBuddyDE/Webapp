@@ -5,8 +5,10 @@ import {AppConfig} from '@/app.config';
 import {BudgetList, StatsWrapper} from '@/components/Budget';
 import {CategoryIncomeChart, CategorySpendingsChart} from '@/components/Category';
 import {MonthlyBalanceChartCard, MonthlyBalanceWidget} from '@/components/Transaction/MonthlyBalance';
+import {useDocumentTitle} from '@/hooks';
 
 export const BudgetView = () => {
+  useDocumentTitle(`${AppConfig.appName} - Budget`, true);
   return (
     <React.Fragment>
       <Grid item xs={12} md={12} lg={5} xl={5}>

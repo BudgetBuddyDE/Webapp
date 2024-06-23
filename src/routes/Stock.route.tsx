@@ -50,6 +50,7 @@ import {
 import {StockPositionTable} from '@/components/Stocks/Position';
 import {RelatedStock, useFetchRelatedStocks} from '@/components/Stocks/RelatedStocks';
 import {StockPositionDrawer, type TStockPositionDrawerValues} from '@/components/Stocks/StockPositionDrawer.component';
+import {useDocumentTitle} from '@/hooks';
 import {Formatter} from '@/services';
 import {getSocketIOClient} from '@/utils';
 
@@ -86,6 +87,14 @@ export const Stock = () => {
     details: stockDetails,
     refresh: refreshStockDetails,
   } = useFetchStockDetails(params.isin || '');
+  useDocumentTitle(
+    loadingDetails
+      ? 'Loading...'
+      : stockDetails
+        ? `${stockDetails.asset.name} - ${params.isin}`
+        : `Stock - ${params.isin}`,
+    true,
+  );
   const {
     loading: loadingQuotes,
     quotes,

@@ -20,10 +20,12 @@ import {
   useStockStore,
 } from '@/components/Stocks';
 import {StockPositionTable} from '@/components/Stocks/Position';
+import {useDocumentTitle} from '@/hooks';
 import {Formatter} from '@/services';
 import {getSocketIOClient} from '@/utils';
 
 const StocksView = () => {
+  useDocumentTitle(`${AppConfig.appName} - Stocks`, true);
   const navigate = useNavigate();
   const {updateQuote} = useStockStore();
   const {sessionUser} = useAuthContext();

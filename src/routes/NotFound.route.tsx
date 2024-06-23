@@ -6,8 +6,10 @@ import {useAuthContext} from '@/components/Auth';
 import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
 import {ActionPaper} from '@/components/Base';
 import {StackedIconButton} from '@/components/StackedIconButton.component';
+import {useDocumentTitle} from '@/hooks';
 
 const PageNotFound = () => {
+  useDocumentTitle('Page not Found', true);
   const {sessionUser} = useAuthContext();
   return (
     <Grid container justifyContent={'center'}>

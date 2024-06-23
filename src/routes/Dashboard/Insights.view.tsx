@@ -38,7 +38,7 @@ import {
 import {useFetchCategories} from '@/components/Category';
 import {DesktopFeatureOnly} from '@/components/DesktopFeatureOnly';
 import {useFetchTransactions} from '@/components/Transaction';
-import {useScreenSize} from '@/hooks';
+import {useDocumentTitle, useFullscreen, useScreenSize} from '@/hooks';
 import {useKeyPress} from '@/hooks/useKeyPress.hook.ts';
 import {Formatter} from '@/services';
 import {downloadAsJson} from '@/utils';
@@ -48,9 +48,11 @@ export type TInsightsViewProps =
   | ({navigateOnClose: false} & Pick<TFullScreenDialogProps, 'onClose'>);
 
 export const InsightsView: React.FC<TInsightsViewProps> = props => {
+  useDocumentTitle(`${AppConfig.appName} - Insights`, true);
   const theme = useTheme();
   const navigate = useNavigate();
   const screenSize = useScreenSize();
+  const {toggle: toggleFullscreen, fullscreen: isFullscreen} = useFullscreen();
   const autocompleteRef = React.useRef<HTMLInputElement | null>(null);
   const {loading: loadingCategories, categories} = useFetchCategories();
   const {loading: loadingTransactions, transactions} = useFetchTransactions();
@@ -165,6 +167,14 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
       props.navigateTo ? navigate(props.navigateTo) : navigate(-1);
     } else props.onClose();
   };
+
+  React.useEffect(() => {
+    if (!isFullscreen) toggleFullscreen();
+
+    return () => {
+      if (isFullscreen) toggleFullscreen();
+    };
+  }, [isFullscreen]);
 
   return (
     <FullScreenDialog

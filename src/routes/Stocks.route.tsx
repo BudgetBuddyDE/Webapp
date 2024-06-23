@@ -24,6 +24,7 @@ import {
 } from '@/components/Stocks';
 import {StockPositionTable} from '@/components/Stocks/Position';
 import {StockPositionDrawer, type TStockPositionDrawerValues} from '@/components/Stocks/StockPositionDrawer.component';
+import {useDocumentTitle} from '@/hooks';
 import {getSocketIOClient} from '@/utils';
 
 interface IStocksHandler {
@@ -34,6 +35,7 @@ interface IStocksHandler {
 }
 
 export const Stocks = () => {
+  useDocumentTitle(`${AppConfig.appName} - Stocks`, true);
   const navigate = useNavigate();
   const {sessionUser} = useAuthContext();
   const {updateQuote} = useStockStore();
