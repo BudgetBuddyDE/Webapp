@@ -2,6 +2,8 @@ import {MoreVertRounded} from '@mui/icons-material';
 import {
   Button,
   type ButtonProps,
+  IconButton,
+  IconButtonProps,
   MenuItem,
   MenuItemProps,
   Menu as MuiMenu,
@@ -10,12 +12,20 @@ import {
 import React from 'react';
 
 export type TMenuProps = {
-  buttonProps?: ButtonProps;
   menuProps?: MuiMenuProps;
   actions: MenuItemProps[];
-};
+} & (
+  | {
+      useIconButton: true;
+      iconButtonProps?: IconButtonProps;
+    }
+  | {
+      useIconButton?: false;
+      buttonProps?: ButtonProps;
+    }
+);
 
-export const Menu: React.FC<TMenuProps> = ({buttonProps, menuProps, actions}) => {
+export const Menu: React.FC<TMenuProps> = ({useIconButton = false, menuProps, actions, ...props}) => {
   const id = React.useId();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -29,7 +39,18 @@ export const Menu: React.FC<TMenuProps> = ({buttonProps, menuProps, actions}) =>
 
   return (
     <React.Fragment>
-      <Button onClick={handleClick} children={<MoreVertRounded />} {...buttonProps} />
+      {useIconButton ? (
+        <IconButton
+          onClick={handleClick}
+          color="primary"
+          {...(props as {iconButtonProps?: IconButtonProps}).iconButtonProps}>
+          <MoreVertRounded />
+        </IconButton>
+      ) : (
+        <Button onClick={handleClick} {...(props as {buttonProps?: ButtonProps}).buttonProps}>
+          Menu
+        </Button>
+      )}
       <MuiMenu anchorEl={anchorEl} onClose={handleClose} {...menuProps} open={open}>
         {actions.map((action, idx) => (
           <MenuItem

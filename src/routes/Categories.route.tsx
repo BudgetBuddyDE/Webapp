@@ -163,6 +163,7 @@ export const Categories = () => {
               </IconButton>
 
               <Menu
+                useIconButton
                 actions={[
                   {
                     children: 'Create multiple',

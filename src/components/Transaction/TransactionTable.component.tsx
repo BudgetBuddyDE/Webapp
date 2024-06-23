@@ -150,6 +150,7 @@ export const TransactionTable: React.FC<TTransactionTableProps> = ({
 
           {onAddMultiple && (
             <Menu
+              useIconButton
               actions={[
                 {
                   children: 'Create multiple',

@@ -262,6 +262,7 @@ export const Subscriptions = () => {
               </IconButton>
 
               <Menu
+                useIconButton
                 actions={[
                   {
                     children: 'Create multiple',

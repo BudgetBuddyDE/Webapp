@@ -174,6 +174,7 @@ export const PaymentMethods = () => {
               </IconButton>
 
               <Menu
+                useIconButton
                 actions={[
                   {
                     children: 'Create multiple',
