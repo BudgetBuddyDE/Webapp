@@ -1,9 +1,11 @@
 import {DeleteRounded} from '@mui/icons-material';
-import {Box, Button, Skeleton, TableBody, TableCell, TableHead, TableRow, Typography} from '@mui/material';
+import {Box, Button, Fade, Paper, Skeleton, TableBody, TableCell, TableHead, TableRow, Typography} from '@mui/material';
 import React from 'react';
 
 import {AppConfig} from '@/app.config';
+import {useDrawerStore} from '@/components/Layout/Drawer';
 import {CircularProgress} from '@/components/Loading';
+import {drawerWidth as AppDrawerWidth} from '@/style/theme/theme';
 
 import {
   type IPaginationHandler,
@@ -55,6 +57,7 @@ export const Table = <T,>({
   noResultsMessage = 'No records found',
   ...props
 }: TTableProps<T>) => {
+  const {open: isAppDrawerOpen} = useDrawerStore();
   const [state, dispatch] = React.useReducer(PaginationReducer, InitialPaginationState);
   const [checked, setChecked] = React.useState(false);
   const currentPageData = usePagination(data, state);
@@ -79,46 +82,31 @@ export const Table = <T,>({
   }, [props, data]);
 
   return (
-    <Card sx={{p: 0}}>
-      {(title || subtitle) && (
-        <Card.Header sx={{px: 2, pt: 2}}>
-          <Box>
-            {title && <Card.Title>{title || 'Table'}</Card.Title>}
-            {subtitle && <Card.Subtitle>{subtitle}</Card.Subtitle>}
-          </Box>
-          {tableActions && (
-            <Card.HeaderActions sx={{mt: {xs: 1, md: 0}, width: {md: 'unset'}}}>
-              <ActionPaper sx={{display: 'flex', flexDirection: 'row'}}>
-                {isLoading ? (
-                  <Skeleton variant="rounded" sx={{width: {xs: '5rem', md: '10rem'}, height: '2.3rem'}} />
-                ) : (
-                  tableActions
-                )}
-              </ActionPaper>
-            </Card.HeaderActions>
-          )}
-        </Card.Header>
-      )}
-      <Card.Body sx={{px: 0}}>
-        {isLoading ? (
-          <CircularProgress />
-        ) : currentPageData.length > 0 ? (
-          <React.Fragment>
-            {props.withSelection && props.amountOfSelectedEntities > 0 && (
-              <Box sx={{px: 2, pt: 1.5}}>
-                {props.onDelete && (
-                  <Button
-                    startIcon={<DeleteRounded />}
-                    onClick={() => {
-                      if (props.onDelete) props.onDelete();
-                    }}
-                    sx={{mr: 1}}>
-                    Delete
-                  </Button>
-                )}
-              </Box>
+    <React.Fragment>
+      <Card sx={{p: 0}}>
+        {(title || subtitle) && (
+          <Card.Header sx={{px: 2, pt: 2}}>
+            <Box>
+              {title && <Card.Title>{title || 'Table'}</Card.Title>}
+              {subtitle && <Card.Subtitle>{subtitle}</Card.Subtitle>}
+            </Box>
+            {tableActions && (
+              <Card.HeaderActions sx={{mt: {xs: 1, md: 0}, width: {md: 'unset'}}}>
+                <ActionPaper sx={{display: 'flex', flexDirection: 'row'}}>
+                  {isLoading ? (
+                    <Skeleton variant="rounded" sx={{width: {xs: '5rem', md: '10rem'}, height: '2.3rem'}} />
+                  ) : (
+                    tableActions
+                  )}
+                </ActionPaper>
+              </Card.HeaderActions>
             )}
-
+          </Card.Header>
+        )}
+        <Card.Body sx={{px: 0}}>
+          {isLoading ? (
+            <CircularProgress />
+          ) : currentPageData.length > 0 ? (
             <TableContainer>
               <TableHead>
                 <TableRow>
@@ -151,19 +139,74 @@ export const Table = <T,>({
               </TableHead>
               <TableBody>{currentPageData.map(renderRow)}</TableBody>
             </TableContainer>
-          </React.Fragment>
-        ) : (
-          <NoResults text={noResultsMessage} sx={{mx: 2, mt: 2}} />
-        )}
-      </Card.Body>
-      <Card.Footer sx={{p: 2}}>
-        <Pagination
-          {...state}
-          count={data.length}
-          onPageChange={handler.pagination.onPageChange}
-          onRowsPerPageChange={handler.pagination.onRowsPerPageChange}
-        />
-      </Card.Footer>
-    </Card>
+          ) : (
+            <NoResults text={noResultsMessage} sx={{mx: 2, mt: 2}} />
+          )}
+        </Card.Body>
+        <Card.Footer sx={{p: 2}}>
+          <Pagination
+            {...state}
+            count={data.length}
+            onPageChange={handler.pagination.onPageChange}
+            onRowsPerPageChange={handler.pagination.onRowsPerPageChange}
+          />
+        </Card.Footer>
+      </Card>
+
+      {props.withSelection && (
+        <Fade in={props.amountOfSelectedEntities > 0}>
+          <Box
+            sx={{
+              zIndex: 1,
+              position: 'fixed',
+              left: theme => ({
+                xs: '50%',
+                /**
+                 * In order to be centered inside the ContentGrid (app-content) we need to include the Drawer/Sidebar width in the calculation.
+                 * This is because the Drawer/Sidebar is not part of the ContentGrid.
+                 */
+                md: `calc(50% + ${isAppDrawerOpen ? AppDrawerWidth / 2 + 'px' : theme.spacing(3.5)})`,
+              }),
+              transform: 'translateX(-50%)',
+              bottom: '1rem',
+            }}>
+            <Paper
+              elevation={0}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                px: 4,
+                py: 1.5,
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: '30px',
+              }}>
+              <Typography noWrap>
+                {props.amountOfSelectedEntities} {props.amountOfSelectedEntities === 1 ? 'Record' : 'Records'}
+              </Typography>
+              {props.onDelete && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteRounded />}
+                  sx={{ml: 3}}
+                  onClick={() => props.onDelete && props.onDelete()}>
+                  Delete
+                </Button>
+              )}
+              <Button
+                size="small"
+                variant="outlined"
+                color="secondary"
+                sx={{ml: 1}}
+                onClick={() => props.onSelectAll(false)}>
+                Clear
+              </Button>
+            </Paper>
+          </Box>
+        </Fade>
+      )}
+    </React.Fragment>
   );
 };
