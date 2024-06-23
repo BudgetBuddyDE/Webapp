@@ -1,20 +1,11 @@
 import React from 'react';
 
-import {AppConfig, Feature} from '@/app.config';
+import {Feature} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {AuthLayout, UnauthentificatedLayout} from '@/components/Auth/Layout';
 
 import {FeatureNotEnabled} from './FeatureNotEnabled.component';
-
-/**
- * Checks if a specific feature is enabled.
- *
- * @param feature - The feature to check.
- * @returns `true` if the feature is enabled, `false` otherwise.
- */
-export function isFeatureEnabled(feature: Feature) {
-  return AppConfig.feature[feature];
-}
+import {isFeatureEnabled} from './isFeatureEnabled';
 
 /**
  * Higher-order component that wraps a component with a feature flag check.
