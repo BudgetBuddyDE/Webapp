@@ -137,7 +137,7 @@ const StocksView = () => {
         </Grid>
         <Grid item xs={6} md={3}>
           <StatsCard
-            label="Unrealised profits"
+            label="Unrealised losses"
             value={Formatter.formatBalance(unrealisedLosses)}
             icon={<RemoveRounded />}
             isLoading={loadingStockPositions}
