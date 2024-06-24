@@ -215,7 +215,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
                 render={({field: {onChange, value, ref}}) =>
                   screenSize === 'small' ? (
                     <MobileDatePicker
-                      label="Processed at"
+                      label="Processed at "
                       inputFormat="dd.MM.yyyy"
                       onChange={onChange}
                       onAccept={onChange}
@@ -233,7 +233,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
                     />
                   ) : (
                     <DesktopDatePicker
-                      label="Processed at"
+                      label="Date"
                       inputFormat="dd.MM.yyyy"
                       onChange={onChange}
                       onAccept={onChange}
