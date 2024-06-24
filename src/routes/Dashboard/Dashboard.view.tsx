@@ -43,6 +43,15 @@ export const DashboardView = () => {
     return subscriptions.filter(({paused}) => !paused).slice(0, LIST_ITEM_COUNT);
   }, [subscriptions]);
 
+  const handler = {
+    onAddSubscription: () => {
+      dispatchSubscriptionDrawer({type: 'OPEN', drawerAction: 'CREATE'});
+    },
+    onAddTransaction: () => {
+      dispatchTransactionDrawer({type: 'OPEN', drawerAction: 'CREATE'});
+    },
+  };
+
   return (
     <React.Fragment>
       <DashboardStatsWrapper />
@@ -51,10 +60,7 @@ export const DashboardView = () => {
         {loadingSubscriptions ? (
           <CircularProgress />
         ) : (
-          <SubscriptionList
-            data={upcomingSubscriptions}
-            onAddSubscription={() => dispatchSubscriptionDrawer({type: 'OPEN', drawerAction: 'CREATE'})}
-          />
+          <SubscriptionList data={upcomingSubscriptions} onAddSubscription={handler.onAddSubscription} />
         )}
       </Grid>
 
@@ -70,7 +76,7 @@ export const DashboardView = () => {
             title="Latest transactions"
             subtitle="What purchases did you make recently?"
             data={latestTransactions}
-            onAddTransaction={() => dispatchTransactionDrawer({type: 'OPEN', drawerAction: 'CREATE'})}
+            onAddTransaction={handler.onAddTransaction}
           />
         )}
       </Grid>

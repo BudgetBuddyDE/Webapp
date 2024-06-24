@@ -92,7 +92,7 @@ export const EntityDrawer = <T extends FieldValues>({
     form.reset(defaultValues);
   }, [defaultValues]);
 
-  const Content = () => (
+  const drawerContent = (
     <React.Fragment>
       <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} sx={{p: 2, pb: 0}}>
         <Stack>
@@ -145,7 +145,7 @@ export const EntityDrawer = <T extends FieldValues>({
           width: drawerWidth * 2,
         },
       }}
-      children={<Content />}
+      children={drawerContent}
     />
   ) : (
     <SwipeableDrawer
@@ -160,14 +160,9 @@ export const EntityDrawer = <T extends FieldValues>({
           borderTopRightRadius: theme => `${theme.shape.borderRadius}px`,
         },
       }}
-      children={<Content />}
-      /**
-       * The following properties are used for optimal usability of the component:
-       * - iOS is hosted on high-end devices. The backdrop transition can be enabled without dropping frames. The performance will be good enough.
-       * - iOS has a "swipe to go back" feature that interferes with the discovery feature, so discovery has to be disabled.
-       */
       disableBackdropTransition={!iOS}
       disableDiscovery={iOS}
+      children={drawerContent}
     />
   );
 };
