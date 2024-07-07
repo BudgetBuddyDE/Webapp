@@ -27,7 +27,7 @@ export const MetalQuoteList = () => {
                 secondaryAction={
                   <Stack>
                     {Object.entries(quote.quote).map(([currency, price]) => (
-                      <Typography variant="subtitle2" key={quote.code + '-' + currency}>
+                      <Typography variant="subtitle2" key={quote.code + '-' + currency} style={{textAlign: 'right'}}>
                         {Formatter.formatBalance(price, currency)}
                       </Typography>
                     ))}
