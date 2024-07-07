@@ -1,12 +1,12 @@
 import {type TStockPositionWithQuote, type TTimeframe} from '@budgetbuddyde/types';
-import {AddRounded, ArrowForwardRounded, CloudDownloadRounded} from '@mui/icons-material';
+import {AddRounded, ArrowForwardRounded} from '@mui/icons-material';
 import {Button, IconButton, Stack, TableCell, TableRow, Typography} from '@mui/material';
 import {format} from 'date-fns';
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
 
 import {AppConfig} from '@/app.config';
-import {ActionPaper, Image} from '@/components/Base';
+import {ActionPaper, Image, Menu} from '@/components/Base';
 import {SearchInput} from '@/components/Base/Search';
 import {Table} from '@/components/Base/Table/Table.component';
 import {useFetchStockPositions} from '@/components/Stocks';
@@ -180,13 +180,17 @@ export const StockPositionTable: React.FC<TStockPositionTableProps> = ({
             </IconButton>
           )}
           {displayedStockPositions.length > 0 && (
-            <Button
-              startIcon={<CloudDownloadRounded />}
-              onClick={() => {
-                downloadAsJson(displayedStockPositions, `bb_stock_positions_${format(new Date(), 'yyyy_mm_dd')}`);
-              }}>
-              Export
-            </Button>
+            <Menu
+              useIconButton
+              actions={[
+                {
+                  children: 'Export',
+                  onClick: () => {
+                    downloadAsJson(displayedStockPositions, `bb_stock_positions_${format(new Date(), 'yyyy_mm_dd')}`);
+                  },
+                },
+              ]}
+            />
           )}
         </React.Fragment>
       }
