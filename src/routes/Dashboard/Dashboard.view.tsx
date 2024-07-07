@@ -1,9 +1,9 @@
 import {type TSubscription, type TTransaction} from '@budgetbuddyde/types';
-import {Grid} from '@mui/material';
+import {Grid, Stack} from '@mui/material';
 import React from 'react';
 
 import {AppConfig} from '@/app.config';
-import {CategorySpendingsChart} from '@/components/Category';
+import {CategorySpendingsChart, UpcomingSubscriptions} from '@/components/Category';
 import {DashboardStatsWrapper} from '@/components/DashboardStatsWrapper.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {CircularProgress} from '@/components/Loading';
@@ -57,11 +57,15 @@ export const DashboardView = () => {
       <DashboardStatsWrapper />
 
       <Grid item xs={12} md={6} lg={4} order={{xs: 3, md: 1}}>
-        {loadingSubscriptions ? (
-          <CircularProgress />
-        ) : (
-          <SubscriptionList data={upcomingSubscriptions} onAddSubscription={handler.onAddSubscription} />
-        )}
+        <Stack spacing={AppConfig.baseSpacing}>
+          {loadingSubscriptions ? (
+            <CircularProgress />
+          ) : (
+            <SubscriptionList data={upcomingSubscriptions} onAddSubscription={handler.onAddSubscription} />
+          )}
+
+          <UpcomingSubscriptions />
+        </Stack>
       </Grid>
 
       <Grid item xs={12} md={6} lg={4} order={{xs: 1, md: 2}}>

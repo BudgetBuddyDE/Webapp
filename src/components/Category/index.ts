@@ -8,3 +8,4 @@ export * from './getCategoryFromList.util';
 export * from './Chip.component';
 export * from './CategoryDrawer.component';
 export * from './CreateMultipleCategoriesDialog.component';
+export * from './UpcomingSubscriptions.component';

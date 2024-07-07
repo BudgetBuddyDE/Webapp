@@ -73,7 +73,7 @@ export const StatsWrapper: React.FC<TStatsWrapperProps> = ({containerProps}) => 
   return (
     <Grid container spacing={AppConfig.baseSpacing} item xs={12} md={12} {...containerProps}>
       {cards.map((card, idx) => (
-        <Grid key={idx} item xs={6} md={6} sx={{height: 'unset'}}>
+        <Grid key={idx} item xs={6} md={3} sx={{height: 'unset'}}>
           <StatsCard {...card} />
         </Grid>
       ))}

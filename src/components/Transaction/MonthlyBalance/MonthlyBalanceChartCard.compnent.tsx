@@ -38,7 +38,7 @@ export const MonthlyBalanceChartCard: React.FC<TMonthlyBalanceChartCardProps> = 
   }, [balances]);
 
   return (
-    <Card sx={{mt: 2}}>
+    <Card>
       <Card.Header>
         <Box>
           <Card.Title>Monthly Balance</Card.Title>

@@ -3,7 +3,7 @@ import React from 'react';
 
 import {AppConfig} from '@/app.config';
 import {BudgetList, StatsWrapper} from '@/components/Budget';
-import {CategoryIncomeChart, CategorySpendingsChart} from '@/components/Category';
+import {CategoryIncomeChart, CategorySpendingsChart, UpcomingSubscriptions} from '@/components/Category';
 import {MonthlyBalanceChartCard, MonthlyBalanceWidget} from '@/components/Transaction/MonthlyBalance';
 import {useDocumentTitle} from '@/hooks';
 
@@ -11,15 +11,23 @@ export const BudgetView = () => {
   useDocumentTitle(`${AppConfig.appName} - Budget`, true);
   return (
     <React.Fragment>
-      <Grid item xs={12} md={12} lg={5} xl={5}>
-        <MonthlyBalanceWidget />
+      <StatsWrapper />
 
-        <MonthlyBalanceChartCard />
+      <Grid container item xs={12} md={12} lg={5} xl={5} spacing={AppConfig.baseSpacing}>
+        <Grid item xs={12}>
+          <MonthlyBalanceWidget />
+        </Grid>
+
+        <Grid item xs={12}>
+          <UpcomingSubscriptions />
+        </Grid>
+
+        <Grid item xs={12}>
+          <MonthlyBalanceChartCard />
+        </Grid>
       </Grid>
 
       <Grid container item xs={12} md={12} lg={7} xl={7} spacing={AppConfig.baseSpacing}>
-        <StatsWrapper />
-
         <Grid item xs={12} md={12} lg={12} xl={12}>
           <BudgetList />
         </Grid>
