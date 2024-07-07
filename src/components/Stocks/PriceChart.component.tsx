@@ -7,6 +7,7 @@ import {Card} from '@/components/Base';
 import {useScreenSize} from '@/hooks';
 import {Formatter} from '@/services';
 
+import {StockPrice} from './StockPrice.component';
 import {Timeframe} from './Timeframe.component';
 
 export type TPriceChartPoint = {
@@ -26,9 +27,22 @@ export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, data}
   return (
     <Card sx={{p: 0}}>
       <Card.Header sx={{p: 2, pb: 0}}>
-        <Box>
-          <Card.Title>Price</Card.Title>
-        </Box>
+        {data.length > 0 && (
+          <Box>
+            <StockPrice
+              trend={
+                data.length >= 2
+                  ? data.at(-1)!.price > data.at(0)!.price
+                    ? 'up'
+                    : data.at(-1)!.price === data.at(0)!.price
+                      ? undefined
+                      : 'down'
+                  : undefined
+              }
+              price={data.at(-1)!.price}
+            />
+          </Box>
+        )}
 
         <Card.HeaderActions
           sx={{

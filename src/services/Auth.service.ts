@@ -1,11 +1,20 @@
-import {PocketBaseCollection, TId, TServiceResponse, TUser} from '@budgetbuddyde/types';
+import {PocketBaseCollection, type TId, type TServiceResponse, type TUser} from '@budgetbuddyde/types';
 import {RecordAuthResponse} from 'pocketbase';
 
 import {pb} from '@/pocketbase';
 
+/**
+ * Service class for handling authentication related operations.
+ */
 export class AuthService {
   private static collection = PocketBaseCollection.USERS;
 
+  /**
+   * Logs in a user with the provided email and password.
+   * @param email - The user's email.
+   * @param password - The user's password.
+   * @returns A promise that resolves to a tuple containing the authenticated user record and any error that occurred during authentication.
+   */
   static async login(
     email: string,
     password: string,
@@ -19,6 +28,11 @@ export class AuthService {
     }
   }
 
+  /**
+   * Retrieves a user by their ID.
+   * @param userId - The ID of the user to retrieve.
+   * @returns A promise that resolves to a tuple containing the retrieved user record and any error that occurred during retrieval.
+   */
   static async getUser(userId: TId): Promise<TServiceResponse<NonNullable<TUser>>> {
     try {
       const record = await pb.collection<TUser>(this.collection).getOne(userId);
