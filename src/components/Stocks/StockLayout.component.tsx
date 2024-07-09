@@ -1,10 +1,12 @@
 import {ZAddWatchlistAssetPayload, ZDeleteWatchlistAssetPayload} from '@budgetbuddyde/types';
+import {Grid} from '@mui/material';
 import React from 'react';
 
 import {useAuthContext} from '@/components/Auth';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {useKeyPress} from '@/hooks';
 
+import {DataDisclaimer} from './Disclaimer.component';
 import {useFetchStockExchanges} from './Exchange';
 import {SearchStockDialog, type TSearchStockDialogProps} from './SearchStockDialog.component';
 import {StockService} from './Stock.service';
@@ -127,6 +129,10 @@ export const StockLayout: React.FC<TStockLayoutProps> = ({onSelectAsset, onOpenP
           }
         }}
       />
+
+      <Grid item xs={12}>
+        <DataDisclaimer />
+      </Grid>
     </React.Fragment>
   );
 };

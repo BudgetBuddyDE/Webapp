@@ -15,3 +15,4 @@ export * from './StockRating.component';
 export * from './PriceChart.component';
 export * from './StockLayout.component';
 export * from './Watchlist';
+export * from './Disclaimer.component';
