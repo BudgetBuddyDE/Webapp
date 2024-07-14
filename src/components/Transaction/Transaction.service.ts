@@ -9,7 +9,9 @@ import {type RecordModel} from 'pocketbase';
 import {z} from 'zod';
 
 import {pb} from '@/pocketbase';
+import {FilterService} from '@/services';
 
+import {type TFilters} from '../Filter';
 import {type ITransactionStore} from './Transaction.store';
 
 /**
@@ -63,16 +65,19 @@ export class TransactionService {
   }
 
   /**
-   * Retrieves a list of transactions.
+   * Retrieves a list of transactions based on the provided filter and sorting options.
+   *
+   * @param filter - Optional filter object to apply to the transactions.
+   * @param sortBy - Optional field to sort the transactions by. Defaults to '-processed_at'.
    * @returns A promise that resolves to an array of transactions.
    * @throws If there is an error parsing the retrieved records.
    */
-  static async getTransactions(): Promise<TTransaction[]> {
+  static async getTransactions(filter?: TFilters, sortBy?: string): Promise<TTransaction[]> {
     const records = await pb.collection(PocketBaseCollection.TRANSACTION).getFullList({
       expand: 'category,payment_method',
-      sort: '-processed_at',
+      filter: FilterService.buildTransactionFilterQuery(filter),
+      sort: sortBy || '-processed_at',
     });
-
     const parsingResult = z.array(ZTransaction).safeParse(records);
     if (!parsingResult.success) throw parsingResult.error;
     return parsingResult.data;

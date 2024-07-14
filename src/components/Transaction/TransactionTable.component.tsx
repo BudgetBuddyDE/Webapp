@@ -10,7 +10,7 @@ import {ActionPaper, Linkify, Menu} from '@/components/Base';
 import {SearchInput} from '@/components/Base/Search';
 import {type TTableSelectionProps, Table} from '@/components/Base/Table';
 import {CategoryChip} from '@/components/Category';
-import {ToggleFilterDrawerButton, useFilterStore} from '@/components/Filter';
+import {useFilterStore} from '@/components/Filter';
 import {PaymentMethodChip} from '@/components/PaymentMethod';
 import {pb} from '@/pocketbase';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
@@ -43,7 +43,7 @@ export const TransactionTable: React.FC<TTransactionTableProps> = ({
   onDelete,
 }) => {
   const {fileToken} = useAuthContext();
-  const {filters} = useFilterStore();
+  const {toggleVisibility, filters} = useFilterStore();
   const {loading: isLoadingTransactions, transactions} = useFetchTransactions();
   const [keyword, setKeyword] = React.useState<string>('');
 
@@ -140,7 +140,6 @@ export const TransactionTable: React.FC<TTransactionTableProps> = ({
       }}
       tableActions={
         <React.Fragment>
-          <ToggleFilterDrawerButton />
           <SearchInput placeholder="Search" onSearch={setKeyword} />
           {onAddTransaction && (
             <IconButton color="primary" onClick={onAddTransaction}>
@@ -152,6 +151,10 @@ export const TransactionTable: React.FC<TTransactionTableProps> = ({
             <Menu
               useIconButton
               actions={[
+                {
+                  children: 'Filters',
+                  onClick: toggleVisibility,
+                },
                 {
                   children: 'Create multiple',
                   onClick: onAddMultiple,

@@ -91,7 +91,7 @@ export const Table = <T,>({
               {subtitle && <Card.Subtitle>{subtitle}</Card.Subtitle>}
             </Box>
             {tableActions && (
-              <Card.HeaderActions sx={{mt: {xs: 1, md: 0}, width: {md: 'unset'}}}>
+              <Card.HeaderActions sx={{mt: {xs: 1, md: 0}, width: {xs: '100%', md: 'unset'}}}>
                 <ActionPaper sx={{display: 'flex', flexDirection: 'row'}}>
                   {isLoading ? (
                     <Skeleton variant="rounded" sx={{width: {xs: '5rem', md: '10rem'}, height: '2.3rem'}} />

@@ -36,11 +36,6 @@ export class SubscriptionService {
     return record;
   }
 
-  /**
-   * Retrieves a list of subscriptions.
-   * @returns A promise that resolves to an array of TSubscription objects.
-   * @throws If there is an error parsing the retrieved records.
-   */
   static async getSubscriptions(): Promise<TSubscription[]> {
     const records = await pb.collection(PocketBaseCollection.SUBSCRIPTION).getFullList({
       expand: 'category,payment_method',
