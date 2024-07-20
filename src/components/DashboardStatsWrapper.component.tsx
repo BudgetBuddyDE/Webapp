@@ -73,7 +73,7 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
 
   const estimatedBalance: number = React.useMemo(() => {
     const income = fetchedStats.earnings + upcomingIncome;
-    const expenses = Math.abs(fetchedStats.expenses + upcomingExpenses);
+    const expenses = fetchedStats.expenses + Math.abs(upcomingExpenses);
     return income - expenses;
   }, [fetchedStats, upcomingIncome, upcomingExpenses]);
 

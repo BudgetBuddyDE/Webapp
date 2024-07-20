@@ -117,42 +117,46 @@ const StocksView = () => {
   return (
     <StockLayout onSelectAsset={({identifier}) => navigate(`/stocks/${identifier}`)}>
       <Grid container item xs={12} md={12} spacing={AppConfig.baseSpacing}>
-        <Grid item xs={6} md={3}>
-          <StatsCard
-            label={'Depot'}
-            value={Formatter.formatBalance(depotValue)}
-            icon={<AccountBalanceRounded />}
-            isLoading={loadingStockPositions}
-            valueInformation="Current value of your depot"
-          />
-        </Grid>
-        <Grid item xs={6} md={3}>
-          <StatsCard
-            label="Unrealised profits"
-            value={Formatter.formatBalance(unrealisedProfits)}
-            icon={<AddRounded />}
-            isLoading={loadingStockPositions}
-            valueInformation={`Capital gain: ${Formatter.formatBalance(unrealisedProfits - unrealisedLosses)}`}
-          />
-        </Grid>
-        <Grid item xs={6} md={3}>
-          <StatsCard
-            label="Unrealised losses"
-            value={Formatter.formatBalance(unrealisedLosses)}
-            icon={<RemoveRounded />}
-            isLoading={loadingStockPositions}
-            valueInformation={`Capital gain: ${Formatter.formatBalance(unrealisedProfits - unrealisedLosses)}`}
-          />
-        </Grid>
-        <Grid item xs={6} md={3}>
-          <StatsCard
-            label="Upcoming dividends"
-            value={Formatter.formatBalance(upcomingDividends)}
-            icon={<PaymentsRounded />}
-            isLoading={loadingDividends || loadingStockPositions}
-            valueInformation="Expected upcoming dividend payments"
-          />
-        </Grid>
+        {[
+          {
+            label: 'Depot',
+            value: Formatter.formatBalance(depotValue),
+            icon: <AccountBalanceRounded />,
+            isLoading: loadingStockPositions,
+            valueInformation: 'Current value of your depot',
+          },
+          {
+            label: 'Unrealised profits',
+            value: Formatter.formatBalance(unrealisedProfits),
+            icon: <AddRounded />,
+            isLoading: loadingStockPositions,
+            valueInformation: `Capital gain: ${Formatter.formatBalance(unrealisedProfits - unrealisedLosses)}`,
+          },
+          {
+            label: 'Unrealised losses',
+            value: Formatter.formatBalance(unrealisedLosses),
+            icon: <RemoveRounded />,
+            isLoading: loadingStockPositions,
+            valueInformation: `Capital gain: ${Formatter.formatBalance(unrealisedProfits - unrealisedLosses)}`,
+          },
+          {
+            label: 'Upcoming dividends',
+            value: Formatter.formatBalance(upcomingDividends),
+            icon: <PaymentsRounded />,
+            isLoading: loadingDividends || loadingStockPositions,
+            valueInformation: 'Expected upcoming dividend payments',
+          },
+        ].map(({value, valueInformation, icon, isLoading, label}) => (
+          <Grid key={label.toLowerCase().replaceAll(' ', '_')} item xs={6} md={3}>
+            <StatsCard
+              label={label}
+              value={value}
+              icon={icon}
+              isLoading={isLoading}
+              valueInformation={valueInformation}
+            />
+          </Grid>
+        ))}
       </Grid>
 
       <Grid container item xs={12} md={8} spacing={AppConfig.baseSpacing} sx={{height: 'fit-content'}}>
