@@ -70,22 +70,12 @@ export class FilterService {
   }
 
   /**
-   * Returns a string representing the keyword filter for searching.
-   * @param keyword - The keyword to search for.
-   * @returns A string representing the keyword filter.
-   */
-  static getKeywordString(keyword: NonNullable<TFilters['keyword']>): string {
-    const escapedKeyword = keyword.replace(/"/g, '\\"');
-    return `(receiver~'%${escapedKeyword}%' || information~'%${escapedKeyword}%')`;
-  }
-
-  /**
    * Builds a transaction filter query based on the provided filters.
    * @param filters - The filters to apply to the query.
-   * @returns The transaction filter query as a string, or undefined if no filters are provided.
+   * @returns The transaction filter query as a string.
    */
   static buildTransactionFilterQuery(filters?: TFilters): string | undefined {
-    if (!filters) return undefined;
+    if (!filters) return '';
     const query = [] as string[];
     if (filters.startDate) query.push(this.getStartDateString(filters.startDate));
     if (filters.endDate) query.push(this.getEndDateString(filters.endDate));
@@ -102,7 +92,78 @@ export class FilterService {
       query.push(this.getEndPriceString(filters.priceTo));
     }
     if (filters.keyword !== undefined && filters.keyword !== null && filters.keyword.length > 0) {
-      query.push(this.getKeywordString(filters.keyword));
+      const escapedKeyword = filters.keyword.replace(/"/g, '\\"');
+      query.push(`(receiver~'%${escapedKeyword}%' || information~'%${escapedKeyword}%')`);
+    }
+    return query.join(' && ');
+  }
+
+  /**
+   * Builds a subscription filter query based on the provided filters.
+   * @param filters - The filters to apply to the query.
+   * @returns The subscription filter query as a string.
+   */
+  static buildSubscriptionFilterQuery(filters?: TFilters): string {
+    if (!filters) return '';
+    const query = [] as string[];
+    // FIXME: Temporarily removed
+    // if (filters.startDate) {
+    //   query.push(`execute_at >= "${format(filters.startDate, 'dd')}"`);
+    // }
+    // if (filters.endDate) {
+    //   query.push(`execute_at <= "${format(filters.endDate, 'dd')}"`);
+    // }
+    if (filters.categories && filters.categories.length > 0) {
+      query.push(this.getCategoryString(filters.categories));
+    }
+    if (filters.paymentMethods && filters.paymentMethods.length > 0) {
+      query.push(this.getPaymentMethodString(filters.paymentMethods));
+    }
+    if (filters.priceFrom !== undefined && filters.priceFrom !== null) {
+      query.push(this.getStartPriceString(filters.priceFrom));
+    }
+    if (filters.priceTo !== undefined && filters.priceTo !== null) {
+      query.push(this.getEndPriceString(filters.priceTo));
+    }
+    if (filters.keyword !== undefined && filters.keyword !== null && filters.keyword.length > 0) {
+      const escapedKeyword = filters.keyword.replace(/"/g, '\\"');
+      query.push(`(receiver~'%${escapedKeyword}%' || information~'%${escapedKeyword}%')`);
+    }
+    return query.join(' && ');
+  }
+
+  /**
+   * Builds a payment method filter query based on the provided filters.
+   * @param filters - The filters to apply to the query.
+   * @returns The built filter query as a string.
+   */
+  static buildPaymentMethodFilterQuery(filters?: TFilters): string {
+    if (!filters) return '';
+    const query = [] as string[];
+    if (filters.paymentMethods && filters.paymentMethods.length > 0) {
+      query.push(this.getPaymentMethodString(filters.paymentMethods));
+    }
+    if (filters.keyword !== undefined && filters.keyword !== null && filters.keyword.length > 0) {
+      const escapedKeyword = filters.keyword.replace(/"/g, '\\"');
+      query.push(`(name~'%${escapedKeyword}%' || description~'%${escapedKeyword}%')`);
+    }
+    return query.join(' && ');
+  }
+
+  /**
+   * Builds a category filter query based on the provided filters.
+   * @param filters - The filters to apply.
+   * @returns The category filter query string.
+   */
+  static buildCategoryFilterQuery(filters?: TFilters): string {
+    if (!filters) return '';
+    const query = [] as string[];
+    if (filters.categories && filters.categories.length > 0) {
+      query.push(this.getCategoryString(filters.categories));
+    }
+    if (filters.keyword !== undefined && filters.keyword !== null && filters.keyword.length > 0) {
+      const escapedKeyword = filters.keyword.replace(/"/g, '\\"');
+      query.push(`(name~'%${escapedKeyword}%' || description~'%${escapedKeyword}%')`);
     }
     return query.join(' && ');
   }

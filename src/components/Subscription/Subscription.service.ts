@@ -9,6 +9,9 @@ import {type RecordModel} from 'pocketbase';
 import {z} from 'zod';
 
 import {pb} from '@/pocketbase';
+import {FilterService} from '@/services';
+
+import {type TFilters} from '../Filter';
 
 export class SubscriptionService {
   /**
@@ -36,9 +39,18 @@ export class SubscriptionService {
     return record;
   }
 
-  static async getSubscriptions(): Promise<TSubscription[]> {
+  /**
+   * Retrieves a list of subscriptions based on the provided filters and sorting criteria.
+   * @param filters - Optional filters to apply to the subscriptions.
+   * @param sortBy - Optional field to sort the subscriptions by.
+   * @returns A promise that resolves to an array of subscriptions.
+   * @throws If there is an error parsing the retrieved records.
+   */
+  static async getSubscriptions(filters?: TFilters, sortBy?: string): Promise<TSubscription[]> {
     const records = await pb.collection(PocketBaseCollection.SUBSCRIPTION).getFullList({
       expand: 'category,payment_method',
+      filter: FilterService.buildSubscriptionFilterQuery(filters),
+      sort: sortBy || '',
     });
 
     const parsingResult = z.array(ZSubscription).safeParse(records);
