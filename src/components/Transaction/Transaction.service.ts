@@ -80,6 +80,7 @@ export class TransactionService {
     });
     const parsingResult = z.array(ZTransaction).safeParse(records);
     if (!parsingResult.success) throw parsingResult.error;
+    console.log('received records', records.length);
     return parsingResult.data;
   }
 

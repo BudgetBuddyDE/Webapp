@@ -9,4 +9,3 @@ export * from './getLastDayOfMonth.util';
 export * from './initSocket.util';
 export * from './determineOS.util';
 export * from './downloadAsJson.util';
-export * from './filter.util';

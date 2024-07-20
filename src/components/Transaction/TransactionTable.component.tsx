@@ -10,11 +10,13 @@ import {ActionPaper, Linkify, Menu} from '@/components/Base';
 import {SearchInput} from '@/components/Base/Search';
 import {type TTableSelectionProps, Table} from '@/components/Base/Table';
 import {CategoryChip} from '@/components/Category';
-import {useFilterStore} from '@/components/Filter';
+import {ToggleFilterDrawerButton, useFilterStore} from '@/components/Filter';
 import {PaymentMethodChip} from '@/components/PaymentMethod';
+import {useScreenSize} from '@/hooks';
 import {pb} from '@/pocketbase';
+import {FilterService} from '@/services';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
-import {downloadAsJson, filterTransactions} from '@/utils';
+import {downloadAsJson} from '@/utils';
 
 import {type ISelectionHandler} from '../Base/Select';
 import {useFetchTransactions} from './useFetchTransactions.hook';
@@ -42,19 +44,20 @@ export const TransactionTable: React.FC<TTransactionTableProps> = ({
   onSelect,
   onDelete,
 }) => {
+  const screenSize = useScreenSize();
   const {fileToken} = useAuthContext();
-  const {toggleVisibility, filters} = useFilterStore();
+  const {toggleVisibility} = useFilterStore();
   const {loading: isLoadingTransactions, transactions} = useFetchTransactions();
   const [keyword, setKeyword] = React.useState<string>('');
 
   const displayedTransactions: TTransaction[] = React.useMemo(() => {
-    return filterTransactions(keyword, filters, transactions);
-  }, [keyword, filters, transactions]);
+    return FilterService.locallyFilterByKeyword(transactions, ['receiver', 'information'], keyword);
+  }, [transactions, keyword]);
 
   return (
     <Table<TTransaction>
       title="Transactions"
-      subtitle="Manage your transactions"
+      subtitle={`Transactions ${transactions.length}; Displayed ${displayedTransactions.length}`}
       isLoading={isLoading || isLoadingTransactions}
       data={displayedTransactions}
       withSelection
@@ -140,6 +143,7 @@ export const TransactionTable: React.FC<TTransactionTableProps> = ({
       }}
       tableActions={
         <React.Fragment>
+          {screenSize !== 'small' && <ToggleFilterDrawerButton />}
           <SearchInput placeholder="Search" onSearch={setKeyword} />
           {onAddTransaction && (
             <IconButton color="primary" onClick={onAddTransaction}>

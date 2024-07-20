@@ -18,16 +18,17 @@ export type TPaymentMethodAutocompleteOption = {
   id: TPaymentMethod['id'];
 };
 
-export interface IPaymentMethodAutocompleteProps {
-  value?: TPaymentMethodAutocompleteOption | null;
-  defaultValue?: TPaymentMethodAutocompleteOption | null;
+export type TPaymentMethodAutocompleteProps = {
+  value?: TPaymentMethodAutocompleteOption | TPaymentMethodAutocompleteOption[] | null;
+  defaultValue?: TPaymentMethodAutocompleteOption | TPaymentMethodAutocompleteOption[] | null;
   onChange?: (
     event: React.SyntheticEvent<Element, Event>,
-    value: TPaymentMethodAutocompleteOption | null,
+    value: TPaymentMethodAutocompleteOption | TPaymentMethodAutocompleteOption[] | null,
     reason: AutocompleteChangeReason,
   ) => void;
   textFieldProps?: TextFieldProps;
-}
+  multiple?: boolean;
+};
 
 const filter = createFilterOptions<TPaymentMethodAutocompleteOption>();
 
@@ -46,11 +47,12 @@ export function applyPaymentMethodOptionsFilter(
   return matches;
 }
 
-export const PaymentMethodAutocomplete: React.FC<IPaymentMethodAutocompleteProps> = ({
+export const PaymentMethodAutocomplete: React.FC<TPaymentMethodAutocompleteProps> = ({
   value,
   defaultValue,
   onChange,
   textFieldProps,
+  multiple = false,
 }) => {
   const {loading: loadingTransactions, transactions} = useFetchTransactions();
   const {loading: loadingPaymentMethods, paymentMethods} = useFetchPaymentMethods();
@@ -61,6 +63,7 @@ export const PaymentMethodAutocomplete: React.FC<IPaymentMethodAutocompleteProps
 
   return (
     <Autocomplete
+      multiple={multiple}
       options={options}
       getOptionLabel={option => {
         if (typeof option === 'string') return option;
@@ -69,13 +72,13 @@ export const PaymentMethodAutocomplete: React.FC<IPaymentMethodAutocompleteProps
       value={value}
       onChange={onChange}
       filterOptions={applyPaymentMethodOptionsFilter}
-      // FIXME:
       isOptionEqualToValue={(option, value) => option.id === value?.id || typeof value === 'string'}
       defaultValue={defaultValue}
       loadingText="Loading..."
       loading={loadingPaymentMethods || loadingTransactions}
       selectOnFocus
       autoHighlight
+      disableCloseOnSelect={multiple}
       renderInput={params => <TextField label="Payment Method" {...textFieldProps} {...params} />}
       renderOption={(props, option, {selected}) => (
         <StyledAutocompleteOption {...props} key={option.id} selected={selected}>

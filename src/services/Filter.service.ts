@@ -70,6 +70,26 @@ export class FilterService {
   }
 
   /**
+   * Locally filters an array of items by a keyword.
+   * @param items - The array of items to filter.
+   * @param keys - The keys to search for the keyword in each item.
+   * @param keyword - The keyword to filter by.
+   * @returns The filtered array of items.
+   */
+  static locallyFilterByKeyword<T>(items: T[], keys: (keyof T)[], keyword: string): T[] {
+    if (!keyword) return items;
+    return items.filter(item => {
+      for (const key of keys) {
+        const value = item[key];
+        if (typeof value === 'string' && value.toLowerCase().includes(keyword.toLowerCase())) {
+          return true;
+        }
+      }
+      return false;
+    });
+  }
+
+  /**
    * Builds a transaction filter query based on the provided filters.
    * @param filters - The filters to apply to the query.
    * @returns The transaction filter query as a string.

@@ -1,6 +1,7 @@
 import {CloseRounded} from '@mui/icons-material';
 import {
   Button,
+  ButtonProps,
   CircularProgress,
   Drawer,
   DrawerProps,
@@ -29,6 +30,8 @@ export type IEntityDrawer<T extends FieldValues> = {
   children: (props: {form: UseFormReturn<T, any, undefined>}) => React.ReactNode;
   onSubmit: (data: T, onSuccess: () => void) => void;
   isLoading?: boolean;
+  closeBtnProps?: ButtonProps;
+  submitBtnProps?: ButtonProps;
 };
 
 export const EntityDrawer = <T extends FieldValues>({
@@ -43,6 +46,8 @@ export const EntityDrawer = <T extends FieldValues>({
   closeOnBackdropClick,
   closeOnEscape,
   isLoading = false,
+  closeBtnProps,
+  submitBtnProps,
 }: IEntityDrawer<T>) => {
   const drawerRef = React.useRef<HTMLDivElement | null>(null);
   const saveBtnRef = React.useRef<HTMLButtonElement | null>(null);
@@ -116,7 +121,7 @@ export const EntityDrawer = <T extends FieldValues>({
         {children({form})}
 
         <Stack direction={'row'} justifyContent={'flex-end'} sx={{mt: 'auto', p: 2, pt: 0}}>
-          <Button sx={{mr: 2}} onClick={() => handler.handleDrawerClose({}, 'closeButton')}>
+          <Button sx={{mr: 2}} onClick={() => handler.handleDrawerClose({}, 'closeButton')} {...closeBtnProps}>
             Close
           </Button>
           <Button
@@ -124,7 +129,8 @@ export const EntityDrawer = <T extends FieldValues>({
             type="submit"
             variant="contained"
             startIcon={isLoading ? <CircularProgress color="inherit" size={16} /> : undefined}
-            tabIndex={1}>
+            tabIndex={1}
+            {...submitBtnProps}>
             Save
           </Button>
         </Stack>

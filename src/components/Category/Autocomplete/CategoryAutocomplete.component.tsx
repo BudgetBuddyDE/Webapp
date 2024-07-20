@@ -18,16 +18,17 @@ export type TCategoryAutocompleteOption = {
   id: TCategory['id'];
 };
 
-export interface ICategoryAutocompleteProps {
-  value?: TCategoryAutocompleteOption | null;
-  defaultValue?: TCategoryAutocompleteOption | null;
+export type TCategoryAutocompleteProps = {
+  value?: TCategoryAutocompleteOption | TCategoryAutocompleteOption[] | null;
+  defaultValue?: TCategoryAutocompleteOption | TCategoryAutocompleteOption[] | null;
   onChange?: (
     event: React.SyntheticEvent<Element, Event>,
-    value: TCategoryAutocompleteOption | null,
+    value: TCategoryAutocompleteOption | TCategoryAutocompleteOption[] | null,
     reason: AutocompleteChangeReason,
   ) => void;
   textFieldProps?: TextFieldProps;
-}
+  multiple?: boolean;
+};
 
 const filter = createFilterOptions<TCategoryAutocompleteOption>();
 
@@ -46,11 +47,12 @@ export function applyCategoryOptionsFilter(
   return matches;
 }
 
-export const CategoryAutocomplete: React.FC<ICategoryAutocompleteProps> = ({
+export const CategoryAutocomplete: React.FC<TCategoryAutocompleteProps> = ({
   value,
   defaultValue,
   onChange,
   textFieldProps,
+  multiple,
 }) => {
   const {loading: loadingTransactions, transactions} = useFetchTransactions();
   const {loading: loadingCategories, categories} = useFetchCategories();
@@ -61,6 +63,7 @@ export const CategoryAutocomplete: React.FC<ICategoryAutocompleteProps> = ({
 
   return (
     <Autocomplete
+      multiple={multiple}
       options={options}
       getOptionLabel={option => {
         if (typeof option === 'string') return option;
@@ -69,13 +72,13 @@ export const CategoryAutocomplete: React.FC<ICategoryAutocompleteProps> = ({
       value={value}
       onChange={onChange}
       filterOptions={applyCategoryOptionsFilter}
-      // FIXME:
       isOptionEqualToValue={(option, value) => option.id === value?.id || typeof value === 'string'}
       defaultValue={defaultValue}
       loadingText="Loading..."
       loading={loadingCategories || loadingTransactions}
       selectOnFocus
       autoHighlight
+      disableCloseOnSelect={multiple}
       renderInput={params => <TextField label="Category" {...textFieldProps} {...params} />}
       renderOption={(props, option, {selected}) => (
         <StyledAutocompleteOption {...props} key={option.id} selected={selected}>

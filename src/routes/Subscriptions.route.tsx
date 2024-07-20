@@ -13,7 +13,7 @@ import {Table} from '@/components/Base/Table';
 import {CategoryChip} from '@/components/Category';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
-import {ToggleFilterDrawerButton, useFilterStore} from '@/components/Filter';
+import {ToggleFilterDrawerButton} from '@/components/Filter';
 import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
 import {PaymentMethodChip} from '@/components/PaymentMethod';
 import {useSnackbarContext} from '@/components/Snackbar';
@@ -26,8 +26,9 @@ import {
 } from '@/components/Subscription';
 import {type TTransactionDrawerValues, TransactionDrawer} from '@/components/Transaction';
 import {pb} from '@/pocketbase';
+import {FilterService} from '@/services';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
-import {determineNextExecution, determineNextExecutionDate, downloadAsJson, filterSubscriptions} from '@/utils';
+import {determineNextExecution, determineNextExecutionDate, downloadAsJson} from '@/utils';
 
 interface ISubscriptionsHandler {
   showCreateTransactionDialog: (subscription: TSubscription) => void;
@@ -42,7 +43,6 @@ interface ISubscriptionsHandler {
 
 export const Subscriptions = () => {
   const {showSnackbar} = useSnackbarContext();
-  const {filters} = useFilterStore();
   const {subscriptions, loading: loadingSubscriptions, refresh: refreshSubscriptions} = useFetchSubscriptions();
   const [transactionDrawer, dispatchTransactionDrawer] = React.useReducer(
     useEntityDrawer<TTransactionDrawerValues>,
@@ -59,8 +59,8 @@ export const Subscriptions = () => {
   const [keyword, setKeyword] = React.useState('');
 
   const displayedSubscriptions: TSubscription[] = React.useMemo(() => {
-    return filterSubscriptions(keyword, filters, subscriptions);
-  }, [subscriptions, keyword, filters]);
+    return FilterService.locallyFilterByKeyword(subscriptions, ['receiver', 'information'], keyword);
+  }, [subscriptions, keyword]);
 
   const handler: ISubscriptionsHandler = {
     showCreateTransactionDialog(subscription) {

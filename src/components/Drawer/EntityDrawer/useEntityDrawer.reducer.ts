@@ -1,8 +1,8 @@
 import {DefaultValues, NonUndefined} from 'react-hook-form';
 
-export type TUseEntityDrawerState<T> = {
+export type TUseEntityDrawerState<T, Action = 'CREATE' | 'UPDATE' | undefined> = {
   open: boolean;
-  drawerAction: 'CREATE' | 'UPDATE' | undefined;
+  drawerAction: Action;
   defaultValues: DefaultValues<T> | undefined;
 };
 

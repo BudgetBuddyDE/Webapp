@@ -6,7 +6,6 @@ import {withAuthLayout} from '@/components/Auth/Layout';
 import {type ISelectionHandler} from '@/components/Base/Select';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
-import {useFilterStore} from '@/components/Filter';
 import {ImageViewDialog} from '@/components/ImageViewDialog.component';
 import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
 import {useSnackbarContext} from '@/components/Snackbar';
@@ -18,7 +17,7 @@ import {
   TransactionTable,
   useFetchTransactions,
 } from '@/components/Transaction';
-import {filterTransactions} from '@/utils/filter.util';
+import {FilterService} from '@/services';
 
 interface ITransactionsHandler {
   showCreateDialog: () => void;
@@ -32,7 +31,6 @@ interface ITransactionsHandler {
 
 export const Transactions = () => {
   const {showSnackbar} = useSnackbarContext();
-  const {filters} = useFilterStore();
   const {transactions, refresh: refreshTransactions} = useFetchTransactions();
   const [transactionDrawer, dispatchTransactionDrawer] = React.useReducer(
     useEntityDrawer<TTransactionDrawerValues>,
@@ -44,8 +42,8 @@ export const Transactions = () => {
   const [selectedTransactions, setSelectedTransactions] = React.useState<TTransaction[]>([]);
   const [keyword, setKeyword] = React.useState('');
   const displayedTransactions: TTransaction[] = React.useMemo(() => {
-    return filterTransactions(keyword, filters, transactions);
-  }, [transactions, keyword, filters]);
+    return FilterService.locallyFilterByKeyword(transactions, ['receiver', 'information'], keyword);
+  }, [transactions, keyword]);
   const [imageDialog, setImageDialog] = React.useState<{
     open: boolean;
     fileName: string | null;

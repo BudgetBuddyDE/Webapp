@@ -2,13 +2,16 @@ import React from 'react';
 
 import {useAuthContext} from '@/components/Auth';
 
+import {useFilterStore} from '../Filter';
 import {SubscriptionService} from './Subscription.service';
 import {useSubscriptionStore} from './Subscription.store';
 
 let mounted = false;
+// let mountedFilterListener = false;
 
 export function useFetchSubscriptions() {
   const {sessionUser} = useAuthContext();
+  const {filters} = useFilterStore();
   const {data, fetchedAt, fetchedBy, setFetchedData} = useSubscriptionStore();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
@@ -18,7 +21,7 @@ export function useFetchSubscriptions() {
     try {
       if (!sessionUser) return false;
       if (withLoading) setLoading(true);
-      const subscriptions = await SubscriptionService.getSubscriptions();
+      const subscriptions = await SubscriptionService.getSubscriptions(filters);
       setFetchedData(subscriptions, sessionUser.id);
       return true;
     } catch (error) {
@@ -43,6 +46,22 @@ export function useFetchSubscriptions() {
       mounted = false;
     };
   }, [sessionUser, data]);
+
+  // React.useEffect(() => {
+  //   if (mountedFilterListener) return;
+  //   mountedFilterListener = true;
+  //   const unsubscribe = useFilterStore.subscribe(
+  //     state => state.filters,
+  //     () => {
+  //       fetchSubscriptions();
+  //     },
+  //   );
+
+  //   return () => {
+  //     unsubscribe();
+  //     mountedFilterListener = false;
+  //   };
+  // }, []);
 
   return {
     loading,
