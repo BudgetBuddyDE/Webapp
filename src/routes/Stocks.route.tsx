@@ -11,7 +11,6 @@ import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/
 import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
 import {ContentGrid} from '@/components/Layout';
 import {CircularProgress} from '@/components/Loading';
-import {MetalQuoteList} from '@/components/Metals';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {
   PortfolioDiversityChart,
@@ -168,10 +167,6 @@ export const Stocks = () => {
         </Grid>
 
         <Grid container item xs={12} md={3.5} lg={3.5} xl={3} spacing={AppConfig.baseSpacing}>
-          <Grid item xs={12}>
-            <MetalQuoteList />
-          </Grid>
-
           <Grid item xs={12}>
             {loadingStockPositions ? <CircularProgress /> : <PortfolioDiversityChart positions={stockPositions} />}
           </Grid>
