@@ -12,6 +12,7 @@ import {MetalQuoteList} from '@/components/Metals';
 import {StatsCard} from '@/components/StatsCard.component';
 import {
   DividendTable,
+  PortfolioDiversityChart,
   StockLayout,
   StockWatchlist,
   useFetchStockDividends,
@@ -170,6 +171,10 @@ const StocksView = () => {
       </Grid>
 
       <Grid container item xs={12} md={4} spacing={AppConfig.baseSpacing}>
+        <Grid item xs={12}>
+          {loadingStockPositions ? <CircularProgress /> : <PortfolioDiversityChart positions={stockPositions} />}
+        </Grid>
+
         <Grid item xs={12}>
           <MetalQuoteList />
         </Grid>
