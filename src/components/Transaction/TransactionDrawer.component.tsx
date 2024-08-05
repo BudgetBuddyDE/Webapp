@@ -156,6 +156,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
       }
     },
     resetValues() {
+      setUploadedFiles([]);
       return {
         processed_at: new Date(),
         receiver: null,
