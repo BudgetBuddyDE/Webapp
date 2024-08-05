@@ -69,7 +69,7 @@ const SignIn = () => {
         </Button>
       )}
       <Grid container justifyContent={'center'}>
-        <Grid item xs={12} sm={12} md={4} lg={4} xl={3}>
+        <Grid item xs={12} sm={12} md={4} lg={4} xl={3.5}>
           <Card sx={{py: 3, px: 4}}>
             <Box display="flex" flexDirection="column">
               <AppLogo
