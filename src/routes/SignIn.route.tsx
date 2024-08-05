@@ -1,5 +1,5 @@
-import {AppRegistrationRounded, ExitToAppRounded, SendRounded} from '@mui/icons-material';
-import {Box, Button, Divider, Grid, Link, TextField, Typography} from '@mui/material';
+import {AppRegistrationRounded, ExitToAppRounded, HomeRounded, SendRounded} from '@mui/icons-material';
+import {Box, Button, Divider, Grid, Link, Stack, TextField, Typography} from '@mui/material';
 import {type RecordAuthResponse, type RecordModel} from 'pocketbase';
 import React from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
@@ -19,6 +19,10 @@ const SignIn = () => {
   const {sessionUser, logout} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const [form, setForm] = React.useState<Record<string, string>>({});
+
+  const redirectToDashboard = () => {
+    navigate('/dashboard');
+  };
 
   const handleSuccessfullLogin = (name: string) => {
     showSnackbar({message: `Welcome ${name}!`, action: <Button onClick={logout}>Sign-out</Button>});
@@ -61,12 +65,18 @@ const SignIn = () => {
   return (
     <React.Fragment>
       {sessionUser && (
-        <Button
+        <Stack
+          flexDirection={'row'}
           sx={{position: 'absolute', top: theme => theme.spacing(2), right: theme => theme.spacing(2)}}
-          startIcon={<ExitToAppRounded />}
-          onClick={logout}>
-          Sign out
-        </Button>
+          gap={AppConfig.baseSpacing}>
+          <Button startIcon={<HomeRounded />} onClick={redirectToDashboard}>
+            Dashboard
+          </Button>
+
+          <Button startIcon={<ExitToAppRounded />} onClick={logout}>
+            Sign out
+          </Button>
+        </Stack>
       )}
       <Grid container justifyContent={'center'}>
         <Grid item xs={12} sm={12} md={4} lg={4} xl={3.5}>
