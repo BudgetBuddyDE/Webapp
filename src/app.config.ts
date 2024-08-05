@@ -7,6 +7,7 @@ import {version} from '../package.json';
 export enum Feature {
   STOCKS = 'stocks',
   NEWSLETTER = 'newsletter',
+  ENVIRONMENT_DISCLAIMER = 'environment-disclaimer',
 }
 
 export type TAppConfig = {
@@ -46,6 +47,7 @@ export const AppConfig: TAppConfig = {
     github: 'GitHub',
   },
   feature: {
+    [Feature.ENVIRONMENT_DISCLAIMER]: process.env.SHOW_ENVIRONMENT_DISCLAIMER === 'true',
     [Feature.STOCKS]: process.env.STOCK_SERVICE_HOST !== undefined,
     [Feature.NEWSLETTER]: process.env.MAIL_SERVICE_HOST !== undefined,
   },
