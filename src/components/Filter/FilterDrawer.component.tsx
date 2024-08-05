@@ -17,6 +17,7 @@ import {DateRange, type TDateRangeProps} from '@/components/Base';
 import {CreateCategoryAlert, useFetchCategories} from '@/components/Category';
 import {FormDrawer} from '@/components/Drawer';
 import {CreatePaymentMethodAlert, useFetchPaymentMethods} from '@/components/PaymentMethod';
+import {isRunningOnIOs} from '@/utils';
 
 import {DEFAULT_FILTERS, useFilterStore} from './Filter.store';
 
@@ -230,7 +231,8 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = () => {
             id="filter-start-amount"
             label="Start"
             name="priceFrom"
-            inputProps={{inputMode: 'numeric'}}
+            type="number"
+            inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
             value={unappliedFilters.priceFrom}
             onChange={handler.onPriceFromChange}
             startAdornment={<InputAdornment position="start">€</InputAdornment>}
@@ -242,7 +244,8 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = () => {
             id="filter-end-amount"
             label="End"
             name="priceTo"
-            inputProps={{inputMode: 'numeric'}}
+            type="number"
+            inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
             onChange={handler.onPriceToChange}
             value={unappliedFilters.priceTo}
             startAdornment={<InputAdornment position="start">€</InputAdornment>}

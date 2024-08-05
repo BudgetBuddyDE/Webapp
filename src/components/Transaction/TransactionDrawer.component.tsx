@@ -22,7 +22,7 @@ import {useSnackbarContext} from '@/components/Snackbar';
 import {TransactionService, useFetchTransactions} from '@/components/Transaction';
 import {useScreenSize} from '@/hooks';
 import {pb} from '@/pocketbase';
-import {parseNumber} from '@/utils';
+import {isRunningOnIOs, parseNumber} from '@/utils';
 
 export type TTransactionDrawerValues = {
   id?: TTransaction['id'];
@@ -321,7 +321,8 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
               {...register('transfer_amount', {required: 'Transfer amount is required'})}
               error={!!errors.transfer_amount}
               helperText={errors.transfer_amount?.message}
-              inputProps={{inputMode: 'numeric'}}
+              type="number"
+              inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
               InputProps={{startAdornment: <InputAdornment position="start">€</InputAdornment>}}
               required
               fullWidth
