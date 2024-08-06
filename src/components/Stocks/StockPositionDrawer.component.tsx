@@ -18,7 +18,7 @@ import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/Enti
 import {useSnackbarContext} from '@/components/Snackbar';
 import {useScreenSize} from '@/hooks';
 import {pb} from '@/pocketbase';
-import {parseNumber} from '@/utils';
+import {isRunningOnIOs, parseNumber} from '@/utils';
 
 import {StockExchangeAutocomplete, type TStockExchangeAutocompleteOption} from './Exchange';
 import {StockAutocomplete, type TStockAutocompleteOption} from './StockAutocomplete.component';
@@ -243,7 +243,8 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
               {...register('quantity', {required: 'Quantity is required'})}
               error={!!errors.quantity}
               helperText={errors.quantity?.message}
-              inputProps={{inputMode: 'numeric'}}
+              type="number"
+              inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
               required
               fullWidth
             />
@@ -254,7 +255,8 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
               {...register('buy_in', {required: 'Buy in is required'})}
               error={!!errors.buy_in}
               helperText={errors.buy_in?.message}
-              inputProps={{inputMode: 'numeric'}}
+              type="number"
+              inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
               InputProps={{startAdornment: <InputAdornment position="start">€</InputAdornment>}}
               required
               fullWidth

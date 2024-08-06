@@ -20,7 +20,7 @@ import {PaymentMethodAutocomplete, type TPaymentMethodAutocompleteOption} from '
 import {useSnackbarContext} from '@/components/Snackbar';
 import {SubscriptionService, useFetchSubscriptions} from '@/components/Subscription';
 import {useScreenSize} from '@/hooks';
-import {parseNumber} from '@/utils';
+import {isRunningOnIOs, parseNumber} from '@/utils';
 
 export type TSusbcriptionDrawerValues = {
   id?: TSubscription['id'];
@@ -265,7 +265,8 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
               {...register('transfer_amount', {required: 'Transfer amount is required'})}
               error={!!errors.transfer_amount}
               helperText={errors.transfer_amount?.message}
-              inputProps={{inputMode: 'numeric'}}
+              type="number"
+              inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
               InputProps={{startAdornment: <InputAdornment position="start">€</InputAdornment>}}
               required
               fullWidth

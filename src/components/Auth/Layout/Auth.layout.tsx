@@ -7,6 +7,8 @@ import {FilterDrawer} from '@/components/Filter';
 import {AppBar, Footer} from '@/components/Layout';
 import {Drawer} from '@/components/Layout/Drawer';
 
+import {EnvironmentDisclaimer} from './EnvironmentDisclaimer.component';
+
 export type TAuthLayout = React.PropsWithChildren;
 
 export const AuthLayout: React.FC<TAuthLayout> = ({children}) => {
@@ -23,6 +25,8 @@ export const AuthLayout: React.FC<TAuthLayout> = ({children}) => {
           height: '100vh',
           backgroundColor: theme => theme.palette.background.default,
         }}>
+        <EnvironmentDisclaimer />
+
         <AppBar />
 
         <Container maxWidth="xl" sx={{mt: 2, mb: 4}}>

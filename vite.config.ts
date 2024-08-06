@@ -13,6 +13,7 @@ dotenv.config();
 
 const production = process.env.NODE_ENV === 'production';
 
+const SHOW_ENVIRONMENT_DISCLAIMER = process.env.SHOW_ENVIRONMENT_DISCLAIMER || 'false';
 const STOCK_SERVICE_HOST = process.env.STOCK_SERVICE_HOST || 'http://localhost:7080';
 const MAIL_SERVICE_HOST = process.env.MAIL_SERVICE_HOST;
 const POCKETBASE_URL = process.env.POCKETBASE_URL || '';
@@ -22,6 +23,7 @@ export default defineConfig({
   // https://github.com/vitejs/vite/issues/1973#issuecomment-787571499
   define: {
     'process.env': {
+      SHOW_ENVIRONMENT_DISCLAIMER: SHOW_ENVIRONMENT_DISCLAIMER,
       STOCK_SERVICE_HOST: STOCK_SERVICE_HOST,
       MAIL_SERVICE_HOST: MAIL_SERVICE_HOST,
       POCKETBASE_URL: POCKETBASE_URL,

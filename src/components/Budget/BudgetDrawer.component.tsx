@@ -14,7 +14,7 @@ import {useAuthContext} from '@/components/Auth';
 import {CategoryAutocomplete, type TCategoryAutocompleteOption} from '@/components/Category';
 import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/EntityDrawer';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {parseNumber} from '@/utils';
+import {isRunningOnIOs, parseNumber} from '@/utils';
 
 import {BudgetService} from './Budget.service';
 import {useFetchBudget} from './useFetchBudget.hook';
@@ -152,7 +152,8 @@ export const BudgetDrawer: React.FC<TBudgetDrawerProps> = ({
               {...register('budget', {required: 'Budget is required'})}
               error={!!errors.budget}
               helperText={errors.budget?.message}
-              inputProps={{inputMode: 'numeric'}}
+              type="number"
+              inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
               InputProps={{startAdornment: <InputAdornment position="start">€</InputAdornment>}}
               required
               fullWidth
