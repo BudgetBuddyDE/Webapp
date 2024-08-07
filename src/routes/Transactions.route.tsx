@@ -16,7 +16,7 @@ import {
   TransactionDrawer,
   TransactionService,
   TransactionTable,
-  useFetchTransactions,
+  useTransactions,
 } from '@/components/Transaction';
 import {filterTransactions} from '@/utils/filter.util';
 
@@ -33,7 +33,7 @@ interface ITransactionsHandler {
 export const Transactions = () => {
   const {showSnackbar} = useSnackbarContext();
   const {filters} = useFilterStore();
-  const {transactions, refresh: refreshTransactions} = useFetchTransactions();
+  const {data: transactions, refreshData: refreshTransactions} = useTransactions();
   const [transactionDrawer, dispatchTransactionDrawer] = React.useReducer(
     useEntityDrawer<TTransactionDrawerValues>,
     UseEntityDrawerDefaultState<TTransactionDrawerValues>(),
@@ -44,6 +44,7 @@ export const Transactions = () => {
   const [selectedTransactions, setSelectedTransactions] = React.useState<TTransaction[]>([]);
   const [keyword, setKeyword] = React.useState('');
   const displayedTransactions: TTransaction[] = React.useMemo(() => {
+    if (!transactions) return [];
     return filterTransactions(keyword, filters, transactions);
   }, [transactions, keyword, filters]);
   const [imageDialog, setImageDialog] = React.useState<{

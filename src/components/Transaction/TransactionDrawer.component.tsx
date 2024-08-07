@@ -19,7 +19,7 @@ import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/Enti
 import {FilePreview} from '@/components/FilePreview.component';
 import {PaymentMethodAutocomplete, type TPaymentMethodAutocompleteOption} from '@/components/PaymentMethod';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {TransactionService, useFetchTransactions} from '@/components/Transaction';
+import {TransactionService, useTransactions} from '@/components/Transaction';
 import {useScreenSize} from '@/hooks';
 import {pb} from '@/pocketbase';
 import {isRunningOnIOs, parseNumber} from '@/utils';
@@ -50,7 +50,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
   const screenSize = useScreenSize();
   const {sessionUser, fileToken} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
-  const {refresh: refreshTransactions} = useFetchTransactions();
+  const {refreshData: refreshTransactions} = useTransactions();
   const [uploadedFiles, setUploadedFiles] = React.useState<File[]>([]);
   const [filePreview, setFilePreview] = React.useState<(File & {buffer?: string | ArrayBuffer | null})[]>([]);
   const [markedForDeletion, setMarkedForDeletion] = React.useState<string[]>([]);

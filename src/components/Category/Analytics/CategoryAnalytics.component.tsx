@@ -9,9 +9,8 @@ import React from 'react';
 import {BarChart, Card, StyledAutocompleteOption, type TBarChartData} from '@/components/Base';
 import {useFetchCategories} from '@/components/Category';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {useFetchTransactions} from '@/components/Transaction';
-import {DateService} from '@/services';
-import {formatBalance} from '@/utils';
+import {useTransactions} from '@/components/Transaction';
+import {DateService, Formatter} from '@/services';
 
 const MONTH_BACKLOG = 8;
 
@@ -23,7 +22,7 @@ export type TCategoryAnalytics = {
 export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({monthBacklog = MONTH_BACKLOG, onClickMoreDetails}) => {
   const {showSnackbar} = useSnackbarContext();
   const {loading: loadingCategories, categories} = useFetchCategories();
-  const {loading: loadingTransactions, transactions} = useFetchTransactions();
+  const {isLoading: isLoadingTransactions, data: transactions} = useTransactions();
   const [selectedCategory, setSelectedCategory] = React.useState<TCategory['id'] | null>(null);
   const [activeBar, setActiveBar] = React.useState<TBarChartData | null>(null);
 
@@ -87,8 +86,8 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({monthBacklog = 
         <Box>
           <Card.Title>Backlog</Card.Title>
           <Card.Subtitle>
-            {!loadingCategories && !loadingTransactions && selectedCategory !== null
-              ? `Average: ${formatBalance(chartData.reduce((prev, cur) => prev + cur.value, 0) / monthBacklog)}`
+            {!loadingCategories && !isLoadingTransactions && selectedCategory !== null
+              ? `Average: ${Formatter.formatBalance(chartData.reduce((prev, cur) => prev + cur.value, 0) / monthBacklog)}`
               : 'Expenses per month'}
           </Card.Subtitle>
         </Box>
@@ -113,7 +112,7 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({monthBacklog = 
       </Card.Header>
       <Card.Body sx={{width: '100%', aspectRatio: '4/3', mt: 2}}>
         <Paper elevation={0} sx={{position: 'relative', width: '100%', height: '100%'}}>
-          {!loadingCategories && !loadingTransactions && (chartData.length > 0 || activeBar) && (
+          {!loadingCategories && !isLoadingTransactions && (chartData.length > 0 || activeBar) && (
             <Box
               sx={{
                 position: 'absolute',
@@ -126,14 +125,14 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({monthBacklog = 
                 )}
               </Typography>
               <Typography variant="subtitle1">
-                {formatBalance(activeBar ? activeBar.value : chartData[chartData.length - 1].value)}
+                {Formatter.formatBalance(activeBar ? activeBar.value : chartData[chartData.length - 1].value)}
               </Typography>
             </Box>
           )}
 
           <ParentSize>
             {({width, height}) =>
-              loadingCategories || loadingTransactions || chartData.length === 0 ? (
+              loadingCategories || isLoadingTransactions || chartData.length === 0 ? (
                 <Skeleton variant="rounded" width={width} height={height} />
               ) : (
                 <BarChart

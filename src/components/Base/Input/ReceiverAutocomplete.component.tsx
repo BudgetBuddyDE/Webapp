@@ -9,7 +9,7 @@ import {
 import React from 'react';
 
 import {StyledAutocompleteOption} from '@/components/Base';
-import {useFetchTransactions} from '@/components/Transaction';
+import {useTransactions} from '@/components/Transaction';
 
 export type TReceiverAutocompleteOption = {
   label: string;
@@ -47,9 +47,10 @@ export const ReceiverAutocomplete: React.FC<IReceiverAutocompleteProps> = ({
   onChange,
   textFieldProps,
 }) => {
-  const {loading, transactions} = useFetchTransactions();
+  const {isLoading: isLoadingTransactions, data: transactions} = useTransactions();
 
   const options: TReceiverAutocompleteOption[] = React.useMemo(() => {
+    if (!transactions) return [];
     return Array.from(new Set(transactions.map(({receiver}) => receiver))).map(
       receiver => ({label: receiver, value: receiver}) as TReceiverAutocompleteOption,
     );
@@ -69,7 +70,7 @@ export const ReceiverAutocomplete: React.FC<IReceiverAutocompleteProps> = ({
       isOptionEqualToValue={(option, value) => option.value == value.value && option.label == value.label}
       defaultValue={defaultValue}
       loadingText="Loading..."
-      loading={loading}
+      loading={isLoadingTransactions}
       selectOnFocus
       autoHighlight
       renderInput={params => <TextField label="Receiver" {...textFieldProps} {...params} />}
