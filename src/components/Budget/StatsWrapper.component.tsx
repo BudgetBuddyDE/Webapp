@@ -4,7 +4,7 @@ import React from 'react';
 
 import {AppConfig} from '@/app.config';
 import {StatsCard, type TStatsCardProps} from '@/components/StatsCard.component';
-import {SubscriptionService, useFetchSubscriptions} from '@/components/Subscription';
+import {SubscriptionService, useSubscriptions} from '@/components/Subscription';
 import {Formatter} from '@/services';
 
 import {useFetchBudget} from './useFetchBudget.hook';
@@ -14,14 +14,14 @@ export type TStatsWrapperProps = {
 };
 
 export const StatsWrapper: React.FC<TStatsWrapperProps> = ({containerProps}) => {
-  const {loading: loadingSubscriptions, subscriptions} = useFetchSubscriptions();
+  const {isLoading: isLoadingSubscriptions, data: subscriptions} = useSubscriptions();
   const {loading: loadingBudgets, budgets} = useFetchBudget();
 
   const values = {
     subscriptions: {
       income: React.useMemo(
         () =>
-          SubscriptionService.getPlannedBalanceByType(subscriptions, 'INCOME').reduce(
+          SubscriptionService.getPlannedBalanceByType(subscriptions ?? [], 'INCOME').reduce(
             (prev, {transfer_amount}) => prev + Math.abs(transfer_amount),
             0,
           ),
@@ -29,7 +29,7 @@ export const StatsWrapper: React.FC<TStatsWrapperProps> = ({containerProps}) => 
       ),
       spendings: React.useMemo(
         () =>
-          SubscriptionService.getPlannedBalanceByType(subscriptions, 'SPENDINGS').reduce(
+          SubscriptionService.getPlannedBalanceByType(subscriptions ?? [], 'SPENDINGS').reduce(
             (prev, {transfer_amount}) => prev + Math.abs(transfer_amount),
             0,
           ),
@@ -46,7 +46,7 @@ export const StatsWrapper: React.FC<TStatsWrapperProps> = ({containerProps}) => 
       value: Formatter.formatBalance(values.subscriptions.income),
       label: 'Income',
       valueInformation: 'Based on your income subscriptions',
-      isLoading: loadingSubscriptions,
+      isLoading: isLoadingSubscriptions,
       icon: <AddRounded />,
     },
     {
@@ -66,7 +66,7 @@ export const StatsWrapper: React.FC<TStatsWrapperProps> = ({containerProps}) => 
       value: Formatter.formatBalance(values.subscriptions.income - values.budgets.totalPlanned),
       label: 'Available Budget',
       valueInformation: 'Available budget based on planned income and budget',
-      isLoading: loadingBudgets || loadingSubscriptions,
+      isLoading: loadingBudgets || isLoadingSubscriptions,
     },
   ];
 

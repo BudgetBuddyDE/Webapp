@@ -7,7 +7,7 @@ import {create} from 'zustand';
 
 import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
-import {SubscriptionService, useFetchSubscriptions, useSubscriptionStore} from '@/components/Subscription';
+import {SubscriptionService, useSubscriptionStore} from '@/components/Subscription';
 import {TransactionService, useTransactionStore, useTransactions} from '@/components/Transaction';
 import {type IBaseStore} from '@/hooks/FETCH_HOOK/IBaseStore';
 import {pb} from '@/pocketbase.ts';
@@ -55,20 +55,20 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
   const {sessionUser} = useAuthContext();
   const {data: fetchedStats, setFetchedData, fetchedBy} = useDashboardStatsStore();
   const {isLoading: isLoadingTransactions, data: transactions} = useTransactions();
-  const {loading: isLoadingSubscriptions, subscriptions} = useFetchSubscriptions();
+  const {isLoading: isLoadingSubscriptions, data: subscriptions} = useSubscriptionStore();
   const [loading, setLoading] = React.useState(false);
 
   const upcomingIncome: number = React.useMemo(() => {
     return (
       TransactionService.getUpcomingX('INCOME', transactions ?? []) +
-      SubscriptionService.getUpcomingX('INCOME', subscriptions)
+      SubscriptionService.getUpcomingX('INCOME', subscriptions ?? [])
     );
   }, [transactions, subscriptions]);
 
   const upcomingExpenses: number = React.useMemo(() => {
     return (
       TransactionService.getUpcomingX('EXPENSES', transactions ?? []) +
-      SubscriptionService.getUpcomingX('EXPENSES', subscriptions)
+      SubscriptionService.getUpcomingX('EXPENSES', subscriptions ?? [])
     );
   }, [transactions, subscriptions]);
 
@@ -133,7 +133,7 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
     });
 
     useSubscriptionStore.subscribe((curr, prev) => {
-      if (prev.data.length !== curr.data.length) fetchData();
+      if ((prev.data ?? []).length !== (curr.data ?? []).length) fetchData();
     });
   }, []);
 

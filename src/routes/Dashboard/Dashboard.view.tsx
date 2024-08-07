@@ -11,7 +11,7 @@ import {
   SubscriptionDrawer,
   SubscriptionList,
   type TSusbcriptionDrawerValues,
-  useFetchSubscriptions,
+  useSubscriptions,
 } from '@/components/Subscription';
 import {
   type TTransactionDrawerValues,
@@ -27,7 +27,7 @@ const LIST_ITEM_COUNT = 6;
 export const DashboardView = () => {
   useDocumentTitle(`${AppConfig.appName} - Dashboard`, true);
   const {data: transactions, isLoading: isLoadingTransactions} = useTransactions();
-  const {subscriptions, loading: loadingSubscriptions} = useFetchSubscriptions();
+  const {data: subscriptions, isLoading: loadingSubscriptions} = useSubscriptions();
   const [transactionDrawer, dispatchTransactionDrawer] = React.useReducer(
     useEntityDrawer<TTransactionDrawerValues>,
     UseEntityDrawerDefaultState<TTransactionDrawerValues>(),
@@ -42,6 +42,7 @@ export const DashboardView = () => {
   }, [transactions]);
 
   const upcomingSubscriptions: TSubscription[] = React.useMemo(() => {
+    if (!subscriptions) return [];
     return subscriptions.filter(({paused}) => !paused).slice(0, LIST_ITEM_COUNT);
   }, [subscriptions]);
 

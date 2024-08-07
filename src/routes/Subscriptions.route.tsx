@@ -22,7 +22,7 @@ import {
   SubscriptionActionMenu,
   SubscriptionDrawer,
   type TSusbcriptionDrawerValues,
-  useFetchSubscriptions,
+  useSubscriptions,
 } from '@/components/Subscription';
 import {type TTransactionDrawerValues, TransactionDrawer} from '@/components/Transaction';
 import {pb} from '@/pocketbase';
@@ -43,7 +43,11 @@ interface ISubscriptionsHandler {
 export const Subscriptions = () => {
   const {showSnackbar} = useSnackbarContext();
   const {filters} = useFilterStore();
-  const {subscriptions, loading: loadingSubscriptions, refresh: refreshSubscriptions} = useFetchSubscriptions();
+  const {
+    data: subscriptions,
+    isLoading: isLoadingSubscriptions,
+    refreshData: refreshSubscriptions,
+  } = useSubscriptions();
   const [transactionDrawer, dispatchTransactionDrawer] = React.useReducer(
     useEntityDrawer<TTransactionDrawerValues>,
     UseEntityDrawerDefaultState<TTransactionDrawerValues>(),
@@ -59,7 +63,7 @@ export const Subscriptions = () => {
   const [keyword, setKeyword] = React.useState('');
 
   const displayedSubscriptions: TSubscription[] = React.useMemo(() => {
-    return filterSubscriptions(keyword, filters, subscriptions);
+    return filterSubscriptions(keyword, filters, subscriptions ?? []);
   }, [subscriptions, keyword, filters]);
 
   const handler: ISubscriptionsHandler = {
@@ -182,7 +186,7 @@ export const Subscriptions = () => {
     <ContentGrid title={'Subscriptions'}>
       <Grid item xs={12} md={12} lg={12} xl={12}>
         <Table<TSubscription>
-          isLoading={loadingSubscriptions}
+          isLoading={isLoadingSubscriptions}
           title="Subscriptions"
           subtitle="Manage your subscriptions"
           data={displayedSubscriptions}
@@ -271,7 +275,7 @@ export const Subscriptions = () => {
                   {
                     children: 'Export',
                     onClick: () => {
-                      downloadAsJson(subscriptions, `bb_subscriptions_${format(new Date(), 'yyyy_mm_dd')}`);
+                      downloadAsJson(subscriptions ?? [], `bb_subscriptions_${format(new Date(), 'yyyy_mm_dd')}`);
                     },
                   },
                 ]}
