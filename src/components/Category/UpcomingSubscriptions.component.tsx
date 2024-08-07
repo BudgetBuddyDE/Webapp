@@ -6,16 +6,16 @@ import {Formatter} from '@/services';
 
 import {Card, ListWithIcon} from '../Base';
 import {CircularProgress} from '../Loading';
-import {useFetchSubscriptions} from '../Subscription';
+import {useSubscriptions} from '../Subscription';
 
 export type TUpcomingSubscriptionProps = {};
 
 export const UpcomingSubscriptions: React.FC<TUpcomingSubscriptionProps> = ({}) => {
-  const {loading: isLoadingSubscriptions, subscriptions} = useFetchSubscriptions();
+  const {isLoading: isLoadingSubscriptions, data: subscriptions} = useSubscriptions();
 
   const groupedPayments = React.useMemo(() => {
     const today = new Date().getDate();
-    const upcomignSubscriptions = subscriptions.filter(
+    const upcomignSubscriptions = (subscriptions ?? []).filter(
       ({paused, execute_at, transfer_amount}) => !paused && execute_at > today && transfer_amount < 0,
     );
     const grouped = new Map<string, {label: string; sum: number}>();

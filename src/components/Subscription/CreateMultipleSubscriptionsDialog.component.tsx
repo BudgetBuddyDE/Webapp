@@ -24,7 +24,7 @@ import {parseNumber} from '@/utils';
 import {DesktopFeatureOnly} from '../DesktopFeatureOnly/DesktopFeatureOnly.component';
 import {SubscriptionService} from './Subscription.service';
 import {type TSusbcriptionDrawerValues} from './SubscriptionDrawer.component';
-import {useFetchSubscriptions} from './useFetchSubscriptions.hook';
+import {useSubscriptions} from './useFetchSubscriptions.hook';
 
 export type TCreateMultipleSubscriptionsDialogProps = Omit<TFullScreenDialogProps, 'title'>;
 
@@ -50,7 +50,7 @@ export const CreateMultipleSubscriptionsDialog: React.FC<TCreateMultipleSubscrip
   const screenSize = useScreenSize();
   const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
-  const {refresh: refreshSubscriptions} = useFetchSubscriptions();
+  const {refreshData: refreshSubscriptions} = useSubscriptions();
   const dialogRef = React.useRef<HTMLDivElement>(null);
   const [form, setForm] = React.useState<TRow[]>([DEFAULT_VALUE()]);
 

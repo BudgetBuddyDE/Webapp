@@ -18,7 +18,7 @@ import {CategoryAutocomplete, type TCategoryAutocompleteOption} from '@/componen
 import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/EntityDrawer';
 import {PaymentMethodAutocomplete, type TPaymentMethodAutocompleteOption} from '@/components/PaymentMethod';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {SubscriptionService, useFetchSubscriptions} from '@/components/Subscription';
+import {SubscriptionService, useSubscriptions} from '@/components/Subscription';
 import {useScreenSize} from '@/hooks';
 import {isRunningOnIOs, parseNumber} from '@/utils';
 
@@ -48,7 +48,7 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
   const screenSize = useScreenSize();
   const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
-  const {refresh: refreshSubscriptions} = useFetchSubscriptions();
+  const {refreshData: refreshSubscriptions} = useSubscriptions();
 
   const handler = {
     async handleSubmit(data: TSusbcriptionDrawerValues, onSuccess: () => void) {
