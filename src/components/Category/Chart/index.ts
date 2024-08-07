@@ -1,2 +1,3 @@
-export * from './SpendingsChart.component';
-export * from './IncomeChart.component';
+export * from './CategoryPieChart.component';
+export * from './CategoryExpenseChart.component';
+export * from './CategoryIncomeChart.component';

@@ -3,7 +3,7 @@ import {Grid, Stack} from '@mui/material';
 import React from 'react';
 
 import {AppConfig} from '@/app.config';
-import {CategorySpendingsChart, UpcomingSubscriptions} from '@/components/Category';
+import {CategoryExpenseChart, UpcomingSubscriptions} from '@/components/Category';
 import {DashboardStatsWrapper} from '@/components/DashboardStatsWrapper.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {CircularProgress} from '@/components/Loading';
@@ -69,7 +69,7 @@ export const DashboardView = () => {
       </Grid>
 
       <Grid item xs={12} md={6} lg={4} order={{xs: 1, md: 2}}>
-        <CategorySpendingsChart />
+        <CategoryExpenseChart />
       </Grid>
 
       <Grid item xs={12} md={6} lg={4} order={{xs: 2, md: 3}}>

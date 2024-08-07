@@ -3,7 +3,7 @@ import React from 'react';
 
 import {AppConfig} from '@/app.config';
 import {BudgetList, StatsWrapper} from '@/components/Budget';
-import {CategoryIncomeChart, CategorySpendingsChart, UpcomingSubscriptions} from '@/components/Category';
+import {CategoryExpenseChart, CategoryIncomeChart, UpcomingSubscriptions} from '@/components/Category';
 import {MonthlyBalanceChartCard, MonthlyBalanceWidget} from '@/components/Transaction/MonthlyBalance';
 import {useDocumentTitle} from '@/hooks';
 
@@ -33,7 +33,7 @@ export const BudgetView = () => {
         </Grid>
 
         <Grid item xs={12} md={12} lg={6} xl={6}>
-          <CategorySpendingsChart />
+          <CategoryExpenseChart />
         </Grid>
 
         <Grid item xs={12} md={12} lg={6} xl={6}>

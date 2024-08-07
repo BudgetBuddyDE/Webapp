@@ -14,12 +14,11 @@ import {
   CategoryChip,
   CategoryDrawer,
   CategoryService,
-  CategorySpendingsChart,
   CreateMultipleCategoriesDialog,
   type TCategoryDrawerValues,
   useFetchCategories,
 } from '@/components/Category';
-import {CategoryIncomeChart} from '@/components/Category/Chart/IncomeChart.component';
+import {CategoryExpenseChart, CategoryIncomeChart} from '@/components/Category/Chart';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {ToggleFilterDrawerButton} from '@/components/Filter';
@@ -190,7 +189,7 @@ export const Categories = () => {
 
       <Grid container item xs={12} md={12} lg={4} xl={4} spacing={AppConfig.baseSpacing} sx={{height: 'max-content'}}>
         <Grid item xs={12} md={12}>
-          <CategorySpendingsChart />
+          <CategoryExpenseChart />
         </Grid>
 
         <Grid item xs={12} md={12}>
