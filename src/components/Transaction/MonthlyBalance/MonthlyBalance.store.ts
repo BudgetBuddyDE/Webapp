@@ -1,7 +1,7 @@
 import {type TMonthlyBalance, type TUser} from '@budgetbuddyde/types';
 import {create} from 'zustand';
 
-import {type IBaseStore} from '@/components/Transaction';
+import {type IBaseStore} from '@/hooks/FETCH_HOOK/IBaseStore';
 
 export interface IMonthlyBalanceStore extends IBaseStore<TMonthlyBalance[]> {
   fetchedBy: NonNullable<TUser>['id'] | null;

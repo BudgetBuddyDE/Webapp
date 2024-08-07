@@ -1,7 +1,7 @@
 import {type TAssetWatchlistWithQuote, type TUser} from '@budgetbuddyde/types';
 import {create} from 'zustand';
 
-import {type IBaseStore} from '@/components/Transaction';
+import {type IBaseStore} from '@/hooks/FETCH_HOOK/IBaseStore';
 
 export interface IStockWatchlistStore<T> extends IBaseStore<T[]> {
   fetchedBy: NonNullable<TUser>['id'] | null;

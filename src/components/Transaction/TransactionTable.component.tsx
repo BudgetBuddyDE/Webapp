@@ -17,7 +17,7 @@ import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
 import {downloadAsJson, filterTransactions} from '@/utils';
 
 import {type ISelectionHandler} from '../Base/Select';
-import {useFetchTransactions} from './useFetchTransactions.hook';
+import {useTransactions} from './useTransactions.hook';
 
 export type TTransactionTableProps = {
   isLoading?: boolean;
@@ -44,11 +44,11 @@ export const TransactionTable: React.FC<TTransactionTableProps> = ({
 }) => {
   const {fileToken} = useAuthContext();
   const {filters} = useFilterStore();
-  const {loading: isLoadingTransactions, transactions} = useFetchTransactions();
+  const {isLoading: isLoadingTransactions, data: transactions} = useTransactions();
   const [keyword, setKeyword] = React.useState<string>('');
 
   const displayedTransactions: TTransaction[] = React.useMemo(() => {
-    return filterTransactions(keyword, filters, transactions);
+    return filterTransactions(keyword, filters, transactions ?? []);
   }, [keyword, filters, transactions]);
 
   return (

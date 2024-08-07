@@ -11,7 +11,7 @@ import React from 'react';
 
 import {StyledAutocompleteOption} from '@/components/Base';
 import {PaymentMethodService, useFetchPaymentMethods} from '@/components/PaymentMethod';
-import {useFetchTransactions} from '@/components/Transaction';
+import {useTransactions} from '@/components/Transaction';
 
 export type TPaymentMethodAutocompleteOption = {
   label: TPaymentMethod['name'];
@@ -52,11 +52,11 @@ export const PaymentMethodAutocomplete: React.FC<IPaymentMethodAutocompleteProps
   onChange,
   textFieldProps,
 }) => {
-  const {loading: loadingTransactions, transactions} = useFetchTransactions();
+  const {isLoading: isLoadingTransactions, data: transactions} = useTransactions();
   const {loading: loadingPaymentMethods, paymentMethods} = useFetchPaymentMethods();
 
   const options: TPaymentMethodAutocompleteOption[] = React.useMemo(() => {
-    return PaymentMethodService.sortAutocompleteOptionsByTransactionUsage(paymentMethods, transactions);
+    return PaymentMethodService.sortAutocompleteOptionsByTransactionUsage(paymentMethods, transactions ?? []);
   }, [transactions, paymentMethods]);
 
   return (
@@ -73,7 +73,7 @@ export const PaymentMethodAutocomplete: React.FC<IPaymentMethodAutocompleteProps
       isOptionEqualToValue={(option, value) => option.id === value?.id || typeof value === 'string'}
       defaultValue={defaultValue}
       loadingText="Loading..."
-      loading={loadingPaymentMethods || loadingTransactions}
+      loading={loadingPaymentMethods || isLoadingTransactions}
       selectOnFocus
       autoHighlight
       renderInput={params => <TextField label="Payment Method" {...textFieldProps} {...params} />}

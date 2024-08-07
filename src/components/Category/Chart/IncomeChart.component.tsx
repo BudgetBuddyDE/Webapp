@@ -7,17 +7,18 @@ import {Card, NoResults, type TPieChartData} from '@/components/Base';
 import {ApexPieChart} from '@/components/Base/Charts/ApexPieChart.component';
 import {SPENDING_CHART_TYPES, type TChartType} from '@/components/Category';
 import {CircularProgress} from '@/components/Loading';
-import {useFetchTransactions} from '@/components/Transaction';
+import {useTransactions} from '@/components/Transaction';
 
 export type TCategoryIncomeChartProps = {};
 
 export const CategoryIncomeChart: React.FC<TCategoryIncomeChartProps> = () => {
   const [chart, setChart] = React.useState<TChartType>('MONTH');
-  const {loading: loadingTransactions, transactions} = useFetchTransactions();
+  const {isLoading: loadingTransactions, data: transactions} = useTransactions();
 
   const currentChartData: TPieChartData[] = React.useMemo(() => {
     const now = new Date();
     const expensesByCategory = new Map<string, number>();
+    if (!transactions) return [];
     transactions
       .filter(({transfer_amount, processed_at}) => {
         return transfer_amount > 0 && (chart === 'MONTH' ? isSameMonth(processed_at, now) : true);

@@ -8,7 +8,8 @@ import {create} from 'zustand';
 import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {SubscriptionService, useFetchSubscriptions, useSubscriptionStore} from '@/components/Subscription';
-import {type IBaseStore, TransactionService, useFetchTransactions, useTransactionStore} from '@/components/Transaction';
+import {TransactionService, useTransactionStore, useTransactions} from '@/components/Transaction';
+import {type IBaseStore} from '@/hooks/FETCH_HOOK/IBaseStore';
 import {pb} from '@/pocketbase.ts';
 import {Formatter} from '@/services';
 
@@ -53,20 +54,20 @@ export type TDashboardStatsWrapperProps = unknown;
 export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () => {
   const {sessionUser} = useAuthContext();
   const {data: fetchedStats, setFetchedData, fetchedBy} = useDashboardStatsStore();
-  const {loading: isLoadingTransactions, transactions} = useFetchTransactions();
+  const {isLoading: isLoadingTransactions, data: transactions} = useTransactions();
   const {loading: isLoadingSubscriptions, subscriptions} = useFetchSubscriptions();
   const [loading, setLoading] = React.useState(false);
 
   const upcomingIncome: number = React.useMemo(() => {
     return (
-      TransactionService.getUpcomingX('INCOME', transactions) +
+      TransactionService.getUpcomingX('INCOME', transactions ?? []) +
       SubscriptionService.getUpcomingX('INCOME', subscriptions)
     );
   }, [transactions, subscriptions]);
 
   const upcomingExpenses: number = React.useMemo(() => {
     return (
-      TransactionService.getUpcomingX('EXPENSES', transactions) +
+      TransactionService.getUpcomingX('EXPENSES', transactions ?? []) +
       SubscriptionService.getUpcomingX('EXPENSES', subscriptions)
     );
   }, [transactions, subscriptions]);
@@ -128,7 +129,7 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
 
   React.useEffect(() => {
     useTransactionStore.subscribe((curr, prev) => {
-      if (prev.data.length !== curr.data.length) fetchData();
+      if ((prev.data ?? []).length !== (curr.data ?? []).length) fetchData();
     });
 
     useSubscriptionStore.subscribe((curr, prev) => {

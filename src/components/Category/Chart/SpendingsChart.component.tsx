@@ -6,7 +6,7 @@ import React from 'react';
 import {Card, NoResults, type TPieChartData} from '@/components/Base';
 import {ApexPieChart} from '@/components/Base/Charts/ApexPieChart.component';
 import {CircularProgress} from '@/components/Loading';
-import {useFetchTransactions} from '@/components/Transaction';
+import {useTransactions} from '@/components/Transaction';
 import {DateService} from '@/services';
 
 export type TChartType = 'MONTH' | 'ALL_TIME';
@@ -23,12 +23,12 @@ export type TCategorySpendingsChartProps = {};
 
 export const CategorySpendingsChart: React.FC<TCategorySpendingsChartProps> = () => {
   const [chart, setChart] = React.useState<TChartType>('MONTH');
-  const {loading: loadingTransactions, transactions} = useFetchTransactions();
+  const {isLoading: isLoadingTransactions, data: transactions} = useTransactions();
 
   const currentChartData: TPieChartData[] = React.useMemo(() => {
     const now = new Date();
     const expensesByCategory = new Map<string, number>();
-    transactions
+    (transactions ?? [])
       .filter(({transfer_amount, processed_at}) => {
         return transfer_amount < 0 && (chart === 'MONTH' ? isSameMonth(processed_at, now) : true);
       })
@@ -78,7 +78,7 @@ export const CategorySpendingsChart: React.FC<TCategorySpendingsChartProps> = ()
         </Card.HeaderActions>
       </Card.Header>
       <Card.Body>
-        {loadingTransactions ? (
+        {isLoadingTransactions ? (
           <CircularProgress />
         ) : currentChartData.length > 0 ? (
           <Box sx={{display: 'flex', flex: 1, mt: '1rem', flexDirection: 'column'}}>

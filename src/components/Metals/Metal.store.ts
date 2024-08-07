@@ -1,7 +1,8 @@
 import {type TUser} from '@budgetbuddyde/types';
 import {create} from 'zustand';
 
-import {type IBaseStore} from '../Transaction';
+import {type IBaseStore} from '@/hooks/FETCH_HOOK/IBaseStore';
+
 import {type TMetalQuote} from './Metal.service';
 
 export interface IMetalStore<T> extends IBaseStore<T[]> {

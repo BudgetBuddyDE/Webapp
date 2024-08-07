@@ -17,7 +17,7 @@ import {
   type TTransactionDrawerValues,
   TransactionDrawer,
   TransactionList,
-  useFetchTransactions,
+  useTransactions,
 } from '@/components/Transaction';
 import {useDocumentTitle} from '@/hooks';
 
@@ -25,7 +25,7 @@ const LIST_ITEM_COUNT = 6;
 
 export const DashboardView = () => {
   useDocumentTitle(`${AppConfig.appName} - Dashboard`, true);
-  const {transactions, loading: loadingTransactions} = useFetchTransactions();
+  const {data: transactions, isLoading: isLoadingTransactions} = useTransactions();
   const {subscriptions, loading: loadingSubscriptions} = useFetchSubscriptions();
   const [transactionDrawer, dispatchTransactionDrawer] = React.useReducer(
     useEntityDrawer<TTransactionDrawerValues>,
@@ -36,7 +36,7 @@ export const DashboardView = () => {
     UseEntityDrawerDefaultState<TSusbcriptionDrawerValues>(),
   );
   const latestTransactions: TTransaction[] = React.useMemo(() => {
-    return transactions.slice(0, LIST_ITEM_COUNT);
+    return (transactions ?? []).slice(0, LIST_ITEM_COUNT);
   }, [transactions]);
 
   const upcomingSubscriptions: TSubscription[] = React.useMemo(() => {
@@ -73,7 +73,7 @@ export const DashboardView = () => {
       </Grid>
 
       <Grid item xs={12} md={6} lg={4} order={{xs: 2, md: 3}}>
-        {loadingTransactions ? (
+        {isLoadingTransactions ? (
           <CircularProgress />
         ) : (
           <TransactionList

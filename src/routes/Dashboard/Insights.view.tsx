@@ -37,7 +37,7 @@ import {
 } from '@/components/Base';
 import {useFetchCategories} from '@/components/Category';
 import {DesktopFeatureOnly} from '@/components/DesktopFeatureOnly';
-import {useFetchTransactions} from '@/components/Transaction';
+import {useTransactions} from '@/components/Transaction';
 import {useDocumentTitle, useFullscreen, useScreenSize} from '@/hooks';
 import {useKeyPress} from '@/hooks/useKeyPress.hook.ts';
 import {Formatter} from '@/services';
@@ -55,7 +55,7 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
   const {toggle: toggleFullscreen, fullscreen: isFullscreen} = useFullscreen();
   const autocompleteRef = React.useRef<HTMLInputElement | null>(null);
   const {loading: loadingCategories, categories} = useFetchCategories();
-  const {loading: loadingTransactions, transactions} = useFetchTransactions();
+  const {isLoading: isLoadingTransactions, data: transactions} = useTransactions();
   const [options, setOptions] = React.useState<{view: 'INCOME' | 'SPENDINGS'; showStats: boolean}>({
     view: 'SPENDINGS',
     showStats: false,
@@ -97,7 +97,7 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
   }, [dateRange]);
 
   const chartData: {name: string; data: number[]}[] = React.useMemo(() => {
-    const relevantTransactions: TTransaction[] = transactions
+    const relevantTransactions: TTransaction[] = (transactions ?? [])
       // currently only interested in expenses
       .filter(({transfer_amount}) => (options.view === 'SPENDINGS' ? transfer_amount < 0 : transfer_amount > 0))
       // determine if transaction is within date range
@@ -184,7 +184,7 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
       boxProps={{sx: {display: 'flex', flexDirection: 'column', flex: 1}}}>
       {/* // TODO: Add tests that check that the chart is only displayed on larger devices */}
       {screenSize !== 'small' ? (
-        loadingCategories || loadingTransactions ? (
+        loadingCategories || isLoadingTransactions ? (
           <Box sx={{display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center'}}>
             <CircularProgress />
           </Box>

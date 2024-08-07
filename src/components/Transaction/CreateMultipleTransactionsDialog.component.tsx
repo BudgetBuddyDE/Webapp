@@ -24,7 +24,7 @@ import {parseNumber} from '@/utils';
 import {DesktopFeatureOnly} from '../DesktopFeatureOnly/DesktopFeatureOnly.component';
 import {TransactionService} from './Transaction.service';
 import {type TTransactionDrawerValues} from './TransactionDrawer.component';
-import {useFetchTransactions} from './useFetchTransactions.hook';
+import {useTransactions} from './useTransactions.hook';
 
 export type TCreateMultipleTransactionsDialogProps = Omit<TFullScreenDialogProps, 'title'>;
 
@@ -49,7 +49,7 @@ export const CreateMultipleTransactionsDialog: React.FC<TCreateMultipleTransacti
   const screenSize = useScreenSize();
   const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
-  const {refresh: refreshTransactions} = useFetchTransactions();
+  const {refreshData: refreshTransactions} = useTransactions();
   const dialogRef = React.useRef<HTMLDivElement>(null);
   const [form, setForm] = React.useState<TRow[]>([DEFAULT_VALUE()]);
 
