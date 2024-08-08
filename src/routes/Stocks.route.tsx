@@ -17,8 +17,7 @@ import {
   StockLayout,
   StockService,
   StockWatchlist,
-  useFetchStockPositions,
-  useStockStore,
+  useStockPositions,
   useStockWatchlist,
 } from '@/components/Stocks';
 import {StockPositionTable} from '@/components/Stocks/Position';
@@ -37,16 +36,16 @@ export const Stocks = () => {
   useDocumentTitle(`${AppConfig.appName} - Stocks`, true);
   const navigate = useNavigate();
   const {sessionUser} = useAuthContext();
-  const {updateQuote} = useStockStore();
   const socket = getSocketIOClient();
   const {showSnackbar} = useSnackbarContext();
   const [showDeletePositionDialog, setShowDeletePositionDialog] = React.useState(false);
   const [deletePosition, setDeletePosition] = React.useState<TStockPositionWithQuote | null>(null);
   const {
-    loading: loadingStockPositions,
-    positions: stockPositions,
-    refresh: refreshStockPositions,
-  } = useFetchStockPositions();
+    isLoading: isLoadingStockPositions,
+    data: stockPositions,
+    refreshData: refreshStockPositions,
+    updateQuote,
+  } = useStockPositions();
   const {isLoading: isLoadingWatchlist, data: watchedAssets} = useStockWatchlist();
   const [stockPositionDrawer, dispatchStockPositionDrawer] = React.useReducer(
     useEntityDrawer<TStockPositionDrawerValues>,
@@ -115,7 +114,9 @@ export const Stocks = () => {
   };
 
   React.useLayoutEffect(() => {
-    if (!sessionUser || loadingStockPositions || stockPositions.length === 0) return;
+    if (!sessionUser || isLoadingStockPositions || !stockPositions || (stockPositions && stockPositions.length === 0)) {
+      return;
+    }
     const subscribedAssets: {isin: string; exchange: string}[] = [
       ...new Set(
         stockPositions.map(
@@ -145,7 +146,7 @@ export const Stocks = () => {
       socket.emit('stock:unsubscribe', subscribedAssets, sessionUser.id);
       socket.disconnect();
     };
-  }, [sessionUser, socket, stockPositions, loadingStockPositions]);
+  }, [sessionUser, socket, stockPositions, isLoadingStockPositions]);
 
   return (
     <StockLayout
@@ -168,7 +169,11 @@ export const Stocks = () => {
 
         <Grid container item xs={12} md={3.5} lg={3.5} xl={3} spacing={AppConfig.baseSpacing}>
           <Grid item xs={12}>
-            {loadingStockPositions ? <CircularProgress /> : <PortfolioDiversityChart positions={stockPositions} />}
+            {isLoadingStockPositions ? (
+              <CircularProgress />
+            ) : (
+              <PortfolioDiversityChart positions={stockPositions ?? []} />
+            )}
           </Grid>
 
           <Grid item xs={12}>

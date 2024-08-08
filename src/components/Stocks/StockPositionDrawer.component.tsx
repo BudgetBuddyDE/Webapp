@@ -22,7 +22,7 @@ import {isRunningOnIOs, parseNumber} from '@/utils';
 
 import {StockExchangeAutocomplete, type TStockExchangeAutocompleteOption} from './Exchange';
 import {StockAutocomplete, type TStockAutocompleteOption} from './StockAutocomplete.component';
-import {useFetchStockPositions} from './hooks';
+import {useStockPositions} from './hooks';
 
 export type TStockPositionDrawerValues = {
   id?: TStockPosition['id'];
@@ -51,7 +51,7 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
   const screenSize = useScreenSize();
   const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
-  const {refresh: refreshStockPositions} = useFetchStockPositions();
+  const {refreshData: refreshStockPositions} = useStockPositions();
 
   const handler = {
     async handleSubmit(data: TStockPositionDrawerValues, onSuccess: () => void) {

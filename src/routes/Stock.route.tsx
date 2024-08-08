@@ -43,9 +43,8 @@ import {
   StockService,
   type TPriceChartPoint,
   useFetchStockDetails,
-  useFetchStockPositions,
   useFetchStockQuotes,
-  useStockStore,
+  useStockPositions,
 } from '@/components/Stocks';
 import {StockPositionTable} from '@/components/Stocks/Position';
 import {RelatedStock, useFetchRelatedStocks} from '@/components/Stocks/RelatedStocks';
@@ -74,7 +73,6 @@ export const Stock = () => {
   const params = useParams<{isin: string}>();
   const {showSnackbar} = useSnackbarContext();
   const {sessionUser} = useAuthContext();
-  const {updateQuote} = useStockStore();
   const socket = getSocketIOClient();
   const [keyword, setKeyword] = React.useState('');
   const [chartTimeframe, setChartTimeframe] = React.useState<TTimeframe>('3m');
@@ -102,10 +100,11 @@ export const Stock = () => {
     refresh: refreshQuotes,
   } = useFetchStockQuotes([params.isin || ''], 'langschwarz', chartTimeframe);
   const {
-    loading: loadingStockPositions,
-    positions: stockPositions,
-    refresh: refreshStockPositions,
-  } = useFetchStockPositions();
+    isLoading: loadingStockPositions,
+    data: stockPositions,
+    refreshData: refreshStockPositions,
+    updateQuote,
+  } = useStockPositions();
   const {loading: loadingRelatedStocks, relatedStocks} = useFetchRelatedStocks(params.isin || '', 6);
   const [stockPositionDrawer, dispatchStockPositionDrawer] = React.useReducer(
     useEntityDrawer<TStockPositionDrawerValues>,
@@ -168,7 +167,8 @@ export const Stock = () => {
     return quotes[0].quotes.map(({date, price}) => ({price, date}));
   }, [quotes]);
 
-  const displayedStockPositions = React.useMemo(() => {
+  const displayedStockPositions: TStockPositionWithQuote[] = React.useMemo(() => {
+    if (!stockPositions) return [];
     if (keyword === '') return stockPositions.filter(({isin}) => isin === params.isin);
     const lowerKeyword = keyword.toLowerCase();
     return stockPositions.filter(

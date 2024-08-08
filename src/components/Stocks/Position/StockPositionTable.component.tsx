@@ -9,7 +9,7 @@ import {AppConfig} from '@/app.config';
 import {ActionPaper, Image, Menu} from '@/components/Base';
 import {SearchInput} from '@/components/Base/Search';
 import {Table} from '@/components/Base/Table/Table.component';
-import {useFetchStockPositions} from '@/components/Stocks';
+import {useStockPositions} from '@/components/Stocks';
 import {Formatter} from '@/services';
 import {downloadAsJson} from '@/utils';
 
@@ -33,10 +33,11 @@ export const StockPositionTable: React.FC<TStockPositionTableProps> = ({
   withRedirect = false,
 }) => {
   const navigate = useNavigate();
-  const {loading, positions: stockPositions} = useFetchStockPositions();
+  const {isLoading: isLoadingStockPositions, data: stockPositions} = useStockPositions();
   const [keyword, setKeyword] = React.useState<string>('');
 
   const displayedStockPositions: TStockPositionWithQuote[] = React.useMemo(() => {
+    if (!stockPositions) return [];
     const providedStockPositions = positions || stockPositions;
     if (keyword === '') return providedStockPositions;
     const lowerKeyword = keyword.toLowerCase();
@@ -50,7 +51,7 @@ export const StockPositionTable: React.FC<TStockPositionTableProps> = ({
     <Table<TStockPositionWithQuote>
       title="Positions"
       subtitle="Click on a position to view more details."
-      isLoading={loading || isLoading}
+      isLoading={isLoadingStockPositions || isLoading}
       data={displayedStockPositions}
       headerCells={['Asset', 'Buy in', 'Shares', 'Value', 'Profit (+/-)', '']}
       renderHeaderCell={cell => (
