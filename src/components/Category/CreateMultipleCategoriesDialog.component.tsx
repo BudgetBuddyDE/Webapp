@@ -10,7 +10,7 @@ import {z} from 'zod';
 import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {FullScreenDialog, type TFullScreenDialogProps} from '@/components/Base';
-import {CategoryService, type TCategoryDrawerValues, useFetchCategories} from '@/components/Category';
+import {CategoryService, type TCategoryDrawerValues, useCategories} from '@/components/Category';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {useKeyPress, useScreenSize} from '@/hooks';
 
@@ -32,7 +32,7 @@ export const CreateMultipleCategoriesDialog: React.FC<TCreateMultipleTransaction
   const screenSize = useScreenSize();
   const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
-  const {refresh: refreshCategories} = useFetchCategories();
+  const {refreshData: refreshCategories} = useCategories();
   const dialogRef = React.useRef<HTMLDivElement>(null);
   const [form, setForm] = React.useState<TRow[]>([DEFAULT_VALUE()]);
 

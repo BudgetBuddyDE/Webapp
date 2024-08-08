@@ -1,19 +1,9 @@
-import {type TPaymentMethod, type TUser} from '@budgetbuddyde/types';
-import {create} from 'zustand';
+import {type TPaymentMethod} from '@budgetbuddyde/types';
 
-import {type IBaseStore} from '@/hooks/FETCH_HOOK/IBaseStore';
+import {GenerateGenericStore} from '@/hooks/FETCH_HOOK/store';
 
-export interface IPaymentMethodStore<T> extends IBaseStore<T[]> {
-  fetchedBy: NonNullable<TUser>['id'] | null;
-  fetchedAt: Date | null;
-  setFetchedData: (data: T[], fetchedBy: NonNullable<TUser>['id'] | null) => void;
-}
+import {PaymentMethodService} from './PaymentMethod.service';
 
-export const usePaymentMethodStore = create<IPaymentMethodStore<TPaymentMethod>>(set => ({
-  data: [],
-  fetchedBy: null,
-  fetchedAt: null,
-  set: data => set({data: data}),
-  setFetchedData: (data, fetchedBy) => set({data: data, fetchedBy: fetchedBy, fetchedAt: new Date()}),
-  clear: () => set({data: [], fetchedBy: null, fetchedAt: null}),
-}));
+export const usePaymentMethodStore = GenerateGenericStore<TPaymentMethod[]>(() =>
+  PaymentMethodService.getPaymentMethods(),
+);

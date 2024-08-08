@@ -35,7 +35,7 @@ import {
   type TDateRange,
   type TFullScreenDialogProps,
 } from '@/components/Base';
-import {useFetchCategories} from '@/components/Category';
+import {useCategories} from '@/components/Category';
 import {DesktopFeatureOnly} from '@/components/DesktopFeatureOnly';
 import {useTransactions} from '@/components/Transaction';
 import {useDocumentTitle, useFullscreen, useScreenSize} from '@/hooks';
@@ -54,7 +54,7 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
   const screenSize = useScreenSize();
   const {toggle: toggleFullscreen, fullscreen: isFullscreen} = useFullscreen();
   const autocompleteRef = React.useRef<HTMLInputElement | null>(null);
-  const {loading: loadingCategories, categories} = useFetchCategories();
+  const {isLoading: isLoadingCategories, data: categories} = useCategories();
   const {isLoading: isLoadingTransactions, data: transactions} = useTransactions();
   const [options, setOptions] = React.useState<{view: 'INCOME' | 'SPENDINGS'; showStats: boolean}>({
     view: 'SPENDINGS',
@@ -83,6 +83,7 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
   );
 
   const filterOptions = React.useMemo(() => {
+    if (!categories) return [];
     return categories.map(({id, name}) => ({label: name, value: id}));
   }, [categories]);
 
@@ -184,7 +185,7 @@ export const InsightsView: React.FC<TInsightsViewProps> = props => {
       boxProps={{sx: {display: 'flex', flexDirection: 'column', flex: 1}}}>
       {/* // TODO: Add tests that check that the chart is only displayed on larger devices */}
       {screenSize !== 'small' ? (
-        loadingCategories || isLoadingTransactions ? (
+        isLoadingCategories || isLoadingTransactions ? (
           <Box sx={{display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center'}}>
             <CircularProgress />
           </Box>

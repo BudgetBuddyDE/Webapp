@@ -16,61 +16,69 @@ export interface IGenericStore {
   resetStore: () => void;
 }
 
-export interface IEntityStore<T> extends IGenericStore {
+export type TEntityStore<T, X> = IGenericStore & {
   data: T | null;
   getData: () => T | null;
-}
+  set: (data: T) => void;
+} & X;
 
-export function GenerateGenericStore<T>(
-  dataFetcherFunction: () => Promise<T>,
-): UseBoundStore<StoreApi<IEntityStore<T>>> {
-  return create<IEntityStore<T>>((set, get) => ({
+export function GenerateGenericStore<T, X = {}>(
+  dataFetcherFunction: () => T | Promise<T>,
+  additionalAttrs: X = {} as X,
+): UseBoundStore<StoreApi<TEntityStore<T, X>>> {
+  return create<TEntityStore<T, X>>((set, get) => ({
+    ...additionalAttrs,
     data: null,
     isLoading: false,
     isFetched: false,
     fetchedAt: null,
     fetchedBy: null,
     error: null,
+    set: data => {
+      set(prev => ({...prev, data}));
+    },
     hasError: () => {
       return get().error !== null;
     },
     fetchData: async () => {
       if (get().isLoading) return console.log('Already fetching data! Skipping...');
 
-      set({isLoading: true});
+      set(prev => ({...prev, isLoading: true}));
 
       try {
         const fetchedData = await dataFetcherFunction();
 
-        set({
+        set(prev => ({
+          ...prev,
           data: fetchedData,
           isLoading: false,
           isFetched: true,
           fetchedAt: new Date(),
           fetchedBy: pb.authStore.model,
-        });
+        }));
       } catch (err) {
         console.error(err);
-        set({error: err as Error, isLoading: false});
+        set(prev => ({...prev, error: err as Error, isLoading: false}));
       }
     },
     refreshData: async (updateLoadingState = false) => {
       if (get().isLoading) return console.debug('Already fetching data! Skipping...');
-      if (updateLoadingState) set({isLoading: true});
+      if (updateLoadingState) set(prev => ({...prev, isLoading: true}));
 
       try {
         const fetchedData = await dataFetcherFunction();
 
-        set({
+        set(prev => ({
+          ...prev,
           data: fetchedData,
           isFetched: true,
           fetchedAt: new Date(),
           fetchedBy: pb.authStore.model,
           ...(updateLoadingState && {isLoading: false}),
-        });
+        }));
       } catch (err) {
         console.error(err);
-        set({error: err as Error, isLoading: false});
+        set(prev => ({...prev, error: err as Error, isLoading: false}));
       }
     },
     getData: () => {
@@ -82,7 +90,15 @@ export function GenerateGenericStore<T>(
       return data;
     },
     resetStore: () => {
-      set({data: null, isLoading: false, isFetched: false, fetchedAt: null, fetchedBy: null, error: null});
+      set(prev => ({
+        ...prev,
+        data: null,
+        isLoading: false,
+        isFetched: false,
+        fetchedAt: null,
+        fetchedBy: null,
+        error: null,
+      }));
     },
   }));
 }

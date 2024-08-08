@@ -10,7 +10,7 @@ import {
 import React from 'react';
 
 import {StyledAutocompleteOption} from '@/components/Base';
-import {CategoryService, useFetchCategories} from '@/components/Category';
+import {CategoryService, useCategories} from '@/components/Category';
 import {useTransactions} from '@/components/Transaction';
 
 export type TCategoryAutocompleteOption = {
@@ -53,9 +53,10 @@ export const CategoryAutocomplete: React.FC<ICategoryAutocompleteProps> = ({
   textFieldProps,
 }) => {
   const {isLoading: isLoadingTransactions, data: transactions} = useTransactions();
-  const {loading: loadingCategories, categories} = useFetchCategories();
+  const {isLoading: isLoadingCategories, data: categories} = useCategories();
 
   const options: TCategoryAutocompleteOption[] = React.useMemo(() => {
+    if (!categories) return [];
     return CategoryService.sortAutocompleteOptionsByTransactionUsage(categories, transactions ?? []);
   }, [transactions, categories]);
 
@@ -73,7 +74,7 @@ export const CategoryAutocomplete: React.FC<ICategoryAutocompleteProps> = ({
       isOptionEqualToValue={(option, value) => option.id === value?.id || typeof value === 'string'}
       defaultValue={defaultValue}
       loadingText="Loading..."
-      loading={loadingCategories || isLoadingTransactions}
+      loading={isLoadingCategories || isLoadingTransactions}
       selectOnFocus
       autoHighlight
       renderInput={params => <TextField label="Category" {...textFieldProps} {...params} />}

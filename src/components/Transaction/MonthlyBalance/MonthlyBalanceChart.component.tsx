@@ -7,8 +7,7 @@ import {BarGroup} from '@visx/shape';
 import {format, isSameYear} from 'date-fns';
 import React from 'react';
 
-import {DateService} from '@/services';
-import {formatBalance} from '@/utils';
+import {DateService, Formatter} from '@/services';
 
 export type TMontlyBalanceChartProps = {
   data: TMonthlyBalance[];
@@ -114,7 +113,9 @@ export const MonthlyBalanceChart: React.FC<TMontlyBalanceChartProps> = ({data, w
                 onMouseEnter={() => helper.onMouseEnter(data[barGroup.index])}
                 onMouseLeave={helper.onMouseLeave}>
                 {barGroup.bars.map((bar, idx) => (
-                  <Tooltip title={`${idx === 0 ? 'Income' : 'Expenses'} ${formatBalance(bar.value)}`} placement={'top'}>
+                  <Tooltip
+                    title={`${idx === 0 ? 'Income' : 'Expenses'} ${Formatter.formatBalance(bar.value)}`}
+                    placement={'top'}>
                     <rect
                       key={`bar-group-bar-${barGroup.index}-${bar.index}-${bar.value}-${bar.key}`}
                       x={bar.x}

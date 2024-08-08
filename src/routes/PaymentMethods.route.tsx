@@ -18,7 +18,7 @@ import {
   PaymentMethodChip,
   PaymentMethodDrawer,
   PaymentMethodService,
-  useFetchPaymentMethods,
+  usePaymentMethods,
 } from '@/components/PaymentMethod';
 import {CreateMultiplePaymentMethodsDialog, type TPaymentMethodDrawerValues} from '@/components/PaymentMethod';
 import {useSnackbarContext} from '@/components/Snackbar';
@@ -35,7 +35,11 @@ interface IPaymentMethodsHandler {
 }
 
 export const PaymentMethods = () => {
-  const {paymentMethods, loading: loadingPaymentMethods, refresh: refreshPaymentMethods} = useFetchPaymentMethods();
+  const {
+    data: paymentMethods,
+    isLoading: loadingPaymentMethods,
+    refreshData: refreshPaymentMethods,
+  } = usePaymentMethods();
   const {showSnackbar} = useSnackbarContext();
   const [paymentMethodDrawer, dispatchPaymentMethodDrawer] = React.useReducer(
     useEntityDrawer<TPaymentMethodDrawerValues>,
@@ -48,6 +52,7 @@ export const PaymentMethods = () => {
   const [keyword, setKeyword] = React.useState('');
 
   const displayedPaymentMethods: TPaymentMethod[] = React.useMemo(() => {
+    if (!paymentMethods) return [];
     if (keyword.length == 0) return paymentMethods;
     return PaymentMethodService.filter(paymentMethods, keyword);
   }, [paymentMethods, keyword]);
@@ -183,7 +188,10 @@ export const PaymentMethods = () => {
                   {
                     children: 'Export',
                     onClick: () => {
-                      downloadAsJson(paymentMethodDrawer, `bb_payment_methods_${format(new Date(), 'yyyy_mm_dd')}`);
+                      if (!paymentMethods) {
+                        return showSnackbar({message: 'No payment-methods to export'});
+                      }
+                      downloadAsJson(paymentMethods, `bb_payment_methods_${format(new Date(), 'yyyy_mm_dd')}`);
                     },
                   },
                 ]}

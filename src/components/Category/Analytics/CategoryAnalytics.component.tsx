@@ -7,7 +7,7 @@ import {debounce} from 'lodash';
 import React from 'react';
 
 import {BarChart, Card, StyledAutocompleteOption, type TBarChartData} from '@/components/Base';
-import {useFetchCategories} from '@/components/Category';
+import {useCategories} from '@/components/Category';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {useTransactions} from '@/components/Transaction';
 import {DateService, Formatter} from '@/services';
@@ -21,17 +21,18 @@ export type TCategoryAnalytics = {
 
 export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({monthBacklog = MONTH_BACKLOG, onClickMoreDetails}) => {
   const {showSnackbar} = useSnackbarContext();
-  const {loading: loadingCategories, categories} = useFetchCategories();
+  const {isLoading: isLoadingCategories, data: categories} = useCategories();
   const {isLoading: isLoadingTransactions, data: transactions} = useTransactions();
   const [selectedCategory, setSelectedCategory] = React.useState<TCategory['id'] | null>(null);
   const [activeBar, setActiveBar] = React.useState<TBarChartData | null>(null);
 
   const filterOptions = React.useMemo(() => {
+    if (!categories) return [];
     return categories.map(({id, name}) => ({label: name, value: id}));
   }, [categories]);
 
   React.useEffect(() => {
-    if (loadingCategories) return;
+    if (isLoadingCategories || !categories) return;
     setSelectedCategory(categories.length > 0 ? categories[0].id : null);
   }, [categories]);
 
@@ -86,13 +87,13 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({monthBacklog = 
         <Box>
           <Card.Title>Backlog</Card.Title>
           <Card.Subtitle>
-            {!loadingCategories && !isLoadingTransactions && selectedCategory !== null
+            {!isLoadingCategories && !isLoadingTransactions && selectedCategory !== null
               ? `Average: ${Formatter.formatBalance(chartData.reduce((prev, cur) => prev + cur.value, 0) / monthBacklog)}`
               : 'Expenses per month'}
           </Card.Subtitle>
         </Box>
 
-        {loadingCategories ? (
+        {isLoadingCategories ? (
           <Skeleton variant="rounded" width={200} />
         ) : (
           <Autocomplete
@@ -112,7 +113,7 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({monthBacklog = 
       </Card.Header>
       <Card.Body sx={{width: '100%', aspectRatio: '4/3', mt: 2}}>
         <Paper elevation={0} sx={{position: 'relative', width: '100%', height: '100%'}}>
-          {!loadingCategories && !isLoadingTransactions && (chartData.length > 0 || activeBar) && (
+          {!isLoadingCategories && !isLoadingTransactions && (chartData.length > 0 || activeBar) && (
             <Box
               sx={{
                 position: 'absolute',
@@ -132,7 +133,7 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({monthBacklog = 
 
           <ParentSize>
             {({width, height}) =>
-              loadingCategories || isLoadingTransactions || chartData.length === 0 ? (
+              isLoadingCategories || isLoadingTransactions || chartData.length === 0 ? (
                 <Skeleton variant="rounded" width={width} height={height} />
               ) : (
                 <BarChart
@@ -156,10 +157,12 @@ export const CategoryAnalytics: React.FC<TCategoryAnalytics> = ({monthBacklog = 
         <Card.Footer sx={{display: 'flex', mt: 2}}>
           <Button
             onClick={() => {
+              if (!categories) return;
               if (!selectedCategory) {
                 showSnackbar({message: 'Please select an category first'});
               }
               // Can be forced because otherwise selectedCategory would be null
+
               onClickMoreDetails(categories.find(({id}) => id === selectedCategory)!);
             }}
             sx={{ml: 'auto'}}

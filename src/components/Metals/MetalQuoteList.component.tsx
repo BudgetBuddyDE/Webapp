@@ -4,10 +4,10 @@ import {Formatter} from '@/services';
 
 import {Card} from '../Base';
 import {CircularProgress} from '../Loading';
-import {useFetchMetalQuotes} from './useFetchMetalQuotes.hook';
+import {useMetalQuotes} from './useMetalQuotes.hook';
 
 export const MetalQuoteList = () => {
-  const {loading, quotes} = useFetchMetalQuotes();
+  const {isLoading, data: quotes} = useMetalQuotes();
   return (
     <Card sx={{p: 0}}>
       <Card.Header sx={{p: 2, pb: 0}}>
@@ -17,11 +17,11 @@ export const MetalQuoteList = () => {
         </Box>
       </Card.Header>
       <Card.Body sx={{px: 0}}>
-        {loading ? (
+        {isLoading ? (
           <CircularProgress />
         ) : (
           <List dense>
-            {quotes.map(quote => (
+            {(quotes ?? []).map(quote => (
               <ListItem
                 key={quote.code}
                 secondaryAction={

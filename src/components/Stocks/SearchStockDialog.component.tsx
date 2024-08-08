@@ -20,7 +20,7 @@ import {CircularProgress} from '@/components/Loading';
 import {useSnackbarContext} from '@/components/Snackbar';
 
 import {StockService} from './Stock.service';
-import {useFetchStockWatchlist} from './Watchlist';
+import {useStockWatchlist} from './Watchlist';
 
 /**
  * Props for the SearchStockDialog component.
@@ -67,14 +67,14 @@ export const SearchStockDialog: React.FC<TSearchStockDialogProps> = ({
   ...dialogProps
 }) => {
   const {showSnackbar} = useSnackbarContext();
-  const {loading: isLoadingWatchlist, assets: watchedAssets} = useFetchStockWatchlist();
+  const {isLoading: isLoadingWatchlist, data: watchedAssets} = useStockWatchlist();
   const [loading, setLoading] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [searchResults, setSearchResults] = React.useState<TAssetSearchResult[]>([]);
 
   const isStockWatched = React.useCallback(
     (isin: string): boolean => {
-      return watchedAssets.some(watched => watched.isin === isin);
+      return (watchedAssets ?? []).some(watched => watched.isin === isin);
     },
     [watchedAssets],
   );

@@ -17,7 +17,7 @@ import {useSnackbarContext} from '@/components/Snackbar';
 import {isRunningOnIOs, parseNumber} from '@/utils';
 
 import {BudgetService} from './Budget.service';
-import {useFetchBudget} from './useFetchBudget.hook';
+import {useBudgets} from './useBudgets.hook';
 
 export type TBudgetDrawerValues = {
   id?: TBudget['id'];
@@ -41,7 +41,7 @@ export const BudgetDrawer: React.FC<TBudgetDrawerProps> = ({
 }) => {
   const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
-  const {refresh: refreshBudgets} = useFetchBudget();
+  const {refreshData: refreshBudgets} = useBudgets();
 
   const handler = {
     async handleSubmit(data: TBudgetDrawerValues, onSuccess: () => void) {

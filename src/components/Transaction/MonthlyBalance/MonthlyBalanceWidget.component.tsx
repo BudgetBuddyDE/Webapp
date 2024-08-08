@@ -2,24 +2,26 @@ import React from 'react';
 
 import {SparklineWidget, type TSparklineWidget} from '@/components/Base';
 
-import {useFetchMonthlyBalance} from './useFetchMonthlyBalance.hook';
+import {useMonthlyBalances} from './useMonthlyBalance.hook';
 
 export type TMonthlyBalanceWidget = {
   cardPros?: TSparklineWidget['cardProps'];
 };
 
 export const MonthlyBalanceWidget: React.FC<TMonthlyBalanceWidget> = ({cardPros}) => {
-  const {loading, balances} = useFetchMonthlyBalance();
+  const {isLoading, data: monthlyBalances} = useMonthlyBalances();
 
-  const data = React.useMemo(() => {
-    return balances.map(balance => balance.balance).reverse();
-  }, [balances]);
+  const data: number[] = React.useMemo(() => {
+    if (!monthlyBalances) return [];
+    return monthlyBalances.map(balance => balance.balance).reverse();
+  }, [monthlyBalances]);
 
-  const months = React.useMemo(() => {
-    return balances.map(balance => balance.date).reverse();
-  }, [balances]);
+  const months: Date[] = React.useMemo(() => {
+    if (!monthlyBalances) return [];
+    return monthlyBalances.map(balance => balance.date).reverse();
+  }, [monthlyBalances]);
 
-  if (loading) return null;
+  if (isLoading) return null;
   return (
     <SparklineWidget
       title="Monthly balance"

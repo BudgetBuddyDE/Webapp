@@ -1,6 +1,6 @@
 export * from './Category.service';
 export * from './Category.store';
-export * from './useFetchCategories.hook';
+export * from './useCategories.hook';
 export * from './Chart';
 export * from './Autocomplete';
 export * from './CreateCategoryAlert.component';

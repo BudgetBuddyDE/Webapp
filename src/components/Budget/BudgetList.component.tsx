@@ -11,7 +11,7 @@ import {useSnackbarContext} from '@/components/Snackbar';
 import {BudgetService} from './Budget.service';
 import {BudgetDrawer, type TBudgetDrawerValues} from './BudgetDrawer.component';
 import {CategoryBudget} from './CategoryBudget.component';
-import {useFetchBudget} from './useFetchBudget.hook';
+import {useBudgets} from './useBudgets.hook';
 
 interface IBudgetListHandler {
   showCreateDialog: () => void;
@@ -23,7 +23,7 @@ export type TBudgetListProps = {};
 
 export const BudgetList: React.FC<TBudgetListProps> = () => {
   const {showSnackbar} = useSnackbarContext();
-  const {loading: loadingBudgets, budgets, refresh: refreshBudgets} = useFetchBudget();
+  const {isLoading: isLoadingBudgets, data: budgets, refreshData: refreshBudgets} = useBudgets();
   const [budgetDrawer, dispatchBudgetDrawer] = React.useReducer(
     useEntityDrawer<TBudgetDrawerValues>,
     UseEntityDrawerDefaultState<TBudgetDrawerValues>(),
@@ -83,10 +83,10 @@ export const BudgetList: React.FC<TBudgetListProps> = () => {
           </Card.HeaderActions>
         </Card.Header>
         <Card.Body>
-          {loadingBudgets ? (
+          {isLoadingBudgets ? (
             <CircularProgress />
-          ) : budgets.length > 0 ? (
-            budgets.map(budget => (
+          ) : (budgets ?? []).length > 0 ? (
+            (budgets ?? []).map(budget => (
               <Box key={budget.id} sx={{mt: 1}}>
                 <CategoryBudget
                   budget={budget}
