@@ -1,42 +1,24 @@
-import {type TStockExchange, type TUser} from '@budgetbuddyde/types';
-import {create} from 'zustand';
+import {PocketBaseCollection, type TStockExchange, ZStockExchange} from '@budgetbuddyde/types';
+import {z} from 'zod';
 
-import {type IBaseStore} from '@/hooks/FETCH_HOOK/IBaseStore';
+import {GenerateGenericStore} from '@/hooks/FETCH_HOOK/store';
+import {pb} from '@/pocketbase';
 
 import {type TStockExchangeAutocompleteOption} from './StockExchangeAutocomplete.component';
 
-export interface IStockExchangeStore<T> extends IBaseStore<T[]> {
-  selectOptions: TStockExchangeAutocompleteOption[];
-  fetchedBy: NonNullable<TUser>['id'] | null;
-  fetchedAt: Date | null;
-  setFetchedData: (data: T[], fetchedBy: NonNullable<TUser>['id'] | null) => void;
-}
+export const useStockExchangeStore = GenerateGenericStore<
+  TStockExchange[],
+  {selectOptions: TStockExchangeAutocompleteOption[]}
+>(
+  async () => {
+    const records = await pb.collection(PocketBaseCollection.STOCK_EXCHANGE).getFullList();
 
-export const useStockExchangeStore = create<IStockExchangeStore<TStockExchange>>(set => ({
-  data: [],
-  selectOptions: [],
-  fetchedBy: null,
-  fetchedAt: null,
-  set: data => {
-    set({
-      data: data,
-      selectOptions: data.map(({id, name, symbol}) => ({
-        label: name,
-        ticker: symbol,
-        value: id,
-      })),
-    });
+    const parsingResult = z.array(ZStockExchange).safeParse(records);
+    if (!parsingResult.success) {
+      console.error(parsingResult.error);
+      return [];
+    }
+    return parsingResult.data;
   },
-  setFetchedData: (data, fetchedBy) =>
-    set({
-      data: data,
-      selectOptions: data.map(({id, name, symbol}) => ({
-        label: name,
-        ticker: symbol,
-        value: id,
-      })),
-      fetchedBy: fetchedBy,
-      fetchedAt: new Date(),
-    }),
-  clear: () => set({data: [], fetchedBy: null, fetchedAt: null}),
-}));
+  {selectOptions: []},
+);

@@ -1,3 +1,3 @@
 export * from './StockExchange.store';
-export * from './useFetchStockExchanges.hook';
+export * from './useStockExchanges.hook';
 export * from './StockExchangeAutocomplete.component';

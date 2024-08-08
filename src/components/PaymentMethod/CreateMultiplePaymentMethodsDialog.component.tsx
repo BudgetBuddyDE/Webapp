@@ -16,7 +16,7 @@ import {useKeyPress, useScreenSize} from '@/hooks';
 import {DesktopFeatureOnly} from '../DesktopFeatureOnly/DesktopFeatureOnly.component';
 import {PaymentMethodService} from './PaymentMethod.service';
 import {type TPaymentMethodDrawerValues} from './PaymentMethodDrawer.component';
-import {useFetchPaymentMethods} from './useFetchPaymentMethods.hook';
+import {usePaymentMethods} from './usePaymentMethods.hook';
 
 export type TCreateMultiplePaymentMethodsDialogProps = Omit<TFullScreenDialogProps, 'title'>;
 
@@ -38,7 +38,7 @@ export const CreateMultiplePaymentMethodsDialog: React.FC<TCreateMultiplePayment
   const screenSize = useScreenSize();
   const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
-  const {refresh: refreshPaymentMethods} = useFetchPaymentMethods();
+  const {refreshData: refreshPaymentMethods} = usePaymentMethods();
   const dialogRef = React.useRef<HTMLDivElement>(null);
   const [form, setForm] = React.useState<TRow[]>([DEFAULT_VALUE()]);
 

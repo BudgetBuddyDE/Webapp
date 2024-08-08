@@ -12,7 +12,7 @@ import {DefaultValues} from 'react-hook-form';
 import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/EntityDrawer';
-import {PaymentMethodService, useFetchPaymentMethods} from '@/components/PaymentMethod';
+import {PaymentMethodService, usePaymentMethods} from '@/components/PaymentMethod';
 import {useSnackbarContext} from '@/components/Snackbar';
 
 export type TPaymentMethodDrawerValues = {
@@ -39,7 +39,7 @@ export const PaymentMethodDrawer: React.FC<TPaymentMethodDrawerProps> = ({
 }) => {
   const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
-  const {refresh: refreshPaymentMethods} = useFetchPaymentMethods();
+  const {refreshData: refreshPaymentMethods} = usePaymentMethods();
 
   const handler = {
     async handleSubmit(data: TPaymentMethodDrawerValues, onSuccess: () => void) {

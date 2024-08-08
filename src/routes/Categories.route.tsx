@@ -17,7 +17,7 @@ import {
   CategorySpendingsChart,
   CreateMultipleCategoriesDialog,
   type TCategoryDrawerValues,
-  useFetchCategories,
+  useCategories,
 } from '@/components/Category';
 import {CategoryIncomeChart} from '@/components/Category/Chart/IncomeChart.component';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
@@ -39,7 +39,7 @@ interface ICategoriesHandler {
 }
 
 export const Categories = () => {
-  const {categories, refresh: refreshCategories, loading: loadingCategories} = useFetchCategories();
+  const {data: categories, refreshData: refreshCategories, isLoading: isLoadingCategories} = useCategories();
   const {showSnackbar} = useSnackbarContext();
   const [categoryDrawer, dispatchCategoryDrawer] = React.useReducer(
     useEntityDrawer<TCategoryDrawerValues>,
@@ -52,6 +52,7 @@ export const Categories = () => {
   const [keyword, setKeyword] = React.useState('');
 
   const displayedCategories: TCategory[] = React.useMemo(() => {
+    if (!categories) return [];
     if (keyword.length == 0) return categories;
     return CategoryService.filter(categories, keyword);
   }, [categories, keyword]);
@@ -116,7 +117,7 @@ export const Categories = () => {
     <ContentGrid title={'Categories'}>
       <Grid item xs={12} md={12} lg={8} xl={8}>
         <Table<TCategory>
-          isLoading={loadingCategories}
+          isLoading={isLoadingCategories}
           title="Categories"
           subtitle="Manage your categories"
           data={displayedCategories}
@@ -172,6 +173,9 @@ export const Categories = () => {
                   {
                     children: 'Export',
                     onClick: () => {
+                      if (!categories) {
+                        return showSnackbar({message: 'No categories to export'});
+                      }
                       downloadAsJson(categories, `bb_categories_${format(new Date(), 'yyyy_mm_dd')}`);
                     },
                   },

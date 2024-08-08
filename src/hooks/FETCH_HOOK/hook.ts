@@ -1,5 +1,5 @@
-import {type IEntityStore} from './store';
+import {type TEntityStore} from './store';
 
-export interface IGenericHook<T> extends Omit<IEntityStore<T>, 'data' | 'getData' | 'fetchData'> {
-  data: ReturnType<IEntityStore<T>['getData']>;
-}
+export type TGenericHook<T, X = {}> = Omit<TEntityStore<T, X>, 'set' | 'data' | 'getData' | 'fetchData'> & {
+  data: ReturnType<TEntityStore<T, X>['getData']>;
+};

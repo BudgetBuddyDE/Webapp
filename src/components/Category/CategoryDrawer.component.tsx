@@ -15,7 +15,7 @@ import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/Enti
 import {useSnackbarContext} from '@/components/Snackbar';
 
 import {CategoryService} from './Category.service';
-import {useFetchCategories} from './useFetchCategories.hook';
+import {useCategories} from './useCategories.hook';
 
 export type TCategoryDrawerValues = {
   id?: TCategory['id'];
@@ -39,7 +39,7 @@ export const CategoryDrawer: React.FC<TCategoryDrawerProps> = ({
 }) => {
   const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
-  const {refresh: refreshCategories} = useFetchCategories();
+  const {refreshData: refreshCategories} = useCategories();
 
   const handler = {
     async handleSubmit(data: TCategoryDrawerValues, onSuccess: () => void) {

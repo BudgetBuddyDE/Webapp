@@ -1,12 +1,12 @@
-import {type TAssetWatchlistWithQuote} from '@budgetbuddyde/types';
+import {type TBudget} from '@budgetbuddyde/types';
 
 import {type TGenericHook} from '@/hooks/FETCH_HOOK/hook';
 
-import {useStockWatchlistStore} from './StockWatchlist.store';
+import {useBudgetStore} from './Budget.store';
 
-export function useStockWatchlist(): TGenericHook<TAssetWatchlistWithQuote[]> {
+export function useBudgets(): TGenericHook<TBudget[]> {
   const {getData, isLoading, isFetched, fetchedAt, fetchedBy, refreshData, hasError, error, resetStore} =
-    useStockWatchlistStore();
+    useBudgetStore();
 
   return {
     data: getData(),

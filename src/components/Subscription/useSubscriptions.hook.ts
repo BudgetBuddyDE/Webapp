@@ -1,10 +1,10 @@
 import {type TSubscription} from '@budgetbuddyde/types';
 
-import {type IGenericHook} from '@/hooks/FETCH_HOOK/hook';
+import {type TGenericHook} from '@/hooks/FETCH_HOOK/hook';
 
 import {useSubscriptionStore} from './Subscription.store';
 
-export function useSubscriptions(): IGenericHook<TSubscription[]> {
+export function useSubscriptions(): TGenericHook<TSubscription[]> {
   const {getData, isLoading, isFetched, fetchedAt, fetchedBy, refreshData, hasError, error, resetStore} =
     useSubscriptionStore();
 

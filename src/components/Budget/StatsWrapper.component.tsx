@@ -7,7 +7,7 @@ import {StatsCard, type TStatsCardProps} from '@/components/StatsCard.component'
 import {SubscriptionService, useSubscriptions} from '@/components/Subscription';
 import {Formatter} from '@/services';
 
-import {useFetchBudget} from './useFetchBudget.hook';
+import {useBudgets} from './useBudgets.hook';
 
 export type TStatsWrapperProps = {
   containerProps?: GridProps;
@@ -15,7 +15,7 @@ export type TStatsWrapperProps = {
 
 export const StatsWrapper: React.FC<TStatsWrapperProps> = ({containerProps}) => {
   const {isLoading: isLoadingSubscriptions, data: subscriptions} = useSubscriptions();
-  const {loading: loadingBudgets, budgets} = useFetchBudget();
+  const {isLoading: isLoadingBudgets, data: budgets} = useBudgets();
 
   const values = {
     subscriptions: {
@@ -37,7 +37,7 @@ export const StatsWrapper: React.FC<TStatsWrapperProps> = ({containerProps}) => 
       ),
     },
     budgets: {
-      totalPlanned: React.useMemo(() => budgets.reduce((prev, {budget}) => prev + budget, 0), [budgets]),
+      totalPlanned: React.useMemo(() => (budgets ?? []).reduce((prev, {budget}) => prev + budget, 0), [budgets]),
     },
   };
 
@@ -59,14 +59,14 @@ export const StatsWrapper: React.FC<TStatsWrapperProps> = ({containerProps}) => 
       value: `${Formatter.formatBalance(values.budgets.totalPlanned)} / ${Formatter.formatBalance(values.subscriptions.income)}`,
       label: 'Planned Budget',
       valueInformation: 'Already planned budget against planned available income',
-      isLoading: loadingBudgets,
+      isLoading: isLoadingBudgets,
       icon: <BalanceRounded />,
     },
     {
       value: Formatter.formatBalance(values.subscriptions.income - values.budgets.totalPlanned),
       label: 'Available Budget',
       valueInformation: 'Available budget based on planned income and budget',
-      isLoading: loadingBudgets || isLoadingSubscriptions,
+      isLoading: isLoadingBudgets || isLoadingSubscriptions,
     },
   ];
 

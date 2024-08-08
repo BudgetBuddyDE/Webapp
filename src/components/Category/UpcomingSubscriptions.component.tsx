@@ -53,7 +53,14 @@ export const UpcomingSubscriptions: React.FC<TUpcomingSubscriptionProps> = ({}) 
         {isLoadingSubscriptions ? (
           <CircularProgress />
         ) : (
-          groupedPayments.map(({label, sum}) => <ListWithIcon icon={<PaymentsRounded />} title={label} amount={sum} />)
+          groupedPayments.map(({label, sum}) => (
+            <ListWithIcon
+              key={'upc-sub-' + label.replaceAll(' ', '_').toLowerCase()}
+              icon={<PaymentsRounded />}
+              title={label}
+              amount={sum}
+            />
+          ))
         )}
       </Card.Body>
     </Card>

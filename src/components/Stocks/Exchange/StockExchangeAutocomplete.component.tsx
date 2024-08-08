@@ -11,7 +11,7 @@ import {
 
 import {StyledAutocompleteOption} from '@/components/Base';
 
-import {useFetchStockExchanges} from './useFetchStockExchanges.hook';
+import {useStockExchanges} from './useStockExchanges.hook';
 
 export type TStockExchangeAutocompleteOption = {
   value: TStockExchange['id'];
@@ -54,7 +54,7 @@ export const StockExchangeAutocomplete: React.FC<IStockExchangeAutocompleteProps
   onChange,
   textFieldProps,
 }) => {
-  const {loading: isLoadingStockExchanges, selectOptions, error} = useFetchStockExchanges();
+  const {isLoading: isLoadingStockExchanges, selectOptions, error} = useStockExchanges();
 
   return (
     <Autocomplete

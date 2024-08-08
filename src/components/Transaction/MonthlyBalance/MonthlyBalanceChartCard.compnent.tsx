@@ -7,21 +7,21 @@ import ApexChart from 'react-apexcharts';
 import {Card} from '@/components/Base';
 import {useScreenSize} from '@/hooks';
 import {Formatter} from '@/services';
-import {formatBalance} from '@/utils';
 
-import {useFetchMonthlyBalance} from './useFetchMonthlyBalance.hook';
+import {useMonthlyBalances} from './useMonthlyBalance.hook';
 
 export type TMonthlyBalanceChartCardProps = {};
 
 export const MonthlyBalanceChartCard: React.FC<TMonthlyBalanceChartCardProps> = () => {
   const theme = useTheme();
   const screenSize = useScreenSize();
-  const {loading, balances} = useFetchMonthlyBalance();
+  const {isLoading, data: monthlyBalances} = useMonthlyBalances();
   const [selectedBarGroup, setSelectedBarGroup] = React.useState<TMonthlyBalance | null>(null);
 
   const relevantBalances: TMonthlyBalance[] = React.useMemo(() => {
-    return balances.slice(0, screenSize === 'small' ? 6 : 11);
-  }, [balances, screenSize]);
+    if (!monthlyBalances) return [];
+    return monthlyBalances.slice(0, screenSize === 'small' ? 6 : 11);
+  }, [monthlyBalances, screenSize]);
 
   const handler = {
     formatMonth(date: Date | string) {
@@ -31,30 +31,30 @@ export const MonthlyBalanceChartCard: React.FC<TMonthlyBalanceChartCardProps> = 
   };
 
   React.useEffect(() => {
-    setSelectedBarGroup(balances[0]);
+    setSelectedBarGroup(monthlyBalances?.[0] ?? null);
     return () => {
       setSelectedBarGroup(null);
     };
-  }, [balances]);
+  }, [monthlyBalances]);
 
   return (
     <Card>
       <Card.Header>
         <Box>
           <Card.Title>Monthly Balance</Card.Title>
-          <Card.Subtitle>Your monthly balance for the past {balances.length} months</Card.Subtitle>
+          <Card.Subtitle>Your monthly balance for the past {monthlyBalances?.length ?? 0} months</Card.Subtitle>
         </Box>
       </Card.Header>
       <Card.Body>
         <Paper elevation={0} sx={{mt: '1rem'}}>
-          {!loading && selectedBarGroup && (
+          {!isLoading && selectedBarGroup && (
             <Box sx={{ml: 2, mt: 1}}>
               <Typography variant="caption">{handler.formatMonth(selectedBarGroup.date)}</Typography>
               <Typography variant="subtitle1">{Formatter.formatBalance(selectedBarGroup.balance)}</Typography>
             </Box>
           )}
 
-          {loading ? (
+          {isLoading ? (
             <Skeleton variant="rounded" width={'100%'} height={300} />
           ) : (
             <ApexChart
@@ -107,7 +107,7 @@ export const MonthlyBalanceChartCard: React.FC<TMonthlyBalanceChartCardProps> = 
                   },
                   y: {
                     formatter(val) {
-                      return formatBalance(val as number);
+                      return Formatter.formatBalance(val as number);
                     },
                   },
                 },

@@ -14,9 +14,9 @@ import {
 import React from 'react';
 
 import {DateRange, type TDateRangeProps} from '@/components/Base';
-import {CreateCategoryAlert, useFetchCategories} from '@/components/Category';
+import {CreateCategoryAlert, useCategories} from '@/components/Category';
 import {FormDrawer} from '@/components/Drawer';
-import {CreatePaymentMethodAlert, useFetchPaymentMethods} from '@/components/PaymentMethod';
+import {CreatePaymentMethodAlert, usePaymentMethods} from '@/components/PaymentMethod';
 import {isRunningOnIOs} from '@/utils';
 
 import {DEFAULT_FILTERS, useFilterStore} from './Filter.store';
@@ -48,8 +48,8 @@ interface IFilterDrawerHandler {
 export type TFilterDrawerProps = {};
 
 export const FilterDrawer: React.FC<TFilterDrawerProps> = () => {
-  const {categories, loading: loadingCategories} = useFetchCategories();
-  const {paymentMethods, loading: loadingPaymentMethods} = useFetchPaymentMethods();
+  const {data: categories, isLoading: isLoadingCategories} = useCategories();
+  const {data: paymentMethods, isLoading: isLoading} = usePaymentMethods();
   const {show: showFilterDrawer, filters, setFilters, toggleVisibility} = useFilterStore();
   const [unappliedFilters, setUnappliedFilters] = React.useState(filters);
 
@@ -115,7 +115,7 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = () => {
         />
       </Box>
 
-      {!loadingCategories && categories.length > 0 ? (
+      {!isLoadingCategories && (categories ?? []).length > 0 ? (
         <FormControl fullWidth sx={{mb: 2}}>
           <InputLabel id="filter-category-label">Category</InputLabel>
           <Select
@@ -127,7 +127,7 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = () => {
             renderValue={selected => (
               <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 0.5}}>
                 {selected.map(categoryId => {
-                  const matchedCategory = categories.find(category => category.id === categoryId);
+                  const matchedCategory = (categories ?? []).find(category => category.id === categoryId);
                   if (!matchedCategory) return null;
                   return (
                     <Chip
@@ -142,7 +142,7 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = () => {
               </Box>
             )}
             MenuProps={MenuProps}>
-            {categories.map(category => {
+            {(categories ?? []).map(category => {
               const selected =
                 Array.isArray(unappliedFilters.categories) && unappliedFilters.categories.includes(category.id);
               return (
@@ -164,7 +164,7 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = () => {
         <CreateCategoryAlert sx={{mb: 2}} />
       )}
 
-      {!loadingPaymentMethods && paymentMethods.length > 0 ? (
+      {!isLoading && (paymentMethods ?? []).length > 0 ? (
         <FormControl fullWidth sx={{mb: 2}}>
           <InputLabel id="filter-payment-method-label">Payment Method</InputLabel>
           <Select
@@ -176,7 +176,7 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = () => {
             renderValue={selected => (
               <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 0.5}}>
                 {selected.map(paymentMethodId => {
-                  const matchedPaymentMethod = paymentMethods.find(
+                  const matchedPaymentMethod = (paymentMethods ?? []).find(
                     paymentMethod => paymentMethod.id === paymentMethodId,
                   );
                   if (!matchedPaymentMethod) return null;
@@ -193,7 +193,7 @@ export const FilterDrawer: React.FC<TFilterDrawerProps> = () => {
               </Box>
             )}
             MenuProps={MenuProps}>
-            {paymentMethods.map(paymentMethod => {
+            {(paymentMethods ?? []).map(paymentMethod => {
               const selected =
                 Array.isArray(unappliedFilters.paymentMethods) &&
                 unappliedFilters.paymentMethods.includes(paymentMethod.id);

@@ -24,7 +24,7 @@ import {parseNumber} from '@/utils';
 import {DesktopFeatureOnly} from '../DesktopFeatureOnly/DesktopFeatureOnly.component';
 import {SubscriptionService} from './Subscription.service';
 import {type TSusbcriptionDrawerValues} from './SubscriptionDrawer.component';
-import {useSubscriptions} from './useFetchSubscriptions.hook';
+import {useSubscriptions} from './useSubscriptions.hook';
 
 export type TCreateMultipleSubscriptionsDialogProps = Omit<TFullScreenDialogProps, 'title'>;
 

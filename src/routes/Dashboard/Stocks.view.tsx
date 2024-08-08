@@ -17,8 +17,8 @@ import {
   StockWatchlist,
   useFetchStockDividends,
   useFetchStockPositions,
-  useFetchStockWatchlist,
   useStockStore,
+  useStockWatchlist,
 } from '@/components/Stocks';
 import {StockPositionTable} from '@/components/Stocks/Position';
 import {useDocumentTitle} from '@/hooks';
@@ -32,7 +32,7 @@ const StocksView = () => {
   const {sessionUser} = useAuthContext();
   const socket = getSocketIOClient();
   const {loading: loadingStockPositions, positions: stockPositions} = useFetchStockPositions();
-  const {loading: isLoadingWatchlist, assets: watchedAssets} = useFetchStockWatchlist();
+  const {isLoading: isLoadingWatchlist, data: watchedAssets} = useStockWatchlist();
   const {
     loading: loadingDividends,
     dividends,
@@ -183,7 +183,7 @@ const StocksView = () => {
           {isLoadingWatchlist ? (
             <CircularProgress />
           ) : (
-            <StockWatchlist title="Watchlist" subtitle="Watched assets" data={watchedAssets} />
+            <StockWatchlist title="Watchlist" subtitle="Watched assets" data={watchedAssets ?? []} />
           )}
         </Grid>
       </Grid>

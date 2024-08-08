@@ -1,12 +1,12 @@
-import {type TAssetWatchlistWithQuote} from '@budgetbuddyde/types';
+import {type TPaymentMethod} from '@budgetbuddyde/types';
 
 import {type TGenericHook} from '@/hooks/FETCH_HOOK/hook';
 
-import {useStockWatchlistStore} from './StockWatchlist.store';
+import {usePaymentMethodStore} from './PaymentMethod.store';
 
-export function useStockWatchlist(): TGenericHook<TAssetWatchlistWithQuote[]> {
+export function usePaymentMethods(): TGenericHook<TPaymentMethod[]> {
   const {getData, isLoading, isFetched, fetchedAt, fetchedBy, refreshData, hasError, error, resetStore} =
-    useStockWatchlistStore();
+    usePaymentMethodStore();
 
   return {
     data: getData(),
