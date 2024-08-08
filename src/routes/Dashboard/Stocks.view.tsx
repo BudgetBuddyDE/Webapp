@@ -16,8 +16,7 @@ import {
   StockLayout,
   StockWatchlist,
   useFetchStockDividends,
-  useFetchStockPositions,
-  useStockStore,
+  useStockPositions,
   useStockWatchlist,
 } from '@/components/Stocks';
 import {StockPositionTable} from '@/components/Stocks/Position';
@@ -28,18 +27,18 @@ import {getSocketIOClient} from '@/utils';
 const StocksView = () => {
   useDocumentTitle(`${AppConfig.appName} - Stocks`, true);
   const navigate = useNavigate();
-  const {updateQuote} = useStockStore();
   const {sessionUser} = useAuthContext();
   const socket = getSocketIOClient();
-  const {loading: loadingStockPositions, positions: stockPositions} = useFetchStockPositions();
+  const {isLoading: isLoadingStockPositions, data: stockPositions, updateQuote} = useStockPositions();
   const {isLoading: isLoadingWatchlist, data: watchedAssets} = useStockWatchlist();
   const {
     loading: loadingDividends,
     dividends,
     refresh: refreshDividends,
-  } = useFetchStockDividends(stockPositions.map(({isin}) => isin));
+  } = useFetchStockDividends((stockPositions ?? []).map(({isin}) => isin));
 
   const depotValue: number = React.useMemo(() => {
+    if (!stockPositions) return 0;
     return stockPositions.reduce((acc, position) => {
       return acc + position.quote.price * position.quantity;
     }, 0);
@@ -52,12 +51,14 @@ const StocksView = () => {
   }, [dividends]);
 
   const unrealisedProfits: number = React.useMemo(() => {
+    if (!stockPositions) return 0;
     return stockPositions
       .filter(position => position.buy_in < position.quote.price)
       .reduce((acc, position) => acc + (position.quote.price - position.buy_in) * position.quantity, 0);
   }, [stockPositions]);
 
   const unrealisedLosses: number = React.useMemo(() => {
+    if (!stockPositions) return 0;
     return stockPositions
       .filter(position => position.buy_in > position.quote.price)
       .reduce((acc, position) => acc + Math.abs(position.quote.price - position.buy_in) * position.quantity, 0);
@@ -77,7 +78,8 @@ const StocksView = () => {
   }, [dividends, stockPositions]);
 
   React.useLayoutEffect(() => {
-    if (!sessionUser || loadingStockPositions || stockPositions.length === 0) return;
+    if (!sessionUser || isLoadingStockPositions || !stockPositions || (stockPositions && stockPositions.length === 0))
+      return;
     const subscribedAssets: {isin: string; exchange: string}[] = [
       ...new Set(
         stockPositions.map(
@@ -107,13 +109,13 @@ const StocksView = () => {
       socket.emit('stock:unsubscribe', subscribedAssets, sessionUser.id);
       socket.disconnect();
     };
-  }, [sessionUser, socket, stockPositions, loadingStockPositions]);
+  }, [sessionUser, socket, stockPositions, isLoadingStockPositions]);
 
   React.useEffect(() => {
-    if (!loadingStockPositions && stockPositions.length > 0) {
+    if (!isLoadingStockPositions && stockPositions && stockPositions.length > 0) {
       refreshDividends();
     }
-  }, [loadingStockPositions, stockPositions]);
+  }, [isLoadingStockPositions, stockPositions]);
 
   return (
     <StockLayout onSelectAsset={({identifier}) => navigate(`/stocks/${identifier}`)}>
@@ -123,28 +125,28 @@ const StocksView = () => {
             label: 'Depot',
             value: Formatter.formatBalance(depotValue),
             icon: <AccountBalanceRounded />,
-            isLoading: loadingStockPositions,
+            isLoading: isLoadingStockPositions,
             valueInformation: 'Current value of your depot',
           },
           {
             label: 'Unrealised profits',
             value: Formatter.formatBalance(unrealisedProfits),
             icon: <AddRounded />,
-            isLoading: loadingStockPositions,
+            isLoading: isLoadingStockPositions,
             valueInformation: `Capital gain: ${Formatter.formatBalance(unrealisedProfits - unrealisedLosses)}`,
           },
           {
             label: 'Unrealised losses',
             value: Formatter.formatBalance(unrealisedLosses),
             icon: <RemoveRounded />,
-            isLoading: loadingStockPositions,
+            isLoading: isLoadingStockPositions,
             valueInformation: `Capital gain: ${Formatter.formatBalance(unrealisedProfits - unrealisedLosses)}`,
           },
           {
             label: 'Upcoming dividends',
             value: Formatter.formatBalance(upcomingDividends),
             icon: <PaymentsRounded />,
-            isLoading: loadingDividends || loadingStockPositions,
+            isLoading: loadingDividends || isLoadingStockPositions,
             valueInformation: 'Expected upcoming dividend payments',
           },
         ].map(({value, valueInformation, icon, isLoading, label}) => (
@@ -172,7 +174,11 @@ const StocksView = () => {
 
       <Grid container item xs={12} md={4} spacing={AppConfig.baseSpacing}>
         <Grid item xs={12}>
-          {loadingStockPositions ? <CircularProgress /> : <PortfolioDiversityChart positions={stockPositions} />}
+          {isLoadingStockPositions ? (
+            <CircularProgress />
+          ) : (
+            <PortfolioDiversityChart positions={stockPositions ?? []} />
+          )}
         </Grid>
 
         <Grid item xs={12}>

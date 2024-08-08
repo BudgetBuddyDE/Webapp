@@ -7,7 +7,7 @@ import {useNavigate} from 'react-router-dom';
 import {AppConfig} from '@/app.config';
 import {ActionPaper, Image} from '@/components/Base';
 import {type TTableProps, Table} from '@/components/Base/Table';
-import {useFetchStockPositions} from '@/components/Stocks/hooks';
+import {useStockPositions} from '@/components/Stocks/hooks';
 
 import {StockService} from './Stock.service';
 import {StockPrice} from './StockPrice.component';
@@ -21,7 +21,7 @@ export type TDividendTableProps = {
 
 export const DividendTable: React.FC<TDividendTableProps> = ({dividends, withRedirect = false, ...tableProps}) => {
   const navigate = useNavigate();
-  const {loading: loadingStockPositions, positions: stockPositions} = useFetchStockPositions();
+  const {isLoading: isLoadingStockPositions, data: stockPositions} = useStockPositions();
 
   const futureDividends = React.useMemo(() => {
     return StockService.transformDividendDetails(dividends);
@@ -39,7 +39,9 @@ export const DividendTable: React.FC<TDividendTableProps> = ({dividends, withRed
       )}
       renderRow={data => {
         const defaultTimeframe: TTimeframe = '3m';
-        const matchingPositions = stockPositions.filter(position => position.isin === data.companyInfo?.security.isin);
+        const matchingPositions = (stockPositions ?? []).filter(
+          position => position.isin === data.companyInfo?.security.isin,
+        );
         // matchingPosition = Array(matchingPositions).at(-1);
         const totalQuantity = matchingPositions.reduce((prev, cur) => prev + cur.quantity, 0);
         return (
@@ -101,7 +103,7 @@ export const DividendTable: React.FC<TDividendTableProps> = ({dividends, withRed
         );
       }}
       {...tableProps}
-      isLoading={loadingStockPositions || tableProps.isLoading}
+      isLoading={isLoadingStockPositions || tableProps.isLoading}
     />
   );
 };
