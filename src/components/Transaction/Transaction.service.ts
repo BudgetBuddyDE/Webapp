@@ -15,7 +15,29 @@ import {type ITransactionStore} from './Transaction.store';
 /**
  * Service for managing transactions.
  */
+/**
+ * Service class for managing transactions.
+ */
 export class TransactionService {
+  /**
+   * Retrieves the latest transactions from the given array of transactions.
+   *
+   * @param transactions - The array of transactions to retrieve from.
+   * @param count - The number of latest transactions to retrieve.
+   * @returns An array of the latest transactions.
+   */
+  static getLatestTransactions(transactions: TTransaction[], count: number): TTransaction[] {
+    const now = new Date();
+    const latest: typeof transactions = [];
+    do {
+      const transaction = transactions.pop();
+      if (transaction && transaction.processed_at <= now) {
+        latest.push(transaction);
+      }
+    } while (latest.length < count);
+    return latest;
+  }
+
   /**
    * Creates a new transaction record.
    *

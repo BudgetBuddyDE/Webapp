@@ -17,6 +17,7 @@ import {
   type TTransactionDrawerValues,
   TransactionDrawer,
   TransactionList,
+  TransactionService,
   useFetchTransactions,
 } from '@/components/Transaction';
 import {useDocumentTitle} from '@/hooks';
@@ -36,7 +37,7 @@ export const DashboardView = () => {
     UseEntityDrawerDefaultState<TSusbcriptionDrawerValues>(),
   );
   const latestTransactions: TTransaction[] = React.useMemo(() => {
-    return transactions.slice(0, LIST_ITEM_COUNT);
+    return TransactionService.getLatestTransactions(transactions, LIST_ITEM_COUNT);
   }, [transactions]);
 
   const upcomingSubscriptions: TSubscription[] = React.useMemo(() => {
