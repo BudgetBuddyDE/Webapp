@@ -32,7 +32,9 @@ export const CookieDisclaimer: React.FC<TCookieDisclaimerProps> = ({cookieName =
   const [showDisclaimer, setShowDisclaimer] = React.useState(false);
 
   const handleCookieAccept = () => {
-    cookies.set(cookieName, 'true', {path: '/'});
+    const expirationDate = new Date();
+    expirationDate.setFullYear(expirationDate.getFullYear() + 100); // Set the expiration date to 100 years in the future
+    cookies.set(cookieName, 'true', {path: '/', expires: expirationDate});
     setShowDisclaimer(false);
   };
 
