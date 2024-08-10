@@ -1,5 +1,5 @@
 import {CircularProgress} from '@/components/Loading';
-import {useFetchTransactions} from '@/components/Transaction';
+import {useTransactionStore} from '@/components/Transaction';
 
 import {CategoryPieChart} from './CategoryPieChart.component';
 
@@ -9,14 +9,14 @@ import {CategoryPieChart} from './CategoryPieChart.component';
  * @returns The CategoryExpenseChart component.
  */
 export const CategoryExpenseChart = () => {
-  const {loading: isLoading, transactions} = useFetchTransactions();
+  const {isLoading, data: transactions} = useTransactionStore();
   if (isLoading) return <CircularProgress />;
   return (
     <CategoryPieChart
       title="Category Expenses"
       subtitle="Expenses per category"
       transactionsType="EXPENSE"
-      transactions={transactions}
+      transactions={transactions ?? []}
     />
   );
 };
