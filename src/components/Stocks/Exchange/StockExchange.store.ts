@@ -1,7 +1,7 @@
 import {PocketBaseCollection, type TStockExchange, ZStockExchange} from '@budgetbuddyde/types';
 import {z} from 'zod';
 
-import {GenerateGenericStore} from '@/hooks/FETCH_HOOK/store';
+import {GenerateGenericStore} from '@/hooks/FETCH_HOOK/GenericStore';
 import {pb} from '@/pocketbase';
 
 import {type TStockExchangeAutocompleteOption} from './StockExchangeAutocomplete.component';

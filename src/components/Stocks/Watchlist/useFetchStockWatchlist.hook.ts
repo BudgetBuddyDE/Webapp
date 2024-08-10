@@ -1,6 +1,6 @@
 import {type TAssetWatchlistWithQuote} from '@budgetbuddyde/types';
 
-import {type TGenericHook} from '@/hooks/FETCH_HOOK/hook';
+import {type TGenericHook} from '@/hooks/FETCH_HOOK/GenericHook';
 
 import {useStockWatchlistStore} from './StockWatchlist.store';
 

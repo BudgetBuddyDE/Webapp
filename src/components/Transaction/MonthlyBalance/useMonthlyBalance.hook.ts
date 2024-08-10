@@ -1,6 +1,6 @@
 import {type TMonthlyBalance} from '@budgetbuddyde/types';
 
-import {type TGenericHook} from '@/hooks/FETCH_HOOK/hook';
+import {type TGenericHook} from '@/hooks/FETCH_HOOK/GenericHook';
 
 import {useMonthlyBalanceStore} from './MonthlyBalance.store';
 

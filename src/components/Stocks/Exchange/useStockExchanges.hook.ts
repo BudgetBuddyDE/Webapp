@@ -1,7 +1,7 @@
 import {type TStockExchange} from '@budgetbuddyde/types';
 import React from 'react';
 
-import {type TGenericHook} from '@/hooks/FETCH_HOOK/hook';
+import {type TGenericHook} from '@/hooks/FETCH_HOOK/GenericHook';
 
 import {useStockExchangeStore} from './StockExchange.store';
 import {type TStockExchangeAutocompleteOption} from './StockExchangeAutocomplete.component';

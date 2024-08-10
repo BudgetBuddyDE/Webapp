@@ -1,6 +1,6 @@
 import {type TSubscription} from '@budgetbuddyde/types';
 
-import {type TGenericHook} from '@/hooks/FETCH_HOOK/hook';
+import {type TGenericHook} from '@/hooks/FETCH_HOOK/GenericHook';
 
 import {useSubscriptionStore} from './Subscription.store';
 

@@ -1,7 +1,7 @@
 import {type TStockPositionWithQuote, type TUser} from '@budgetbuddyde/types';
 
+import {GenerateGenericStore} from '@/hooks/FETCH_HOOK/GenericStore';
 import {type IBaseStore} from '@/hooks/FETCH_HOOK/IBaseStore';
-import {GenerateGenericStore} from '@/hooks/FETCH_HOOK/store';
 
 import {StockService} from './Stock.service';
 

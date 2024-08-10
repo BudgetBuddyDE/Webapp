@@ -1,6 +1,6 @@
 import {type TCategory} from '@budgetbuddyde/types';
 
-import {type TGenericHook} from '@/hooks/FETCH_HOOK/hook';
+import {type TGenericHook} from '@/hooks/FETCH_HOOK/GenericHook';
 
 import {useCategoryStore} from './Category.store';
 

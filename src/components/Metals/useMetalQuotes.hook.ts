@@ -1,4 +1,4 @@
-import {type TGenericHook} from '@/hooks/FETCH_HOOK/hook';
+import {type TGenericHook} from '@/hooks/FETCH_HOOK/GenericHook';
 
 import {type TMetalQuote} from './Metal.service';
 import {useMetalQuoteStore} from './MetalQuote.store';
