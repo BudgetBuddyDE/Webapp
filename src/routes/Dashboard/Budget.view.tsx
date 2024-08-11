@@ -7,7 +7,7 @@ import {CategoryExpenseChart, CategoryIncomeChart, UpcomingSubscriptions} from '
 import {MonthlyBalanceChartCard, MonthlyBalanceWidget} from '@/components/Transaction/MonthlyBalance';
 import {useDocumentTitle} from '@/hooks';
 
-export const BudgetView = () => {
+const BudgetView = () => {
   useDocumentTitle(`${AppConfig.appName} - Budget`, true);
   return (
     <React.Fragment>

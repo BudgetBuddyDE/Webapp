@@ -4,7 +4,7 @@ import {BrowserRouter, Navigate, Route, Routes} from 'react-router-dom';
 import {FullPageLoader} from '@/components/Loading';
 
 import CategoriesRoute from './routes/Categories.route';
-import {BudgetView, DashboardLayout, DashboardView, InsightsView, StocksView} from './routes/Dashboard';
+import {AnalyticsView, BudgetView, DashboardLayout, DashboardView, InsightsView, StocksView} from './routes/Dashboard';
 import PaymentMethodsRoute from './routes/PaymentMethods.route';
 import SettingsRoute from './routes/Settings.route';
 import StockRoute from './routes/Stock.route';
@@ -27,6 +27,7 @@ const App = () => {
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="/dashboard" element={<DashboardLayout useOutletInsteadOfChildren />}>
             <Route index element={<DashboardView />} />
+            <Route path="analytics" element={<AnalyticsView />} />
             <Route path="budget" element={<BudgetView />} />
             <Route path="stocks" element={<StocksView />} />
             <Route path="insights" element={<InsightsView navigateOnClose />} />

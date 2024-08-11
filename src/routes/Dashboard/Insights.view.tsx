@@ -47,7 +47,7 @@ export type TInsightsViewProps =
   | {navigateOnClose: true; navigateTo?: string}
   | ({navigateOnClose: false} & Pick<TFullScreenDialogProps, 'onClose'>);
 
-export const InsightsView: React.FC<TInsightsViewProps> = props => {
+const InsightsView: React.FC<TInsightsViewProps> = props => {
   useDocumentTitle(`${AppConfig.appName} - Insights`, true);
   const theme = useTheme();
   const navigate = useNavigate();

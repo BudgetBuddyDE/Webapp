@@ -21,6 +21,7 @@ import {
   CreateMultipleSubscriptionsDialog,
   SubscriptionActionMenu,
   SubscriptionDrawer,
+  SubscriptionPieChart,
   type TSusbcriptionDrawerValues,
   useSubscriptions,
 } from '@/components/Subscription';
@@ -289,6 +290,10 @@ export const Subscriptions = () => {
             if (handler.selection.onDeleteMultiple) handler.selection.onDeleteMultiple();
           }}
         />
+      </Grid>
+
+      <Grid item xs={12} md={4}>
+        <SubscriptionPieChart />
       </Grid>
 
       <DeleteDialog

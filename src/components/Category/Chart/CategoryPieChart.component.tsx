@@ -1,8 +1,9 @@
 import {type TTransaction} from '@budgetbuddyde/types';
-import {Box, ToggleButton, ToggleButtonGroup} from '@mui/material';
+import {Box, Button, Stack, ToggleButton, ToggleButtonGroup} from '@mui/material';
 import {ParentSize} from '@visx/responsive';
 import {isSameMonth, isSameYear} from 'date-fns';
 import React from 'react';
+import {Link} from 'react-router-dom';
 
 import {ApexPieChart, Card, NoResults, TPieChartData} from '@/components/Base';
 
@@ -31,6 +32,7 @@ export type TCategoryPieChartProps = {
   defaultTimeframe?: TCategoryPieChartTimeframe;
   transactionsType: TCategoryPieChartTransactionType;
   transactions: TTransaction[];
+  withViewMore?: boolean;
 };
 
 /**
@@ -56,6 +58,7 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
   defaultTimeframe = 'MONTH',
   transactionsType,
   transactions,
+  withViewMore = false,
 }) => {
   const [currentTimeframe, setCurrentTimeframe] = React.useState<TCategoryPieChartTimeframe>(defaultTimeframe);
 
@@ -126,19 +129,28 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
           </ToggleButtonGroup>
         </Card.HeaderActions>
       </Card.Header>
-      <Card.Body>
+      <Card.Body sx={{pt: 1}}>
         {currentChartData.length > 0 ? (
-          <Box sx={{display: 'flex', flex: 1, mt: '1rem', flexDirection: 'column'}}>
-            <ParentSize>
-              {({width}) => (
-                <ApexPieChart width={width} height={width} data={currentChartData} formatAsCurrency showTotal />
-              )}
-            </ParentSize>
-          </Box>
+          <ParentSize>
+            {({width}) => (
+              <ApexPieChart width={width} height={width} data={currentChartData} formatAsCurrency showTotal />
+            )}
+          </ParentSize>
         ) : (
           <NoResults text={getNoResultsMessage(currentTimeframe)} sx={{m: 2}} />
         )}
       </Card.Body>
+      {withViewMore && (
+        <Card.Footer sx={{p: 2, pt: 0}}>
+          <Stack direction="row" justifyContent={'flex-end'}>
+            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+            {/*@ts-expect-error*/}
+            <Button LinkComponent={Link} to="/transactions">
+              View more...
+            </Button>
+          </Stack>
+        </Card.Footer>
+      )}
     </Card>
   );
 };

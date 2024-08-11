@@ -24,7 +24,7 @@ import {useDocumentTitle} from '@/hooks';
 
 const LIST_ITEM_COUNT = 6;
 
-export const DashboardView = () => {
+const DashboardView = () => {
   useDocumentTitle(`${AppConfig.appName} - Dashboard`, true);
   const {data: transactions, isLoading: isLoadingTransactions} = useTransactions();
   const {data: subscriptions, isLoading: loadingSubscriptions} = useSubscriptions();
