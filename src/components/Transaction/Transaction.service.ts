@@ -26,14 +26,7 @@ export class TransactionService {
    */
   static getLatestTransactions(transactions: TTransaction[], count: number): TTransaction[] {
     const now = new Date();
-    const latest: typeof transactions = [];
-    do {
-      const transaction = transactions.pop();
-      if (transaction && transaction.processed_at <= now) {
-        latest.push(transaction);
-      }
-    } while (latest.length < count);
-    return latest;
+    return transactions.filter(({processed_at}) => processed_at <= now).slice(0, count);
   }
 
   /**
