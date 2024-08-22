@@ -53,6 +53,6 @@ describe('getUpcomingX', () => {
       {transfer_amount: -25, execute_at: new Date().getDate()},
     ] as TSubscription[];
     const result = SubscriptionService.getUpcomingX('EXPENSES', subscriptions);
-    expect(result).toEqual(-50);
+    expect(result).toEqual(50);
   });
 });

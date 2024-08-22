@@ -3,6 +3,7 @@ import {Grid, Stack} from '@mui/material';
 import React from 'react';
 
 import {AppConfig} from '@/app.config';
+import {BudgetPieChart} from '@/components/Budget';
 import {CategoryExpenseChart, UpcomingSubscriptions} from '@/components/Category';
 import {DashboardStatsWrapper} from '@/components/DashboardStatsWrapper.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
@@ -72,7 +73,10 @@ const DashboardView = () => {
       </Grid>
 
       <Grid item xs={12} md={6} lg={4} order={{xs: 1, md: 2}}>
-        <CategoryExpenseChart />
+        <Stack spacing={AppConfig.baseSpacing}>
+          <CategoryExpenseChart />
+          <BudgetPieChart />
+        </Stack>
       </Grid>
 
       <Grid item xs={12} md={6} lg={4} order={{xs: 2, md: 3}}>

@@ -4,7 +4,7 @@ import {
   type TTransaction,
   ZTransaction,
 } from '@budgetbuddyde/types';
-import {isSameMonth, subDays} from 'date-fns';
+import {isAfter, isSameMonth, subDays} from 'date-fns';
 import {type RecordModel} from 'pocketbase';
 import {z} from 'zod';
 
@@ -141,24 +141,6 @@ export class TransactionService {
   }
 
   /**
-   * Calculates the total upcoming earnings from a list of transactions.
-   * Only transactions that are in the current month, have a future processed date, and have a positive transfer amount are considered.
-   * @deprecated Use the getDashboardStats method instead.
-   * @param transactions - The list of transactions to calculate the upcoming earnings from.
-   * @returns The total upcoming earnings.
-   */
-  static calculateUpcomingEarnings(transactions: TTransaction[]): number {
-    const now = new Date();
-    const num = transactions
-      .filter(
-        ({processed_at, transfer_amount}) =>
-          isSameMonth(processed_at, now) && processed_at > now && transfer_amount > 0,
-      )
-      .reduce((prev, cur) => prev + cur.transfer_amount, 0);
-    return Number(num.toFixed(2));
-  }
-
-  /**
    * Calculates the total upcoming income or expenses from a list of transactions.
    * Only transactions that have a future processed date are considered.
    *
@@ -169,7 +151,11 @@ export class TransactionService {
   static getUpcomingX(data: 'INCOME' | 'EXPENSES', transactions: TTransaction[]): number {
     const today = new Date();
     return transactions.reduce((acc, {transfer_amount, processed_at}) => {
-      if ((data === 'INCOME' && transfer_amount > 0) || (data === 'EXPENSES' && transfer_amount < 0)) {
+      if (
+        ((data === 'INCOME' && transfer_amount > 0) || (data === 'EXPENSES' && transfer_amount < 0)) &&
+        isSameMonth(processed_at, today) &&
+        isAfter(processed_at, today)
+      ) {
         return processed_at > today ? acc + transfer_amount : acc;
       }
       return acc;

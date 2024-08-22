@@ -100,7 +100,7 @@ export class SubscriptionService {
       .filter(({paused}) => !paused)
       .reduce((acc, {transfer_amount, execute_at}) => {
         if ((data === 'INCOME' && transfer_amount > 0) || (data === 'EXPENSES' && transfer_amount < 0)) {
-          return execute_at > today ? acc + transfer_amount : acc;
+          return execute_at > today ? acc + Math.abs(transfer_amount) : acc;
         }
         return acc;
       }, 0);

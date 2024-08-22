@@ -208,17 +208,15 @@ const AnalyticsView = () => {
         <MonthlyBalanceChartCard />
       </Grid>
 
-      <Grid item xs={12} md={4}>
-        <SubscriptionPieChart />
-      </Grid>
-
-      <Grid item xs={12} md={4}>
-        <CategoryIncomeChart withViewMore />
-      </Grid>
-
-      <Grid item xs={12} md={4}>
-        <CategoryExpenseChart withViewMore />
-      </Grid>
+      {[
+        {key: 'monthly-balance-pie-chart', children: <SubscriptionPieChart />},
+        {key: 'category-income-pie-chart', children: <CategoryIncomeChart withViewMore />},
+        {key: 'category-expense-pie-chart', children: <CategoryExpenseChart withViewMore />},
+      ].map(({key, children}) => (
+        <Grid key={key} item xs={12} md={4}>
+          {children}
+        </Grid>
+      ))}
     </React.Fragment>
   );
 };

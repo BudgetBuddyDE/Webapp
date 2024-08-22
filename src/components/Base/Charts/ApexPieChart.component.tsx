@@ -50,7 +50,6 @@ export const ApexPieChart: React.FC<TApexPieChartProps> = ({
               size: '50%',
               labels: {
                 show: true,
-
                 total: {
                   show: showTotal,
                   showAlways: showTotal,
