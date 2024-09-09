@@ -15,7 +15,6 @@ import TransactionsRoute from './routes/Transactions.route';
 const NotFoundPage = React.lazy(() => import('./routes/NotFound.route'));
 const SignInRoute = React.lazy(() => import('./routes/SignIn.route'));
 const SignUpRoute = React.lazy(() => import('./routes/SignUp.route'));
-const VerifyMailRoute = React.lazy(() => import('./routes/VerifyMail.route'));
 const RequestPasswordResetRoute = React.lazy(() => import('./routes/RequestPasswordReset.route'));
 const ResetPasswordRoute = React.lazy(() => import('./routes/ResetPassword.route'));
 
@@ -44,7 +43,6 @@ const App = () => {
           <Route path="/settings/profile" element={<SettingsRoute />} />
           <Route path="/sign-in" element={<SignInRoute />} />
           <Route path="/sign-up" element={<SignUpRoute />} />
-          <Route path="/verify-email" element={<VerifyMailRoute />} />
           <Route path="/request-password-reset" element={<RequestPasswordResetRoute />} />
           <Route path="/reset-password" element={<ResetPasswordRoute />} />
           <Route path="*" element={<NotFoundPage />} />

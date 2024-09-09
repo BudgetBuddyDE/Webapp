@@ -230,10 +230,10 @@ export const CreateMultipleSubscriptionsDialog: React.FC<TCreateMultipleSubscrip
                   <Grid item md={idx === 0 ? 2 : 1.45}>
                     <DesktopDatePicker
                       label="Execute at"
-                      inputFormat="dd.MM.yyyy"
-                      onChange={(value, keyboardInputValue) => handler.changeDate(idx, value, keyboardInputValue)}
+                      format="dd.MM.yyyy"
+                      onChange={value => handler.changeDate(idx, value, '')}
                       value={row.execute_at}
-                      renderInput={params => <TextField fullWidth {...params} required />}
+                      // renderInput={params => <TextField fullWidth {...params} required />}
                     />
                   </Grid>
                   <Grid item md={2}>

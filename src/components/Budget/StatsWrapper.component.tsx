@@ -1,5 +1,5 @@
 import {AddRounded, BalanceRounded, RemoveRounded} from '@mui/icons-material';
-import {Grid, type GridProps} from '@mui/material';
+import {Grid2 as Grid, type Grid2Props as GridProps} from '@mui/material';
 import React from 'react';
 
 import {AppConfig} from '@/app.config';
@@ -71,9 +71,9 @@ export const StatsWrapper: React.FC<TStatsWrapperProps> = ({containerProps}) => 
   ];
 
   return (
-    <Grid container spacing={AppConfig.baseSpacing} item xs={12} md={12} {...containerProps}>
+    <Grid container spacing={AppConfig.baseSpacing} size={{xs: 12, md: 12}} {...containerProps}>
       {cards.map((card, idx) => (
-        <Grid key={idx} item xs={6} md={3} sx={{height: 'unset'}}>
+        <Grid key={idx} size={{xs: 6, md: 3}} sx={{height: 'unset'}}>
           <StatsCard {...card} />
         </Grid>
       ))}

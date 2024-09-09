@@ -2,10 +2,12 @@ import {VisibilityOffRounded, VisibilityRounded} from '@mui/icons-material';
 import {
   FormControl,
   type FormControlProps,
+  FormHelperText,
+  FormLabel,
   IconButton,
   InputAdornment,
-  InputLabel,
   type InputLabelProps,
+  Link,
   OutlinedInput,
   type OutlinedInputProps,
 } from '@mui/material';
@@ -15,31 +17,34 @@ export type TPasswordInputProps = {
   formControlProps?: FormControlProps;
   inputLabelProps?: InputLabelProps;
   outlinedInputProps?: OutlinedInputProps;
+  showForgotPassword?: boolean;
 };
 
 export const PasswordInput: React.FC<TPasswordInputProps> = ({
   formControlProps,
   inputLabelProps,
   outlinedInputProps,
+  showForgotPassword = false,
 }) => {
   const [showPassword, setShowPassword] = React.useState(false);
 
   return (
-    <FormControl variant="outlined" fullWidth required {...formControlProps}>
-      <InputLabel htmlFor="outlined-adornment-password" {...inputLabelProps}>
+    <FormControl fullWidth {...formControlProps}>
+      <FormLabel htmlFor="password" {...inputLabelProps}>
         Password
-      </InputLabel>
+      </FormLabel>
       <OutlinedInput
         type={showPassword ? 'text' : 'password'}
+        id="password"
         name="password"
-        label="Password"
         placeholder="Enter password"
         endAdornment={
           <InputAdornment position="end">
             <IconButton
               aria-label="toggle password visibility"
               onClick={() => setShowPassword(prev => !prev)}
-              sx={{mr: 0}}
+              sx={{border: 0, backgroundColor: 'transparent'}}
+              size="small"
               edge="end">
               {showPassword ? <VisibilityOffRounded /> : <VisibilityRounded />}
             </IconButton>
@@ -47,6 +52,11 @@ export const PasswordInput: React.FC<TPasswordInputProps> = ({
         }
         {...outlinedInputProps}
       />
+      {showForgotPassword && (
+        <FormHelperText id="forgot-password-link" component={Link} href="/request-password-reset" sx={{ml: 'auto'}}>
+          Forgot password?
+        </FormHelperText>
+      )}
     </FormControl>
   );
 };

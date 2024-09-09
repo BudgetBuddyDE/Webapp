@@ -217,38 +217,38 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
                   screenSize === 'small' ? (
                     <MobileDatePicker
                       label="Processed at"
-                      inputFormat="dd.MM.yyyy"
+                      format="dd.MM.yyyy"
                       onChange={onChange}
                       onAccept={onChange}
                       value={value}
                       inputRef={ref}
-                      renderInput={params => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          error={!!errors.processed_at}
-                          helperText={errors.processed_at?.message}
-                          required
-                        />
-                      )}
+                      // renderInput={params => (
+                      //   <TextField
+                      //     fullWidth
+                      //     {...params}
+                      //     error={!!errors.processed_at}
+                      //     helperText={errors.processed_at?.message}
+                      //     required
+                      //   />
+                      // )}
                     />
                   ) : (
                     <DesktopDatePicker
                       label="Processed at"
-                      inputFormat="dd.MM.yyyy"
+                      format="dd.MM.yyyy"
                       onChange={onChange}
                       onAccept={onChange}
                       value={value}
                       inputRef={ref}
-                      renderInput={params => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          error={!!errors.processed_at}
-                          helperText={errors.processed_at?.message}
-                          required
-                        />
-                      )}
+                      // renderInput={params => (
+                      //   <TextField
+                      //     fullWidth
+                      //     {...params}
+                      //     error={!!errors.processed_at}
+                      //     helperText={errors.processed_at?.message}
+                      //     required
+                      //   />
+                      // )}
                     />
                   )
                 }

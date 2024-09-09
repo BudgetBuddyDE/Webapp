@@ -1,14 +1,15 @@
 import {PocketBaseCollection} from '@budgetbuddyde/types';
-import {AppRegistrationRounded, ExitToAppRounded, SendRounded} from '@mui/icons-material';
-import {Box, Button, CircularProgress, Divider, Grid, Typography} from '@mui/material';
+import {ExitToAppRounded} from '@mui/icons-material';
+import {Box, Button, CircularProgress, Divider, Grid, Card as MuiCard, Stack, Typography} from '@mui/material';
 import React from 'react';
-import {Link as RouterLink, useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import {z} from 'zod';
 
+import {AppConfig} from '@/app.config';
 import {AppLogo} from '@/components/AppLogo.component';
 import {useAuthContext} from '@/components/Auth';
 import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
-import {Card, PasswordInput} from '@/components/Base';
+import {PasswordInput} from '@/components/Base';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {pb} from '@/pocketbase';
 
@@ -70,80 +71,59 @@ const ResetPassword = () => {
           Sign out
         </Button>
       )}
-      <Card
+      <MuiCard
+        variant="outlined"
         sx={{
           width: {xs: '90%', md: '40%', lg: '30%', xl: '25%'},
           maxWidth: '480px',
           mx: 'auto',
-          px: 4,
-          py: 2,
-          textAlign: 'center',
         }}>
-        <Card.Header sx={{display: 'flex', flexDirection: 'column'}}>
-          <AppLogo
-            style={{
-              marginLeft: 'auto',
-              marginRight: 'auto',
-              borderRadius: '5px',
-            }}
-            width={96}
-            height={96}
-          />
+        <Box sx={{display: 'flex', justifyContent: 'center', mb: 2}}>
+          <AppLogo style={{borderRadius: '5px'}} width={64} height={64} />
+        </Box>
 
-          <Typography variant={'h4'} textAlign={'center'} fontWeight={'bolder'} sx={{mt: 2}}>
-            Request your password
-          </Typography>
-        </Card.Header>
-        <Card.Body>
-          <form onSubmit={handler.onSubmit}>
-            <Grid container spacing={2} sx={{mt: 1}}>
-              <Grid item xs={12} md={12}>
-                <PasswordInput outlinedInputProps={{name: 'pwd1', onChange: handler.onInputChange}} />
-              </Grid>
+        <Typography variant="h4" textAlign={'center'}>
+          Reset your password
+        </Typography>
 
-              <Grid item xs={12} md={12}>
-                <PasswordInput outlinedInputProps={{name: 'pwd2', onChange: handler.onInputChange}} />
-              </Grid>
+        <form onSubmit={handler.onSubmit}>
+          <Grid container gap={AppConfig.baseSpacing}>
+            <Grid item xs={12}>
+              <PasswordInput outlinedInputProps={{name: 'pwd1', onChange: handler.onInputChange}} />
             </Grid>
 
-            <Box sx={{display: 'flex', justifyContent: 'center'}}>
+            <Grid item xs={12}>
+              <PasswordInput outlinedInputProps={{name: 'pwd2', onChange: handler.onInputChange}} />
+            </Grid>
+
+            <Grid item xs={12}>
               <Button
                 type="submit"
-                variant="contained"
-                endIcon={loading ? <CircularProgress size={18} color="primary" /> : <SendRounded />}
-                disabled={loading}
-                sx={{mt: 2}}>
-                Reset password
+                variant="outlined"
+                fullWidth
+                endIcon={loading ? <CircularProgress size={18} color="primary" /> : undefined}
+                disabled={loading}>
+                Save new password
               </Button>
-            </Box>
+            </Grid>
 
-            <Divider sx={{my: 2}}>Other options</Divider>
+            <Grid item xs={12}>
+              <Divider>or</Divider>
+            </Grid>
 
-            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-            {/*@ts-expect-error*/}
-            <Button
-              LinkComponent={RouterLink}
-              to={'/sign-in'}
-              size={'large'}
-              startIcon={<SendRounded />}
-              sx={{mb: 1}}
-              fullWidth>
-              Sign in
-            </Button>
-
-            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-            {/*@ts-expect-error*/}
-            <Button
-              LinkComponent={RouterLink}
-              to={'/sign-up'}
-              size={'large'}
-              startIcon={<AppRegistrationRounded />}
-              fullWidth>
-              Sign up
-            </Button>
-          </form>
-        </Card.Body>
-      </Card>
+            <Grid item xs={12}>
+              <Stack flexDirection={'row'} gap={AppConfig.baseSpacing}>
+                <Button variant="outlined" href="/sign-in" sx={{flex: 1}}>
+                  Sign in
+                </Button>
+                <Button variant="outlined" href="/sign-up" sx={{flex: 1}}>
+                  Sign up
+                </Button>
+              </Stack>
+            </Grid>
+          </Grid>
+        </form>
+      </MuiCard>
     </React.Fragment>
   );
 };

@@ -34,5 +34,5 @@ export function determineOS(userAgent = window.navigator.userAgent): TOS {
  * @returns A boolean indicating whether the application is running on iOS.
  */
 export function isRunningOnIOs(userAgent = window.navigator.userAgent): boolean {
-  return userAgent.indexOf('iOS') !== -1 || userAgent.indexOf('iPhone' || userAgent.indexOf('iPad') !== -1) !== -1;
+  return userAgent.indexOf('iOS') !== -1 || userAgent.indexOf('iPhone') !== -1 || userAgent.indexOf('iPad') !== -1;
 }

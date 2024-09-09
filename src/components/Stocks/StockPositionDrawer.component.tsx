@@ -159,38 +159,38 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
                   screenSize === 'small' ? (
                     <MobileDatePicker
                       label="Bought at"
-                      inputFormat="dd.MM.yyyy"
+                      format="dd.MM.yyyy"
                       onChange={onChange}
                       onAccept={onChange}
                       value={value}
                       inputRef={ref}
-                      renderInput={params => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          error={!!errors.bought_at}
-                          helperText={errors.bought_at?.message}
-                          required
-                        />
-                      )}
+                      // renderInput={params => (
+                      //   <TextField
+                      //     fullWidth
+                      //     {...params}
+                      //     error={!!errors.bought_at}
+                      //     helperText={errors.bought_at?.message}
+                      //     required
+                      //   />
+                      // )}
                     />
                   ) : (
                     <DesktopDatePicker
                       label="Bought at"
-                      inputFormat="dd.MM.yyyy"
+                      format="dd.MM.yyyy"
                       onChange={onChange}
                       onAccept={onChange}
                       value={value}
                       inputRef={ref}
-                      renderInput={params => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          error={!!errors.bought_at}
-                          helperText={errors.bought_at?.message}
-                          required
-                        />
-                      )}
+                      // renderInput={params => (
+                      //   <TextField
+                      //     fullWidth
+                      //     {...params}
+                      //     error={!!errors.bought_at}
+                      //     helperText={errors.bought_at?.message}
+                      //     required
+                      //   />
+                      // )}
                     />
                   )
                 }

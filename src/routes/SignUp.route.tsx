@@ -1,26 +1,29 @@
 import {PocketBaseCollection} from '@budgetbuddyde/types';
-import {ExitToAppRounded, HomeRounded, SendRounded} from '@mui/icons-material';
+import {ExitToAppRounded, HomeRounded} from '@mui/icons-material';
 import {
   Box,
   Button,
   Checkbox,
   Divider,
+  FormControl,
   FormControlLabel,
+  FormLabel,
   Grid,
   Link,
+  Card as MuiCard,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
 import {type RecordAuthResponse, type RecordModel} from 'pocketbase';
 import React from 'react';
-import {Link as RouterLink, useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 
 import {AppConfig} from '@/app.config';
 import {AppLogo} from '@/components/AppLogo.component';
 import {SocialSignInBtn, useAuthContext} from '@/components/Auth';
 import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
-import {Card, PasswordInput} from '@/components/Base';
+import {PasswordInput} from '@/components/Base';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {pb} from '@/pocketbase.ts';
 
@@ -87,22 +90,14 @@ const SignUp = () => {
       )}
       <Grid container justifyContent={'center'}>
         <Grid item xs={12} sm={12} md={4} lg={4} xl={3.5}>
-          <Card sx={{py: 3, px: 4}}>
-            <Box display="flex" flexDirection="column">
-              <AppLogo
-                style={{
-                  marginLeft: 'auto',
-                  marginRight: 'auto',
-                  borderRadius: '5px',
-                }}
-                width={96}
-                height={96}
-              />
-
-              <Typography variant={'h4'} textAlign={'center'} fontWeight={'bolder'} sx={{mt: 2}}>
-                Sign up
-              </Typography>
+          <MuiCard variant="outlined">
+            <Box sx={{display: 'flex', justifyContent: 'center', mb: 2}}>
+              <AppLogo style={{borderRadius: '5px'}} width={64} height={64} />
             </Box>
+
+            <Typography variant="h4" textAlign={'center'}>
+              Sign up
+            </Typography>
 
             <form onSubmit={formHandler.formSubmit}>
               <Grid container spacing={AppConfig.baseSpacing} sx={{mt: 1}}>
@@ -110,98 +105,94 @@ const SignUp = () => {
                   <Grid key={provider} item xs={6}>
                     <SocialSignInBtn
                       key={provider}
+                      variant="outlined"
                       provider={provider}
                       onAuthProviderResponse={formHandler.handleAuthProviderLogin}
-                      data-umami-event={'social-sign-up'}
+                      data-umami-event={'social-sign-in'}
                       data-umami-value={provider}
                     />
                   </Grid>
                 ))}
 
                 <Grid item xs={12}>
-                  <Divider>or with</Divider>
+                  <Divider>or</Divider>
                 </Grid>
 
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    variant="outlined"
-                    label="Name"
-                    name="name"
-                    onChange={formHandler.inputChange}
-                    fullWidth
-                    required
-                  />
+                  <FormControl fullWidth>
+                    <FormLabel htmlFor="name">Name</FormLabel>
+                    <TextField
+                      variant="outlined"
+                      id="name"
+                      name="name"
+                      placeholder="John"
+                      onChange={formHandler.inputChange}
+                      defaultValue={form.name || ''}
+                      required
+                    />
+                  </FormControl>
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    variant="outlined"
-                    label="Surname"
-                    name="surname"
-                    onChange={formHandler.inputChange}
-                    fullWidth
-                    required
-                  />
+                  <FormControl fullWidth>
+                    <FormLabel htmlFor="surname">Surname</FormLabel>
+                    <TextField
+                      variant="outlined"
+                      id="surname"
+                      name="surname"
+                      placeholder="Doe"
+                      onChange={formHandler.inputChange}
+                      defaultValue={form.surname || ''}
+                      required
+                    />
+                  </FormControl>
                 </Grid>
 
-                <Grid item xs={12} md={12}>
-                  <TextField
-                    variant="outlined"
-                    type="email"
-                    label="E-Mail"
-                    name="email"
-                    onChange={formHandler.inputChange}
-                    fullWidth
-                    required
-                  />
+                <Grid item xs={12}>
+                  <FormControl fullWidth>
+                    <FormLabel htmlFor="email">E-Mail</FormLabel>
+                    <TextField
+                      type="email"
+                      variant="outlined"
+                      id="email"
+                      name="email"
+                      placeholder="john.doe@budget-buddy.de"
+                      onChange={formHandler.inputChange}
+                      defaultValue={form.email || ''}
+                      required
+                    />
+                  </FormControl>
                 </Grid>
 
-                <Grid item xs={12} md={12}>
+                <Grid item xs={12}>
                   <PasswordInput outlinedInputProps={{onChange: formHandler.inputChange}} />
                 </Grid>
 
-                <Grid item xs={12} md={12}>
-                  <FormControlLabel
-                    required
-                    control={<Checkbox />}
-                    label={
-                      <React.Fragment>
-                        I accept the{' '}
-                        <Link href={AppConfig.website + '/tos'} target="_blank">
-                          Terms of Service
-                        </Link>
-                      </React.Fragment>
-                    }
-                    sx={{mt: 1}}
-                  />
+                <FormControlLabel
+                  required
+                  control={<Checkbox color="primary" />}
+                  label={
+                    <React.Fragment>
+                      I accept the{' '}
+                      <Link href={AppConfig.website + '/tos'} target="_blank">
+                        Terms of Service
+                      </Link>
+                    </React.Fragment>
+                  }
+                  sx={{mx: 1, mt: 1}}
+                />
+
+                <Grid item xs={12}>
+                  <Button type="submit" fullWidth variant="contained">
+                    Sign up
+                  </Button>
+
+                  <Typography sx={{mt: 2, textAlign: 'center'}}>
+                    Already have an account? <Link href="/sign-in">Sign in</Link>
+                  </Typography>
                 </Grid>
               </Grid>
-              <Box sx={{display: 'flex', justifyContent: 'center'}}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  endIcon={<SendRounded />}
-                  sx={{mt: 1}}
-                  data-umami-event={'default-sign-up'}>
-                  Sign up
-                </Button>
-              </Box>
             </form>
-
-            <Divider sx={{my: 2}}>Already registered?</Divider>
-
-            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-            {/*@ts-expect-error*/}
-            <Button
-              LinkComponent={RouterLink}
-              to={'/sign-in'}
-              variant={'contained'}
-              size={'large'}
-              startIcon={<SendRounded />}
-              fullWidth
-              data-umami-event={'sign-up-redirect-login'}>
-              Sign in
-            </Button>
-          </Card>
+          </MuiCard>
         </Grid>
       </Grid>
     </React.Fragment>

@@ -1,8 +1,7 @@
 import {type TableCellProps, type Theme} from '@mui/material';
 
-import BlueTheme from '@/style/theme/theme';
-
 import {version} from '../package.json';
+import {V6Theme} from './theme/getDashboardTheme';
 
 export enum Feature {
   STOCKS = 'stocks',
@@ -34,7 +33,7 @@ export const AppConfig: TAppConfig = {
   version: version,
   website: 'https://budget-buddy.de',
   repository: 'https://github.com/BudgetBuddyDE/webapp',
-  theme: BlueTheme,
+  theme: V6Theme,
   auth: {
     cookieName: 'budget-buddy.auth',
   },

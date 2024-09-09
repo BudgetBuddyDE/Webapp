@@ -1,15 +1,26 @@
-import {AppRegistrationRounded, ExitToAppRounded, HomeRounded, SendRounded} from '@mui/icons-material';
-import {Box, Button, Divider, Grid, Link, Stack, TextField, Typography} from '@mui/material';
+import {ExitToAppRounded, HomeRounded} from '@mui/icons-material';
+import {
+  Box,
+  Button,
+  Divider,
+  FormControl,
+  FormLabel,
+  Grid,
+  Link,
+  Card as MuiCard,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import {type RecordAuthResponse, type RecordModel} from 'pocketbase';
 import React from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
-import {Link as RouterLink} from 'react-router-dom';
 
 import {AppConfig} from '@/app.config.ts';
 import {AppLogo} from '@/components/AppLogo.component';
 import {SocialSignInBtn, useAuthContext} from '@/components/Auth';
 import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
-import {Card, PasswordInput} from '@/components/Base';
+import {PasswordInput} from '@/components/Base';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {AuthService} from '@/services';
 
@@ -78,24 +89,16 @@ const SignIn = () => {
           </Button>
         </Stack>
       )}
-      <Grid container justifyContent={'center'}>
+      <Grid container justifyContent={'center'} gap={AppConfig.baseSpacing}>
         <Grid item xs={12} sm={12} md={4} lg={4} xl={3.5}>
-          <Card sx={{py: 3, px: 4}}>
-            <Box display="flex" flexDirection="column">
-              <AppLogo
-                style={{
-                  marginLeft: 'auto',
-                  marginRight: 'auto',
-                  borderRadius: '5px',
-                }}
-                width={96}
-                height={96}
-              />
-
-              <Typography variant={'h5'} textAlign={'center'} fontWeight={'bolder'} sx={{mt: 2}}>
-                {sessionUser ? `Welcome ${sessionUser.username}!` : 'Sign in'}
-              </Typography>
+          <MuiCard variant="outlined">
+            <Box sx={{display: 'flex', justifyContent: 'center', mb: 2}}>
+              <AppLogo style={{borderRadius: '5px'}} width={64} height={64} />
             </Box>
+
+            <Typography variant="h4" textAlign={'center'}>
+              {sessionUser ? `Welcome ${sessionUser.name}!` : 'Sign in'}
+            </Typography>
 
             <form onSubmit={formHandler.formSubmit}>
               <Grid container spacing={AppConfig.baseSpacing} sx={{mt: 1}}>
@@ -103,6 +106,7 @@ const SignIn = () => {
                   <Grid key={provider} item xs={6}>
                     <SocialSignInBtn
                       key={provider}
+                      variant="outlined"
                       provider={provider}
                       onAuthProviderResponse={formHandler.handleAuthProviderLogin}
                       data-umami-event={'social-sign-in'}
@@ -112,65 +116,41 @@ const SignIn = () => {
                 ))}
 
                 <Grid item xs={12}>
-                  <Divider>or with</Divider>
+                  <Divider>or</Divider>
                 </Grid>
 
-                <Grid item xs={12} md={12}>
-                  <TextField
-                    variant="outlined"
-                    placeholder="Enter email"
-                    type="email"
-                    label="E-Mail"
-                    name="email"
-                    onChange={formHandler.inputChange}
-                    defaultValue={form.email || ''}
-                    fullWidth
-                    required
-                  />
+                <Grid item xs={12}>
+                  <FormControl fullWidth>
+                    <FormLabel htmlFor="email">E-Mail</FormLabel>
+                    <TextField
+                      type="email"
+                      variant="outlined"
+                      id="email"
+                      name="email"
+                      placeholder="Enter email"
+                      onChange={formHandler.inputChange}
+                      defaultValue={form.email || ''}
+                      required
+                    />
+                  </FormControl>
                 </Grid>
 
-                <Grid item xs={12} md={12}>
-                  <PasswordInput outlinedInputProps={{onChange: formHandler.inputChange}} />
+                <Grid item xs={12}>
+                  <PasswordInput outlinedInputProps={{onChange: formHandler.inputChange}} showForgotPassword />
+                </Grid>
 
-                  <Link
-                    tabIndex={-1}
-                    variant="caption"
-                    href="/request-password-reset"
-                    sx={{textDecoration: 'none', mt: 0.5}}
-                    component={Button}>
-                    Forgot password?
-                  </Link>
+                <Grid item xs={12}>
+                  <Button type="submit" fullWidth variant="contained">
+                    Sign in
+                  </Button>
+
+                  <Typography sx={{mt: 2, textAlign: 'center'}}>
+                    Don't have an account? <Link href="/sign-up">Sign up</Link>
+                  </Typography>
                 </Grid>
               </Grid>
-              <Box sx={{display: 'flex', justifyContent: 'center'}}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  endIcon={<SendRounded />}
-                  sx={{mt: 1}}
-                  data-umami-event={'default-sign-in'}>
-                  Sign in
-                </Button>
-              </Box>
             </form>
-
-            <Divider sx={{my: 2}} data-umami-event={'sign-in-no-account'}>
-              No account?
-            </Divider>
-
-            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-            {/*@ts-expect-error*/}
-            <Button
-              LinkComponent={RouterLink}
-              to={'/sign-up'}
-              variant={'contained'}
-              size={'large'}
-              startIcon={<AppRegistrationRounded />}
-              fullWidth
-              data-umami-event={'sign-in-redirect-register'}>
-              Sign up
-            </Button>
-          </Card>
+          </MuiCard>
         </Grid>
       </Grid>
     </React.Fragment>

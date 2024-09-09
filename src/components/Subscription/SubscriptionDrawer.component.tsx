@@ -161,38 +161,38 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
                   screenSize === 'small' ? (
                     <MobileDatePicker
                       label="Execute At "
-                      inputFormat="dd.MM.yyyy"
+                      format="dd.MM.yyyy"
                       onChange={onChange}
                       onAccept={onChange}
                       value={value}
                       inputRef={ref}
-                      renderInput={params => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          error={!!errors.execute_at}
-                          helperText={errors.execute_at?.message}
-                          required
-                        />
-                      )}
+                      // renderInput={params => (
+                      //   <TextField
+                      //     fullWidth
+                      //     {...params}
+                      //     error={!!errors.execute_at}
+                      //     helperText={errors.execute_at?.message}
+                      //     required
+                      //   />
+                      // )}
                     />
                   ) : (
                     <DesktopDatePicker
                       label="Execute At"
-                      inputFormat="dd.MM.yyyy"
+                      format="dd.MM.yyyy"
                       onChange={onChange}
                       onAccept={onChange}
                       value={value}
                       inputRef={ref}
-                      renderInput={params => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          error={!!errors.execute_at}
-                          helperText={errors.execute_at?.message}
-                          required
-                        />
-                      )}
+                      // renderInput={params => (
+                      //   <TextField
+                      //     fullWidth
+                      //     {...params}
+                      //     error={!!errors.execute_at}
+                      //     helperText={errors.execute_at?.message}
+                      //     required
+                      //   />
+                      // )}
                     />
                   )
                 }
