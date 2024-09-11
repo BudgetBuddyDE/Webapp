@@ -1,5 +1,5 @@
 import {type TTransaction} from '@budgetbuddyde/types';
-import {Grid} from '@mui/material';
+import {Grid2 as Grid} from '@mui/material';
 import React from 'react';
 
 import {withAuthLayout} from '@/components/Auth/Layout';
@@ -123,7 +123,7 @@ export const Transactions = () => {
 
   return (
     <ContentGrid title={'Transactions'}>
-      <Grid item xs={12} md={12} lg={12} xl={12}>
+      <Grid size={{xs: 12, md: 12}}>
         <TransactionTable
           onAddTransaction={handler.showCreateDialog}
           onAddMultiple={() => handler.showCreateMultipleDialog(true)}

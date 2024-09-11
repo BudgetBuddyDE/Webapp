@@ -733,11 +733,9 @@ const ChartsRoute = () => {
       </Grid2>
       {(
         [
-          {name: 'Siemens AG', trend: 'up'},
           {name: 'Tesla', trend: 'down'},
           {name: 'Volkswagen', trend: 'neutral'},
           {name: 'Porsche AG', trend: 'up'},
-          {name: 'Skoda', trend: 'down'},
           {name: 'Daimler AG', trend: 'neutral'},
         ] as {name: string; trend: keyof typeof trendColors}[]
       ).map((stock, idx, arr) => (
@@ -784,7 +782,7 @@ const ChartsRoute = () => {
 
 export default withUnauthentificatedLayout(ChartsRoute);
 
-function SparklineAreaGradient({color, id}: {color: string; id: string}) {
+export function SparklineAreaGradient({color, id}: {color: string; id: string}) {
   return (
     <defs>
       <linearGradient id={id} x1="50%" y1="0%" x2="50%" y2="100%">
@@ -795,7 +793,7 @@ function SparklineAreaGradient({color, id}: {color: string; id: string}) {
   );
 }
 
-function AreaGradient({color, id}: {color: string; id: string}) {
+export function AreaGradient({color, id}: {color: string; id: string}) {
   return (
     <defs>
       <linearGradient id={id} x1="50%" y1="0%" x2="50%" y2="100%">
@@ -806,7 +804,7 @@ function AreaGradient({color, id}: {color: string; id: string}) {
   );
 }
 
-function getDaysInMonth(month: number, year: number): string[] {
+export function getDaysInMonth(month: number, year: number): string[] {
   const date = new Date(year, month, 0);
   const monthName = date.toLocaleDateString('en-US', {
     month: 'short',
@@ -821,7 +819,7 @@ function getDaysInMonth(month: number, year: number): string[] {
   return days;
 }
 
-function getDaysInDateRange(start: Date, end: Date): string[] {
+export function getDaysInDateRange(start: Date, end: Date): string[] {
   const days = [];
   let currentDate = new Date(start);
   while (currentDate <= end) {
@@ -878,7 +876,7 @@ interface PieCenterLabelProps {
   secondaryText: string;
 }
 
-function PieCenterLabel({primaryText, secondaryText}: PieCenterLabelProps) {
+export function PieCenterLabel({primaryText, secondaryText}: PieCenterLabelProps) {
   const {width, height, left, top} = useDrawingArea();
   const primaryY = top + height / 2 - 10;
   const secondaryY = primaryY + 24;

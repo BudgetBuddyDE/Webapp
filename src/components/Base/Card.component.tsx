@@ -1,17 +1,25 @@
-import {Box, Paper, type PaperProps, Typography} from '@mui/material';
+import {
+  Box,
+  Card as MuiCard,
+  CardContent as MuiCardContent,
+  type CardContentProps as MuiCardContentProps,
+  type CardProps as MuiCardProps,
+  type PaperProps,
+  Typography,
+} from '@mui/material';
 import React from 'react';
 
 import {ActionPaper} from './ActionPaper.component';
 
-export type TCardProps = React.PropsWithChildren<PaperProps>;
+export type TCardProps = React.PropsWithChildren<MuiCardProps>;
 
 export type TCardSectionProps = React.PropsWithChildren<PaperProps>;
 
 const Card: React.FC<TCardProps> = ({children, sx, ...props}) => {
   return (
-    <Paper {...props} sx={{p: 2, ...sx}}>
+    <MuiCard variant="outlined" {...props} sx={{p: 2, ...sx}}>
       {children}
-    </Paper>
+    </MuiCard>
   );
 };
 
@@ -51,12 +59,8 @@ const Subtitle: React.FC<TCardSectionProps> = ({children, sx}) => {
   );
 };
 
-const Body: React.FC<TCardSectionProps> = ({children, sx, ...props}) => {
-  return (
-    <Box {...props} sx={sx}>
-      {children}
-    </Box>
-  );
+const Body: React.FC<MuiCardContentProps> = ({children, sx, ...props}) => {
+  return <MuiCardContent {...props}>{children}</MuiCardContent>;
 };
 
 const Footer: React.FC<TCardSectionProps> = ({children, sx, ...props}) => {

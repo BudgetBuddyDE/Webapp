@@ -1,5 +1,5 @@
 import {type TCategory} from '@budgetbuddyde/types';
-import {Box, Button, Grid, Skeleton, Stack, useTheme} from '@mui/material';
+import {Box, Button, Grid2 as Grid, Skeleton, Stack, useTheme} from '@mui/material';
 import {isSameMonth} from 'date-fns';
 import React from 'react';
 import ApexChart from 'react-apexcharts';
@@ -120,7 +120,7 @@ const AnalyticsView = () => {
 
       <DashboardStatsWrapper />
 
-      <Grid item xs={12} md={6}>
+      <Grid size={{xs: 12, md: 6}}>
         <Card sx={{p: 0}}>
           <Card.Header sx={{p: 2}}>
             <Box>
@@ -204,7 +204,7 @@ const AnalyticsView = () => {
         </Card>
       </Grid>
 
-      <Grid item xs={12} md={6}>
+      <Grid size={{xs: 12, md: 6}}>
         <MonthlyBalanceChartCard />
       </Grid>
 
@@ -213,7 +213,7 @@ const AnalyticsView = () => {
         {key: 'category-income-pie-chart', children: <CategoryIncomeChart withViewMore />},
         {key: 'category-expense-pie-chart', children: <CategoryExpenseChart withViewMore />},
       ].map(({key, children}) => (
-        <Grid key={key} item xs={12} md={4}>
+        <Grid key={key} size={{xs: 12, md: 4}}>
           {children}
         </Grid>
       ))}

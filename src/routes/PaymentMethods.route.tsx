@@ -1,6 +1,6 @@
 import {type TPaymentMethod} from '@budgetbuddyde/types';
 import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
-import {Checkbox, Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
+import {Checkbox, Grid2 as Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
 import {format} from 'date-fns';
 import React from 'react';
 
@@ -123,7 +123,7 @@ export const PaymentMethods = () => {
 
   return (
     <ContentGrid title={'Payment-Methods'}>
-      <Grid item xs={12} md={12} lg={12} xl={12}>
+      <Grid size={{xs: 12, md: 12}}>
         <Table<TPaymentMethod>
           isLoading={loadingPaymentMethods}
           title="Payment Methods"

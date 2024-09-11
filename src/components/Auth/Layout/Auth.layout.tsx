@@ -1,4 +1,4 @@
-import {Box, Container} from '@mui/material';
+import {Box, Container, alpha} from '@mui/material';
 import React from 'react';
 
 import {Main} from '@/components/Base';
@@ -23,7 +23,7 @@ export const AuthLayout: React.FC<TAuthLayout> = ({children}) => {
           flexGrow: 1,
           overflow: 'auto',
           height: '100vh',
-          backgroundColor: theme => theme.palette.background.default,
+          backgroundColor: theme => alpha(theme.palette.background.default, 1),
         }}>
         <EnvironmentDisclaimer />
 

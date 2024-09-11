@@ -143,6 +143,7 @@ export const EntityDrawer = <T extends FieldValues>({
         sx: {
           boxSizing: 'border-box',
           width: drawerWidth * 2,
+          backgroundColor: 'background.paper',
         },
       }}
       children={drawerContent}
@@ -154,7 +155,7 @@ export const EntityDrawer = <T extends FieldValues>({
       onOpen={() => {}}
       onClose={() => handler.handleDrawerClose({}, 'backdropClick')}
       PaperProps={{
-        elevation: 0,
+        elevation: 1,
         sx: {
           borderTopLeftRadius: theme => `${theme.shape.borderRadius}px`,
           borderTopRightRadius: theme => `${theme.shape.borderRadius}px`,

@@ -22,7 +22,7 @@ export const StockRating: React.FC<TStockRatingProps> = ({ratings}) => {
               primary={
                 <Box>
                   <Typography>{article.source}</Typography>
-                  <Chip label={article.type} color="primary" size="small" />
+                  <Chip label={article.type} variant="outlined" color="primary" size="small" />
                 </Box>
               }
               secondary={<Rating value={article.value} max={article.maxValue} readOnly />}

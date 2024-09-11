@@ -5,7 +5,7 @@ import {listItemIconClasses} from '@mui/material/ListItemIcon';
 import {menuItemClasses} from '@mui/material/MenuItem';
 import {paperClasses} from '@mui/material/Paper';
 import {tablePaginationClasses} from '@mui/material/TablePagination';
-import {Theme, alpha} from '@mui/material/styles';
+import {type Theme, alpha} from '@mui/material/styles';
 import {gridClasses} from '@mui/x-data-grid';
 import type {DataGridComponents} from '@mui/x-data-grid/themeAugmentation';
 

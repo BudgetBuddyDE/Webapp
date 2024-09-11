@@ -1,4 +1,4 @@
-import {Theme} from '@mui/material/styles';
+import {type Theme} from '@mui/material/styles';
 import {axisClasses, chartsGridClasses, legendClasses} from '@mui/x-charts';
 import type {ChartsComponents} from '@mui/x-charts/themeAugmentation';
 
@@ -6,6 +6,16 @@ import {gray} from '../themePrimitives';
 
 /* eslint-disable import/prefer-default-export */
 export const chartsCustomizations: ChartsComponents<Theme> = {
+  MuiBarChart: {
+    defaultProps: {
+      skipAnimation: true,
+    },
+  },
+  MuiLineChart: {
+    defaultProps: {
+      skipAnimation: true,
+    },
+  },
   MuiChartsAxis: {
     styleOverrides: {
       root: ({theme}) => ({

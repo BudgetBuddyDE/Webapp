@@ -5,8 +5,8 @@ import {menuItemClasses} from '@mui/material/MenuItem';
 import {selectClasses} from '@mui/material/Select';
 import {SvgIconProps} from '@mui/material/SvgIcon';
 import {tabClasses} from '@mui/material/Tab';
-import {Components, Theme, alpha} from '@mui/material/styles';
-import * as React from 'react';
+import {type Components, type Theme, alpha} from '@mui/material/styles';
+import React from 'react';
 
 import {brand, gray} from '../themePrimitives';
 

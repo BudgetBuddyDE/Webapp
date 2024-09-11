@@ -1,6 +1,6 @@
 import {PocketBaseCollection, type TSubscription} from '@budgetbuddyde/types';
 import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
-import {Box, Checkbox, Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
+import {Box, Checkbox, Grid2 as Grid, IconButton, TableCell, TableRow, Typography} from '@mui/material';
 import {format} from 'date-fns';
 import React from 'react';
 
@@ -185,7 +185,7 @@ export const Subscriptions = () => {
 
   return (
     <ContentGrid title={'Subscriptions'}>
-      <Grid item xs={12} md={12} lg={12} xl={12}>
+      <Grid size={{xs: 12, md: 12}}>
         <Table<TSubscription>
           isLoading={isLoadingSubscriptions}
           title="Subscriptions"
@@ -292,7 +292,7 @@ export const Subscriptions = () => {
         />
       </Grid>
 
-      <Grid item xs={12} md={4}>
+      <Grid size={{xs: 12, md: 4}}>
         <SubscriptionPieChart />
       </Grid>
 

@@ -8,7 +8,7 @@ import {
   Box,
   Button,
   Divider,
-  Grid,
+  Grid2 as Grid,
   List,
   ListItem,
   ListItemText,
@@ -18,9 +18,9 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import {BarChart} from '@mui/x-charts/BarChart';
 import {format} from 'date-fns';
 import React from 'react';
-import Chart from 'react-apexcharts';
 import {Navigate, useNavigate, useParams} from 'react-router-dom';
 
 import {AppConfig, Feature} from '@/app.config';
@@ -112,55 +112,6 @@ export const Stock = () => {
   );
   const [showDeletePositionDialog, setShowDeletePositionDialog] = React.useState(false);
   const [deletePosition, setDeletePosition] = React.useState<TStockPositionWithQuote | null>(null);
-  const chartOptions: Chart['props']['options'] = {
-    chart: {
-      type: 'bar',
-      toolbar: {
-        show: false,
-      },
-    },
-    xaxis: {
-      labels: {
-        style: {
-          colors: theme.palette.text.primary,
-        },
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    grid: {
-      borderColor: theme.palette.action.disabled,
-      strokeDashArray: 5,
-    },
-    yaxis: {
-      forceNiceScale: true,
-      opposite: true,
-      labels: {
-        style: {
-          colors: theme.palette.text.primary,
-        },
-        formatter(val: number) {
-          return Formatter.shortenNumber(val);
-        },
-      },
-    },
-    legend: {
-      position: 'bottom',
-      horizontalAlign: 'left',
-      labels: {
-        colors: 'white',
-      },
-    },
-    tooltip: {
-      theme: 'dark',
-      y: {
-        formatter(val: number) {
-          return Formatter.formatBalance(val);
-        },
-      },
-    },
-  };
 
   const preparedChartData: TPriceChartPoint[] = React.useMemo(() => {
     if (!quotes) return [];
@@ -301,18 +252,22 @@ export const Stock = () => {
         handler.showCreateDialog({stock: {type, isin: identifier, label: name, logo}});
       }}>
       <ContentGrid title={stockDetails?.asset.name ?? ''} description={params.isin}>
-        <Grid container item xs={12} md={12} lg={8} spacing={AppConfig.baseSpacing}>
-          <Grid item xs={12} md={12}>
+        <Grid container size={{xs: 12, md: 12, lg: 8}} spacing={AppConfig.baseSpacing}>
+          <Grid size={{xs: 12, md: 12}}>
             {loadingQuotes && (!quotes || quotes.length === 0) ? (
               <CircularProgress />
             ) : quotes ? (
-              <PriceChart data={preparedChartData} onTimeframeChange={setChartTimeframe} />
+              <PriceChart
+                company={stockDetails ? stockDetails.asset.name : ''}
+                data={preparedChartData}
+                onTimeframeChange={setChartTimeframe}
+              />
             ) : (
               <NoResults icon={<TimelineRounded />} text="No quotes found" />
             )}
           </Grid>
 
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12, md: 12}}>
             <StockPositionTable
               isLoading={loadingStockPositions}
               positions={displayedStockPositions}
@@ -326,7 +281,7 @@ export const Stock = () => {
           </Grid>
 
           {stockDetails && stockDetails.details.securityDetails && (
-            <Grid item xs={12} md={12}>
+            <Grid size={{xs: 12, md: 12}}>
               <Accordion defaultExpanded>
                 <AccordionSummary expandIcon={<ExpandMoreRounded />}>
                   <Typography variant="subtitle1" fontWeight={'bold'}>
@@ -344,67 +299,89 @@ export const Stock = () => {
                     </Tabs>
                   </Box>
                   <TabPanel idx={0} value={tabPane.profit}>
-                    <Chart
-                      type="bar"
-                      width={'100%'}
-                      height={300}
-                      options={{
-                        ...chartOptions,
-                        xaxis: {
-                          ...chartOptions.xaxis,
-                          categories: stockDetails?.details.securityDetails?.annualFinancials
+                    <BarChart
+                      borderRadius={8}
+                      colors={[theme.palette.success.main, theme.palette.warning.main]}
+                      xAxis={[
+                        {
+                          scaleType: 'band',
+                          data: stockDetails?.details.securityDetails?.annualFinancials
                             .map(({date}) => date.getFullYear())
                             .reverse(),
                         },
-                      }}
+                      ]}
+                      yAxis={[
+                        {
+                          valueFormatter: value => Formatter.shortenNumber(value ?? 0),
+                        },
+                      ]}
                       series={[
                         {
-                          name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                          label: `Revenue (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.annualFinancials
                             .map(({revenue}) => revenue)
                             .reverse(),
                           color: theme.palette.success.main,
                         },
                         {
-                          name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                          label: `Net Profit (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.annualFinancials
                             .map(({netIncome}) => netIncome)
                             .reverse(),
                           color: theme.palette.warning.light,
                         },
                       ]}
+                      height={300}
+                      margin={{left: 100, right: 20, top: 20, bottom: 20}}
+                      grid={{horizontal: true}}
+                      slotProps={{
+                        legend: {
+                          hidden: true,
+                        },
+                      }}
                     />
                   </TabPanel>
                   <TabPanel idx={1} value={tabPane.profit}>
-                    <Chart
-                      type="bar"
-                      width={'100%'}
-                      height={300}
-                      options={{
-                        ...chartOptions,
-                        xaxis: {
-                          ...chartOptions.xaxis,
-                          categories: stockDetails?.details.securityDetails?.quarterlyFinancials
+                    <BarChart
+                      borderRadius={8}
+                      colors={[theme.palette.success.main, theme.palette.warning.main]}
+                      xAxis={[
+                        {
+                          scaleType: 'band',
+                          data: stockDetails?.details.securityDetails?.quarterlyFinancials
                             .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
                             .reverse(),
                         },
-                      }}
+                      ]}
+                      yAxis={[
+                        {
+                          valueFormatter: value => Formatter.shortenNumber(value ?? 0),
+                        },
+                      ]}
                       series={[
                         {
-                          name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                          label: `Revenue (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.quarterlyFinancials
                             .map(({revenue}) => revenue)
                             .reverse(),
                           color: theme.palette.success.main,
                         },
                         {
-                          name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                          label: `Net Profit (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.quarterlyFinancials
                             .map(({netIncome}) => netIncome)
                             .reverse(),
                           color: theme.palette.warning.light,
                         },
                       ]}
+                      height={300}
+                      margin={{left: 100, right: 20, top: 20, bottom: 20}}
+                      grid={{horizontal: true}}
+                      slotProps={{
+                        legend: {
+                          hidden: true,
+                        },
+                      }}
                     />
                   </TabPanel>
                 </AccordionDetails>
@@ -427,95 +404,117 @@ export const Stock = () => {
                     </Tabs>
                   </Box>
                   <TabPanel idx={0} value={tabPane.financial}>
-                    <Chart
-                      type="bar"
-                      width={'100%'}
-                      height={300}
-                      options={{
-                        ...chartOptions,
-                        xaxis: {
-                          ...chartOptions.xaxis,
-                          categories: stockDetails?.details.securityDetails?.annualFinancials
+                    <BarChart
+                      borderRadius={8}
+                      colors={[theme.palette.success.main, theme.palette.warning.main]}
+                      xAxis={[
+                        {
+                          scaleType: 'band',
+                          data: stockDetails?.details.securityDetails?.annualFinancials
                             .map(({date}) => date.getFullYear())
                             .reverse(),
                         },
-                      }}
+                      ]}
+                      yAxis={[
+                        {
+                          valueFormatter: value => Formatter.shortenNumber(value ?? 0),
+                        },
+                      ]}
                       series={[
                         {
-                          name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                          label: `Revenue (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.annualFinancials
                             .map(({revenue}) => revenue)
                             .reverse(),
                           color: theme.palette.success.main,
                         },
                         {
-                          name: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
+                          label: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.annualFinancials
                             .map(({grossProfit}) => grossProfit)
                             .reverse(),
                           color: theme.palette.primary.main,
                         },
                         {
-                          name: `EBITDA (${stockDetails.details.securityDetails.currency})`,
+                          label: `EBITDA (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.annualFinancials
                             .map(({ebitda}) => ebitda)
                             .reverse(),
                           color: theme.palette.primary.light,
                         },
                         {
-                          name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                          label: `Net Profit (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.annualFinancials
                             .map(({netIncome}) => netIncome)
                             .reverse(),
                           color: theme.palette.warning.light,
                         },
                       ]}
+                      height={300}
+                      margin={{left: 100, right: 20, top: 20, bottom: 20}}
+                      grid={{horizontal: true}}
+                      slotProps={{
+                        legend: {
+                          hidden: true,
+                        },
+                      }}
                     />
                   </TabPanel>
                   <TabPanel idx={1} value={tabPane.financial}>
-                    <Chart
-                      type="bar"
-                      width={'100%'}
-                      height={300}
-                      options={{
-                        ...chartOptions,
-                        xaxis: {
-                          ...chartOptions.xaxis,
-                          categories: stockDetails?.details.securityDetails?.quarterlyFinancials
+                    <BarChart
+                      borderRadius={8}
+                      colors={[theme.palette.success.main, theme.palette.warning.main]}
+                      xAxis={[
+                        {
+                          scaleType: 'band',
+                          data: stockDetails?.details.securityDetails?.quarterlyFinancials
                             .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
                             .reverse(),
                         },
-                      }}
+                      ]}
+                      yAxis={[
+                        {
+                          valueFormatter: value => Formatter.shortenNumber(value ?? 0),
+                        },
+                      ]}
                       series={[
                         {
-                          name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                          label: `Revenue (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.quarterlyFinancials
                             .map(({revenue}) => revenue)
                             .reverse(),
                           color: theme.palette.success.main,
                         },
                         {
-                          name: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
+                          label: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.quarterlyFinancials
                             .map(({grossProfit}) => grossProfit)
                             .reverse(),
                           color: theme.palette.primary.main,
                         },
                         {
-                          name: `EBITDA (${stockDetails.details.securityDetails.currency})`,
+                          label: `EBITDA (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.quarterlyFinancials
                             .map(({ebitda}) => ebitda)
                             .reverse(),
                           color: theme.palette.primary.light,
                         },
                         {
-                          name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                          label: `Net Profit (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.quarterlyFinancials
                             .map(({netIncome}) => netIncome)
                             .reverse(),
                           color: theme.palette.warning.light,
                         },
                       ]}
+                      height={300}
+                      margin={{left: 100, right: 20, top: 20, bottom: 20}}
+                      grid={{horizontal: true}}
+                      slotProps={{
+                        legend: {
+                          hidden: true,
+                        },
+                      }}
                     />
                   </TabPanel>
                 </AccordionDetails>
@@ -523,23 +522,23 @@ export const Stock = () => {
             </Grid>
           )}
 
-          <Grid container item xs={12} md={12} spacing={AppConfig.baseSpacing}>
+          <Grid container size={{xs: 12, md: 12}} spacing={AppConfig.baseSpacing}>
             {loadingRelatedStocks
               ? Array.from({length: 6}).map((_, idx) => (
-                  <Grid key={idx} item xs={6} md={4}>
+                  <Grid key={idx} size={{xs: 6, md: 4}}>
                     <RelatedStock isLoading />
                   </Grid>
                 ))
               : relatedStocks.map((stock, idx) => (
-                  <Grid key={idx} item xs={6} md={4}>
+                  <Grid key={idx} size={{xs: 6, md: 4}}>
                     <RelatedStock key={stock.asset._id.identifier} stock={stock} />
                   </Grid>
                 ))}
           </Grid>
         </Grid>
 
-        <Grid container item xs={12} md={12} lg={4} spacing={AppConfig.baseSpacing}>
-          <Grid item xs={12} md={12}>
+        <Grid container size={{xs: 12, md: 12, lg: 4}} spacing={AppConfig.baseSpacing}>
+          <Grid size={{xs: 12, md: 12}}>
             {loadingDetails ? (
               <CircularProgress />
             ) : stockDetails ? (
@@ -549,7 +548,7 @@ export const Stock = () => {
             )}
           </Grid>
 
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12, md: 12}}>
             {loadingDetails ? (
               <CircularProgress />
             ) : stockDetails ? (
@@ -560,7 +559,7 @@ export const Stock = () => {
           </Grid>
 
           {stockDetails && (
-            <Grid item xs={12} md={12}>
+            <Grid size={{xs: 12, md: 12}}>
               <Accordion>
                 <AccordionSummary expandIcon={<ExpandMoreRounded />}>
                   <Typography variant="subtitle1" fontWeight={'bold'}>
@@ -654,7 +653,7 @@ export const Stock = () => {
             </Grid>
           )}
 
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12, md: 12}}>
             {loadingDetails ? (
               <CircularProgress />
             ) : stockDetails ? (

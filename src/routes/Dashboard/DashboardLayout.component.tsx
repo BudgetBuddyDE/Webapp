@@ -1,4 +1,4 @@
-import {Grid, ToggleButton, ToggleButtonGroup} from '@mui/material';
+import {Grid2 as Grid, ToggleButton, ToggleButtonGroup} from '@mui/material';
 import React from 'react';
 import {Outlet, useLocation, useNavigate} from 'react-router-dom';
 
@@ -23,7 +23,7 @@ const DashboardLayout: React.FC<TDashboardLayoutProps> = ({children, useOutletIn
     <ContentGrid
       title={`Welcome, ${sessionUser.name ? sessionUser.name : sessionUser.username}!`}
       description={DashboardViewDescriptionMapping[DashboardViewMapping[location.pathname]]}>
-      <Grid item xs={12}>
+      <Grid size={{xs: 12}}>
         <ActionPaper sx={{width: 'min-content'}}>
           <ToggleButtonGroup
             size="small"

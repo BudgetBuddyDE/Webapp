@@ -1,5 +1,5 @@
 import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
-import {Button, Grid} from '@mui/material';
+import {Button, Grid2 as Grid} from '@mui/material';
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
 
@@ -155,7 +155,7 @@ export const Stocks = () => {
         handler.showCreateDialog({stock: {type, isin: identifier, label: name, logo}});
       }}>
       <ContentGrid title="Stocks" description={'Manage your positions'}>
-        <Grid item xs={12} md={8.5} lg={8.5} xl={9}>
+        <Grid size={{xs: 12, md: 8.5, lg: 8.5, xl: 9}}>
           <StockPositionTable
             withRedirect
             onAddPosition={handler.showCreateDialog}
@@ -167,8 +167,8 @@ export const Stocks = () => {
           />
         </Grid>
 
-        <Grid container item xs={12} md={3.5} lg={3.5} xl={3} spacing={AppConfig.baseSpacing}>
-          <Grid item xs={12}>
+        <Grid container size={{xs: 12, md: 3.5, lg: 3.5, xl: 3}} spacing={AppConfig.baseSpacing}>
+          <Grid size={{xs: 12, md: 12}}>
             {isLoadingStockPositions ? (
               <CircularProgress />
             ) : (
@@ -176,7 +176,7 @@ export const Stocks = () => {
             )}
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid size={{xs: 12, md: 12}}>
             {!isLoadingWatchlist ? (
               <StockWatchlist title="Watchlist" subtitle="Watched assets" data={watchedAssets ?? []} />
             ) : (

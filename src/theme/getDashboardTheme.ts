@@ -6,6 +6,7 @@ import {
   dataGridCustomizations,
   datePickersCustomizations,
   feedbackCustomizations,
+  gridCustomizations,
   inputsCustomizations,
   navigationCustomizations,
   surfacesCustomizations,
@@ -15,6 +16,7 @@ import {getDesignTokens} from './themePrimitives';
 export const V6Theme = createTheme({
   ...getDesignTokens('dark'),
   components: {
+    ...gridCustomizations,
     ...chartsCustomizations,
     ...dataGridCustomizations,
     ...datePickersCustomizations,
