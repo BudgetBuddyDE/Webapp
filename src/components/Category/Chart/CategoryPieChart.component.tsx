@@ -4,7 +4,7 @@ import {isSameMonth, isSameYear} from 'date-fns';
 import React from 'react';
 import {Link} from 'react-router-dom';
 
-import {Card, TPieChartData} from '@/components/Base';
+import {Card, NoResults, TPieChartData} from '@/components/Base';
 import {PieChart} from '@/components/Base/Charts/PieChart.component';
 import {Formatter} from '@/services/Formatter.service';
 
@@ -62,7 +62,6 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
   withViewMore = false,
 }) => {
   const [currentTimeframe, setCurrentTimeframe] = React.useState<TCategoryPieChartTimeframe>(defaultTimeframe);
-
   const currentChartData: TPieChartData[] = React.useMemo(() => {
     const now = new Date();
     const sumByCategory = new Map<string, number>();
@@ -107,6 +106,7 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
         }) as TPieChartData,
     );
   }, [transactions, transactionsType, currentTimeframe]);
+  const hasItems: boolean = currentChartData.length > 0;
 
   const onChangeCurrentTimeframe = React.useCallback((event: React.BaseSyntheticEvent) => {
     setCurrentTimeframe(event.target.value);
@@ -119,6 +119,7 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
           <Card.Title>{title}</Card.Title>
           {subtitle !== undefined && Boolean(subtitle) && <Card.Subtitle>{subtitle}</Card.Subtitle>}
         </Box>
+
         <Card.HeaderActions sx={{display: 'flex', flexDirection: 'row'}}>
           <ToggleButtonGroup
             size="small"
@@ -135,21 +136,25 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
         </Card.HeaderActions>
       </Card.Header>
       <Card.Body sx={{pt: 1}}>
-        <PieChart
-          fullWidth
-          primaryText={Formatter.formatBalance(currentChartData.reduce((acc, curr) => acc + curr.value, 0))}
-          secondaryText="Expenses"
-          series={[
-            {
-              data: currentChartData,
-              valueFormatter: value => Formatter.formatBalance(value.value),
-              innerRadius: 110,
-              paddingAngle: 1,
-              cornerRadius: 5,
-              highlightScope: {faded: 'global', highlighted: 'item'},
-            },
-          ]}
-        />
+        {hasItems ? (
+          <PieChart
+            fullWidth
+            primaryText={Formatter.formatBalance(currentChartData.reduce((acc, curr) => acc + curr.value, 0))}
+            secondaryText="Expenses"
+            series={[
+              {
+                data: currentChartData,
+                valueFormatter: value => Formatter.formatBalance(value.value),
+                innerRadius: 110,
+                paddingAngle: 1,
+                cornerRadius: 5,
+                highlightScope: {faded: 'global', highlighted: 'item'},
+              },
+            ]}
+          />
+        ) : (
+          <NoResults text={'There are no transactions for this month!'} />
+        )}
       </Card.Body>
       {withViewMore && (
         <Card.Footer>

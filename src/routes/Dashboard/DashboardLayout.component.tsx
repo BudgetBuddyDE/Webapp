@@ -3,7 +3,7 @@ import React from 'react';
 import {Outlet, useLocation, useNavigate} from 'react-router-dom';
 
 import {useAuthContext} from '@/components/Auth';
-import {withAuthLayout} from '@/components/Auth/Layout';
+import {withAuthLayout} from '@/components/Auth/Layout/withAuthLayout';
 import {ActionPaper} from '@/components/Base';
 import {ContentGrid} from '@/components/Layout';
 

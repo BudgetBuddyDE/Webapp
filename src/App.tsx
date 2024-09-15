@@ -6,12 +6,12 @@ import {FullPageLoader} from '@/components/Loading';
 import CategoriesRoute from './routes/Categories.route';
 import {AnalyticsView, BudgetView, DashboardLayout, DashboardView, InsightsView, StocksView} from './routes/Dashboard';
 import PaymentMethodsRoute from './routes/PaymentMethods.route';
-import SettingsRoute from './routes/Settings.route';
 import StockRoute from './routes/Stock.route';
 import StocksRoute from './routes/Stocks.route';
 import SubscriptionsRoute from './routes/Subscriptions.route';
 import TransactionsRoute from './routes/Transactions.route';
 
+const SettingsRoute = React.lazy(() => import('./routes/Settings.route'));
 const ChartsRoute = React.lazy(() => import('./routes/Charts.route'));
 const NotFoundPage = React.lazy(() => import('./routes/NotFound.route'));
 const SignInRoute = React.lazy(() => import('./routes/SignIn.route'));
