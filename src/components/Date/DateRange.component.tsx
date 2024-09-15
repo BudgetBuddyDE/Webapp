@@ -1,6 +1,7 @@
 import {Stack, type SxProps, type Theme} from '@mui/material';
 import React from 'react';
 
+import {AppConfig} from '@/app.config';
 import {DatePicker} from '@/components/Date';
 
 export type TDateRange = {
@@ -49,7 +50,7 @@ export const DateRange: React.FC<TDateRangeProps> = ({
   };
 
   return (
-    <Stack sx={containerSx}>
+    <Stack flexDirection={'row'} gap={AppConfig.baseSpacing} sx={containerSx}>
       <DatePicker
         value={startDate}
         onChange={value => handler.onStartDateChange(value)}

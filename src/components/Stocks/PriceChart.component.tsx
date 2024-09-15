@@ -1,13 +1,12 @@
 import {type TTimeframe} from '@budgetbuddyde/types';
-import {Box, useTheme} from '@mui/material';
+import {Chip, Stack, Typography, useTheme} from '@mui/material';
+import {format} from 'date-fns';
 import React from 'react';
-import Chart from 'react-apexcharts';
 
 import {Card} from '@/components/Base';
-import {useScreenSize} from '@/hooks';
 import {Formatter} from '@/services';
 
-import {StockPrice} from './StockPrice.component';
+import {AreaGradient, LineChart} from '../Base/Charts/LineChart.component';
 import {Timeframe} from './Timeframe.component';
 
 export type TPriceChartPoint = {
@@ -18,31 +17,43 @@ export type TPriceChartPoint = {
 export type TPriceChartProps = {
   onTimeframeChange?: (timeframe: TTimeframe) => void;
   data: TPriceChartPoint[];
+  company: {name: string};
 };
 
-export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, data}) => {
+export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, company, data}) => {
   const theme = useTheme();
-  const screenSize = useScreenSize();
+
+  const oldestPrice = data.at(-1)!.price;
+  const latestPrice = data.at(0)!.price;
 
   return (
-    <Card sx={{p: 0}}>
-      <Card.Header sx={{p: 2, pb: 0}}>
-        {data.length > 0 && (
-          <Box>
-            <StockPrice
-              trend={
-                data.length >= 2
-                  ? data.at(-1)!.price > data.at(0)!.price
-                    ? 'up'
-                    : data.at(-1)!.price === data.at(0)!.price
-                      ? undefined
-                      : 'down'
-                  : undefined
-              }
-              price={data.at(-1)!.price}
-            />
-          </Box>
-        )}
+    <Card>
+      <Card.Header>
+        <Stack>
+          <Typography variant="h6">{company.name}</Typography>
+          <Stack sx={{justifyContent: 'space-between'}}>
+            <Stack
+              direction="row"
+              sx={{
+                alignContent: {xs: 'center', sm: 'flex-start'},
+                alignItems: 'center',
+                gap: 1,
+              }}>
+              <Typography variant="h4" component="p">
+                {Formatter.formatBalance(latestPrice)}
+              </Typography>
+              <Chip
+                size="small"
+                variant="outlined"
+                color={oldestPrice > latestPrice ? 'success' : 'error'}
+                label={`${Formatter.formatBalance(oldestPrice - latestPrice)}`}
+              />
+            </Stack>
+            <Typography variant="caption" sx={{color: 'text.secondary'}}>
+              Stock price per day for {company.name}
+            </Typography>
+          </Stack>
+        </Stack>
 
         <Card.HeaderActions
           sx={{
@@ -52,73 +63,53 @@ export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, data}
           {onTimeframeChange && <Timeframe onChange={onTimeframeChange} />}
         </Card.HeaderActions>
       </Card.Header>
-      <Card.Body sx={{p: 0}}>
-        <Chart
-          width={'100%'}
-          height={screenSize === 'small' ? 300 : 450}
-          type="area"
-          options={{
-            chart: {
-              type: 'area',
-              zoom: {enabled: false},
-              toolbar: {show: false},
-            },
-            dataLabels: {
-              enabled: false,
-            },
-            stroke: {
-              width: 3,
-              curve: 'smooth',
-            },
-            fill: {
-              type: 'gradient',
-              gradient: {
-                shadeIntensity: 1,
-                inverseColors: false,
-                opacityFrom: 0.6,
-                opacityTo: 0.1,
-                stops: [0, 90, 100],
-              },
-            },
-            grid: {
-              borderColor: theme.palette.action.disabled,
-              strokeDashArray: 5,
-            },
-            xaxis: {
-              type: 'datetime',
-              labels: {
-                style: {
-                  colors: theme.palette.text.primary,
-                },
-              },
-            },
-            yaxis: {
-              opposite: true,
-              labels: {
-                style: {
-                  colors: theme.palette.text.primary,
-                },
-                formatter(val: number) {
-                  return Formatter.formatBalance(val);
-                },
-              },
-            },
-            tooltip: {
-              theme: 'dark',
-              y: {
-                formatter(val) {
-                  return Formatter.formatBalance(val as number);
-                },
-              },
-            },
-          }}
-          series={[
+      <Card.Body>
+        <LineChart
+          colors={[theme.palette.primary.main]}
+          xAxis={[
             {
-              name: 'Price',
-              data: data.map(({date, price}) => [new Date(date).getTime(), price]),
+              scaleType: 'point',
+              data: data.map(({date}) => format(new Date(date), 'MMM dd')),
+              tickInterval: (_, i) => (i + 1) % 5 === 0,
             },
           ]}
-        />
+          yAxis={[
+            {
+              id: 'price',
+              valueFormatter: (value: string) => Formatter.formatBalance(Number(value)),
+            },
+          ]}
+          series={[
+            {
+              id: 'price',
+              label: company.name,
+              showMark: false,
+              curve: 'catmullRom',
+              stack: 'total',
+              area: true,
+              data: data.map(({price}) => price),
+              valueFormatter: value => Formatter.formatBalance(value ?? 0),
+              baseline: 'min',
+            },
+          ]}
+          height={400}
+          margin={{left: 60, right: 0, top: 20, bottom: 30}}
+          grid={{horizontal: true}}
+          sx={{
+            '& .MuiLineElement-root': {
+              strokeWidth: 2.5,
+            },
+            '& .MuiAreaElement-series-price': {
+              fill: "url('#price')",
+            },
+          }}
+          slotProps={{
+            legend: {
+              hidden: true,
+            },
+          }}>
+          <AreaGradient color={theme.palette.primary.main} id="price" />
+        </LineChart>
       </Card.Body>
     </Card>
   );

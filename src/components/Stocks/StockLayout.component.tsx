@@ -1,5 +1,5 @@
 import {ZAddWatchlistAssetPayload, ZDeleteWatchlistAssetPayload} from '@budgetbuddyde/types';
-import {Grid} from '@mui/material';
+import {Box, Grid2 as Grid} from '@mui/material';
 import React from 'react';
 
 import {useAuthContext} from '@/components/Auth';
@@ -130,8 +130,10 @@ export const StockLayout: React.FC<TStockLayoutProps> = ({onSelectAsset, onOpenP
         }}
       />
 
-      <Grid item xs={12}>
-        <DataDisclaimer />
+      <Grid size={{xs: 12}}>
+        <Box sx={{pt: 2}}>
+          <DataDisclaimer />
+        </Box>
       </Grid>
     </React.Fragment>
   );

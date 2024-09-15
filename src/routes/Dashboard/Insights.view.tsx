@@ -18,16 +18,15 @@ import {
   ToggleButtonGroup,
   Tooltip,
   Typography,
-  useTheme,
 } from '@mui/material';
 import {format, subMonths} from 'date-fns';
 import React from 'react';
-import Chart from 'react-apexcharts';
 import {useNavigate} from 'react-router-dom';
 
 import {AppConfig} from '@/app.config';
 import {
   ActionPaper,
+  BarChart,
   Card,
   DateRange,
   FullScreenDialog,
@@ -49,7 +48,6 @@ export type TInsightsViewProps =
 
 const InsightsView: React.FC<TInsightsViewProps> = props => {
   useDocumentTitle(`${AppConfig.appName} - Insights`, true);
-  const theme = useTheme();
   const navigate = useNavigate();
   const screenSize = useScreenSize();
   const autocompleteRef = React.useRef<HTMLInputElement | null>(null);
@@ -210,13 +208,11 @@ const InsightsView: React.FC<TInsightsViewProps> = props => {
                   />
                 </Stack>
 
-                <Box>
-                  <DateRange
-                    defaultStartDate={dateRange.startDate}
-                    defaultEndDate={dateRange.endDate}
-                    onDateChange={setDateRange}
-                  />
-                </Box>
+                <DateRange
+                  defaultStartDate={dateRange.startDate}
+                  defaultEndDate={dateRange.endDate}
+                  onDateChange={setDateRange}
+                />
               </Stack>
 
               <Stack columnGap={AppConfig.baseSpacing} sx={{flex: 1, flexDirection: 'row', mt: 2}}>
@@ -261,67 +257,36 @@ const InsightsView: React.FC<TInsightsViewProps> = props => {
               {selectedCategories.length > 0 && chartData.length > 0 ? (
                 <Grid container spacing={AppConfig.baseSpacing} sx={{height: '100%'}}>
                   <Grid size={{md: options.showStats ? 10 : 12}} sx={{height: 'inherit'}}>
-                    <Chart
-                      type={'line'}
-                      width={'100%'}
-                      height={'99.99%'}
-                      series={chartData.flatMap(({name, data}) => ({name, data, type: 'bar'}))}
-                      options={{
-                        chart: {
-                          type: 'bar',
-                          toolbar: {
-                            show: false,
+                    <Box
+                      sx={{
+                        width: '100%',
+                        height: '99.99%',
+                      }}>
+                      <BarChart
+                        xAxis={[
+                          {
+                            scaleType: 'band',
+                            data: dateRangeLabels.map(dateStr => {
+                              const date = new Date(dateStr);
+                              return `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`;
+                            }),
                           },
-                        },
-                        xaxis: {
-                          labels: {
-                            style: {
-                              colors: theme.palette.text.primary,
-                            },
+                        ]}
+                        yAxis={[
+                          {
+                            valueFormatter: value => Formatter.formatBalance(value ?? 0),
                           },
-                          categories: dateRangeLabels.map(dateStr => {
-                            const date = new Date(dateStr);
-                            return `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`;
-                          }),
-                        },
-                        dataLabels: {
-                          enabled: false,
-                        },
-                        grid: {
-                          borderColor: theme.palette.action.disabled,
-                          strokeDashArray: 5,
-                        },
-                        yaxis: {
-                          forceNiceScale: true,
-                          opposite: true,
-                          labels: {
-                            style: {
-                              colors: theme.palette.text.primary,
-                            },
-                            formatter(val: number) {
-                              return Formatter.formatBalance(val);
-                            },
-                          },
-                        },
-                        legend: {
-                          position: 'bottom',
-                          horizontalAlign: 'left',
-                          labels: {
-                            colors: 'white',
-                          },
-                        },
-                        tooltip: {
-                          theme: 'dark',
-                          y: {
-                            formatter(val: number) {
-                              return Formatter.formatBalance(val);
-                            },
-                          },
-                        },
-                      }}
-                    />
+                        ]}
+                        series={chartData.map(({name, data}) => ({
+                          label: name,
+                          data: data,
+                          valueFormatter: value => Formatter.formatBalance(value ?? 0),
+                        }))}
+                        margin={{left: 80, right: 20, top: 20, bottom: 20}}
+                        grid={{horizontal: true}}
+                      />
+                    </Box>
                   </Grid>
-
                   <Grid size={{md: options.showStats ? 2 : 0}} sx={{display: options.showStats ? 'unset' : 'none'}}>
                     <Card sx={{p: 0}}>
                       <Card.Header sx={{px: 2, pt: 2}}>

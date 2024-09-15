@@ -12,6 +12,7 @@ import StocksRoute from './routes/Stocks.route';
 import SubscriptionsRoute from './routes/Subscriptions.route';
 import TransactionsRoute from './routes/Transactions.route';
 
+const ChartsRoute = React.lazy(() => import('./routes/Charts.route'));
 const NotFoundPage = React.lazy(() => import('./routes/NotFound.route'));
 const SignInRoute = React.lazy(() => import('./routes/SignIn.route'));
 const SignUpRoute = React.lazy(() => import('./routes/SignUp.route'));
@@ -47,6 +48,7 @@ const App = () => {
           <Route path="/verify-email" element={<VerifyMailRoute />} />
           <Route path="/request-password-reset" element={<RequestPasswordResetRoute />} />
           <Route path="/reset-password" element={<ResetPasswordRoute />} />
+          <Route path="/charts" element={<ChartsRoute />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>

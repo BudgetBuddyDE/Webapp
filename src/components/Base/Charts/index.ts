@@ -3,5 +3,4 @@ export type TPieChartData = {
   value: number;
 };
 
-export * from './ApexPieChart.component';
 export * from './BarChart.component';

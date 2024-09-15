@@ -16,17 +16,17 @@ import {
   Tabs,
   Tooltip,
   Typography,
-  useTheme,
 } from '@mui/material';
 import {format} from 'date-fns';
 import React from 'react';
-import Chart from 'react-apexcharts';
 import {Navigate, useNavigate, useParams} from 'react-router-dom';
 
 import {AppConfig, Feature} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {withAuthLayout} from '@/components/Auth/Layout';
-import {ApexPieChart, Card, NoResults, TabPanel} from '@/components/Base';
+import {Card, NoResults, TabPanel} from '@/components/Base';
+import {BarChart, TBarChartProps} from '@/components/Base/Charts/BarChart.component';
+import {PieChart} from '@/components/Base/Charts/PieChart.component';
 import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
@@ -68,7 +68,6 @@ interface IStockHandler {
 }
 
 export const Stock = () => {
-  const theme = useTheme();
   const navigate = useNavigate();
   const params = useParams<{isin: string}>();
   const {showSnackbar} = useSnackbarContext();
@@ -112,55 +111,17 @@ export const Stock = () => {
   );
   const [showDeletePositionDialog, setShowDeletePositionDialog] = React.useState(false);
   const [deletePosition, setDeletePosition] = React.useState<TStockPositionWithQuote | null>(null);
-  const chartOptions: Chart['props']['options'] = {
-    chart: {
-      type: 'bar',
-      toolbar: {
-        show: false,
+  const barChartProps: Partial<TBarChartProps> = {
+    yAxis: [
+      {
+        valueFormatter: value => Formatter.shortenNumber(value ?? 0),
       },
-    },
-    xaxis: {
-      labels: {
-        style: {
-          colors: theme.palette.text.primary,
-        },
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    grid: {
-      borderColor: theme.palette.action.disabled,
-      strokeDashArray: 5,
-    },
-    yaxis: {
-      forceNiceScale: true,
-      opposite: true,
-      labels: {
-        style: {
-          colors: theme.palette.text.primary,
-        },
-        formatter(val: number) {
-          return Formatter.shortenNumber(val);
-        },
-      },
-    },
-    legend: {
-      position: 'bottom',
-      horizontalAlign: 'left',
-      labels: {
-        colors: 'white',
-      },
-    },
-    tooltip: {
-      theme: 'dark',
-      y: {
-        formatter(val: number) {
-          return Formatter.formatBalance(val);
-        },
-      },
-    },
+    ],
+    height: 300,
+    margin: {left: 80, right: 20, top: 20, bottom: 20},
+    grid: {horizontal: true},
   };
+  const barChartSeriesFormatter = (value: number | null) => Formatter.shortenNumber(value ?? 0);
 
   const preparedChartData: TPriceChartPoint[] = React.useMemo(() => {
     if (!quotes) return [];
@@ -306,7 +267,11 @@ export const Stock = () => {
             {loadingQuotes && (!quotes || quotes.length === 0) ? (
               <CircularProgress />
             ) : quotes ? (
-              <PriceChart data={preparedChartData} onTimeframeChange={setChartTimeframe} />
+              <PriceChart
+                company={{name: stockDetails?.asset.name ?? ''}}
+                data={preparedChartData}
+                onTimeframeChange={setChartTimeframe}
+              />
             ) : (
               <NoResults icon={<TimelineRounded />} text="No quotes found" />
             )}
@@ -344,65 +309,60 @@ export const Stock = () => {
                     </Tabs>
                   </Box>
                   <TabPanel idx={0} value={tabPane.profit}>
-                    <Chart
-                      type="bar"
-                      width={'100%'}
-                      height={300}
-                      options={{
-                        ...chartOptions,
-                        xaxis: {
-                          ...chartOptions.xaxis,
-                          categories: stockDetails?.details.securityDetails?.annualFinancials
+                    <BarChart
+                      {...barChartProps}
+                      xAxis={[
+                        {
+                          scaleType: 'band',
+                          data: stockDetails?.details.securityDetails?.annualFinancials
                             .map(({date}) => date.getFullYear())
                             .reverse(),
+                          valueFormatter: value => value.toString(),
                         },
-                      }}
+                      ]}
                       series={[
                         {
-                          name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                          label: `Revenue (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.annualFinancials
                             .map(({revenue}) => revenue)
                             .reverse(),
-                          color: theme.palette.success.main,
+                          valueFormatter: barChartSeriesFormatter,
                         },
                         {
-                          name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                          label: `Net Profit (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.annualFinancials
                             .map(({netIncome}) => netIncome)
                             .reverse(),
-                          color: theme.palette.warning.light,
+                          valueFormatter: barChartSeriesFormatter,
                         },
                       ]}
                     />
                   </TabPanel>
                   <TabPanel idx={1} value={tabPane.profit}>
-                    <Chart
-                      type="bar"
-                      width={'100%'}
-                      height={300}
-                      options={{
-                        ...chartOptions,
-                        xaxis: {
-                          ...chartOptions.xaxis,
-                          categories: stockDetails?.details.securityDetails?.quarterlyFinancials
+                    <BarChart
+                      {...barChartProps}
+                      xAxis={[
+                        {
+                          scaleType: 'band',
+                          data: stockDetails?.details.securityDetails?.quarterlyFinancials
                             .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
                             .reverse(),
                         },
-                      }}
+                      ]}
                       series={[
                         {
-                          name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                          label: `Revenue (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.quarterlyFinancials
                             .map(({revenue}) => revenue)
                             .reverse(),
-                          color: theme.palette.success.main,
+                          valueFormatter: barChartSeriesFormatter,
                         },
                         {
-                          name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                          label: `Net Profit (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.quarterlyFinancials
                             .map(({netIncome}) => netIncome)
                             .reverse(),
-                          color: theme.palette.warning.light,
+                          valueFormatter: barChartSeriesFormatter,
                         },
                       ]}
                     />
@@ -427,93 +387,88 @@ export const Stock = () => {
                     </Tabs>
                   </Box>
                   <TabPanel idx={0} value={tabPane.financial}>
-                    <Chart
-                      type="bar"
-                      width={'100%'}
-                      height={300}
-                      options={{
-                        ...chartOptions,
-                        xaxis: {
-                          ...chartOptions.xaxis,
-                          categories: stockDetails?.details.securityDetails?.annualFinancials
+                    <BarChart
+                      {...barChartProps}
+                      xAxis={[
+                        {
+                          scaleType: 'band',
+                          data: stockDetails?.details.securityDetails?.annualFinancials
                             .map(({date}) => date.getFullYear())
                             .reverse(),
+                          valueFormatter: value => value.toString(),
                         },
-                      }}
+                      ]}
                       series={[
                         {
-                          name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                          label: `Revenue (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.annualFinancials
                             .map(({revenue}) => revenue)
                             .reverse(),
-                          color: theme.palette.success.main,
+                          valueFormatter: barChartSeriesFormatter,
                         },
                         {
-                          name: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
+                          label: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.annualFinancials
                             .map(({grossProfit}) => grossProfit)
                             .reverse(),
-                          color: theme.palette.primary.main,
+                          valueFormatter: barChartSeriesFormatter,
                         },
                         {
-                          name: `EBITDA (${stockDetails.details.securityDetails.currency})`,
+                          label: `EBITDA (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.annualFinancials
                             .map(({ebitda}) => ebitda)
                             .reverse(),
-                          color: theme.palette.primary.light,
+                          valueFormatter: barChartSeriesFormatter,
                         },
                         {
-                          name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                          label: `Net Profit (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.annualFinancials
                             .map(({netIncome}) => netIncome)
                             .reverse(),
-                          color: theme.palette.warning.light,
+                          valueFormatter: barChartSeriesFormatter,
                         },
                       ]}
                     />
                   </TabPanel>
                   <TabPanel idx={1} value={tabPane.financial}>
-                    <Chart
-                      type="bar"
-                      width={'100%'}
-                      height={300}
-                      options={{
-                        ...chartOptions,
-                        xaxis: {
-                          ...chartOptions.xaxis,
-                          categories: stockDetails?.details.securityDetails?.quarterlyFinancials
+                    <BarChart
+                      {...barChartProps}
+                      xAxis={[
+                        {
+                          scaleType: 'band',
+                          data: stockDetails?.details.securityDetails?.quarterlyFinancials
                             .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
                             .reverse(),
                         },
-                      }}
+                      ]}
                       series={[
                         {
-                          name: `Revenue (${stockDetails.details.securityDetails.currency})`,
+                          label: `Revenue (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.quarterlyFinancials
                             .map(({revenue}) => revenue)
                             .reverse(),
-                          color: theme.palette.success.main,
+                          valueFormatter: barChartSeriesFormatter,
                         },
                         {
-                          name: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
+                          label: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.quarterlyFinancials
                             .map(({grossProfit}) => grossProfit)
                             .reverse(),
-                          color: theme.palette.primary.main,
+                          valueFormatter: barChartSeriesFormatter,
                         },
                         {
-                          name: `EBITDA (${stockDetails.details.securityDetails.currency})`,
+                          label: `EBITDA (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.quarterlyFinancials
                             .map(({ebitda}) => ebitda)
                             .reverse(),
-                          color: theme.palette.primary.light,
+                          valueFormatter: barChartSeriesFormatter,
                         },
                         {
-                          name: `Net Profit (${stockDetails.details.securityDetails.currency})`,
+                          label: `Net Profit (${stockDetails.details.securityDetails.currency})`,
                           data: stockDetails.details.securityDetails.quarterlyFinancials
                             .map(({netIncome}) => netIncome)
                             .reverse(),
-                          color: theme.palette.warning.light,
+                          valueFormatter: barChartSeriesFormatter,
                         },
                       ]}
                     />
@@ -586,12 +541,21 @@ export const Stock = () => {
                     </Tooltip>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <ApexPieChart
-                      data={stockDetails.details.etfBreakdown.holdings.map(({marketValue, name}) => ({
-                        label: name,
-                        value: marketValue,
-                      }))}
-                      formatAsCurrency
+                    <PieChart
+                      fullWidth
+                      series={[
+                        {
+                          data: stockDetails.details.etfBreakdown.holdings.map(({marketValue, name}) => ({
+                            label: name,
+                            value: marketValue,
+                          })),
+                          valueFormatter: value => Formatter.formatBalance(value.value),
+                          innerRadius: 110,
+                          paddingAngle: 1,
+                          cornerRadius: 5,
+                          highlightScope: {faded: 'global', highlighted: 'item'},
+                        },
+                      ]}
                     />
                   </AccordionDetails>
                 </Accordion>
@@ -605,8 +569,18 @@ export const Stock = () => {
                     </Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <ApexPieChart
-                      data={stockDetails.asset.security.regions.map(({id, share}) => ({label: id, value: share}))}
+                    <PieChart
+                      fullWidth
+                      series={[
+                        {
+                          data: stockDetails.asset.security.regions.map(({id, share}) => ({label: id, value: share})),
+                          valueFormatter: value => `${value.value} shares`,
+                          innerRadius: 110,
+                          paddingAngle: 1,
+                          cornerRadius: 5,
+                          highlightScope: {faded: 'global', highlighted: 'item'},
+                        },
+                      ]}
                     />
                   </AccordionDetails>
                 </Accordion>

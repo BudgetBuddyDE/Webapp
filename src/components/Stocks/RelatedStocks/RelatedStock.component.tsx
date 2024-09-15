@@ -1,14 +1,14 @@
 import {type TRelatedStockWithQuotes} from '@budgetbuddyde/types';
-import {Box, Skeleton, Typography, useTheme} from '@mui/material';
+import {Chip, Skeleton, Stack, Typography, useTheme} from '@mui/material';
+import {areaElementClasses} from '@mui/x-charts/LineChart';
+import {SparkLineChart} from '@mui/x-charts/SparkLineChart';
 import {format} from 'date-fns';
 import React from 'react';
-import Chart from 'react-apexcharts';
 import {useNavigate} from 'react-router-dom';
 
+import {AppConfig} from '@/app.config';
 import {ActionPaper, Card, Image} from '@/components/Base';
 import {Formatter} from '@/services';
-
-import {StockPrice} from '../StockPrice.component';
 
 export type TRelatedStockProps = {
   isLoading?: boolean;
@@ -28,7 +28,7 @@ export const RelatedStock: React.FC<TRelatedStockProps> = ({isLoading = false, s
         <Card.Body>
           <Skeleton
             variant="rectangular"
-            height={40}
+            height={50}
             sx={{
               borderBottomLeftRadius: theme => theme.shape.borderRadius + 'px',
               borderBottomRightRadius: theme => theme.shape.borderRadius + 'px',
@@ -48,82 +48,56 @@ export const RelatedStock: React.FC<TRelatedStockProps> = ({isLoading = false, s
   }, [stock]);
 
   return (
-    <Card
-      sx={{
-        p: 0,
-        ':hover': {
-          cursor: 'pointer',
-        },
-      }}
-      onClick={() => navigate('/stocks/' + stock.asset._id.identifier)}>
-      <Card.Header sx={{p: 1.5}}>
-        <Box
-          sx={{
-            display: 'flex',
-            flex: 1,
-            alignItems: 'center',
-            overflow: 'hidden',
-          }}>
-          <React.Fragment>
-            <ActionPaper
-              sx={{
-                minWidth: '32px',
-                width: '32px',
-                height: '32px',
-                mr: 1,
-              }}>
-              <Image src={stock.asset.logo} sx={{width: 'inherit', height: 'inherit'}} />
-            </ActionPaper>
-            <Typography variant="subtitle1" title={stock.asset.name} noWrap>
-              {stock.asset.name}
-            </Typography>
-          </React.Fragment>
+    <React.Fragment>
+      <Card
+        onClick={() => navigate('/stocks/' + stock.asset._id.identifier)}
+        sx={{
+          p: 0,
+          ':hover': {
+            cursor: 'pointer',
+          },
+        }}>
+        <Stack flexDirection={'row'} alignItems={'center'} columnGap={AppConfig.baseSpacing / 2} sx={{m: 2, mb: 1.5}}>
+          <ActionPaper
+            sx={{
+              minWidth: '32px',
+              width: '32px',
+              height: '32px',
+            }}>
+            <Image src={stock.asset.logo} sx={{width: 'inherit', height: 'inherit'}} />
+          </ActionPaper>
+          <Typography variant="subtitle1" noWrap>
+            {stock.asset.name}
+          </Typography>
+          <Chip
+            size="small"
+            variant="outlined"
+            color={latestQuote.price > firstQuote.price ? 'success' : 'error'}
+            label={Formatter.formatBalance(latestQuote.price, latestQuote.currency)}
+            sx={{ml: 'auto'}}
+          />
+        </Stack>
 
-          <Box sx={{ml: 'auto'}}>
-            <StockPrice
-              price={latestQuote.price}
-              currency={latestQuote.currency}
-              trend={latestQuote.price > firstQuote.price ? 'up' : 'down'}
-            />
-          </Box>
-        </Box>
-      </Card.Header>
-      <Card.Body>
-        <Chart
-          type="line"
-          width={'100%'}
-          height={40}
-          options={{
-            chart: {
-              sparkline: {
-                enabled: true,
-              },
-            },
-            stroke: {
-              width: 2,
-              curve: 'smooth',
-            },
-            xaxis: {
-              categories: stock.quotes.map(({date}) => format(date, 'dd.MM')),
-            },
-            tooltip: {
-              theme: 'dark',
-              y: {
-                title: {
-                  formatter() {
-                    return '';
-                  },
-                },
-                formatter(val) {
-                  return Formatter.formatBalance(val, stock.quotes[0].currency);
-                },
-              },
-            },
-            colors: [theme.palette.primary.main],
+        <SparkLineChart
+          colors={[theme.palette[latestQuote.price > firstQuote.price ? 'success' : 'error'].main]}
+          data={stock.quotes.map(({price}) => price)}
+          curve="natural"
+          margin={{top: 5, right: -5, bottom: 5, left: -5}}
+          showHighlight
+          valueFormatter={value => Formatter.formatBalance(value ?? 0)}
+          height={50}
+          showTooltip
+          xAxis={{
+            scaleType: 'band',
+            data: stock.quotes.map(({date}) => format(date, 'dd.MM')),
           }}
-          series={[{data: stock.quotes.map(({price}) => price)}]}
+          sx={{
+            [`& .${areaElementClasses.root}`]: {
+              fill: `url(#area-gradient-${stock.asset.name})`,
+            },
+          }}
         />
-      </Card.Body>
-    </Card>
+      </Card>
+    </React.Fragment>
   );
 };

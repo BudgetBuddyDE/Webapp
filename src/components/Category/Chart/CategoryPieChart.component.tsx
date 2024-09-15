@@ -1,11 +1,12 @@
 import {type TTransaction} from '@budgetbuddyde/types';
 import {Box, Button, Stack, ToggleButton, ToggleButtonGroup} from '@mui/material';
-import {ParentSize} from '@visx/responsive';
 import {isSameMonth, isSameYear} from 'date-fns';
 import React from 'react';
 import {Link} from 'react-router-dom';
 
-import {ApexPieChart, Card, NoResults, TPieChartData} from '@/components/Base';
+import {Card, TPieChartData} from '@/components/Base';
+import {PieChart} from '@/components/Base/Charts/PieChart.component';
+import {Formatter} from '@/services/Formatter.service';
 
 export type TCategoryPieChartTimeframe = 'MONTH' | 'YTD' | 'ALL_TIME';
 
@@ -112,8 +113,8 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
   }, []);
 
   return (
-    <Card sx={{p: 0}}>
-      <Card.Header sx={{p: 2, pb: 0}}>
+    <Card>
+      <Card.Header>
         <Box>
           <Card.Title>{title}</Card.Title>
           {subtitle !== undefined && Boolean(subtitle) && <Card.Subtitle>{subtitle}</Card.Subtitle>}
@@ -134,18 +135,24 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
         </Card.HeaderActions>
       </Card.Header>
       <Card.Body sx={{pt: 1}}>
-        {currentChartData.length > 0 ? (
-          <ParentSize>
-            {({width}) => (
-              <ApexPieChart width={width} height={width} data={currentChartData} formatAsCurrency showTotal />
-            )}
-          </ParentSize>
-        ) : (
-          <NoResults text={getNoResultsMessage(currentTimeframe)} sx={{m: 2}} />
-        )}
+        <PieChart
+          fullWidth
+          primaryText={Formatter.formatBalance(currentChartData.reduce((acc, curr) => acc + curr.value, 0))}
+          secondaryText="Expenses"
+          series={[
+            {
+              data: currentChartData,
+              valueFormatter: value => Formatter.formatBalance(value.value),
+              innerRadius: 110,
+              paddingAngle: 1,
+              cornerRadius: 5,
+              highlightScope: {faded: 'global', highlighted: 'item'},
+            },
+          ]}
+        />
       </Card.Body>
       {withViewMore && (
-        <Card.Footer sx={{p: 2, pt: 0}}>
+        <Card.Footer>
           <Stack direction="row" justifyContent={'flex-end'}>
             {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
             {/*@ts-expect-error*/}

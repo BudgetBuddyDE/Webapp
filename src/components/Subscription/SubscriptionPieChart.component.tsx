@@ -1,9 +1,11 @@
 import {Box, Button, Stack, ToggleButton, ToggleButtonGroup} from '@mui/material';
-import {ParentSize} from '@visx/responsive';
 import React from 'react';
 import {Link} from 'react-router-dom';
 
-import {ApexPieChart, Card, type TPieChartData} from '../Base';
+import {Formatter} from '@/services/Formatter.service';
+
+import {Card, type TPieChartData} from '../Base';
+import {PieChart} from '../Base/Charts/PieChart.component';
 import {CircularProgress} from '../Loading';
 import {useSubscriptions} from './useSubscriptions.hook';
 
@@ -48,8 +50,8 @@ export const SubscriptionPieChart = () => {
   }, [subscriptions, subscriptionType]);
 
   return (
-    <Card sx={{p: 0}}>
-      <Card.Header sx={{p: 2, pb: 0}}>
+    <Card>
+      <Card.Header>
         <Box>
           <Card.Title>Recurring Payments</Card.Title>
           <Card.Subtitle>Monthly recurring payments</Card.Subtitle>
@@ -75,11 +77,23 @@ export const SubscriptionPieChart = () => {
       ) : (
         <React.Fragment>
           <Card.Body sx={{pt: 1}}>
-            <ParentSize>
-              {({width}) => <ApexPieChart width={width} height={width} data={chartData} formatAsCurrency showTotal />}
-            </ParentSize>
+            <PieChart
+              fullWidth
+              primaryText={Formatter.formatBalance(chartData.reduce((acc, curr) => acc + curr.value, 0))}
+              secondaryText="Total"
+              series={[
+                {
+                  data: chartData,
+                  valueFormatter: value => Formatter.formatBalance(value.value),
+                  innerRadius: 110,
+                  paddingAngle: 1,
+                  cornerRadius: 5,
+                  highlightScope: {faded: 'global', highlighted: 'item'},
+                },
+              ]}
+            />
           </Card.Body>
-          <Card.Footer sx={{p: 2, pt: 0}}>
+          <Card.Footer>
             <Stack direction="row" justifyContent={'flex-end'}>
               {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
               {/*@ts-expect-error*/}

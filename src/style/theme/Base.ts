@@ -1,5 +1,16 @@
-import {type BreakpointsOptions, type Direction, type Theme, type TransitionsOptions} from '@mui/material';
+import {
+  type BreakpointsOptions,
+  type Direction,
+  type Theme,
+  type TransitionsOptions,
+  chipClasses,
+  svgIconClasses,
+} from '@mui/material';
+import {type Components} from '@mui/material/styles';
 import {type TypographyOptions} from '@mui/material/styles/createTypography';
+
+import {colors} from './colors';
+import {chartsCustomizations} from './customizations';
 
 export const breakpoints: BreakpointsOptions = {
   keys: ['xs', 'sm', 'md', 'lg', 'xl'],
@@ -21,7 +32,135 @@ export const shape: Theme['shape'] = {
 
 export const unstable_strictMode: Theme['unstable_strictMode'] = false;
 
-export const components: Theme['components'] = {
+export const components: Components<Theme> = {
+  ...chartsCustomizations,
+  MuiChip: {
+    defaultProps: {
+      size: 'small',
+    },
+    styleOverrides: {
+      root: ({theme}) => ({
+        border: '1px solid',
+        borderRadius: '999px',
+        [`& .${chipClasses.label}`]: {
+          fontWeight: 600,
+        },
+        variants: [
+          {
+            props: {
+              color: 'default',
+            },
+            style: {
+              borderColor: colors.grey![200],
+              backgroundColor: colors.grey![100],
+              [`& .${chipClasses.label}`]: {
+                color: colors.grey![500],
+              },
+              [`& .${chipClasses.icon}`]: {
+                color: colors.grey![500],
+              },
+              ...theme.applyStyles('dark', {
+                borderColor: colors.grey![700],
+                backgroundColor: colors.grey![800],
+                [`& .${chipClasses.label}`]: {
+                  color: colors.grey![300],
+                },
+                [`& .${chipClasses.icon}`]: {
+                  color: colors.grey![300],
+                },
+              }),
+            },
+          },
+          {
+            props: {
+              color: 'success',
+            },
+            style: {
+              // @ts-expect-error
+              borderColor: colors.success[200],
+              // @ts-expect-error
+              backgroundColor: colors.success![50],
+              [`& .${chipClasses.label}`]: {
+                // @ts-expect-error
+                color: colors.success![500],
+              },
+              [`& .${chipClasses.icon}`]: {
+                // @ts-expect-error
+                color: colors.success![500],
+              },
+              ...theme.applyStyles('dark', {
+                // @ts-expect-error
+                borderColor: colors.success![800],
+                // @ts-expect-error
+                backgroundColor: colors.success![900],
+                [`& .${chipClasses.label}`]: {
+                  // @ts-expect-error
+                  color: colors.success![300],
+                },
+                [`& .${chipClasses.icon}`]: {
+                  // @ts-expect-error
+                  color: colors.success![300],
+                },
+              }),
+            },
+          },
+          {
+            props: {
+              color: 'error',
+            },
+            style: {
+              // @ts-expect-error
+              borderColor: colors.error![100],
+              // @ts-expect-error
+              backgroundColor: colors.error![50],
+              [`& .${chipClasses.label}`]: {
+                // @ts-expect-error
+                color: colors.error![500],
+              },
+              [`& .${chipClasses.icon}`]: {
+                // @ts-expect-error
+                color: colors.error![500],
+              },
+              ...theme.applyStyles('dark', {
+                // @ts-expect-error
+                borderColor: colors.error![800],
+                // @ts-expect-error
+                backgroundColor: colors.error![900],
+                [`& .${chipClasses.label}`]: {
+                  // @ts-expect-error
+                  color: colors.error![200],
+                },
+                [`& .${chipClasses.icon}`]: {
+                  // @ts-expect-error
+                  color: colors.error![300],
+                },
+              }),
+            },
+          },
+          {
+            props: {size: 'small'},
+            style: {
+              maxHeight: 20,
+              [`& .${chipClasses.label}`]: {
+                fontSize: theme.typography.caption.fontSize,
+              },
+              [`& .${svgIconClasses.root}`]: {
+                fontSize: theme.typography.caption.fontSize,
+              },
+            },
+          },
+          {
+            props: {size: 'medium'},
+            style: {
+              [`& .${chipClasses.label}`]: {
+                fontSize: theme.typography.caption.fontSize,
+              },
+            },
+          },
+        ],
+      }),
+    },
+  },
   MuiGrid: {
     styleOverrides: {
       item: {
