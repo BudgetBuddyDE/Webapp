@@ -1,5 +1,5 @@
 import {type TSubscription, type TTransaction} from '@budgetbuddyde/types';
-import {Grid, Stack} from '@mui/material';
+import {Grid2 as Grid, Stack} from '@mui/material';
 import React from 'react';
 
 import {AppConfig} from '@/app.config';
@@ -60,7 +60,7 @@ const DashboardView = () => {
     <React.Fragment>
       <DashboardStatsWrapper />
 
-      <Grid item xs={12} md={6} lg={4} order={{xs: 3, md: 1}}>
+      <Grid size={{xs: 12, md: 6, lg: 4}} order={{xs: 3, md: 1}}>
         <Stack spacing={AppConfig.baseSpacing}>
           {loadingSubscriptions ? (
             <CircularProgress />
@@ -72,14 +72,14 @@ const DashboardView = () => {
         </Stack>
       </Grid>
 
-      <Grid item xs={12} md={6} lg={4} order={{xs: 1, md: 2}}>
+      <Grid size={{xs: 12, md: 6, lg: 4}} order={{xs: 1, md: 2}}>
         <Stack spacing={AppConfig.baseSpacing}>
           <CategoryExpenseChart />
           <BudgetPieChart />
         </Stack>
       </Grid>
 
-      <Grid item xs={12} md={6} lg={4} order={{xs: 2, md: 3}}>
+      <Grid size={{xs: 12, md: 6, lg: 4}} order={{xs: 2, md: 3}}>
         {isLoadingTransactions ? (
           <CircularProgress />
         ) : (

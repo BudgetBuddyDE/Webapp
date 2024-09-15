@@ -6,7 +6,7 @@ import {
   Checkbox,
   Divider,
   FormControlLabel,
-  Grid,
+  Grid2 as Grid,
   Link,
   Stack,
   TextField,
@@ -86,7 +86,7 @@ const SignUp = () => {
         </Stack>
       )}
       <Grid container justifyContent={'center'}>
-        <Grid item xs={12} sm={12} md={4} lg={4} xl={3.5}>
+        <Grid size={{xs: 12, md: 4, xl: 3.5}}>
           <Card sx={{py: 3, px: 4}}>
             <Box display="flex" flexDirection="column">
               <AppLogo
@@ -107,7 +107,7 @@ const SignUp = () => {
             <form onSubmit={formHandler.formSubmit}>
               <Grid container spacing={AppConfig.baseSpacing} sx={{mt: 1}}>
                 {Object.keys(AppConfig.authProvider).map(provider => (
-                  <Grid key={provider} item xs={6}>
+                  <Grid key={provider} size={{xs: 6}}>
                     <SocialSignInBtn
                       key={provider}
                       provider={provider}
@@ -118,11 +118,11 @@ const SignUp = () => {
                   </Grid>
                 ))}
 
-                <Grid item xs={12}>
+                <Grid size={{xs: 12}}>
                   <Divider>or with</Divider>
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid size={{xs: 12, md: 6}}>
                   <TextField
                     variant="outlined"
                     label="Name"
@@ -132,7 +132,7 @@ const SignUp = () => {
                     required
                   />
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid size={{xs: 12, md: 6}}>
                   <TextField
                     variant="outlined"
                     label="Surname"
@@ -143,7 +143,7 @@ const SignUp = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={12}>
+                <Grid size={{xs: 12}}>
                   <TextField
                     variant="outlined"
                     type="email"
@@ -155,11 +155,11 @@ const SignUp = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={12}>
+                <Grid size={{xs: 12}}>
                   <PasswordInput outlinedInputProps={{onChange: formHandler.inputChange}} />
                 </Grid>
 
-                <Grid item xs={12} md={12}>
+                <Grid size={{xs: 12}}>
                   <FormControlLabel
                     required
                     control={<Checkbox />}

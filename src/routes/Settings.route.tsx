@@ -1,4 +1,4 @@
-import {Box, Grid, Typography} from '@mui/material';
+import {Box, Grid2 as Grid, Typography} from '@mui/material';
 import React from 'react';
 
 import {AppConfig, Feature} from '@/app.config';
@@ -21,7 +21,7 @@ const SettingsRoute: React.FC<TSettingsRouteProps> = () => {
     <Grid container spacing={AppConfig.baseSpacing}>
       <PageHeader title="Settings" />
 
-      <Grid item xs={12} md={12} lg={12}>
+      <Grid size={{xs: 12}}>
         <Card sx={{p: 0}} className="test">
           <Card.Header
             sx={{
@@ -58,19 +58,19 @@ const SettingsRoute: React.FC<TSettingsRouteProps> = () => {
         </Card>
       </Grid>
 
-      <Grid container item xs={12} md={4} lg={4} xl={3} order={{xs: 1, md: 0}}>
-        <Grid item xs={12} md={12} lg={12}>
+      <Grid container size={{xs: 12, md: 4, xl: 3}} order={{xs: 1, md: 0}}>
+        <Grid size={{xs: 12}}>
           <AppInformation />
         </Grid>
       </Grid>
 
-      <Grid container item xs={12} md={8} lg={8} xl={9} order={{xs: 0, md: 1}} spacing={AppConfig.baseSpacing}>
-        <Grid item xs={12} md={7} lg={7} xl={7}>
+      <Grid container size={{xs: 12, md: 8, xl: 9}} order={{xs: 0, md: 1}} spacing={AppConfig.baseSpacing}>
+        <Grid size={{xs: 12, md: 7}}>
           <EditProfile />
         </Grid>
 
         {isFeatureEnabled(Feature.NEWSLETTER) && (
-          <Grid item xs={12} md={5} lg={5} xl={5}>
+          <Grid size={{xs: 12, md: 5}}>
             <SubscribeToNewsletters />
           </Grid>
         )}

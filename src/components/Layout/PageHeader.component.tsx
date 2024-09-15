@@ -1,4 +1,4 @@
-import {Grid, type GridProps, Typography} from '@mui/material';
+import {Grid2 as Grid, type Grid2Props as GridProps, Typography} from '@mui/material';
 import React from 'react';
 
 export type TPageHeaderProps = {
@@ -8,7 +8,7 @@ export type TPageHeaderProps = {
 
 export const PageHeader: React.FC<TPageHeaderProps> = ({title, description, ...gridProps}) => {
   return (
-    <Grid item xs={12} {...gridProps}>
+    <Grid size={{xs: 12}} {...gridProps}>
       <Typography variant="h5" fontWeight="bold" sx={{m: 0}}>
         {title}
       </Typography>

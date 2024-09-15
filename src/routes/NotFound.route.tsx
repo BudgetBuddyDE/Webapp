@@ -1,5 +1,5 @@
 import {ExitToAppRounded, HomeRounded} from '@mui/icons-material';
-import {Grid, Link, Typography} from '@mui/material';
+import {Grid2 as Grid, Link, Typography} from '@mui/material';
 
 import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
@@ -13,7 +13,7 @@ const PageNotFound = () => {
   const {sessionUser} = useAuthContext();
   return (
     <Grid container justifyContent={'center'}>
-      <Grid item xs={12} sm={12} md={4} lg={4} xl={3}>
+      <Grid size={{xs: 12, md: 4, xl: 3}}>
         <ActionPaper
           sx={{
             px: 3,
@@ -29,7 +29,7 @@ const PageNotFound = () => {
 
           <Grid container spacing={AppConfig.baseSpacing / 2} sx={{width: '60%', mx: 'auto', justifyContent: 'center'}}>
             {sessionUser && (
-              <Grid item xs={6}>
+              <Grid size={{xs: 6}}>
                 <StackedIconButton
                   component={Link}
                   href="/"
@@ -41,7 +41,7 @@ const PageNotFound = () => {
                 </StackedIconButton>
               </Grid>
             )}
-            <Grid item xs={6}>
+            <Grid size={{xs: 6}}>
               <StackedIconButton
                 component={Link}
                 href="/sign-in"

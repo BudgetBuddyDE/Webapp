@@ -5,7 +5,7 @@ import {
   ZCreateCategoryPayload,
   ZUpdateCategoryPayload,
 } from '@budgetbuddyde/types';
-import {Grid, TextField} from '@mui/material';
+import {Grid2 as Grid, TextField} from '@mui/material';
 import React from 'react';
 import {DefaultValues} from 'react-hook-form';
 
@@ -123,7 +123,7 @@ export const CategoryDrawer: React.FC<TCategoryDrawerProps> = ({
         },
       }) => (
         <Grid container spacing={AppConfig.baseSpacing} sx={{p: 2}}>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <TextField
               label="Name"
               {...register('name', {required: 'Name is required'})}
@@ -133,7 +133,7 @@ export const CategoryDrawer: React.FC<TCategoryDrawerProps> = ({
               fullWidth
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <TextField
               label="Description"
               {...register('description')}

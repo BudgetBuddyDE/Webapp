@@ -19,5 +19,5 @@ export const useStockStore = GenerateGenericStore<TStockPositionWithQuote[]>(asy
     console.error(err);
     return [];
   }
-  return positions.sort((a, b) => (b.buy_in * b.quantity) - (a.buy_in * a.quantity)) ?? [];
+  return positions.sort((a, b) => b.buy_in * b.quantity - a.buy_in * a.quantity) ?? [];
 });

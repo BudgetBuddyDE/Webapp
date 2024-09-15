@@ -5,9 +5,7 @@ import {
   ZCreateSubscriptionPayload,
   ZUpdateSubscriptionPayload,
 } from '@budgetbuddyde/types';
-import {Grid, InputAdornment, TextField} from '@mui/material';
-import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {Grid2 as Grid, InputAdornment, TextField} from '@mui/material';
 import React from 'react';
 import {Controller, DefaultValues} from 'react-hook-form';
 
@@ -19,8 +17,9 @@ import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/Enti
 import {PaymentMethodAutocomplete, type TPaymentMethodAutocompleteOption} from '@/components/PaymentMethod';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {SubscriptionService, useSubscriptions} from '@/components/Subscription';
-import {useScreenSize} from '@/hooks';
 import {isRunningOnIOs, parseNumber} from '@/utils';
+
+import {DatePicker} from '../Date';
 
 export type TSusbcriptionDrawerValues = {
   id?: TSubscription['id'];
@@ -45,7 +44,6 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
   closeOnBackdropClick,
   closeOnEscape,
 }) => {
-  const screenSize = useScreenSize();
   const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const {refreshData: refreshSubscriptions} = useSubscriptions();
@@ -150,56 +148,32 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
         },
       }) => (
         <Grid container spacing={AppConfig.baseSpacing} sx={{p: 2}}>
-          <Grid item xs={12} md={12}>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <Controller
-                control={control}
-                name="execute_at"
-                rules={{required: 'Process date is required'}}
-                defaultValue={defaultValues?.execute_at ? new Date(defaultValues.execute_at) : new Date()}
-                render={({field: {onChange, value, ref}}) =>
-                  screenSize === 'small' ? (
-                    <MobileDatePicker
-                      label="Execute At "
-                      inputFormat="dd.MM.yyyy"
-                      onChange={onChange}
-                      onAccept={onChange}
-                      value={value}
-                      inputRef={ref}
-                      renderInput={params => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          error={!!errors.execute_at}
-                          helperText={errors.execute_at?.message}
-                          required
-                        />
-                      )}
-                    />
-                  ) : (
-                    <DesktopDatePicker
-                      label="Execute At"
-                      inputFormat="dd.MM.yyyy"
-                      onChange={onChange}
-                      onAccept={onChange}
-                      value={value}
-                      inputRef={ref}
-                      renderInput={params => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          error={!!errors.execute_at}
-                          helperText={errors.execute_at?.message}
-                          required
-                        />
-                      )}
-                    />
-                  )
-                }
-              />
-            </LocalizationProvider>
+          <Grid size={{xs: 12}}>
+            <Controller
+              control={control}
+              name="execute_at"
+              rules={{required: 'Process date is required'}}
+              defaultValue={defaultValues?.execute_at ? new Date(defaultValues.execute_at) : new Date()}
+              render={({field: {onChange, value, ref}}) => (
+                <DatePicker
+                  value={value}
+                  onChange={onChange}
+                  onAccept={onChange}
+                  inputRef={ref}
+                  slotProps={{
+                    textField: {
+                      label: 'Execute at',
+                      error: !!errors.execute_at,
+                      helperText: errors.execute_at?.message,
+                      required: true,
+                      fullWidth: true,
+                    },
+                  }}
+                />
+              )}
+            />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{xs: 12, md: 6}}>
             <Controller
               control={control}
               name="category"
@@ -219,7 +193,7 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{xs: 12, md: 6}}>
             <Controller
               control={control}
               name="payment_method"
@@ -239,7 +213,7 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <Controller
               control={control}
               name="receiver"
@@ -259,20 +233,22 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <TextField
               label="Amount"
               {...register('transfer_amount', {required: 'Transfer amount is required'})}
               error={!!errors.transfer_amount}
               helperText={errors.transfer_amount?.message}
               type="number"
-              inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
-              InputProps={{startAdornment: <InputAdornment position="start">€</InputAdornment>}}
               required
               fullWidth
+              slotProps={{
+                input: {startAdornment: <InputAdornment position="start">€</InputAdornment>},
+                htmlInput: {inputMode: isRunningOnIOs() ? 'text' : 'numeric'},
+              }}
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <TextField
               label="Information"
               {...register('information')}

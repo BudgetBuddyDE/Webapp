@@ -1,8 +1,15 @@
 import {type TCreateSubscriptionPayload, type TTransaction, ZCreateSubscriptionPayload} from '@budgetbuddyde/types';
 import {AddRounded, DeleteRounded} from '@mui/icons-material';
-import {AutocompleteChangeReason, Box, Button, Grid, IconButton, InputAdornment, Stack, TextField} from '@mui/material';
-import {DesktopDatePicker, LocalizationProvider} from '@mui/x-date-pickers';
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {
+  AutocompleteChangeReason,
+  Box,
+  Button,
+  Grid2 as Grid,
+  IconButton,
+  InputAdornment,
+  Stack,
+  TextField,
+} from '@mui/material';
 import {RecordModel} from 'pocketbase';
 import React from 'react';
 import {z} from 'zod';
@@ -21,6 +28,7 @@ import {useSnackbarContext} from '@/components/Snackbar';
 import {useKeyPress, useScreenSize} from '@/hooks';
 import {parseNumber} from '@/utils';
 
+import {DatePicker} from '../Date';
 import {DesktopFeatureOnly} from '../DesktopFeatureOnly/DesktopFeatureOnly.component';
 import {SubscriptionService} from './Subscription.service';
 import {type TSusbcriptionDrawerValues} from './SubscriptionDrawer.component';
@@ -213,70 +221,75 @@ export const CreateMultipleSubscriptionsDialog: React.FC<TCreateMultipleSubscrip
       }>
       {screenSize !== 'small' ? (
         <form onSubmit={handler.onSubmit}>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <Grid container spacing={AppConfig.baseSpacing}>
-              {form.map((row, idx) => (
-                <Grid key={row.tempId} container item md={12} spacing={AppConfig.baseSpacing}>
-                  {idx !== 0 && (
-                    <Grid item md={0.55}>
-                      <IconButton
-                        onClick={() => handler.removeRow(row.tempId)}
-                        size="large"
-                        sx={{width: '54px', height: '54px'}}>
-                        <DeleteRounded />
-                      </IconButton>
-                    </Grid>
-                  )}
-                  <Grid item md={idx === 0 ? 2 : 1.45}>
-                    <DesktopDatePicker
-                      label="Execute at"
-                      inputFormat="dd.MM.yyyy"
-                      onChange={(value, keyboardInputValue) => handler.changeDate(idx, value, keyboardInputValue)}
-                      value={row.execute_at}
-                      renderInput={params => <TextField fullWidth {...params} required />}
-                    />
+          <Grid container spacing={AppConfig.baseSpacing}>
+            {form.map((row, idx) => (
+              <Grid key={row.tempId} container size={{md: 12}} spacing={AppConfig.baseSpacing}>
+                {idx !== 0 && (
+                  <Grid size={{md: 0.55}}>
+                    <IconButton
+                      onClick={() => handler.removeRow(row.tempId)}
+                      size="large"
+                      sx={{width: '54px', height: '54px'}}>
+                      <DeleteRounded />
+                    </IconButton>
                   </Grid>
-                  <Grid item md={2}>
-                    <CategoryAutocomplete
-                      value={row.category}
-                      onChange={(event, value, reason) => handler.changeCategory(idx, event, value, reason)}
-                    />
-                  </Grid>
-                  <Grid item md={2}>
-                    <PaymentMethodAutocomplete
-                      value={row.payment_method}
-                      onChange={(event, value, reason) => handler.changePaymentMethod(idx, event, value, reason)}
-                    />
-                  </Grid>
-                  <Grid item xs md={2}>
-                    <ReceiverAutocomplete
-                      value={row.receiver}
-                      onChange={(event, value, reason) => handler.changeReceiver(idx, event, value, reason)}
-                    />
-                  </Grid>
-                  <Grid item md={2}>
-                    <TextField
-                      label="Amount"
-                      value={row.transfer_amount}
-                      onChange={e => handler.changeTransferAmount(idx, e.target.value)}
-                      InputProps={{startAdornment: <InputAdornment position="start">€</InputAdornment>}}
-                      required
-                      fullWidth
-                    />
-                  </Grid>
-                  <Grid item md={2}>
-                    <TextField
-                      label="Information"
-                      value={row.information}
-                      onChange={event => handler.changeInformation(idx, event.target.value)}
-                      fullWidth
-                      multiline
-                    />
-                  </Grid>
+                )}
+                <Grid size={{md: idx === 0 ? 2 : 1.45}}>
+                  <DatePicker
+                    value={row.execute_at}
+                    onChange={value => handler.changeDate(idx, value, '')}
+                    onAccept={value => handler.changeDate(idx, value, '')}
+                    slotProps={{
+                      textField: {
+                        label: 'Execute at',
+                        required: true,
+                        fullWidth: true,
+                      },
+                    }}
+                  />
                 </Grid>
-              ))}
-            </Grid>
-          </LocalizationProvider>
+                <Grid size={{md: 2}}>
+                  <CategoryAutocomplete
+                    value={row.category}
+                    onChange={(event, value, reason) => handler.changeCategory(idx, event, value, reason)}
+                  />
+                </Grid>
+                <Grid size={{md: 2}}>
+                  <PaymentMethodAutocomplete
+                    value={row.payment_method}
+                    onChange={(event, value, reason) => handler.changePaymentMethod(idx, event, value, reason)}
+                  />
+                </Grid>
+                <Grid size={{md: 2}}>
+                  <ReceiverAutocomplete
+                    value={row.receiver}
+                    onChange={(event, value, reason) => handler.changeReceiver(idx, event, value, reason)}
+                  />
+                </Grid>
+                <Grid size={{md: 2}}>
+                  <TextField
+                    label="Amount"
+                    value={row.transfer_amount}
+                    onChange={e => handler.changeTransferAmount(idx, e.target.value)}
+                    required
+                    fullWidth
+                    slotProps={{
+                      input: {startAdornment: <InputAdornment position="start">€</InputAdornment>},
+                    }}
+                  />
+                </Grid>
+                <Grid size={{md: 2}}>
+                  <TextField
+                    label="Information"
+                    value={row.information}
+                    onChange={event => handler.changeInformation(idx, event.target.value)}
+                    fullWidth
+                    multiline
+                  />
+                </Grid>
+              </Grid>
+            ))}
+          </Grid>
         </form>
       ) : (
         <DesktopFeatureOnly

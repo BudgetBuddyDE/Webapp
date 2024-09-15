@@ -1,6 +1,6 @@
 import {PocketBaseCollection, type TUser} from '@budgetbuddyde/types';
 import {AddRounded, BalanceRounded, RemoveRounded} from '@mui/icons-material';
-import {Grid} from '@mui/material';
+import {Grid2 as Grid} from '@mui/material';
 import {format} from 'date-fns';
 import React from 'react';
 import {create} from 'zustand';
@@ -147,13 +147,11 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
   }, [sessionUser]);
 
   return (
-    <Grid container item xs={12} md={12} columns={12} spacing={AppConfig.baseSpacing}>
+    <Grid container size={{xs: 12}} spacing={AppConfig.baseSpacing}>
       {stats.map((props, idx, list) => (
         <Grid
           key={props.label.toString().toLowerCase().replace(' ', '_')}
-          item
-          xs={idx == list.length - 1 ? 12 : 6}
-          md={4}
+          size={{xs: idx == list.length - 1 ? 12 : 6, md: 4}}
           sx={{height: 'unset'}}>
           <StatsCard isLoading={loading} {...props} />
         </Grid>

@@ -5,9 +5,7 @@ import {
   ZCreateTransactionPayload,
   ZUpdateTransactionPayload,
 } from '@budgetbuddyde/types';
-import {Grid, InputAdornment, TextField} from '@mui/material';
-import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {Grid2 as Grid, InputAdornment, TextField} from '@mui/material';
 import React from 'react';
 import {Controller, DefaultValues} from 'react-hook-form';
 
@@ -20,9 +18,10 @@ import {FilePreview} from '@/components/FilePreview.component';
 import {PaymentMethodAutocomplete, type TPaymentMethodAutocompleteOption} from '@/components/PaymentMethod';
 import {useSnackbarContext} from '@/components/Snackbar';
 import {TransactionService, useTransactions} from '@/components/Transaction';
-import {useScreenSize} from '@/hooks';
 import {pb} from '@/pocketbase';
 import {isRunningOnIOs, parseNumber} from '@/utils';
+
+import {DatePicker} from '../Date';
 
 export type TTransactionDrawerValues = {
   id?: TTransaction['id'];
@@ -47,7 +46,6 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
   closeOnBackdropClick,
   closeOnEscape,
 }) => {
-  const screenSize = useScreenSize();
   const {sessionUser, fileToken} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const {refreshData: refreshTransactions} = useTransactions();
@@ -206,56 +204,32 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
         },
       }) => (
         <Grid container spacing={AppConfig.baseSpacing} sx={{p: 2}}>
-          <Grid item xs={12} md={12}>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <Controller
-                control={control}
-                name="processed_at"
-                rules={{required: 'Process date is required'}}
-                defaultValue={defaultValues?.processed_at ?? new Date()}
-                render={({field: {onChange, value, ref}}) =>
-                  screenSize === 'small' ? (
-                    <MobileDatePicker
-                      label="Processed at"
-                      inputFormat="dd.MM.yyyy"
-                      onChange={onChange}
-                      onAccept={onChange}
-                      value={value}
-                      inputRef={ref}
-                      renderInput={params => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          error={!!errors.processed_at}
-                          helperText={errors.processed_at?.message}
-                          required
-                        />
-                      )}
-                    />
-                  ) : (
-                    <DesktopDatePicker
-                      label="Processed at"
-                      inputFormat="dd.MM.yyyy"
-                      onChange={onChange}
-                      onAccept={onChange}
-                      value={value}
-                      inputRef={ref}
-                      renderInput={params => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          error={!!errors.processed_at}
-                          helperText={errors.processed_at?.message}
-                          required
-                        />
-                      )}
-                    />
-                  )
-                }
-              />
-            </LocalizationProvider>
+          <Grid size={{xs: 12}}>
+            <Controller
+              control={control}
+              name="processed_at"
+              rules={{required: 'Process date is required'}}
+              defaultValue={defaultValues?.processed_at ?? new Date()}
+              render={({field: {onChange, value, ref}}) => (
+                <DatePicker
+                  value={value}
+                  onChange={onChange}
+                  onAccept={onChange}
+                  inputRef={ref}
+                  slotProps={{
+                    textField: {
+                      label: 'Processed at',
+                      error: !!errors.processed_at,
+                      helperText: errors.processed_at?.message,
+                      required: true,
+                      fullWidth: true,
+                    },
+                  }}
+                />
+              )}
+            />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{xs: 12, md: 6}}>
             <Controller
               control={control}
               name="category"
@@ -275,7 +249,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{xs: 12, md: 6}}>
             <Controller
               control={control}
               name="payment_method"
@@ -295,7 +269,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <Controller
               control={control}
               name="receiver"
@@ -315,20 +289,22 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <TextField
               label="Amount"
               {...register('transfer_amount', {required: 'Transfer amount is required'})}
               error={!!errors.transfer_amount}
               helperText={errors.transfer_amount?.message}
               type="number"
-              inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
-              InputProps={{startAdornment: <InputAdornment position="start">€</InputAdornment>}}
               required
               fullWidth
+              slotProps={{
+                input: {startAdornment: <InputAdornment position="start">€</InputAdornment>},
+                htmlInput: {inputMode: isRunningOnIOs() ? 'text' : 'numeric'},
+              }}
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <TextField
               label="Information"
               {...register('information')}
@@ -339,13 +315,13 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
               rows={2}
             />
           </Grid>
-          <Grid container item xs={12} md={12} columns={10} spacing={AppConfig.baseSpacing}>
-            <Grid item xs={2}>
+          <Grid container size={{xs: 12}} columns={10} spacing={AppConfig.baseSpacing}>
+            <Grid size={{xs: 2}}>
               <FileUpload sx={{width: '100%'}} onFileUpload={handler.onFileUpload} multiple />
             </Grid>
 
             {filePreview.map(file => (
-              <Grid item key={file.name.replaceAll(' ', '_').toLowerCase()} xs={2}>
+              <Grid size={{xs: 2}} key={file.name.replaceAll(' ', '_').toLowerCase()}>
                 <FileUploadPreview
                   fileName={file.name}
                   fileSize={file.size}
@@ -361,7 +337,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
               defaultValues.attachments
                 .filter(fileName => fileName)
                 .map(fileName => (
-                  <Grid item key={fileName!.replaceAll(' ', '_').toLowerCase()} xs={2}>
+                  <Grid size={{xs: 2}} key={fileName!.replaceAll(' ', '_').toLowerCase()}>
                     <FilePreview
                       fileName={fileName!}
                       fileUrl={pb.files.getUrl(defaultValues, fileName!, {token: fileToken})}

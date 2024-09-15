@@ -1,6 +1,6 @@
 import {type TCreateCategoryPayload, ZCreateCategoryPayload} from '@budgetbuddyde/types';
 import {AddRounded, DeleteRounded} from '@mui/icons-material';
-import {Box, Button, Grid, IconButton, Stack, TextField} from '@mui/material';
+import {Box, Button, Grid2 as Grid, IconButton, Stack, TextField} from '@mui/material';
 import {LocalizationProvider} from '@mui/x-date-pickers';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {RecordModel} from 'pocketbase';
@@ -150,9 +150,9 @@ export const CreateMultipleCategoriesDialog: React.FC<TCreateMultipleTransaction
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <Grid container spacing={AppConfig.baseSpacing}>
               {form.map((row, idx) => (
-                <Grid key={row.tempId} container item md={12} spacing={AppConfig.baseSpacing}>
+                <Grid key={row.tempId} container size={{md: 12}} spacing={AppConfig.baseSpacing}>
                   {idx !== 0 && (
-                    <Grid item md={0.55}>
+                    <Grid size={{md: 0.55}}>
                       <IconButton
                         onClick={() => handler.removeRow(row.tempId)}
                         size="large"
@@ -161,7 +161,7 @@ export const CreateMultipleCategoriesDialog: React.FC<TCreateMultipleTransaction
                       </IconButton>
                     </Grid>
                   )}
-                  <Grid item md={idx !== 0 ? 2.45 : 3}>
+                  <Grid size={{md: idx !== 0 ? 2.45 : 3}}>
                     <TextField
                       label="Name"
                       value={row.name}
@@ -170,7 +170,7 @@ export const CreateMultipleCategoriesDialog: React.FC<TCreateMultipleTransaction
                       multiline
                     />
                   </Grid>
-                  <Grid item md={6}>
+                  <Grid size={{md: 6}}>
                     <TextField
                       label="Description"
                       value={row.description}
@@ -179,7 +179,7 @@ export const CreateMultipleCategoriesDialog: React.FC<TCreateMultipleTransaction
                       multiline
                     />
                   </Grid>
-                  <Grid item md={3}>
+                  <Grid size={{md: 3}}>
                     <TextField
                       label="Created by"
                       value={sessionUser?.id}

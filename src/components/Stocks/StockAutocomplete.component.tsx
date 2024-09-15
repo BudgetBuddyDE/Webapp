@@ -2,7 +2,7 @@ import {type TAssetSearchResult} from '@budgetbuddyde/types';
 import {
   Autocomplete,
   type AutocompleteChangeReason,
-  Grid,
+  Grid2 as Grid,
   TextField,
   type TextFieldProps,
   Typography,
@@ -106,10 +106,10 @@ export const StockAutocomplete: React.FC<IStockAutocompleteProps> = ({
       renderOption={(props, option, {selected}) => (
         <StyledAutocompleteOption {...props} key={option.isin} selected={selected}>
           <Grid container alignItems="center">
-            <Grid item sx={{display: 'flex', width: '40px'}}>
+            <Grid sx={{display: 'flex', width: '40px'}}>
               <Image src={option.logo} alt={option.label + ' logo'} sx={{width: '40px', height: '40px'}} />
             </Grid>
-            <Grid item sx={{width: 'calc(100% - 44px)', wordWrap: 'break-word', pl: 1}}>
+            <Grid sx={{width: 'calc(100% - 44px)', wordWrap: 'break-word', pl: 1}}>
               <Typography variant="body1">{option.label}</Typography>
               <Typography variant="body2" color="text.secondary">
                 {option.type} - {option.isin}

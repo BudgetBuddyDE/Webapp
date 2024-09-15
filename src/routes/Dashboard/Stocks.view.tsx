@@ -1,6 +1,6 @@
 import {type TDividendDetails} from '@budgetbuddyde/types';
 import {AccountBalanceRounded, AddRounded, PaymentsRounded, RemoveRounded} from '@mui/icons-material';
-import {Grid} from '@mui/material';
+import {Grid2 as Grid} from '@mui/material';
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
 
@@ -119,7 +119,7 @@ const StocksView = () => {
 
   return (
     <StockLayout onSelectAsset={({identifier}) => navigate(`/stocks/${identifier}`)}>
-      <Grid container item xs={12} md={12} spacing={AppConfig.baseSpacing}>
+      <Grid container size={{xs: 12}} spacing={AppConfig.baseSpacing}>
         {[
           {
             label: 'Depot',
@@ -150,7 +150,7 @@ const StocksView = () => {
             valueInformation: 'Expected upcoming dividend payments',
           },
         ].map(({value, valueInformation, icon, isLoading, label}) => (
-          <Grid key={label.toLowerCase().replaceAll(' ', '_')} item xs={6} md={3}>
+          <Grid key={label.toLowerCase().replaceAll(' ', '_')} size={{xs: 6, md: 3}}>
             <StatsCard
               label={label}
               value={value}
@@ -162,18 +162,18 @@ const StocksView = () => {
         ))}
       </Grid>
 
-      <Grid container item xs={12} md={8} spacing={AppConfig.baseSpacing} sx={{height: 'fit-content'}}>
-        <Grid item xs={12} md={12} order={{xs: 4}}>
+      <Grid container size={{xs: 12, md: 8}} spacing={AppConfig.baseSpacing} sx={{height: 'fit-content'}}>
+        <Grid size={{xs: 12, md: 12}} order={{xs: 4}}>
           <StockPositionTable withRedirect />
         </Grid>
 
-        <Grid item xs={12} md={12} order={{xs: 5}}>
+        <Grid size={{xs: 12}} order={{xs: 5}}>
           <DividendTable dividends={preparedDividends} isLoading={loadingDividends} withRedirect />
         </Grid>
       </Grid>
 
-      <Grid container item xs={12} md={4} spacing={AppConfig.baseSpacing}>
-        <Grid item xs={12}>
+      <Grid container size={{xs: 12, md: 4}} spacing={AppConfig.baseSpacing}>
+        <Grid size={{xs: 12}}>
           {isLoadingStockPositions ? (
             <CircularProgress />
           ) : (
@@ -181,11 +181,11 @@ const StocksView = () => {
           )}
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{xs: 12}}>
           <MetalQuoteList />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{xs: 12}}>
           {isLoadingWatchlist ? (
             <CircularProgress />
           ) : (

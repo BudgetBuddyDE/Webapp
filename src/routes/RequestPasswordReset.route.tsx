@@ -1,6 +1,6 @@
 import {PocketBaseCollection} from '@budgetbuddyde/types';
 import {AppRegistrationRounded, ExitToAppRounded, SendRounded} from '@mui/icons-material';
-import {Box, Button, CircularProgress, Divider, Grid, TextField, Typography} from '@mui/material';
+import {Box, Button, CircularProgress, Divider, Grid2 as Grid, TextField, Typography} from '@mui/material';
 import React from 'react';
 import {Link as RouterLink} from 'react-router-dom';
 
@@ -79,7 +79,7 @@ const RequestPasswordReset = () => {
         <Card.Body>
           <form onSubmit={handler.onSubmit}>
             <Grid container spacing={AppConfig.baseSpacing} sx={{mt: 1}}>
-              <Grid item xs={12} md={12}>
+              <Grid size={{xs: 12}}>
                 <TextField
                   variant="outlined"
                   type="email"

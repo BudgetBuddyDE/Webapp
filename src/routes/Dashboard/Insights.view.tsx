@@ -8,7 +8,7 @@ import {
   CircularProgress,
   Divider,
   FormControlLabel,
-  Grid,
+  Grid2 as Grid,
   List,
   ListItem,
   ListItemText,
@@ -260,7 +260,7 @@ const InsightsView: React.FC<TInsightsViewProps> = props => {
             <Box sx={{flex: 1, mt: 2}}>
               {selectedCategories.length > 0 && chartData.length > 0 ? (
                 <Grid container spacing={AppConfig.baseSpacing} sx={{height: '100%'}}>
-                  <Grid item md={options.showStats ? 10 : 12} sx={{height: 'inherit'}}>
+                  <Grid size={{md: options.showStats ? 10 : 12}} sx={{height: 'inherit'}}>
                     <Chart
                       type={'line'}
                       width={'100%'}
@@ -322,7 +322,7 @@ const InsightsView: React.FC<TInsightsViewProps> = props => {
                     />
                   </Grid>
 
-                  <Grid item md={options.showStats ? 2 : 0} sx={{display: options.showStats ? 'unset' : 'none'}}>
+                  <Grid size={{md: options.showStats ? 2 : 0}} sx={{display: options.showStats ? 'unset' : 'none'}}>
                     <Card sx={{p: 0}}>
                       <Card.Header sx={{px: 2, pt: 2}}>
                         <Card.Title>Stats</Card.Title>

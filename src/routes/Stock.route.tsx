@@ -8,7 +8,7 @@ import {
   Box,
   Button,
   Divider,
-  Grid,
+  Grid2 as Grid,
   List,
   ListItem,
   ListItemText,
@@ -301,8 +301,8 @@ export const Stock = () => {
         handler.showCreateDialog({stock: {type, isin: identifier, label: name, logo}});
       }}>
       <ContentGrid title={stockDetails?.asset.name ?? ''} description={params.isin}>
-        <Grid container item xs={12} md={12} lg={8} spacing={AppConfig.baseSpacing}>
-          <Grid item xs={12} md={12}>
+        <Grid container size={{xs: 12, lg: 8}} spacing={AppConfig.baseSpacing}>
+          <Grid size={{xs: 12}}>
             {loadingQuotes && (!quotes || quotes.length === 0) ? (
               <CircularProgress />
             ) : quotes ? (
@@ -312,7 +312,7 @@ export const Stock = () => {
             )}
           </Grid>
 
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <StockPositionTable
               isLoading={loadingStockPositions}
               positions={displayedStockPositions}
@@ -326,7 +326,7 @@ export const Stock = () => {
           </Grid>
 
           {stockDetails && stockDetails.details.securityDetails && (
-            <Grid item xs={12} md={12}>
+            <Grid size={{xs: 12}}>
               <Accordion defaultExpanded>
                 <AccordionSummary expandIcon={<ExpandMoreRounded />}>
                   <Typography variant="subtitle1" fontWeight={'bold'}>
@@ -523,23 +523,23 @@ export const Stock = () => {
             </Grid>
           )}
 
-          <Grid container item xs={12} md={12} spacing={AppConfig.baseSpacing}>
+          <Grid container size={{xs: 12}} spacing={AppConfig.baseSpacing}>
             {loadingRelatedStocks
               ? Array.from({length: 6}).map((_, idx) => (
-                  <Grid key={idx} item xs={6} md={4}>
+                  <Grid key={idx} size={{xs: 6, md: 4}}>
                     <RelatedStock isLoading />
                   </Grid>
                 ))
               : relatedStocks.map((stock, idx) => (
-                  <Grid key={idx} item xs={6} md={4}>
+                  <Grid key={idx} size={{xs: 12, md: 4}}>
                     <RelatedStock key={stock.asset._id.identifier} stock={stock} />
                   </Grid>
                 ))}
           </Grid>
         </Grid>
 
-        <Grid container item xs={12} md={12} lg={4} spacing={AppConfig.baseSpacing}>
-          <Grid item xs={12} md={12}>
+        <Grid container size={{xs: 12, lg: 4}} spacing={AppConfig.baseSpacing}>
+          <Grid size={{xs: 12}}>
             {loadingDetails ? (
               <CircularProgress />
             ) : stockDetails ? (
@@ -549,7 +549,7 @@ export const Stock = () => {
             )}
           </Grid>
 
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             {loadingDetails ? (
               <CircularProgress />
             ) : stockDetails ? (
@@ -560,7 +560,7 @@ export const Stock = () => {
           </Grid>
 
           {stockDetails && (
-            <Grid item xs={12} md={12}>
+            <Grid size={{xs: 12}}>
               <Accordion>
                 <AccordionSummary expandIcon={<ExpandMoreRounded />}>
                   <Typography variant="subtitle1" fontWeight={'bold'}>
@@ -654,7 +654,7 @@ export const Stock = () => {
             </Grid>
           )}
 
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             {loadingDetails ? (
               <CircularProgress />
             ) : stockDetails ? (

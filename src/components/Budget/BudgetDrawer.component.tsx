@@ -5,7 +5,7 @@ import {
   ZCreateBudgetPayload,
   ZUpdateBudgetPayload,
 } from '@budgetbuddyde/types';
-import {Grid, InputAdornment, TextField} from '@mui/material';
+import {Grid2 as Grid, InputAdornment, TextField} from '@mui/material';
 import React from 'react';
 import {Controller, DefaultValues} from 'react-hook-form';
 
@@ -126,7 +126,7 @@ export const BudgetDrawer: React.FC<TBudgetDrawerProps> = ({
         },
       }) => (
         <Grid container spacing={AppConfig.baseSpacing} sx={{p: 2}}>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <Controller
               control={control}
               name="category"
@@ -146,17 +146,19 @@ export const BudgetDrawer: React.FC<TBudgetDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <TextField
               label="Budget"
               {...register('budget', {required: 'Budget is required'})}
               error={!!errors.budget}
               helperText={errors.budget?.message}
               type="number"
-              inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
-              InputProps={{startAdornment: <InputAdornment position="start">€</InputAdornment>}}
               required
               fullWidth
+              slotProps={{
+                input: {startAdornment: <InputAdornment position="start">€</InputAdornment>},
+                htmlInput: {inputMode: isRunningOnIOs() ? 'text' : 'numeric'},
+              }}
             />
           </Grid>
         </Grid>

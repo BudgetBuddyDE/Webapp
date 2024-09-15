@@ -5,7 +5,7 @@ import {
   ZCreatePaymentMethodPayload,
   ZUpdatePaymentMethodPayload,
 } from '@budgetbuddyde/types';
-import {Grid, TextField} from '@mui/material';
+import {Grid2 as Grid, TextField} from '@mui/material';
 import React from 'react';
 import {DefaultValues} from 'react-hook-form';
 
@@ -129,7 +129,7 @@ export const PaymentMethodDrawer: React.FC<TPaymentMethodDrawerProps> = ({
         },
       }) => (
         <Grid container spacing={AppConfig.baseSpacing} sx={{p: 2}}>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <TextField
               label="Name"
               {...register('name', {required: 'Name is required'})}
@@ -139,7 +139,7 @@ export const PaymentMethodDrawer: React.FC<TPaymentMethodDrawerProps> = ({
               fullWidth
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <TextField
               label="Address"
               {...register('address', {required: 'Address is required'})}
@@ -149,7 +149,7 @@ export const PaymentMethodDrawer: React.FC<TPaymentMethodDrawerProps> = ({
               fullWidth
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <TextField
               label="Provider"
               {...register('provider', {required: 'Provider is required'})}
@@ -159,7 +159,7 @@ export const PaymentMethodDrawer: React.FC<TPaymentMethodDrawerProps> = ({
               fullWidth
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <TextField
               label="Description"
               {...register('description')}

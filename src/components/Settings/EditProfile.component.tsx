@@ -1,5 +1,5 @@
 import {DeleteRounded, PersonRounded} from '@mui/icons-material';
-import {Box, Button, Grid, Stack, TextField} from '@mui/material';
+import {Box, Button, Grid2 as Grid, Stack, TextField} from '@mui/material';
 import React from 'react';
 
 import {AppConfig} from '@/app.config';
@@ -93,7 +93,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
         <Card.Body>
           <form ref={formRef} onSubmit={handler.onSubmit}>
             <Grid container spacing={AppConfig.baseSpacing} rowSpacing={Math.round(AppConfig.baseSpacing / 2)}>
-              <Grid item xs={12} md={12}>
+              <Grid size={{xs: 12}}>
                 <TextField
                   fullWidth
                   disabled
@@ -106,7 +106,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={6} md={6}>
+              <Grid size={{xs: 6}}>
                 <TextField
                   id="name"
                   name="name"
@@ -120,7 +120,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={6} md={6}>
+              <Grid size={{xs: 6}}>
                 <TextField
                   id="surname"
                   name="surname"
@@ -134,7 +134,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={12} md={12}>
+              <Grid size={{xs: 12}}>
                 <TextField
                   fullWidth
                   id="username"
@@ -147,7 +147,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={12} md={12}>
+              <Grid size={{xs: 12}}>
                 <TextField
                   fullWidth
                   id="email"

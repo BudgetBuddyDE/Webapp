@@ -99,7 +99,11 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
     }
 
     return Array.from(sumByCategory.entries()).map(
-      ([category, amount]) => ({label: category, value: amount}) as TPieChartData,
+      ([category, amount]) =>
+        ({
+          label: category,
+          value: amount,
+        }) as TPieChartData,
     );
   }, [transactions, transactionsType, currentTimeframe]);
 

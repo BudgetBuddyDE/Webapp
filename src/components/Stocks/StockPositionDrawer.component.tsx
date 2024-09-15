@@ -6,9 +6,7 @@ import {
   ZCreateStockPositionPayload,
   ZUpdateStockPositionPayload,
 } from '@budgetbuddyde/types';
-import {Grid, InputAdornment, TextField} from '@mui/material';
-import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {Grid2 as Grid, InputAdornment, TextField} from '@mui/material';
 import React from 'react';
 import {Controller, DefaultValues} from 'react-hook-form';
 
@@ -16,10 +14,10 @@ import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/components/Auth';
 import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/EntityDrawer';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {useScreenSize} from '@/hooks';
 import {pb} from '@/pocketbase';
 import {isRunningOnIOs, parseNumber} from '@/utils';
 
+import {DatePicker} from '../Date';
 import {StockExchangeAutocomplete, type TStockExchangeAutocompleteOption} from './Exchange';
 import {StockAutocomplete, type TStockAutocompleteOption} from './StockAutocomplete.component';
 import {useStockPositions} from './hooks';
@@ -48,7 +46,6 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
   closeOnBackdropClick,
   closeOnEscape,
 }) => {
-  const screenSize = useScreenSize();
   const {sessionUser} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const {refreshData: refreshStockPositions} = useStockPositions();
@@ -148,56 +145,32 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
         },
       }) => (
         <Grid container spacing={AppConfig.baseSpacing} sx={{p: 2}}>
-          <Grid item xs={12} md={12}>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <Controller
-                control={control}
-                name="bought_at"
-                rules={{required: 'Bought at is required'}}
-                defaultValue={defaultValues?.bought_at ?? new Date()}
-                render={({field: {onChange, value, ref}}) =>
-                  screenSize === 'small' ? (
-                    <MobileDatePicker
-                      label="Bought at"
-                      inputFormat="dd.MM.yyyy"
-                      onChange={onChange}
-                      onAccept={onChange}
-                      value={value}
-                      inputRef={ref}
-                      renderInput={params => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          error={!!errors.bought_at}
-                          helperText={errors.bought_at?.message}
-                          required
-                        />
-                      )}
-                    />
-                  ) : (
-                    <DesktopDatePicker
-                      label="Bought at"
-                      inputFormat="dd.MM.yyyy"
-                      onChange={onChange}
-                      onAccept={onChange}
-                      value={value}
-                      inputRef={ref}
-                      renderInput={params => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          error={!!errors.bought_at}
-                          helperText={errors.bought_at?.message}
-                          required
-                        />
-                      )}
-                    />
-                  )
-                }
-              />
-            </LocalizationProvider>
+          <Grid size={{xs: 12}}>
+            <Controller
+              control={control}
+              name="bought_at"
+              rules={{required: 'Bought at is required'}}
+              defaultValue={defaultValues?.bought_at ?? new Date()}
+              render={({field: {onChange, value, ref}}) => (
+                <DatePicker
+                  value={value}
+                  onChange={onChange}
+                  onAccept={onChange}
+                  inputRef={ref}
+                  slotProps={{
+                    textField: {
+                      label: 'Bought at',
+                      error: !!errors.bought_at,
+                      helperText: errors.bought_at?.message,
+                      required: true,
+                      fullWidth: true,
+                    },
+                  }}
+                />
+              )}
+            />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <Controller
               control={control}
               name="stock"
@@ -217,7 +190,7 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12}}>
             <Controller
               control={control}
               name="exchange"
@@ -237,29 +210,33 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{xs: 12, md: 6}}>
             <TextField
               label="Quantity"
               {...register('quantity', {required: 'Quantity is required'})}
               error={!!errors.quantity}
               helperText={errors.quantity?.message}
               type="number"
-              inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
               required
               fullWidth
+              slotProps={{
+                htmlInput: {inputMode: isRunningOnIOs() ? 'text' : 'numeric'},
+              }}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{xs: 12, md: 6}}>
             <TextField
               label="Buy in"
               {...register('buy_in', {required: 'Buy in is required'})}
               error={!!errors.buy_in}
               helperText={errors.buy_in?.message}
               type="number"
-              inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
-              InputProps={{startAdornment: <InputAdornment position="start">€</InputAdornment>}}
               required
               fullWidth
+              slotProps={{
+                input: {startAdornment: <InputAdornment position="start">€</InputAdornment>},
+                htmlInput: {inputMode: isRunningOnIOs() ? 'text' : 'numeric'},
+              }}
             />
           </Grid>
         </Grid>

@@ -29,6 +29,13 @@ export const components: Theme['components'] = {
       },
     },
   },
+  MuiGrid2: {
+    styleOverrides: {
+      root: {
+        height: 'fit-content',
+      },
+    },
+  },
   MuiMenu: {
     styleOverrides: {
       root: {

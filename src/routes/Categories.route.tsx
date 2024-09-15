@@ -1,6 +1,6 @@
 import {type TCategory} from '@budgetbuddyde/types';
 import {AddRounded, DeleteRounded, EditRounded} from '@mui/icons-material';
-import {Checkbox, Grid, IconButton, TableCell, TableRow} from '@mui/material';
+import {Checkbox, Grid2 as Grid, IconButton, TableCell, TableRow} from '@mui/material';
 import {format} from 'date-fns';
 import React from 'react';
 
@@ -114,7 +114,7 @@ export const Categories = () => {
 
   return (
     <ContentGrid title={'Categories'}>
-      <Grid item xs={12} md={12} lg={8} xl={8}>
+      <Grid size={{xs: 12, lg: 8}}>
         <Table<TCategory>
           isLoading={isLoadingCategories}
           title="Categories"
@@ -191,12 +191,12 @@ export const Categories = () => {
         />
       </Grid>
 
-      <Grid container item xs={12} md={12} lg={4} xl={4} spacing={AppConfig.baseSpacing} sx={{height: 'max-content'}}>
-        <Grid item xs={12} md={12}>
+      <Grid container size={{xs: 12, lg: 4}} spacing={AppConfig.baseSpacing} sx={{height: 'max-content'}}>
+        <Grid size={{xs: 12}}>
           <CategoryExpenseChart />
         </Grid>
 
-        <Grid item xs={12} md={12}>
+        <Grid size={{xs: 12}}>
           <CategoryIncomeChart />
         </Grid>
       </Grid>

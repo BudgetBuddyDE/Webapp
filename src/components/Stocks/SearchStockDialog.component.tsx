@@ -5,7 +5,7 @@ import {
   Dialog,
   DialogContent,
   type DialogProps,
-  Grid,
+  Grid2 as Grid,
   IconButton,
   CircularProgress as MuiCircularProgress,
   TextField,
@@ -116,9 +116,11 @@ export const SearchStockDialog: React.FC<TSearchStockDialogProps> = ({
           onChange={debounce(e => setSearchTerm(e.target.value), 500)}
           fullWidth
           inputRef={input => input && input.focus()}
-          InputProps={{
-            startAdornment: <SearchRounded sx={{mr: 1}} />,
-            endAdornment: loading && <MuiCircularProgress size={26} />,
+          slotProps={{
+            input: {
+              startAdornment: <SearchRounded sx={{mr: 1}} />,
+              endAdornment: loading && <MuiCircularProgress size={26} />,
+            },
           }}
         />
       </Box>
@@ -142,12 +144,12 @@ export const SearchStockDialog: React.FC<TSearchStockDialogProps> = ({
                   },
                 }}
                 onClick={() => onSelectAsset && onSelectAsset(asset)}>
-                <Grid item sx={{display: 'flex', width: '56px'}}>
+                <Grid sx={{display: 'flex', width: '56px'}}>
                   <ActionPaper sx={{width: '56px', height: '56px'}}>
                     <Image src={asset.logo} alt={asset.name + ' logo'} sx={{width: 'inherit', height: 'inherit'}} />
                   </ActionPaper>
                 </Grid>
-                <Grid item sx={{flex: 1, wordWrap: 'break-word', pl: 1}}>
+                <Grid sx={{flex: 1, wordWrap: 'break-word', pl: 1}}>
                   <Typography variant="body1" fontWeight={'bolder'}>
                     {asset.name}
                   </Typography>
@@ -156,7 +158,7 @@ export const SearchStockDialog: React.FC<TSearchStockDialogProps> = ({
                   </Typography>
                 </Grid>
                 {onOpenPosition && (
-                  <Grid item>
+                  <Grid>
                     <Tooltip title="Open position">
                       <IconButton
                         size="large"
@@ -171,7 +173,7 @@ export const SearchStockDialog: React.FC<TSearchStockDialogProps> = ({
                   </Grid>
                 )}
                 {onWatchlistInteraction && (
-                  <Grid item>
+                  <Grid>
                     <Tooltip title={isWatched ? 'Remove from watchlist' : 'Add to watchlist'}>
                       <IconButton
                         size="large"

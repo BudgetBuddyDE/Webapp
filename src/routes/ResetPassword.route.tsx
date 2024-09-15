@@ -1,6 +1,6 @@
 import {PocketBaseCollection} from '@budgetbuddyde/types';
 import {AppRegistrationRounded, ExitToAppRounded, SendRounded} from '@mui/icons-material';
-import {Box, Button, CircularProgress, Divider, Grid, Typography} from '@mui/material';
+import {Box, Button, CircularProgress, Divider, Grid2 as Grid, Typography} from '@mui/material';
 import React from 'react';
 import {Link as RouterLink, useNavigate} from 'react-router-dom';
 import {z} from 'zod';
@@ -97,11 +97,11 @@ const ResetPassword = () => {
         <Card.Body>
           <form onSubmit={handler.onSubmit}>
             <Grid container spacing={2} sx={{mt: 1}}>
-              <Grid item xs={12} md={12}>
+              <Grid size={{xs: 12}}>
                 <PasswordInput outlinedInputProps={{name: 'pwd1', onChange: handler.onInputChange}} />
               </Grid>
 
-              <Grid item xs={12} md={12}>
+              <Grid size={{xs: 12}}>
                 <PasswordInput outlinedInputProps={{name: 'pwd2', onChange: handler.onInputChange}} />
               </Grid>
             </Grid>

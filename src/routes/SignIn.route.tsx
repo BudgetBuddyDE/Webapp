@@ -1,5 +1,5 @@
 import {AppRegistrationRounded, ExitToAppRounded, HomeRounded, SendRounded} from '@mui/icons-material';
-import {Box, Button, Divider, Grid, Link, Stack, TextField, Typography} from '@mui/material';
+import {Box, Button, Divider, Grid2 as Grid, Link, Stack, TextField, Typography} from '@mui/material';
 import {type RecordAuthResponse, type RecordModel} from 'pocketbase';
 import React from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
@@ -79,7 +79,7 @@ const SignIn = () => {
         </Stack>
       )}
       <Grid container justifyContent={'center'}>
-        <Grid item xs={12} sm={12} md={4} lg={4} xl={3.5}>
+        <Grid size={{xs: 12, md: 4, xl: 3.5}}>
           <Card sx={{py: 3, px: 4}}>
             <Box display="flex" flexDirection="column">
               <AppLogo
@@ -100,7 +100,7 @@ const SignIn = () => {
             <form onSubmit={formHandler.formSubmit}>
               <Grid container spacing={AppConfig.baseSpacing} sx={{mt: 1}}>
                 {Object.keys(AppConfig.authProvider).map(provider => (
-                  <Grid key={provider} item xs={6}>
+                  <Grid key={provider} size={{xs: 6}}>
                     <SocialSignInBtn
                       key={provider}
                       provider={provider}
@@ -111,11 +111,11 @@ const SignIn = () => {
                   </Grid>
                 ))}
 
-                <Grid item xs={12}>
+                <Grid size={{xs: 12}}>
                   <Divider>or with</Divider>
                 </Grid>
 
-                <Grid item xs={12} md={12}>
+                <Grid size={{xs: 12}}>
                   <TextField
                     variant="outlined"
                     placeholder="Enter email"
@@ -129,7 +129,7 @@ const SignIn = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={12}>
+                <Grid size={{xs: 12}}>
                   <PasswordInput outlinedInputProps={{onChange: formHandler.inputChange}} />
 
                   <Link
