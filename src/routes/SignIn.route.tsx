@@ -5,7 +5,7 @@ import {
   Divider,
   FormControl,
   FormLabel,
-  Grid,
+  Grid2 as Grid,
   Link,
   Card as MuiCard,
   Stack,
@@ -90,7 +90,7 @@ const SignIn = () => {
         </Stack>
       )}
       <Grid container justifyContent={'center'} gap={AppConfig.baseSpacing}>
-        <Grid item xs={12} sm={12} md={4} lg={4} xl={3.5}>
+        <Grid size={{xs: 12, sm: 12, md: 4, lg: 4}}>
           <MuiCard variant="outlined">
             <Box sx={{display: 'flex', justifyContent: 'center', mb: 2}}>
               <AppLogo style={{borderRadius: '5px'}} width={64} height={64} />
@@ -103,7 +103,7 @@ const SignIn = () => {
             <form onSubmit={formHandler.formSubmit}>
               <Grid container spacing={AppConfig.baseSpacing} sx={{mt: 1}}>
                 {Object.keys(AppConfig.authProvider).map(provider => (
-                  <Grid key={provider} item xs={6}>
+                  <Grid key={provider} size={{xs: 6}}>
                     <SocialSignInBtn
                       key={provider}
                       variant="outlined"
@@ -115,11 +115,11 @@ const SignIn = () => {
                   </Grid>
                 ))}
 
-                <Grid item xs={12}>
+                <Grid size={{xs: 12}}>
                   <Divider>or</Divider>
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid size={{xs: 12}}>
                   <FormControl fullWidth>
                     <FormLabel htmlFor="email">E-Mail</FormLabel>
                     <TextField
@@ -135,11 +135,11 @@ const SignIn = () => {
                   </FormControl>
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid size={{xs: 12}}>
                   <PasswordInput outlinedInputProps={{onChange: formHandler.inputChange}} showForgotPassword />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid size={{xs: 12}}>
                   <Button type="submit" fullWidth variant="contained">
                     Sign in
                   </Button>

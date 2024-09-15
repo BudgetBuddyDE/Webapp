@@ -52,7 +52,11 @@ export const ReceiverAutocomplete: React.FC<IReceiverAutocompleteProps> = ({
   const options: TReceiverAutocompleteOption[] = React.useMemo(() => {
     if (!transactions) return [];
     return Array.from(new Set(transactions.map(({receiver}) => receiver))).map(
-      receiver => ({label: receiver, value: receiver}) as TReceiverAutocompleteOption,
+      receiver =>
+        ({
+          label: receiver,
+          value: receiver,
+        }) as TReceiverAutocompleteOption,
     );
   }, [transactions]);
 

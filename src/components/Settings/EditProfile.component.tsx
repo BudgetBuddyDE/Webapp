@@ -1,5 +1,5 @@
 import {DeleteRounded, PersonRounded} from '@mui/icons-material';
-import {Box, Button, Grid, Stack, TextField} from '@mui/material';
+import {Box, Button, FormControl, FormLabel, Grid2 as Grid, Stack, TextField} from '@mui/material';
 import React from 'react';
 
 import {AppConfig} from '@/app.config';
@@ -93,72 +93,66 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
         <Card.Body>
           <form ref={formRef} onSubmit={handler.onSubmit}>
             <Grid container spacing={AppConfig.baseSpacing} rowSpacing={Math.round(AppConfig.baseSpacing / 2)}>
-              <Grid item xs={12} md={12}>
-                <TextField
-                  fullWidth
-                  disabled
-                  id="uuid"
-                  name="uuid"
-                  label="UUID"
-                  value={sessionUser.id}
-                  defaultValue={sessionUser.id}
-                  sx={{mt: 2}}
-                  required
-                />
+              <Grid size={{xs: 12, md: 12}}>
+                <FormControl fullWidth required disabled>
+                  <FormLabel htmlFor="uuid">UUID</FormLabel>
+                  <TextField
+                    variant="outlined"
+                    id="uuid"
+                    name="uuid"
+                    defaultValue={sessionUser.id}
+                    value={sessionUser.id}
+                  />
+                </FormControl>
               </Grid>
-              <Grid item xs={6} md={6}>
-                <TextField
-                  id="name"
-                  name="name"
-                  label="Name"
-                  value={form.name}
-                  defaultValue={sessionUser.name}
-                  onChange={handler.onChangeInput}
-                  sx={{mt: 2}}
-                  fullWidth
-                  disabled={!isFormEditable}
-                  required
-                />
+              <Grid size={{xs: 6, md: 6}}>
+                <FormControl fullWidth required disabled={!isFormEditable}>
+                  <FormLabel htmlFor="name">Name</FormLabel>
+                  <TextField
+                    id="name"
+                    name="name"
+                    value={form.name}
+                    defaultValue={sessionUser.name}
+                    onChange={handler.onChangeInput}
+                  />
+                </FormControl>
               </Grid>
-              <Grid item xs={6} md={6}>
-                <TextField
-                  id="surname"
-                  name="surname"
-                  label="Surname"
-                  value={form.surname}
-                  defaultValue={sessionUser.surname}
-                  onChange={handler.onChangeInput}
-                  sx={{mt: 2}}
-                  fullWidth
-                  disabled={!isFormEditable}
-                  required
-                />
+              <Grid size={{xs: 6, md: 6}}>
+                <FormControl fullWidth required disabled={!isFormEditable}>
+                  <FormLabel htmlFor="surname">Surname</FormLabel>
+                  <TextField
+                    id="surname"
+                    name="surname"
+                    value={form.surname}
+                    defaultValue={sessionUser.surname}
+                    onChange={handler.onChangeInput}
+                  />
+                </FormControl>
               </Grid>
-              <Grid item xs={12} md={12}>
-                <TextField
-                  fullWidth
-                  id="username"
-                  name="username"
-                  label="Username"
-                  value={form.username}
-                  defaultValue={sessionUser.username}
-                  sx={{mt: 2}}
-                  disabled={!isFormEditable}
-                  required
-                />
+              <Grid size={{xs: 12, md: 12}}>
+                <FormControl fullWidth required disabled={!isFormEditable}>
+                  <FormLabel htmlFor="username">Username</FormLabel>
+                  <TextField
+                    id="username"
+                    name="username"
+                    value={form.username}
+                    defaultValue={sessionUser.username}
+                    onChange={handler.onChangeInput}
+                  />
+                </FormControl>
               </Grid>
-              <Grid item xs={12} md={12}>
-                <TextField
-                  fullWidth
-                  id="email"
-                  name="email"
-                  label="E-Mail"
-                  value={form.email}
-                  defaultValue={sessionUser.email}
-                  sx={{mt: 2}}
-                  disabled={!isFormEditable}
-                  required
-                />
+              <Grid size={{xs: 12, md: 12}}>
+                <FormControl fullWidth required disabled={!isFormEditable}>
+                  <FormLabel htmlFor="email">E-Mail</FormLabel>
+                  <TextField
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={form.email}
+                    defaultValue={sessionUser.email}
+                    onChange={handler.onChangeInput}
+                  />
+                </FormControl>
               </Grid>
             </Grid>
 

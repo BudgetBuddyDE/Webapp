@@ -259,9 +259,11 @@ export const CreateMultipleSubscriptionsDialog: React.FC<TCreateMultipleSubscrip
                       label="Amount"
                       value={row.transfer_amount}
                       onChange={e => handler.changeTransferAmount(idx, e.target.value)}
-                      InputProps={{startAdornment: <InputAdornment position="start">€</InputAdornment>}}
                       required
                       fullWidth
+                      slotProps={{
+                        input: {startAdornment: <InputAdornment position="start">€</InputAdornment>},
+                      }}
                     />
                   </Grid>
                   <Grid item md={2}>

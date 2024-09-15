@@ -116,9 +116,11 @@ export const SearchStockDialog: React.FC<TSearchStockDialogProps> = ({
           onChange={debounce(e => setSearchTerm(e.target.value), 500)}
           fullWidth
           inputRef={input => input && input.focus()}
-          InputProps={{
-            startAdornment: <SearchRounded sx={{mr: 1}} />,
-            endAdornment: loading && <MuiCircularProgress size={26} />,
+          slotProps={{
+            input: {
+              startAdornment: <SearchRounded sx={{mr: 1}} />,
+              endAdornment: loading && <MuiCircularProgress size={26} />,
+            },
           }}
         />
       </Box>

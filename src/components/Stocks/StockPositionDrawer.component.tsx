@@ -244,9 +244,11 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
               error={!!errors.quantity}
               helperText={errors.quantity?.message}
               type="number"
-              inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
               required
               fullWidth
+              slotProps={{
+                htmlInput: {inputMode: isRunningOnIOs() ? 'text' : 'numeric'},
+              }}
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -256,10 +258,12 @@ export const StockPositionDrawer: React.FC<TStockPositionDrawerProps> = ({
               error={!!errors.buy_in}
               helperText={errors.buy_in?.message}
               type="number"
-              inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
-              InputProps={{startAdornment: <InputAdornment position="start">€</InputAdornment>}}
               required
               fullWidth
+              slotProps={{
+                input: {startAdornment: <InputAdornment position="start">€</InputAdornment>},
+                htmlInput: {inputMode: isRunningOnIOs() ? 'text' : 'numeric'},
+              }}
             />
           </Grid>
         </Grid>

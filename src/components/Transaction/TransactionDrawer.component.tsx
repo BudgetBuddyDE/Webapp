@@ -5,7 +5,7 @@ import {
   ZCreateTransactionPayload,
   ZUpdateTransactionPayload,
 } from '@budgetbuddyde/types';
-import {Grid, InputAdornment, TextField} from '@mui/material';
+import {FormControl, FormLabel, Grid2 as Grid, InputAdornment, TextField} from '@mui/material';
 import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
@@ -206,7 +206,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
         },
       }) => (
         <Grid container spacing={AppConfig.baseSpacing} sx={{p: 2}}>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12, md: 12}}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Controller
                 control={control}
@@ -255,7 +255,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
               />
             </LocalizationProvider>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{xs: 12, md: 6}}>
             <Controller
               control={control}
               name="category"
@@ -275,7 +275,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{xs: 12, md: 6}}>
             <Controller
               control={control}
               name="payment_method"
@@ -295,7 +295,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12, md: 12}}>
             <Controller
               control={control}
               name="receiver"
@@ -315,37 +315,44 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={12}>
-            <TextField
-              label="Amount"
-              {...register('transfer_amount', {required: 'Transfer amount is required'})}
-              error={!!errors.transfer_amount}
-              helperText={errors.transfer_amount?.message}
-              type="number"
-              inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
-              InputProps={{startAdornment: <InputAdornment position="start">€</InputAdornment>}}
-              required
-              fullWidth
-            />
+          <Grid size={{xs: 12, md: 12}}>
+            <FormControl fullWidth required>
+              <FormLabel htmlFor="email">E-Mail</FormLabel>
+              <TextField
+                {...register('transfer_amount', {required: 'Transfer amount is required'})}
+                error={!!errors.transfer_amount}
+                helperText={errors.transfer_amount?.message}
+                type="number"
+                variant="outlined"
+                id="transfer_amoount"
+                slotProps={{
+                  input: {startAdornment: <InputAdornment position="start">€</InputAdornment>},
+                  htmlInput: {inputMode: isRunningOnIOs() ? 'text' : 'numeric'},
+                }}
+              />
+            </FormControl>
           </Grid>
-          <Grid item xs={12} md={12}>
-            <TextField
-              label="Information"
-              {...register('information')}
-              error={!!errors.information}
-              helperText={errors.information?.message}
-              fullWidth
-              multiline
-              rows={2}
-            />
+          <Grid size={{xs: 12, md: 12}}>
+            <FormControl fullWidth required>
+              <FormLabel htmlFor="information">Information</FormLabel>
+              <TextField
+                id="information"
+                {...register('information')}
+                error={!!errors.information}
+                helperText={errors.information?.message}
+                fullWidth
+                multiline
+                rows={2}
+              />
+            </FormControl>
           </Grid>
-          <Grid container item xs={12} md={12} columns={10} spacing={AppConfig.baseSpacing}>
-            <Grid item xs={2}>
+          <Grid container size={{xs: 12, md: 12}} columns={10} spacing={AppConfig.baseSpacing}>
+            <Grid size={{xs: 2, md: 2}}>
               <FileUpload sx={{width: '100%'}} onFileUpload={handler.onFileUpload} multiple />
             </Grid>
 
             {filePreview.map(file => (
-              <Grid item key={file.name.replaceAll(' ', '_').toLowerCase()} xs={2}>
+              <Grid key={file.name.replaceAll(' ', '_').toLowerCase()} size={{xs: 2, md: 2}}>
                 <FileUploadPreview
                   fileName={file.name}
                   fileSize={file.size}
@@ -361,7 +368,7 @@ export const TransactionDrawer: React.FC<TTransactionDrawerProps> = ({
               defaultValues.attachments
                 .filter(fileName => fileName)
                 .map(fileName => (
-                  <Grid item key={fileName!.replaceAll(' ', '_').toLowerCase()} xs={2}>
+                  <Grid key={fileName!.replaceAll(' ', '_').toLowerCase()} size={{xs: 2, md: 2}}>
                     <FilePreview
                       fileName={fileName!}
                       fileUrl={pb.files.getUrl(defaultValues, fileName!, {token: fileToken})}

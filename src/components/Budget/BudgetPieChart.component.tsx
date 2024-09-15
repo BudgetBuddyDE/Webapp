@@ -1,9 +1,12 @@
 import {Box} from '@mui/material';
-import {ParentSize} from '@visx/responsive';
+import {PieChart} from '@mui/x-charts/PieChart';
 import {isSameMonth} from 'date-fns';
 import React from 'react';
 
-import {ApexPieChart, Card} from '../Base';
+import {PieCenterLabel} from '@/routes/Charts.route';
+import {Formatter} from '@/services/Formatter.service';
+
+import {Card} from '../Base';
 import {CircularProgress} from '../Loading';
 import {SubscriptionService, useSubscriptions} from '../Subscription';
 import {TransactionService, useTransactions} from '../Transaction';
@@ -49,41 +52,66 @@ export const BudgetPieChart: React.FC<TBudgetPieChartProps> = () => {
 
   const freeAmount: number = totalIncome - (Math.abs(currentExpenses) + Math.abs(futureExpenses));
 
+  const chartData = React.useMemo(() => {
+    return [
+      {
+        id: 'current-expenses',
+        label: 'Current Expenses',
+        value: currentExpenses,
+      },
+      {
+        id: 'future-expenses',
+        label: 'Future Expenses',
+        value: futureExpenses,
+      },
+      {
+        id: 'free-amount',
+        label: 'Free Amount',
+        value: freeAmount,
+      },
+    ].filter(({value}) => value > 0);
+  }, [currentExpenses, futureExpenses, freeAmount]);
+
   return (
-    <Card sx={{p: 0}}>
-      <Card.Header sx={{p: 2, pb: 0}}>
+    <Card>
+      <Card.Header>
         <Box>
-          <Card.Title>Title</Card.Title>
-          <Card.Subtitle>Subtitle</Card.Subtitle>
+          <Card.Title>Budget</Card.Title>
+          <Card.Subtitle>How much can you spend?</Card.Subtitle>
         </Box>
       </Card.Header>
-      <Card.Body sx={{pt: 1}}>
+      <Card.Body>
         {isLoadingTransactions || isLoadingSubscriptions ? (
           <CircularProgress />
         ) : (
-          <ParentSize>
-            {({width}) => (
-              <ApexPieChart
-                width={width}
-                height={width}
-                data={[
-                  {
-                    label: 'Current Expenses',
-                    value: currentExpenses,
-                  },
-                  {
-                    label: 'Future Expenses',
-                    value: futureExpenses,
-                  },
-                  {
-                    label: 'Free Amount',
-                    value: freeAmount,
-                  },
-                ]}
-                formatAsCurrency
-              />
-            )}
-          </ParentSize>
+          <PieChart
+            series={[
+              {
+                data: chartData,
+                valueFormatter: value => Formatter.formatBalance(value.value),
+                innerRadius: 90,
+                paddingAngle: 1,
+                cornerRadius: 5,
+                highlightScope: {faded: 'global', highlighted: 'item'},
+                arcLabel: params => params.label ?? '',
+                arcLabelMinAngle: 30,
+                sortingValues(a, b) {
+                  return b - a;
+                },
+              },
+            ]}
+            height={350}
+            margin={{left: 0, right: 0, top: 10, bottom: 0}}
+            slotProps={{
+              legend: {
+                hidden: true,
+              },
+            }}>
+            <PieCenterLabel
+              primaryText={Formatter.formatBalance(currentExpenses + futureExpenses)}
+              secondaryText="Expenses"
+            />
+          </PieChart>
         )}
       </Card.Body>
     </Card>

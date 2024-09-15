@@ -28,7 +28,7 @@ export class Formatter {
       formattedVal = (formattedVal / 1000).toFixed(2) + ' K.';
     }
 
-    return isNegative ? "-" + formattedVal : formattedVal.toString();
+    return isNegative ? '-' + formattedVal : formattedVal.toString();
   }
 
   static formatDate() {

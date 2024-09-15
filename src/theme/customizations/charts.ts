@@ -16,6 +16,12 @@ export const chartsCustomizations: ChartsComponents<Theme> = {
       skipAnimation: true,
     },
   },
+  // @ts-ignore
+  MuiPieChart: {
+    defaultProps: {
+      skipAnimation: true,
+    },
+  },
   MuiChartsAxis: {
     styleOverrides: {
       root: ({theme}) => ({

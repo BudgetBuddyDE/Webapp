@@ -1,5 +1,5 @@
 import {type TDividendDetails, type TTimeframe} from '@budgetbuddyde/types';
-import {Stack, TableCell, TableRow, Typography} from '@mui/material';
+import {Chip, Stack, TableCell, TableRow, Typography} from '@mui/material';
 import {format} from 'date-fns';
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
@@ -8,9 +8,9 @@ import {AppConfig} from '@/app.config';
 import {ActionPaper, Image} from '@/components/Base';
 import {type TTableProps, Table} from '@/components/Base/Table';
 import {useStockPositions} from '@/components/Stocks/hooks';
+import {Formatter} from '@/services/Formatter.service';
 
 import {StockService} from './Stock.service';
-import {StockPrice} from './StockPrice.component';
 
 const SEPERATOR = '•';
 
@@ -93,11 +93,19 @@ export const DividendTable: React.FC<TDividendTableProps> = ({dividends, withRed
               <Typography>{format(data.dividend.paymentDate, 'dd.MM.yy')}</Typography>
             </TableCell>
             <TableCell>
-              <StockPrice price={data.dividend.price} currency={data.dividend.currency} />
+              <Chip
+                variant="outlined"
+                color={'primary'}
+                label={Formatter.formatBalance(data.dividend.price, data.dividend.currency)}
+              />
             </TableCell>
             <TableCell>
               <Typography variant="caption">{totalQuantity}x</Typography>
-              <StockPrice price={totalQuantity * data.dividend.price} currency={data.dividend.currency} />
+              <Chip
+                variant="outlined"
+                color={'primary'}
+                label={Formatter.formatBalance(totalQuantity * data.dividend.price, data.dividend.currency)}
+              />
             </TableCell>
           </TableRow>
         );

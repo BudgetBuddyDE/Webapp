@@ -1,5 +1,5 @@
+import {describe, expect, it} from 'vitest';
 
-import {describe, it, expect} from 'vitest';
 import {Formatter} from './Formatter.service';
 
 describe('Formatter.service.ts', () => {

@@ -6,8 +6,7 @@ import {useNavigate} from 'react-router';
 
 import {Card, ListWithIcon, NoResults} from '@/components/Base';
 import {useSnackbarContext} from '@/components/Snackbar';
-
-import {StockPrice} from '../StockPrice.component';
+import {Formatter} from '@/services/Formatter.service';
 
 export type TStockWatchlistProps = {
   title: string;
@@ -57,7 +56,7 @@ export const StockWatchlist: React.FC<TStockWatchlistProps> = ({title, subtitle,
                   />
                 </Box>
               }
-              amount={<StockPrice price={asset.quote.price} />}
+              amount={<Chip variant="outlined" color={'primary'} label={Formatter.formatBalance(asset.quote.price)} />}
               imageUrl={asset.logo}
               onClick={() => navigate('/stocks/' + asset.isin)}
             />

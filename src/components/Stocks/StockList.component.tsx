@@ -6,8 +6,7 @@ import {useNavigate} from 'react-router';
 
 import {Card, ListWithIcon, NoResults} from '@/components/Base';
 import {useSnackbarContext} from '@/components/Snackbar';
-
-import {StockPrice} from './index';
+import {Formatter} from '@/services/Formatter.service';
 
 export type TStockListProps = {
   title: string;
@@ -58,9 +57,9 @@ export const StockList: React.FC<TStockListProps> = ({title, subtitle, data, onA
                 </Box>
               }
               amount={
-                <StockPrice
-                  price={position.quote.price}
-                  trend={position.quote.price >= position.buy_in ? 'up' : 'down'}
+                <Chip
+                  color={position.quote.price >= position.buy_in ? 'success' : 'error'}
+                  label={Formatter.formatBalance(position.quote.price)}
                 />
               }
               imageUrl={position.logo}

@@ -1,9 +1,12 @@
 import {Box, Button, Stack, ToggleButton, ToggleButtonGroup} from '@mui/material';
-import {ParentSize} from '@visx/responsive';
+import {PieChart} from '@mui/x-charts/PieChart';
 import React from 'react';
 import {Link} from 'react-router-dom';
 
-import {ApexPieChart, Card, type TPieChartData} from '../Base';
+import {PieCenterLabel} from '@/routes/Charts.route';
+import {Formatter} from '@/services/Formatter.service';
+
+import {Card, type TPieChartData} from '../Base';
 import {CircularProgress} from '../Loading';
 import {useSubscriptions} from './useSubscriptions.hook';
 
@@ -48,8 +51,8 @@ export const SubscriptionPieChart = () => {
   }, [subscriptions, subscriptionType]);
 
   return (
-    <Card sx={{p: 0}}>
-      <Card.Header sx={{p: 2, pb: 0}}>
+    <Card>
+      <Card.Header>
         <Box>
           <Card.Title>Recurring Payments</Card.Title>
           <Card.Subtitle>Monthly recurring payments</Card.Subtitle>
@@ -74,12 +77,37 @@ export const SubscriptionPieChart = () => {
         <CircularProgress />
       ) : (
         <React.Fragment>
-          <Card.Body sx={{pt: 1}}>
-            <ParentSize>
-              {({width}) => <ApexPieChart width={width} height={width} data={chartData} formatAsCurrency showTotal />}
-            </ParentSize>
+          <Card.Body>
+            <PieChart
+              series={[
+                {
+                  data: chartData,
+                  valueFormatter: value => Formatter.formatBalance(value.value),
+                  innerRadius: 90,
+                  paddingAngle: 1,
+                  cornerRadius: 5,
+                  highlightScope: {faded: 'global', highlighted: 'item'},
+                  arcLabel: params => params.label ?? '',
+                  arcLabelMinAngle: 15,
+                  sortingValues(a, b) {
+                    return b - a;
+                  },
+                },
+              ]}
+              height={350}
+              margin={{left: 0, right: 0, top: 10, bottom: 0}}
+              slotProps={{
+                legend: {
+                  hidden: true,
+                },
+              }}>
+              <PieCenterLabel
+                primaryText={Formatter.formatBalance(chartData.reduceRight((prev, curr) => prev + curr.value, 0))}
+                secondaryText="Total"
+              />
+            </PieChart>
           </Card.Body>
-          <Card.Footer sx={{p: 2, pt: 0}}>
+          <Card.Footer sx={{mt: 2}}>
             <Stack direction="row" justifyContent={'flex-end'}>
               {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
               {/*@ts-expect-error*/}

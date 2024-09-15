@@ -5,7 +5,7 @@ import {
   ZCreateSubscriptionPayload,
   ZUpdateSubscriptionPayload,
 } from '@budgetbuddyde/types';
-import {Grid, InputAdornment, TextField} from '@mui/material';
+import {Grid2 as Grid, InputAdornment, TextField} from '@mui/material';
 import {DesktopDatePicker, LocalizationProvider, MobileDatePicker} from '@mui/x-date-pickers';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import React from 'react';
@@ -150,7 +150,7 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
         },
       }) => (
         <Grid container spacing={AppConfig.baseSpacing} sx={{p: 2}}>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12, md: 12}}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Controller
                 control={control}
@@ -199,7 +199,7 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
               />
             </LocalizationProvider>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{xs: 12, md: 6}}>
             <Controller
               control={control}
               name="category"
@@ -219,7 +219,7 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{xs: 12, md: 6}}>
             <Controller
               control={control}
               name="payment_method"
@@ -239,7 +239,7 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12, md: 12}}>
             <Controller
               control={control}
               name="receiver"
@@ -259,20 +259,22 @@ export const SubscriptionDrawer: React.FC<TSubscriptionDrawerProps> = ({
               )}
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12, md: 12}}>
             <TextField
               label="Amount"
               {...register('transfer_amount', {required: 'Transfer amount is required'})}
               error={!!errors.transfer_amount}
               helperText={errors.transfer_amount?.message}
               type="number"
-              inputProps={{inputMode: isRunningOnIOs() ? 'text' : 'numeric'}}
-              InputProps={{startAdornment: <InputAdornment position="start">€</InputAdornment>}}
               required
               fullWidth
+              slotProps={{
+                input: {startAdornment: <InputAdornment position="start">€</InputAdornment>},
+                htmlInput: {inputMode: isRunningOnIOs() ? 'text' : 'numeric'},
+              }}
             />
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12, md: 12}}>
             <TextField
               label="Information"
               {...register('information')}
