@@ -27,7 +27,7 @@ const PageNotFound = () => {
 
           <Typography sx={{my: 1}}>The page you are looking for might have been removed or moved.</Typography>
 
-          <Grid container spacing={AppConfig.baseSpacing / 2} sx={{width: '60%', mx: 'auto', justifyContent: 'center'}}>
+          <Grid container spacing={AppConfig.baseSpacing / 2}>
             {sessionUser && (
               <Grid size={{xs: 6}}>
                 <StackedIconButton
@@ -42,13 +42,7 @@ const PageNotFound = () => {
               </Grid>
             )}
             <Grid size={{xs: 6}}>
-              <StackedIconButton
-                component={Link}
-                href="/sign-in"
-                // to="/sign-in"
-                size="large"
-                startIcon={<ExitToAppRounded />}
-                sx={{width: '100%'}}>
+              <StackedIconButton component={Link} href="/sign-in" size="large" startIcon={<ExitToAppRounded />}>
                 Sign-in
               </StackedIconButton>
             </Grid>
