@@ -3,9 +3,9 @@ import {PieChart as MuiPieChart, type PieChartProps as MuiPieChartProps} from '@
 import React from 'react';
 
 import {useScreenSize} from '@/hooks';
-import {PieCenterLabel} from '@/routes/Charts.route';
 
 import {ParentSize} from './ParentSize.component';
+import {PieCenterLabel} from './PieCenterLabel.component';
 
 /**
  * Type definition for the props of the PieChart component.
