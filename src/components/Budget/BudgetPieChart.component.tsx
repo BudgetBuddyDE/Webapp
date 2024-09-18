@@ -91,10 +91,6 @@ export const BudgetPieChart: React.FC<TBudgetPieChartProps> = () => {
               {
                 data: chartData,
                 valueFormatter: value => Formatter.formatBalance(value.value),
-                innerRadius: 110,
-                paddingAngle: 1,
-                cornerRadius: 5,
-                highlightScope: {faded: 'global', highlighted: 'item'},
               },
             ]}
           />

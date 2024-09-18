@@ -550,10 +550,6 @@ export const Stock = () => {
                             value: marketValue,
                           })),
                           valueFormatter: value => Formatter.formatBalance(value.value),
-                          innerRadius: 110,
-                          paddingAngle: 1,
-                          cornerRadius: 5,
-                          highlightScope: {faded: 'global', highlighted: 'item'},
                         },
                       ]}
                     />
@@ -575,10 +571,6 @@ export const Stock = () => {
                         {
                           data: stockDetails.asset.security.regions.map(({id, share}) => ({label: id, value: share})),
                           valueFormatter: value => `${value.value} shares`,
-                          innerRadius: 110,
-                          paddingAngle: 1,
-                          cornerRadius: 5,
-                          highlightScope: {faded: 'global', highlighted: 'item'},
                         },
                       ]}
                     />

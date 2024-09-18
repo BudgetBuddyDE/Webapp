@@ -1,6 +1,8 @@
+import {useTheme} from '@mui/material';
 import {PieChart as MuiPieChart, type PieChartProps as MuiPieChartProps} from '@mui/x-charts';
 import React from 'react';
 
+import {useScreenSize} from '@/hooks';
 import {PieCenterLabel} from '@/routes/Charts.route';
 
 import {ParentSize} from './ParentSize.component';
@@ -41,6 +43,8 @@ export type TPieChartProps = Omit<MuiPieChartProps, 'children'> & {
  * @returns {JSX.Element} The rendered PieChart component.
  */
 export const PieChart: React.FC<TPieChartProps> = ({fullWidth = false, primaryText, secondaryText, ...props}) => {
+  const theme = useTheme();
+  const screenSize = useScreenSize();
   const defaultProps: Partial<MuiPieChartProps> = {
     slotProps: {
       legend: {
@@ -53,12 +57,16 @@ export const PieChart: React.FC<TPieChartProps> = ({fullWidth = false, primaryTe
 
   const preparedData: typeof props.series = React.useMemo(() => {
     return props.series.map(item => ({
-      ...item,
+      innerRadius: screenSize === 'small' ? 90 : 110,
+      paddingAngle: 1,
+      cornerRadius: theme.shape.borderRadius,
       arcLabel: params => params.label ?? '',
       arcLabelMinAngle: 18,
+      highlightScope: {faded: 'global', highlighted: 'item'},
       sortingValues(a, b) {
         return b - a;
       },
+      ...item,
     }));
   }, [props.series]);
 
