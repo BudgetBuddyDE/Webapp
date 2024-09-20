@@ -24,22 +24,18 @@ import React from 'react';
 import {useNavigate} from 'react-router-dom';
 
 import {AppConfig} from '@/app.config';
-import {
-  ActionPaper,
-  BarChart,
-  Card,
-  DateRange,
-  FullScreenDialog,
-  StyledAutocompleteOption,
-  type TDateRange,
-  type TFullScreenDialogProps,
-} from '@/components/Base';
-import {useCategories} from '@/components/Category';
+import {ActionPaper} from '@/components/Base/ActionPaper';
+import {Card} from '@/components/Base/Card';
+import {BarChart} from '@/components/Base/Charts';
+import {FullScreenDialog, type TFullScreenDialogProps} from '@/components/Base/FullScreenDialog';
+import {DateRange, StyledAutocompleteOption, type TDateRange} from '@/components/Base/Input';
 import {DesktopFeatureOnly} from '@/components/DesktopFeatureOnly';
-import {useTransactions} from '@/components/Transaction';
-import {useDocumentTitle, useScreenSize} from '@/hooks';
-import {useKeyPress} from '@/hooks/useKeyPress.hook.ts';
-import {Formatter} from '@/services';
+import {useCategories} from '@/features/Category';
+import {useTransactions} from '@/features/Transaction';
+import {useDocumentTitle} from '@/hooks/useDocumentTitle';
+import {useKeyPress} from '@/hooks/useKeyPress';
+import {useScreenSize} from '@/hooks/useScreenSize';
+import {Formatter} from '@/services/Formatter';
 import {downloadAsJson} from '@/utils';
 
 export type TInsightsViewProps =

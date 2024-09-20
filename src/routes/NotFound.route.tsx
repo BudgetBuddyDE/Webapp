@@ -2,11 +2,11 @@ import {ExitToAppRounded, HomeRounded} from '@mui/icons-material';
 import {Grid2 as Grid, Link, Typography} from '@mui/material';
 
 import {AppConfig} from '@/app.config';
-import {useAuthContext} from '@/components/Auth';
-import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
-import {ActionPaper} from '@/components/Base';
-import {StackedIconButton} from '@/components/StackedIconButton.component';
-import {useDocumentTitle} from '@/hooks';
+import {ActionPaper} from '@/components/Base/ActionPaper';
+import {StackedIconButton} from '@/components/StackedIconButton/StackedIconButton.component';
+import {withUnauthentificatedLayout} from '@/features/Auth';
+import {useAuthContext} from '@/features/Auth';
+import {useDocumentTitle} from '@/hooks/useDocumentTitle';
 
 const PageNotFound = () => {
   useDocumentTitle('Page not Found', true);

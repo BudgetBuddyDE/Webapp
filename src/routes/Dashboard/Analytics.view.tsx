@@ -1,9 +1,9 @@
 import {Grid2 as Grid} from '@mui/material';
 import React from 'react';
 
-import {CategoryExpenseChart, CategoryIncomeChart} from '@/components/Category';
-import {DashboardStatsWrapper} from '@/components/DashboardStatsWrapper.component';
-import {SubscriptionPieChart} from '@/components/Subscription';
+import {DashboardStatsWrapper} from '@/components/DashboardStatsWrapper';
+import {CategoryExpenseChart, CategoryIncomeChart} from '@/features/Category';
+import {SubscriptionPieChart} from '@/features/Subscription';
 
 const AnalyticsView = () => {
   return (

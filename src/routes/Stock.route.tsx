@@ -22,35 +22,38 @@ import React from 'react';
 import {Navigate, useNavigate, useParams} from 'react-router-dom';
 
 import {AppConfig, Feature} from '@/app.config';
-import {useAuthContext} from '@/components/Auth';
-import {withAuthLayout} from '@/components/Auth/Layout';
-import {Card, NoResults, TabPanel} from '@/components/Base';
-import {BarChart, TBarChartProps} from '@/components/Base/Charts/BarChart.component';
-import {PieChart} from '@/components/Base/Charts/PieChart.component';
-import {DeleteDialog} from '@/components/DeleteDialog.component';
+import {Card} from '@/components/Base';
+import {PieChart} from '@/components/Base/Charts';
+import {BarChart, TBarChartProps} from '@/components/Base/Charts/BarChart/BarChart.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
-import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
+import {withFeatureFlag} from '@/components/Feature/withFeatureFlag/withFeatureFlag.component';
 import {ContentGrid} from '@/components/Layout';
 import {CircularProgress} from '@/components/Loading';
-import {useSnackbarContext} from '@/components/Snackbar';
+import {NoResults} from '@/components/NoResults';
+import {TabPanel} from '@/components/TabPanel';
+import {useAuthContext, withAuthLayout} from '@/features/Auth';
+import {DeleteDialog} from '@/features/DeleteDialog';
+import {useSnackbarContext} from '@/features/Snackbar';
 import {
   CompanyInformation,
   DividendList,
   PriceChart,
+  RelatedStock,
   StockLayout,
   StockNews,
+  StockPositionDrawer,
+  StockPositionTable,
   StockRating,
   StockService,
   type TPriceChartPoint,
+  type TStockPositionDrawerValues,
+  useFetchRelatedStocks,
   useFetchStockDetails,
   useFetchStockQuotes,
   useStockPositions,
-} from '@/components/Stocks';
-import {StockPositionTable} from '@/components/Stocks/Position';
-import {RelatedStock, useFetchRelatedStocks} from '@/components/Stocks/RelatedStocks';
-import {StockPositionDrawer, type TStockPositionDrawerValues} from '@/components/Stocks/StockPositionDrawer.component';
-import {useDocumentTitle} from '@/hooks';
-import {Formatter} from '@/services';
+} from '@/features/Stocks';
+import {useDocumentTitle} from '@/hooks/useDocumentTitle';
+import {Formatter} from '@/services/Formatter';
 import {getSocketIOClient} from '@/utils';
 
 const NoStockMessage = () => (

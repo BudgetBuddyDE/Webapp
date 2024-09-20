@@ -7,6 +7,9 @@ import {useDrawerStore} from '@/components/Layout/Drawer';
 import {CircularProgress} from '@/components/Loading';
 import {drawerWidth as AppDrawerWidth} from '@/style/theme/theme';
 
+import {NoResults, type TNoResultsProps} from '../../NoResults/NoResults.component';
+import {ActionPaper} from '../ActionPaper/ActionPaper.component';
+import {Card} from '../Card';
 import {
   type IPaginationHandler,
   InitialPaginationState,
@@ -14,8 +17,7 @@ import {
   PaginationReducer,
   usePagination,
 } from '../Pagination';
-import {type ISelectionHandler, SelectAll} from '../Select';
-import {ActionPaper, Card, NoResults, type TNoResultsProps} from '../index';
+import {type ISelectionHandler, SelectAll} from '../SelectAll';
 import {TableContainer} from './TableContainer.component';
 
 export type TTableSelectionProps<T> = {

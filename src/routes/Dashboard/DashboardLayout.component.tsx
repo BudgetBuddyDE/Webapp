@@ -2,10 +2,9 @@ import {Grid2 as Grid, ToggleButton, ToggleButtonGroup} from '@mui/material';
 import React from 'react';
 import {Outlet, useLocation, useNavigate} from 'react-router-dom';
 
-import {useAuthContext} from '@/components/Auth';
-import {withAuthLayout} from '@/components/Auth/Layout/withAuthLayout';
-import {ActionPaper} from '@/components/Base';
+import {ActionPaper} from '@/components/Base/ActionPaper';
 import {ContentGrid} from '@/components/Layout';
+import {useAuthContext, withAuthLayout} from '@/features/Auth';
 
 import {DashboardViewDescriptionMapping, DashboardViewMapping, type TDashboardView} from './index';
 

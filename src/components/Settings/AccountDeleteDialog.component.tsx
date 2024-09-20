@@ -12,11 +12,11 @@ import {
 } from '@mui/material';
 
 import {AppConfig} from '@/app.config';
+import {useAuthContext} from '@/features/Auth';
 import {pb} from '@/pocketbase';
 
-import {useAuthContext} from '../Auth';
-import {Transition} from '../DeleteDialog.component';
-import {useSnackbarContext} from '../Snackbar';
+import {useSnackbarContext} from '../../features/Snackbar';
+import {Transition} from '../Transition';
 
 export type TAccountDeleteDialogProps = DialogProps;
 

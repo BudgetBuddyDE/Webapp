@@ -6,12 +6,13 @@ import {useLocation, useNavigate} from 'react-router-dom';
 import {Link as RouterLink} from 'react-router-dom';
 
 import {AppConfig} from '@/app.config.ts';
-import {AppLogo} from '@/components/AppLogo.component';
-import {SocialSignInBtn, useAuthContext} from '@/components/Auth';
-import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
-import {Card, PasswordInput} from '@/components/Base';
-import {useSnackbarContext} from '@/components/Snackbar';
-import {AuthService} from '@/services';
+import {AppLogo} from '@/components/AppLogo/AppLogo.component';
+import {Card} from '@/components/Base/Card';
+import {PasswordInput} from '@/components/Base/Input';
+import {withUnauthentificatedLayout} from '@/features/Auth';
+import {SocialSignInBtn, useAuthContext} from '@/features/Auth';
+import {useSnackbarContext} from '@/features/Snackbar';
+import {AuthService} from '@/services/Auth';
 
 const SignIn = () => {
   const location = useLocation();

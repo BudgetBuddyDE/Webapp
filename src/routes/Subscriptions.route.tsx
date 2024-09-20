@@ -5,18 +5,19 @@ import {format} from 'date-fns';
 import React from 'react';
 
 import {AppConfig} from '@/app.config';
-import {withAuthLayout} from '@/components/Auth/Layout';
-import {ActionPaper, Linkify, Menu} from '@/components/Base';
-import {SearchInput} from '@/components/Base/Search';
-import {type ISelectionHandler} from '@/components/Base/Select';
+import {Menu} from '@/components/Base';
+import {ActionPaper, Linkify} from '@/components/Base';
+import {SearchInput} from '@/components/Base/SearchInput';
+import {type ISelectionHandler} from '@/components/Base/SelectAll';
 import {Table} from '@/components/Base/Table';
-import {CategoryChip} from '@/components/Category';
-import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {ToggleFilterDrawerButton, useFilterStore} from '@/components/Filter';
 import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
-import {PaymentMethodChip} from '@/components/PaymentMethod';
-import {useSnackbarContext} from '@/components/Snackbar';
+import {withAuthLayout} from '@/features/Auth';
+import {CategoryChip} from '@/features/Category';
+import {DeleteDialog} from '@/features/DeleteDialog';
+import {PaymentMethodChip} from '@/features/PaymentMethod';
+import {useSnackbarContext} from '@/features/Snackbar';
 import {
   CreateMultipleSubscriptionsDialog,
   SubscriptionActionMenu,
@@ -24,8 +25,8 @@ import {
   SubscriptionPieChart,
   type TSusbcriptionDrawerValues,
   useSubscriptions,
-} from '@/components/Subscription';
-import {type TTransactionDrawerValues, TransactionDrawer} from '@/components/Transaction';
+} from '@/features/Subscription';
+import {type TTransactionDrawerValues, TransactionDrawer} from '@/features/Transaction';
 import {pb} from '@/pocketbase';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
 import {determineNextExecution, determineNextExecutionDate, downloadAsJson, filterSubscriptions} from '@/utils';

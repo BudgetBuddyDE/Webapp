@@ -4,25 +4,25 @@ import React from 'react';
 import {useNavigate} from 'react-router-dom';
 
 import {AppConfig, Feature} from '@/app.config';
-import {useAuthContext} from '@/components/Auth';
-import {withAuthLayout} from '@/components/Auth/Layout';
-import {DeleteDialog} from '@/components/DeleteDialog.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
-import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
+import {withFeatureFlag} from '@/components/Feature/withFeatureFlag/withFeatureFlag.component';
 import {ContentGrid} from '@/components/Layout';
 import {CircularProgress} from '@/components/Loading';
-import {useSnackbarContext} from '@/components/Snackbar';
+import {useAuthContext, withAuthLayout} from '@/features/Auth';
+import {DeleteDialog} from '@/features/DeleteDialog';
+import {useSnackbarContext} from '@/features/Snackbar';
 import {
   PortfolioDiversityChart,
   StockLayout,
+  StockPositionDrawer,
   StockService,
   StockWatchlist,
+  type TStockPositionDrawerValues,
   useStockPositions,
   useStockWatchlist,
-} from '@/components/Stocks';
-import {StockPositionTable} from '@/components/Stocks/Position';
-import {StockPositionDrawer, type TStockPositionDrawerValues} from '@/components/Stocks/StockPositionDrawer.component';
-import {useDocumentTitle} from '@/hooks';
+} from '@/features/Stocks';
+import {StockPositionTable} from '@/features/Stocks/StockPosition';
+import {useDocumentTitle} from '@/hooks/useDocumentTitle';
 import {getSocketIOClient} from '@/utils';
 
 interface IStocksHandler {

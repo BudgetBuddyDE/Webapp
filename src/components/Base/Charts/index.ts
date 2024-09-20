@@ -3,4 +3,7 @@ export type TPieChartData = {
   value: number;
 };
 
-export * from './BarChart.component';
+export * from './BarChart';
+export * from './LineChart';
+export * from './ParentSize';
+export * from './PieChart';

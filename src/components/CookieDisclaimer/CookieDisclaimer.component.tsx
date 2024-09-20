@@ -6,7 +6,7 @@ import Cookies from 'universal-cookie';
 
 import {AppConfig} from '@/app.config';
 
-import {Icon} from '../Icon.component';
+import {Icon} from '../Icon/Icon.component';
 
 export type TCookieDisclaimerProps = {
   cookieName?: string;

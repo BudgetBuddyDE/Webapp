@@ -3,12 +3,13 @@ import {Box, Button, Grid2 as Grid, Stack, TextField} from '@mui/material';
 import React from 'react';
 
 import {AppConfig} from '@/app.config';
-import {useAuthContext} from '@/components/Auth';
-import {Card, NoResults} from '@/components/Base';
-import {useSnackbarContext} from '@/components/Snackbar';
-import {useKeyPress} from '@/hooks';
+import {Card} from '@/components/Base/Card';
+import {useAuthContext} from '@/features/Auth';
+import {useSnackbarContext} from '@/features/Snackbar';
+import {useKeyPress} from '@/hooks/useKeyPress';
 import {pb} from '@/pocketbase.ts';
 
+import {NoResults} from '../NoResults';
 import {AccountDeleteDialog} from './AccountDeleteDialog.component';
 
 interface IEditProfileHandler {

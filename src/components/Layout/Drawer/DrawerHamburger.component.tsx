@@ -2,7 +2,7 @@ import {MenuRounded as MenuIcon, MenuOpenRounded as MenuOpenIcon} from '@mui/ico
 import {IconButton, type IconButtonProps} from '@mui/material';
 import React from 'react';
 
-import {useScreenSize} from '@/hooks';
+import {useScreenSize} from '@/hooks/useScreenSize';
 
 import {useDrawerStore} from './Drawer.store';
 
