@@ -1,6 +1,6 @@
 import {type TTimeframe} from '@budgetbuddyde/types';
 import {Chip, Stack, Typography, useTheme} from '@mui/material';
-import {format} from 'date-fns';
+import {format, isSameYear} from 'date-fns';
 import React from 'react';
 
 import {Card} from '@/components/Base';
@@ -69,8 +69,12 @@ export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, compa
           xAxis={[
             {
               scaleType: 'point',
-              data: data.map(({date}) => format(new Date(date), 'MMM dd')),
-              tickInterval: (_, i) => (i + 1) % 5 === 0,
+              data: data.map(({date}) => format(new Date(date), 'yyyy-MM-dd')),
+              valueFormatter: (value: string) => {
+                const d = new Date(value);
+                return isSameYear(new Date(), d) ? format(d, 'MMM dd') : format(d, 'MMM dd, yy');
+              },
+              tickInterval: (_, i) => (i + 1) % Math.ceil(data.length / (data.length * 0.2)) === 0,
             },
           ]}
           yAxis={[
