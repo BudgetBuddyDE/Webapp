@@ -1,18 +1,24 @@
+import {TrendingDown, TrendingUp} from '@mui/icons-material';
+import {Chip} from '@mui/material';
 import React from 'react';
 
-import {LabelBadge, type TLabelBadgeProps} from '@/components/Base';
+import {type TLabelBadgeProps} from '@/components/Base';
 import {Formatter} from '@/services';
 
 export type TStockPriceProps = {
   price: number;
   trend?: 'up' | 'down';
   currency?: string;
+  withIcon?: boolean;
 } & Pick<TLabelBadgeProps, 'boxProps'>;
 
-export const StockPrice: React.FC<TStockPriceProps> = ({price, trend, currency = 'EUR', boxProps}) => {
+export const StockPrice: React.FC<TStockPriceProps> = ({price, trend, withIcon = false, currency = 'EUR'}) => {
   return (
-    <LabelBadge color={trend ? (trend === 'up' ? 'success' : 'error') : 'primary'} {...boxProps}>
-      {Formatter.formatBalance(price, currency)}
-    </LabelBadge>
+    <Chip
+      variant="outlined"
+      icon={trend && withIcon ? trend === 'up' ? <TrendingUp /> : <TrendingDown /> : undefined}
+      color={trend ? (trend === 'up' ? 'success' : 'error') : 'primary'}
+      label={Formatter.formatBalance(price, currency)}
+    />
   );
 };

@@ -52,7 +52,7 @@ export const components: Components<Theme> = {
             },
             style: {
               borderColor: colors.grey![200],
-              backgroundColor: colors.grey![100],
+              // backgroundColor: colors.grey![100],
               [`& .${chipClasses.label}`]: {
                 color: colors.grey![500],
               },
@@ -61,7 +61,7 @@ export const components: Components<Theme> = {
               },
               ...theme.applyStyles('dark', {
                 borderColor: colors.grey![700],
-                backgroundColor: colors.grey![800],
+                // backgroundColor: colors.grey![800],
                 [`& .${chipClasses.label}`]: {
                   color: colors.grey![300],
                 },
