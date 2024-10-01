@@ -114,13 +114,8 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
 
   return (
     <Card>
-      <Card.Header>
-        <Box>
-          <Card.Title>{title}</Card.Title>
-          {subtitle !== undefined && Boolean(subtitle) && <Card.Subtitle>{subtitle}</Card.Subtitle>}
-        </Box>
-
-        <Card.HeaderActions sx={{display: 'flex', flexDirection: 'row'}}>
+      <Card.Header
+        actions={
           <ToggleButtonGroup
             size="small"
             color="primary"
@@ -133,7 +128,11 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
-        </Card.HeaderActions>
+        }>
+        <Box>
+          <Card.Title>{title}</Card.Title>
+          {subtitle !== undefined && Boolean(subtitle) && <Card.Subtitle>{subtitle}</Card.Subtitle>}
+        </Box>
       </Card.Header>
       <Card.Body sx={{pt: 1}}>
         {hasItems ? (

@@ -1,77 +1,22 @@
-import {Box, Paper, type PaperProps, Typography} from '@mui/material';
-import React from 'react';
+import Card2, {type TCardProps as TCard2Props} from './Card/Card2.component';
 
-import {ActionPaper} from './ActionPaper.component';
+/**
+ * Type alias for TCard2Props.
+ * @deprecated Use TCardProps instead from the Card2-component.
+ * @typedef {TCard2Props} TCardProps
+ */
+export type TCardProps = TCard2Props;
 
-export type TCardProps = React.PropsWithChildren<PaperProps>;
-
-export type TCardSectionProps = React.PropsWithChildren<PaperProps>;
-
-const Card: React.FC<TCardProps> = ({children, sx, ...props}) => {
-  return (
-    <Paper {...props} sx={{p: 2, ...sx}}>
-      {children}
-    </Paper>
-  );
-};
-
-const Header: React.FC<TCardSectionProps> = ({children, sx, ...props}) => {
-  return (
-    <Box {...props} display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap" sx={sx}>
-      {children}
-    </Box>
-  );
-};
-
-const HeaderActions: React.FC<TCardSectionProps & {actionPaperProps?: PaperProps}> = ({
-  children,
-  sx,
-  actionPaperProps,
-}) => {
-  return (
-    <Box display="flex" flexDirection="row" sx={sx}>
-      <ActionPaper {...actionPaperProps}>{children}</ActionPaper>
-    </Box>
-  );
-};
-
-const Title: React.FC<TCardSectionProps> = ({children, sx}) => {
-  return (
-    <Typography variant="subtitle1" fontWeight="bold" sx={sx}>
-      {children}
-    </Typography>
-  );
-};
-
-const Subtitle: React.FC<TCardSectionProps> = ({children, sx}) => {
-  return (
-    <Typography variant="subtitle2" sx={sx}>
-      {children}
-    </Typography>
-  );
-};
-
-const Body: React.FC<TCardSectionProps> = ({children, sx, ...props}) => {
-  return (
-    <Box {...props} sx={sx}>
-      {children}
-    </Box>
-  );
-};
-
-const Footer: React.FC<TCardSectionProps> = ({children, sx, ...props}) => {
-  return (
-    <Box {...props} sx={sx}>
-      {children}
-    </Box>
-  );
-};
-
-export default Object.assign(Card, {
-  Header: Header,
-  HeaderActions: HeaderActions,
-  Title: Title,
-  Subtitle: Subtitle,
-  Body: Body,
-  Footer: Footer,
-});
+/**
+ * A React component that represents a card.
+ *
+ * @deprecated Use Card2 instead from the Card2-component.
+ * @component
+ * @example
+ * return (
+ *   <Card2>
+ *     <p>Card content</p>
+ *   </Card2>
+ * )
+ */
+export default Card2;

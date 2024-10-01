@@ -31,18 +31,19 @@ export const TransactionList: React.FC<TTransactionListProps> = ({
 
   return (
     <Card {...cardProps}>
-      <Card.Header sx={{mb: 1}}>
+      <Card.Header
+        sx={{mb: 1}}
+        actions={
+          onAddTransaction && (
+            <IconButton color="primary" onClick={onAddTransaction}>
+              <AddIcon />
+            </IconButton>
+          )
+        }>
         <Box>
           <Card.Title>{title}</Card.Title>
           {subtitle !== undefined && subtitle.length > 0 && <Card.Subtitle>{subtitle}</Card.Subtitle>}
         </Box>
-        {onAddTransaction && (
-          <Card.HeaderActions>
-            <IconButton color="primary" onClick={onAddTransaction}>
-              <AddIcon />
-            </IconButton>
-          </Card.HeaderActions>
-        )}
       </Card.Header>
       <Card.Body>
         {data.length > 0 ? (

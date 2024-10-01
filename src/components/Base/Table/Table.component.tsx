@@ -15,7 +15,7 @@ import {
   usePagination,
 } from '../Pagination';
 import {type ISelectionHandler, SelectAll} from '../Select';
-import {ActionPaper, Card, NoResults, type TNoResultsProps} from '../index';
+import {Card, NoResults, type TNoResultsProps} from '../index';
 import {TableContainer} from './TableContainer.component';
 
 export type TTableSelectionProps<T> = {
@@ -85,22 +85,20 @@ export const Table = <T,>({
     <React.Fragment>
       <Card sx={{p: 0}}>
         {(title || subtitle) && (
-          <Card.Header sx={{px: 2, pt: 2}}>
+          <Card.Header
+            sx={{px: 2, pt: 2}}
+            actions={
+              tableActions &&
+              (isLoading ? (
+                <Skeleton variant="rounded" sx={{width: {xs: '5rem', md: '10rem'}, height: '2.3rem'}} />
+              ) : (
+                tableActions
+              ))
+            }>
             <Box>
               {title && <Card.Title>{title || 'Table'}</Card.Title>}
               {subtitle && <Card.Subtitle>{subtitle}</Card.Subtitle>}
             </Box>
-            {tableActions && (
-              <Card.HeaderActions sx={{mt: {xs: 1, md: 0}, width: {md: 'unset'}}}>
-                <ActionPaper sx={{display: 'flex', flexDirection: 'row'}}>
-                  {isLoading ? (
-                    <Skeleton variant="rounded" sx={{width: {xs: '5rem', md: '10rem'}, height: '2.3rem'}} />
-                  ) : (
-                    tableActions
-                  )}
-                </ActionPaper>
-              </Card.HeaderActions>
-            )}
           </Card.Header>
         )}
         <Card.Body sx={{px: 0}}>

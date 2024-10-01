@@ -24,18 +24,19 @@ export const SubscriptionList: React.FC<TSubscriptionList> = ({data, onAddSubscr
 
   return (
     <Card>
-      <Card.Header sx={{mb: 1}}>
+      <Card.Header
+        sx={{mb: 1}}
+        actions={
+          onAddSubscription && (
+            <IconButton color="primary" onClick={onAddSubscription}>
+              <AddIcon />
+            </IconButton>
+          )
+        }>
         <Box>
           <Card.Title>Subscriptions</Card.Title>
           <Card.Subtitle>Your upcoming subscription-payments</Card.Subtitle>
         </Box>
-        {onAddSubscription && (
-          <Card.HeaderActions>
-            <IconButton color="primary" onClick={onAddSubscription}>
-              <AddIcon />
-            </IconButton>
-          </Card.HeaderActions>
-        )}
       </Card.Header>
       <Card.Body>
         {data.length > 0 ? (

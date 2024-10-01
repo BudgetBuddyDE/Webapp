@@ -28,7 +28,7 @@ export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, compa
 
   return (
     <Card>
-      <Card.Header>
+      <Card.Header actions={onTimeframeChange && <Timeframe onChange={onTimeframeChange} />}>
         <Stack>
           <Typography variant="h6">{company.name}</Typography>
           <Stack sx={{justifyContent: 'space-between'}}>
@@ -54,14 +54,6 @@ export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, compa
             </Typography>
           </Stack>
         </Stack>
-
-        <Card.HeaderActions
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-          }}>
-          {onTimeframeChange && <Timeframe onChange={onTimeframeChange} />}
-        </Card.HeaderActions>
       </Card.Header>
       <Card.Body>
         <LineChart

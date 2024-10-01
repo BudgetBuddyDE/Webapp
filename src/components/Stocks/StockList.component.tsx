@@ -21,19 +21,18 @@ export const StockList: React.FC<TStockListProps> = ({title, subtitle, data, onA
   const {showSnackbar} = useSnackbarContext();
   return (
     <Card>
-      <Card.Header>
+      <Card.Header
+        actions={
+          onAddItem && (
+            <IconButton size="small" onClick={onAddItem}>
+              <AddRounded color="primary" />
+            </IconButton>
+          )
+        }>
         <Box>
           <Card.Title>{title}</Card.Title>
           {subtitle && <Card.Subtitle>{subtitle}</Card.Subtitle>}
         </Box>
-
-        {onAddItem && (
-          <Card.HeaderActions>
-            <IconButton size="small" onClick={onAddItem}>
-              <AddRounded color="primary" />
-            </IconButton>
-          </Card.HeaderActions>
-        )}
       </Card.Header>
       <Card.Body>
         {data.length > 0 ? (

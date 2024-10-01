@@ -3,7 +3,7 @@ import {AddRounded} from '@mui/icons-material';
 import {Box, IconButton, Tooltip} from '@mui/material';
 import React from 'react';
 
-import {ActionPaper, Card, NoResults} from '@/components/Base';
+import {Card, NoResults} from '@/components/Base';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {CircularProgress} from '@/components/Loading';
 import {useSnackbarContext} from '@/components/Snackbar';
@@ -67,20 +67,18 @@ export const BudgetList: React.FC<TBudgetListProps> = () => {
   return (
     <React.Fragment>
       <Card>
-        <Card.Header>
+        <Card.Header
+          actions={
+            <Tooltip title="Set Budget">
+              <IconButton color="primary" onClick={handler.showCreateDialog}>
+                <AddRounded />
+              </IconButton>
+            </Tooltip>
+          }>
           <Box>
             <Card.Title>Category Budgets</Card.Title>
             <Card.Subtitle>Set a limit for your spending</Card.Subtitle>
           </Box>
-          <Card.HeaderActions>
-            <ActionPaper>
-              <Tooltip title="Set Budget">
-                <IconButton color="primary" onClick={handler.showCreateDialog}>
-                  <AddRounded />
-                </IconButton>
-              </Tooltip>
-            </ActionPaper>
-          </Card.HeaderActions>
         </Card.Header>
         <Card.Body>
           {isLoadingBudgets ? (

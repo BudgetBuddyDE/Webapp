@@ -51,13 +51,8 @@ export const SubscriptionPieChart = () => {
 
   return (
     <Card>
-      <Card.Header>
-        <Box>
-          <Card.Title>Recurring Payments</Card.Title>
-          <Card.Subtitle>Monthly recurring payments</Card.Subtitle>
-        </Box>
-
-        <Card.HeaderActions sx={{display: 'flex', flexDirection: 'row'}}>
+      <Card.Header
+        actions={
           <ToggleButtonGroup
             size="small"
             color="primary"
@@ -70,7 +65,11 @@ export const SubscriptionPieChart = () => {
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
-        </Card.HeaderActions>
+        }>
+        <Box>
+          <Card.Title>Recurring Payments</Card.Title>
+          <Card.Subtitle>Monthly recurring payments</Card.Subtitle>
+        </Box>
       </Card.Header>
       {isLoading ? (
         <CircularProgress />
