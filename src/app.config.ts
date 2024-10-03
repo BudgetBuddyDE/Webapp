@@ -43,8 +43,8 @@ export const AppConfig: TAppConfig = {
   },
   baseSpacing: 2,
   authProvider: {
-    google: 'Google',
-    github: 'GitHub',
+    // google: 'Google',
+    // github: 'GitHub',
   },
   feature: {
     [Feature.ENVIRONMENT_DISCLAIMER]: process.env.SHOW_ENVIRONMENT_DISCLAIMER === 'true',

@@ -17,6 +17,7 @@ const SHOW_ENVIRONMENT_DISCLAIMER = process.env.SHOW_ENVIRONMENT_DISCLAIMER || '
 const STOCK_SERVICE_HOST = process.env.STOCK_SERVICE_HOST || 'http://localhost:7080';
 const MAIL_SERVICE_HOST = process.env.MAIL_SERVICE_HOST;
 const POCKETBASE_URL = process.env.POCKETBASE_URL || '';
+const AUTH_SERVICE_HOST = process.env.AUTH_SERVICE_HOST;
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -27,6 +28,7 @@ export default defineConfig({
       STOCK_SERVICE_HOST: STOCK_SERVICE_HOST,
       MAIL_SERVICE_HOST: MAIL_SERVICE_HOST,
       POCKETBASE_URL: POCKETBASE_URL,
+      AUTH_SERVICE_HOST: AUTH_SERVICE_HOST,
       NODE_ENV: process.env.NODE_ENV,
     },
   },

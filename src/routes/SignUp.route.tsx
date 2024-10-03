@@ -1,4 +1,3 @@
-import {PocketBaseCollection} from '@budgetbuddyde/types';
 import {ExitToAppRounded, HomeRounded, SendRounded} from '@mui/icons-material';
 import {
   Box,
@@ -17,12 +16,12 @@ import React from 'react';
 import {Link as RouterLink, useNavigate} from 'react-router-dom';
 
 import {AppConfig} from '@/app.config';
+import {client} from '@/auth-client';
 import {AppLogo} from '@/components/AppLogo.component';
 import {SocialSignInBtn, useAuthContext} from '@/components/Auth';
 import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
 import {Card, PasswordInput} from '@/components/Base';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {pb} from '@/pocketbase.ts';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -45,23 +44,14 @@ const SignUp = () => {
     formSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       try {
-        const data = {
-          username: `${form.name}_${form.surname}`.replaceAll(' ', '_').toLowerCase(),
+        await client.signUp.email({
+          name: `${form.name} ${form.surname}`,
           email: form.email,
-          emailVisibility: false,
           password: form.password,
-          passwordConfirm: form.password,
-          name: form.name,
-          surname: form.surname,
-        };
-        await pb.collection(PocketBaseCollection.USERS).create(data);
+          callbackURL: '/dashboard',
+        });
 
-        pb.collection(PocketBaseCollection.USERS).requestVerification(form.email);
-
-        await pb.collection(PocketBaseCollection.USERS).authWithPassword(form.email, form.password);
-
-        showSnackbar({message: 'You have successfully registered and signed in!'});
-        navigate('/');
+        showSnackbar({message: 'You have successfully signed up!'});
       } catch (error) {
         console.error(error);
         showSnackbar({message: (error as Error).message || 'Registration failed'});

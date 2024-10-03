@@ -6,12 +6,12 @@ import {useLocation, useNavigate} from 'react-router-dom';
 import {Link as RouterLink} from 'react-router-dom';
 
 import {AppConfig} from '@/app.config.ts';
+import {client} from '@/auth-client';
 import {AppLogo} from '@/components/AppLogo.component';
 import {SocialSignInBtn, useAuthContext} from '@/components/Auth';
 import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
 import {Card, PasswordInput} from '@/components/Base';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {AuthService} from '@/services';
 
 const SignIn = () => {
   const location = useLocation();
@@ -24,33 +24,41 @@ const SignIn = () => {
     navigate('/dashboard');
   };
 
-  const handleSuccessfullLogin = (name: string) => {
-    showSnackbar({message: `Welcome ${name}!`, action: <Button onClick={logout}>Sign-out</Button>});
-    if (location.search) {
-      const query = new URLSearchParams(location.search.substring(1));
-      if (query.get('callbackUrl')) navigate(query.get('callbackUrl')!);
-      return;
-    }
-    navigate('/');
-  };
+  // const handleSuccessfullLogin = (name: string) => {
+  //   showSnackbar({message: `Welcome ${name}!`, action: <Button onClick={logout}>Sign-out</Button>});
+  //   if (location.search) {
+  //     const query = new URLSearchParams(location.search.substring(1));
+  //     if (query.get('callbackUrl')) navigate(query.get('callbackUrl')!);
+  //     return;
+  //   }
+  //   navigate('/');
+  // };
 
   const formHandler = {
     inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm(prev => ({...prev, [event.target.name]: event.target.value}));
     },
-    handleAuthProviderLogin: (response: RecordAuthResponse<RecordModel>) => {
-      handleSuccessfullLogin(response.record.username);
+    handleAuthProviderLogin: (_: RecordAuthResponse<RecordModel>) => {
+      // handleSuccessfullLogin(response.record.username);
     },
     formSubmit: React.useCallback(
       async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const [result, error] = await AuthService.login(form.email, form.password);
-        if (error) {
-          console.error(error);
-          showSnackbar({message: error instanceof Error ? error.message : 'Authentication failed'});
-          return;
+        const query = new URLSearchParams(location.search.substring(1));
+        const result = await client.signIn.email({
+          email: form.email,
+          password: form.password,
+          callbackURL: query.has('callbackUrl') ? (query.get('callbackUrl') as string) : '/dashboard',
+        });
+        if (result.error) {
+          console.error(result.error);
+          showSnackbar({message: result.error instanceof Error ? result.error.message : 'Authentication failed'});
         }
-        handleSuccessfullLogin(result.record.username);
+
+        showSnackbar({
+          message: `Welcome ${result.data?.user.name}!`,
+          action: <Button onClick={logout}>Sign-out</Button>,
+        });
       },
       [form, location],
     ),

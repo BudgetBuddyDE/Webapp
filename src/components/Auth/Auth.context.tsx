@@ -1,6 +1,7 @@
 import {type TUser, ZUser} from '@budgetbuddyde/types';
 import React from 'react';
 
+// import {client} from '@/auth-client';
 import {pb} from '@/pocketbase.ts';
 
 export interface IAuthContext {
@@ -28,6 +29,7 @@ export function useAuthContext() {
 export type AuthProviderProps = React.PropsWithChildren;
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
+  // const {isPending, isRefetching, data, error} = client.useSession();
   const [loading, setLoading] = React.useState(true);
   const [fileToken, setFileToken] = React.useState<IAuthContext['fileToken']>(null);
   const [sessionUser, setSessionUser] = React.useState<IAuthContext['sessionUser']>(null);
