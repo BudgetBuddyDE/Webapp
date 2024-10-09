@@ -3,8 +3,6 @@ import {type TStockPositionWithQuote, type TUser} from '@budgetbuddyde/types';
 import {GenerateGenericStore} from '@/hooks/FETCH_HOOK/GenericStore';
 import {type IBaseStore} from '@/hooks/FETCH_HOOK/IBaseStore';
 
-import {StockService} from './Stock.service';
-
 export interface IStockStore<T> extends IBaseStore<T[]> {
   fetchedBy: NonNullable<TUser>['id'] | null;
   fetchedAt: Date | null;
@@ -14,10 +12,11 @@ export interface IStockStore<T> extends IBaseStore<T[]> {
 }
 
 export const useStockStore = GenerateGenericStore<TStockPositionWithQuote[]>(async () => {
-  const [positions, err] = await StockService.getPositions();
-  if (err) {
-    console.error(err);
-    return [];
-  }
-  return positions.sort((a, b) => b.buy_in * b.quantity - a.buy_in * a.quantity) ?? [];
+  // const [positions, err] = await StockService.getPositions();
+  // if (err) {
+  //   console.error(err);
+  //   return [];
+  // }
+  // return positions.sort((a, b) => b.buy_in * b.quantity - a.buy_in * a.quantity) ?? [];
+  return [];
 });

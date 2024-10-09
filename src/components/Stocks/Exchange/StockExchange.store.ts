@@ -1,8 +1,6 @@
-import {PocketBaseCollection, type TStockExchange, ZStockExchange} from '@budgetbuddyde/types';
-import {z} from 'zod';
+import {type TStockExchange} from '@budgetbuddyde/types';
 
 import {GenerateGenericStore} from '@/hooks/FETCH_HOOK/GenericStore';
-import {pb} from '@/pocketbase';
 
 import {type TStockExchangeAutocompleteOption} from './StockExchangeAutocomplete.component';
 
@@ -11,14 +9,15 @@ export const useStockExchangeStore = GenerateGenericStore<
   {selectOptions: TStockExchangeAutocompleteOption[]}
 >(
   async () => {
-    const records = await pb.collection(PocketBaseCollection.STOCK_EXCHANGE).getFullList();
+    return [];
+    // const records = await pb.collection(PocketBaseCollection.STOCK_EXCHANGE).getFullList();
 
-    const parsingResult = z.array(ZStockExchange).safeParse(records);
-    if (!parsingResult.success) {
-      console.error(parsingResult.error);
-      return [];
-    }
-    return parsingResult.data;
+    // const parsingResult = z.array(ZStockExchange).safeParse(records);
+    // if (!parsingResult.success) {
+    //   console.error(parsingResult.error);
+    //   return [];
+    // }
+    // return parsingResult.data;
   },
   {selectOptions: []},
 );
