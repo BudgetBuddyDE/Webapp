@@ -1,14 +1,18 @@
-import {type TUser, ZUser} from '@budgetbuddyde/types';
+import {type TUser} from '@budgetbuddyde/types';
 import React from 'react';
 
-// import {client} from '@/auth-client';
-import {pb} from '@/pocketbase.ts';
+import {type TSession, type TSessionUser, client} from '@/auth-client';
 
 export interface IAuthContext {
   loading: boolean;
-  sessionUser: TUser | null;
+  session: TSession | null;
+  sessionUser: TUser | TSessionUser | null;
+  error: Error | null;
+  /**
+   * @deprecated Due to the switch away from Pocketbase as an backend, there is no need to store the file token in the context anymore.
+   */
   fileToken: string | null;
-  setSession: React.Dispatch<React.SetStateAction<IAuthContext['sessionUser']>>;
+  setSession: React.Dispatch<React.SetStateAction<IAuthContext['session']>>;
   /**
    * @deprecated Due to the switch to Pocketbase as an backend, there is no need to store the uuid and password in the context anymore.
    */
@@ -29,70 +33,55 @@ export function useAuthContext() {
 export type AuthProviderProps = React.PropsWithChildren;
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
-  // const {isPending, isRefetching, data, error} = client.useSession();
-  const [loading, setLoading] = React.useState(true);
-  const [fileToken, setFileToken] = React.useState<IAuthContext['fileToken']>(null);
-  const [sessionUser, setSessionUser] = React.useState<IAuthContext['sessionUser']>(null);
+  const [isLoading, setLoading] = React.useState(true);
+  const [session, setSession] = React.useState<IAuthContext['session']>(null);
+  const [error, setError] = React.useState<Error | null>(null);
 
-  const authOptions: IAuthContext['authOptions'] = React.useMemo(() => {
-    return null;
-  }, [sessionUser]);
-
-  const retrieveFileToken = async () => {
-    try {
-      const token = await pb.files.getToken();
-      setFileToken(token);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const retrieveCurrentSession = () => {
+  const retrieveCurrentSession = async () => {
     setLoading(true);
     try {
-      const model = pb.authStore.isValid && pb.authStore.isAuthRecord ? pb.authStore.model : null;
-      if (process.env.NODE_ENV === 'development')
-        console.log('Retrieved current session', pb.authStore.token, pb.authStore.model);
-      const parsingResult = ZUser.safeParse(model);
-
-      if (!parsingResult.success) {
-        console.error(parsingResult.error);
-        return;
+      const result = await client.session();
+      if (result.error) {
+        console.error(result.error);
       }
 
-      setSessionUser(parsingResult.data);
+      if (result.data) {
+        setSession(result.data);
+      }
     } catch (e) {
       console.error(e);
-      setSessionUser(null);
     }
 
     setLoading(false);
   };
 
-  const logout = () => {
-    pb.authStore.clear();
+  const logout = async () => {
+    await client.signOut();
+    setSession(null);
   };
 
   React.useLayoutEffect(() => {
     retrieveCurrentSession();
-    retrieveFileToken();
-    const authStoreListener = pb.authStore.onChange((_token, model) => {
-      const parsingResult = ZUser.safeParse(model);
-      if (!parsingResult.success) {
-        console.error(parsingResult.error);
-        return;
-      }
-      setSessionUser(parsingResult.data);
-    });
 
     return () => {
-      authStoreListener();
+      setLoading(true);
+      setSession(null);
+      setError(null);
     };
   }, []);
 
   return (
     <AuthContext.Provider
-      value={{loading, sessionUser, fileToken, setSession: setSessionUser, authOptions, logout}}
+      value={{
+        loading: isLoading,
+        session,
+        sessionUser: React.useMemo(() => (session ? session.user : null), [session]),
+        error,
+        setSession,
+        logout,
+        fileToken: null,
+        authOptions: null,
+      }}
       children={children}
     />
   );

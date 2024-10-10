@@ -21,7 +21,7 @@ const DashboardLayout: React.FC<TDashboardLayoutProps> = ({children, useOutletIn
   if (!sessionUser) return null;
   return (
     <ContentGrid
-      title={`Welcome, ${sessionUser.name ? sessionUser.name : sessionUser.username}!`}
+      title={`Welcome, ${sessionUser.name}!`}
       description={DashboardViewDescriptionMapping[DashboardViewMapping[location.pathname]]}>
       <Grid size={{xs: 12}}>
         <ActionPaper sx={{width: 'min-content'}}>

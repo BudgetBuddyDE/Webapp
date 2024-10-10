@@ -44,11 +44,7 @@ const SettingsRoute: React.FC<TSettingsRouteProps> = () => {
               />
 
               <Box sx={{mt: 'auto', mb: {xs: 0, md: 2}, ml: 1}}>
-                <Typography variant="h2">
-                  {sessionUser.name && sessionUser.surname
-                    ? `${sessionUser.name} ${sessionUser.surname}`
-                    : sessionUser.username}
-                </Typography>
+                <Typography variant="h2">{sessionUser.name}</Typography>
                 <Typography variant="body1" fontWeight="bolder">
                   {sessionUser.email}
                 </Typography>

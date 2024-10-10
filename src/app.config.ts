@@ -17,14 +17,16 @@ export type TAppConfig = {
   website: string;
   repository: string;
   theme: Theme;
-  auth: {
-    cookieName: string;
-  };
   table: {
     cellSize: TableCellProps['size'];
   };
   baseSpacing: number;
-  authProvider: Record<string, string>;
+  authProvider: Partial<
+    Record<
+      'apple' | 'discord' | 'facebook' | 'github' | 'google' | 'microsoft' | 'spotify' | 'twitch' | 'twitter',
+      string
+    >
+  >;
   feature: Record<Feature, boolean>;
 };
 
@@ -35,16 +37,13 @@ export const AppConfig: TAppConfig = {
   website: 'https://budget-buddy.de',
   repository: 'https://github.com/BudgetBuddyDE/webapp',
   theme: BlueTheme,
-  auth: {
-    cookieName: 'budget-buddy.auth',
-  },
   table: {
     cellSize: 'medium',
   },
   baseSpacing: 2,
   authProvider: {
-    // google: 'Google',
-    // github: 'GitHub',
+    google: 'Google',
+    github: 'GitHub',
   },
   feature: {
     [Feature.ENVIRONMENT_DISCLAIMER]: process.env.SHOW_ENVIRONMENT_DISCLAIMER === 'true',

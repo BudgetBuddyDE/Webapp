@@ -11,23 +11,23 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import {type RecordAuthResponse, type RecordModel} from 'pocketbase';
 import React from 'react';
 import {Link as RouterLink, useNavigate} from 'react-router-dom';
 
-import {AppConfig} from '@/app.config';
-import {client} from '@/auth-client';
+import {AppConfig, type TAppConfig} from '@/app.config';
 import {AppLogo} from '@/components/AppLogo.component';
-import {SocialSignInBtn, useAuthContext} from '@/components/Auth';
+import {SocialSignInBtn, type TSocialSignInHandlerProps, useAuthContext} from '@/components/Auth';
 import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
 import {Card, PasswordInput} from '@/components/Base';
 import {useSnackbarContext} from '@/components/Snackbar';
+import {AuthService} from '@/services';
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const {sessionUser, logout} = useAuthContext();
+  const {sessionUser, setSession, logout} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const [form, setForm] = React.useState<Record<string, string>>({});
+  const authProviders = Object.keys(AppConfig.authProvider) as (keyof TAppConfig['authProvider'])[];
 
   const redirectToDashboard = () => {
     navigate('/dashboard');
@@ -37,21 +37,30 @@ const SignUp = () => {
     inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm(prev => ({...prev, [event.target.name]: event.target.value}));
     },
-    handleAuthProviderLogin: (response: RecordAuthResponse<RecordModel>) => {
-      showSnackbar({message: `Welcome ${response.record.username}!`});
-      navigate('/');
+    handleAuthProviderLogin: (result: TSocialSignInHandlerProps) => {
+      console.log(result);
+      showSnackbar({message: `Welcome user!`});
+      redirectToDashboard();
     },
     formSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       try {
-        await client.signUp.email({
+        const [session, err] = await AuthService.signUpWithMail({
           name: `${form.name} ${form.surname}`,
           email: form.email,
           password: form.password,
-          callbackURL: '/dashboard',
         });
+        if (err) {
+          console.error(err);
+          showSnackbar({message: err.message ?? 'Registration failed'});
+          return;
+        }
 
-        showSnackbar({message: 'You have successfully signed up!'});
+        if (session) {
+          setSession(session);
+          showSnackbar({message: 'You have successfully signed up!'});
+          redirectToDashboard();
+        }
       } catch (error) {
         console.error(error);
         showSnackbar({message: (error as Error).message || 'Registration failed'});
@@ -96,7 +105,7 @@ const SignUp = () => {
 
             <form onSubmit={formHandler.formSubmit}>
               <Grid container spacing={AppConfig.baseSpacing} sx={{mt: 1}}>
-                {Object.keys(AppConfig.authProvider).map(provider => (
+                {authProviders.map(provider => (
                   <Grid key={provider} size={{xs: 6}}>
                     <SocialSignInBtn
                       key={provider}
@@ -108,9 +117,11 @@ const SignUp = () => {
                   </Grid>
                 ))}
 
-                <Grid size={{xs: 12}}>
-                  <Divider>or with</Divider>
-                </Grid>
+                {authProviders.length > 0 && (
+                  <Grid size={{xs: 12}}>
+                    <Divider>or with</Divider>
+                  </Grid>
+                )}
 
                 <Grid size={{xs: 12, md: 6}}>
                   <TextField

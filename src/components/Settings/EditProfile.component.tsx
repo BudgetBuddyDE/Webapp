@@ -55,8 +55,6 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
       setFormEditable(false);
       setForm({
         name: sessionUser.name ?? '',
-        surname: sessionUser.surname ?? '',
-        username: sessionUser.username,
         email: sessionUser.email,
       });
     },
@@ -106,7 +104,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                   required
                 />
               </Grid>
-              <Grid size={{xs: 6}}>
+              <Grid size={{xs: 12}}>
                 <TextField
                   id="name"
                   name="name"
@@ -120,33 +118,7 @@ export const EditProfile: React.FC<TEditProfileProps> = () => {
                   required
                 />
               </Grid>
-              <Grid size={{xs: 6}}>
-                <TextField
-                  id="surname"
-                  name="surname"
-                  label="Surname"
-                  value={form.surname}
-                  defaultValue={sessionUser.surname}
-                  onChange={handler.onChangeInput}
-                  sx={{mt: 2}}
-                  fullWidth
-                  disabled={!isFormEditable}
-                  required
-                />
-              </Grid>
-              <Grid size={{xs: 12}}>
-                <TextField
-                  fullWidth
-                  id="username"
-                  name="username"
-                  label="Username"
-                  value={form.username}
-                  defaultValue={sessionUser.username}
-                  sx={{mt: 2}}
-                  disabled={!isFormEditable}
-                  required
-                />
-              </Grid>
+
               <Grid size={{xs: 12}}>
                 <TextField
                   fullWidth

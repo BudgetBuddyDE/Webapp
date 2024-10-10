@@ -60,7 +60,7 @@ export const DrawerProfile: React.FC<TDrawerProfileProps> = () => {
           onClick={handleClick}>
           <UserAvatar />
           <Box sx={{ml: '.5rem'}}>
-            <Typography fontWeight="bold">{sessionUser.name ?? sessionUser.username}</Typography>
+            <Typography fontWeight="bold">{sessionUser.name}</Typography>
             <Chip label={'Basic'} variant="outlined" size="small" />
           </Box>
         </Box>

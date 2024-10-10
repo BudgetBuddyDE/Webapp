@@ -1,64 +1,59 @@
 import {AppRegistrationRounded, ExitToAppRounded, HomeRounded, SendRounded} from '@mui/icons-material';
 import {Box, Button, Divider, Grid2 as Grid, Link, Stack, TextField, Typography} from '@mui/material';
-import {type RecordAuthResponse, type RecordModel} from 'pocketbase';
 import React from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {Link as RouterLink} from 'react-router-dom';
 
-import {AppConfig} from '@/app.config.ts';
-import {client} from '@/auth-client';
+import {AppConfig, type TAppConfig} from '@/app.config.ts';
 import {AppLogo} from '@/components/AppLogo.component';
-import {SocialSignInBtn, useAuthContext} from '@/components/Auth';
+import {SocialSignInBtn, TSocialSignInHandlerProps, useAuthContext} from '@/components/Auth';
 import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
 import {Card, PasswordInput} from '@/components/Base';
 import {useSnackbarContext} from '@/components/Snackbar';
+import {AuthService} from '@/services';
 
 const SignIn = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const {sessionUser, logout} = useAuthContext();
+  const {sessionUser, setSession, logout} = useAuthContext();
   const {showSnackbar} = useSnackbarContext();
   const [form, setForm] = React.useState<Record<string, string>>({});
+  const authProviders = Object.keys(AppConfig.authProvider) as (keyof TAppConfig['authProvider'])[];
 
   const redirectToDashboard = () => {
     navigate('/dashboard');
   };
 
-  // const handleSuccessfullLogin = (name: string) => {
-  //   showSnackbar({message: `Welcome ${name}!`, action: <Button onClick={logout}>Sign-out</Button>});
-  //   if (location.search) {
-  //     const query = new URLSearchParams(location.search.substring(1));
-  //     if (query.get('callbackUrl')) navigate(query.get('callbackUrl')!);
-  //     return;
-  //   }
-  //   navigate('/');
-  // };
+  const handleSuccessfullLogin = (name: string) => {
+    showSnackbar({message: `Welcome ${name}!`, action: <Button onClick={logout}>Sign-out</Button>});
+    if (location.search) {
+      const query = new URLSearchParams(location.search.substring(1));
+      if (query.get('callbackUrl')) navigate(query.get('callbackUrl')!);
+      return;
+    }
+    redirectToDashboard();
+  };
 
   const formHandler = {
     inputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm(prev => ({...prev, [event.target.name]: event.target.value}));
     },
-    handleAuthProviderLogin: (_: RecordAuthResponse<RecordModel>) => {
-      // handleSuccessfullLogin(response.record.username);
+    handleAuthProviderLogin: (result: TSocialSignInHandlerProps) => {
+      console.log(result);
     },
     formSubmit: React.useCallback(
       async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const query = new URLSearchParams(location.search.substring(1));
-        const result = await client.signIn.email({
-          email: form.email,
-          password: form.password,
-          callbackURL: query.has('callbackUrl') ? (query.get('callbackUrl') as string) : '/dashboard',
-        });
-        if (result.error) {
-          console.error(result.error);
-          showSnackbar({message: result.error instanceof Error ? result.error.message : 'Authentication failed'});
+        const [session, err] = await AuthService.signInWithMail(form.email, form.password);
+        if (err) {
+          console.error(err);
+          showSnackbar({message: err.message ?? 'Sign-in failed'});
         }
 
-        showSnackbar({
-          message: `Welcome ${result.data?.user.name}!`,
-          action: <Button onClick={logout}>Sign-out</Button>,
-        });
+        if (session) {
+          setSession(session);
+          handleSuccessfullLogin(session.user.name);
+        }
       },
       [form, location],
     ),
@@ -101,13 +96,13 @@ const SignIn = () => {
               />
 
               <Typography variant={'h5'} textAlign={'center'} fontWeight={'bolder'} sx={{mt: 2}}>
-                {sessionUser ? `Welcome ${sessionUser.username}!` : 'Sign in'}
+                {sessionUser ? `Welcome ${sessionUser.name}!` : 'Sign in'}
               </Typography>
             </Box>
 
             <form onSubmit={formHandler.formSubmit}>
               <Grid container spacing={AppConfig.baseSpacing} sx={{mt: 1}}>
-                {Object.keys(AppConfig.authProvider).map(provider => (
+                {authProviders.map(provider => (
                   <Grid key={provider} size={{xs: 6}}>
                     <SocialSignInBtn
                       key={provider}
@@ -119,9 +114,11 @@ const SignIn = () => {
                   </Grid>
                 ))}
 
-                <Grid size={{xs: 12}}>
-                  <Divider>or with</Divider>
-                </Grid>
+                {authProviders.length > 0 && (
+                  <Grid size={{xs: 12}}>
+                    <Divider>or with</Divider>
+                  </Grid>
+                )}
 
                 <Grid size={{xs: 12}}>
                   <TextField

@@ -1,21 +1,21 @@
-import {PocketBaseCollection} from '@budgetbuddyde/types';
 import {GitHub, Google} from '@mui/icons-material';
 import {Button, type ButtonProps} from '@mui/material';
-import {RecordAuthResponse, RecordModel} from 'pocketbase';
 import React from 'react';
 
 import {AppConfig, type TAppConfig} from '@/app.config.ts';
 import {useSnackbarContext} from '@/components/Snackbar';
-import {pb} from '@/pocketbase.ts';
+import {AuthService} from '@/services';
 
-const IconMapping: Record<keyof TAppConfig['authProvider'], React.ReactNode> = {
+const IconMapping: Partial<Record<keyof TAppConfig['authProvider'], React.ReactNode>> = {
   github: <GitHub />,
   google: <Google />,
 };
 
+export type TSocialSignInHandlerProps = NonNullable<Awaited<ReturnType<typeof AuthService.signInWithSocial>>[0]>;
+
 export type TSocialSignInBtnProps = {
   provider: keyof TAppConfig['authProvider'];
-  onAuthProviderResponse: (data: RecordAuthResponse<RecordModel>) => void;
+  onAuthProviderResponse: (data: TSocialSignInHandlerProps) => void;
 } & Omit<ButtonProps, 'onClick'>;
 
 export const SocialSignInBtn: React.FC<TSocialSignInBtnProps> = ({
@@ -30,13 +30,16 @@ export const SocialSignInBtn: React.FC<TSocialSignInBtnProps> = ({
       size={'large'}
       startIcon={IconMapping[provider]}
       onClick={async () => {
-        try {
-          const result = await pb.collection(PocketBaseCollection.USERS).authWithOAuth2({provider});
-          onAuthProviderResponse(result);
-        } catch (error) {
-          console.error(error);
-          showSnackbar({message: error instanceof Error ? error.message : 'Authentication failed'});
+        const [result, err] = await AuthService.signInWithSocial(provider);
+        if (err) {
+          console.error(err);
+          showSnackbar({message: err.message ?? 'Authentication failed'});
+          return;
         }
+
+        if (result) onAuthProviderResponse(result);
+
+        throw new Error('Invalid response from auth provider');
       }}
       fullWidth
       {...buttonProps}>
