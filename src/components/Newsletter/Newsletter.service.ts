@@ -1,7 +1,6 @@
 import {
   PocketBaseCollection,
   TApiResponse,
-  type TId,
   type TNewsletter,
   type TServiceResponse,
   type TUser,
@@ -10,7 +9,6 @@ import {
 import {type TMailOptInPayload, type TMailOptOutPayload} from '@budgetbuddyde/types/lib/Mail.types';
 
 import {pb} from '@/pocketbase';
-import {AuthService} from '@/services';
 import {preparePockebaseRequestOptions} from '@/utils';
 import {isRunningInProdEnv} from '@/utils/isRunningInProdEnv.util';
 
@@ -45,23 +43,25 @@ export class NewsletterService {
    * @param newsletters - Optional. The list of newsletters to filter. If not provided, all newsletters will be fetched.
    * @returns A promise that resolves to a tuple containing the filtered newsletters and any potential error.
    */
-  static async getSubscribedNewsletters(
-    user: TId | NonNullable<TUser>,
-    newsletters?: NonNullable<TNewsletter>[],
-  ): Promise<TServiceResponse<TNewsletter[]>> {
-    if (typeof user === 'string') {
-      const [record, err] = await AuthService.getUser(user);
-      if (err) return [null, err];
-      user = record;
-    }
+  static async getSubscribedNewsletters() // user: TId | NonNullable<TUser>,
+  // newsletters?: NonNullable<TNewsletter>[],
+  : Promise<TServiceResponse<TNewsletter[]>> {
+    return [null, new Error('Not implemented')];
 
-    if (!newsletters || newsletters.length === 0) {
-      const [records, err] = await this.getNewsletters();
-      if (err) return [null, err];
-      newsletters = records;
-    }
+    // FIXME: Implement this method
+    // if (typeof user === 'string') {
+    //   const [record, err] = await AuthService.getUser(user);
+    //   if (err) return [null, err];
+    //   user = record;
+    // }
 
-    return [newsletters.filter(newsletter => user.newsletter.includes(newsletter.id)), null];
+    // if (!newsletters || newsletters.length === 0) {
+    //   const [records, err] = await this.getNewsletters();
+    //   if (err) return [null, err];
+    //   newsletters = records;
+    // }
+
+    // return [newsletters.filter(newsletter => user.newsletter.includes(newsletter.id)), null];
   }
 
   /**

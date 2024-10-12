@@ -4,7 +4,7 @@ import React from 'react';
 
 import {Formatter} from '@/services/Formatter.service';
 
-import {Card} from '../Base';
+import {Card, NoResults} from '../Base';
 import {PieChart} from '../Base/Charts/PieChart.component';
 import {CircularProgress} from '../Loading';
 import {SubscriptionService, useSubscriptions} from '../Subscription';
@@ -82,7 +82,7 @@ export const BudgetPieChart: React.FC<TBudgetPieChartProps> = () => {
       <Card.Body sx={{pt: 1}}>
         {isLoadingTransactions || isLoadingSubscriptions ? (
           <CircularProgress />
-        ) : (
+        ) : chartData.length > 0 ? (
           <PieChart
             fullWidth
             primaryText={Formatter.formatBalance(currentExpenses + futureExpenses)}
@@ -94,6 +94,8 @@ export const BudgetPieChart: React.FC<TBudgetPieChartProps> = () => {
               },
             ]}
           />
+        ) : (
+          <NoResults />
         )}
       </Card.Body>
     </Card>

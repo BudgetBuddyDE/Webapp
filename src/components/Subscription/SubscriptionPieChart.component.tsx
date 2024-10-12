@@ -4,7 +4,7 @@ import {Link} from 'react-router-dom';
 
 import {Formatter} from '@/services/Formatter.service';
 
-import {Card, type TPieChartData} from '../Base';
+import {Card, NoResults, type TPieChartData} from '../Base';
 import {PieChart} from '../Base/Charts/PieChart.component';
 import {CircularProgress} from '../Loading';
 import {useSubscriptions} from './useSubscriptions.hook';
@@ -77,17 +77,21 @@ export const SubscriptionPieChart = () => {
       ) : (
         <React.Fragment>
           <Card.Body sx={{pt: 1}}>
-            <PieChart
-              fullWidth
-              primaryText={Formatter.formatBalance(chartData.reduce((acc, curr) => acc + curr.value, 0))}
-              secondaryText="Total"
-              series={[
-                {
-                  data: chartData,
-                  valueFormatter: value => Formatter.formatBalance(value.value),
-                },
-              ]}
-            />
+            {chartData.length > 0 ? (
+              <PieChart
+                fullWidth
+                primaryText={Formatter.formatBalance(chartData.reduce((acc, curr) => acc + curr.value, 0))}
+                secondaryText="Total"
+                series={[
+                  {
+                    data: chartData,
+                    valueFormatter: value => Formatter.formatBalance(value.value),
+                  },
+                ]}
+              />
+            ) : (
+              <NoResults />
+            )}
           </Card.Body>
           <Card.Footer>
             <Stack direction="row" justifyContent={'flex-end'}>

@@ -24,13 +24,13 @@ export const SubscribeToNewsletters = () => {
     setNewsletters(availableNewsletters);
 
     if (!sessionUser) return setLoading(false);
-    const [subscribedNewsletters, err] = await NewsletterService.getSubscribedNewsletters(
-      sessionUser.id,
-      availableNewsletters,
-    );
-    if (err) console.error(err);
-    if (!subscribedNewsletters) return setLoading(false);
-    setSubscribedNewsletters(subscribedNewsletters.map(({id}) => id));
+    // const [subscribedNewsletters, err] = await NewsletterService.getSubscribedNewsletters(
+    //   sessionUser.id,
+    //   availableNewsletters,
+    // );
+    // if (err) console.error(err);
+    // if (!subscribedNewsletters) return setLoading(false);
+    // setSubscribedNewsletters(subscribedNewsletters.map(({id}) => id));
     setLoading(false);
   };
 
