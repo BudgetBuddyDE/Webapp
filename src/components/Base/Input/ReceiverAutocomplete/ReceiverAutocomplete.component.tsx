@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 
-import {StyledAutocompleteOption} from '@/components/Base';
+import {StyledAutocompleteOption} from '@/components/Base/Input';
 import {useTransactions} from '@/features/Transaction';
 
 export type TReceiverAutocompleteOption = {

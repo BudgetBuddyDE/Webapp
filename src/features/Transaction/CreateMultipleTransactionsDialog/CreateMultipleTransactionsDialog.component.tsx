@@ -16,12 +16,8 @@ import React from 'react';
 import {z} from 'zod';
 
 import {AppConfig} from '@/app.config';
-import {
-  FullScreenDialog,
-  ReceiverAutocomplete,
-  type TFullScreenDialogProps,
-  type TReceiverAutocompleteOption,
-} from '@/components/Base';
+import {FullScreenDialog, type TFullScreenDialogProps} from '@/components/Base/FullScreenDialog';
+import {ReceiverAutocomplete, type TReceiverAutocompleteOption} from '@/components/Base/Input';
 import {useAuthContext} from '@/features/Auth';
 import {CategoryAutocomplete, type TCategoryAutocompleteOption} from '@/features/Category';
 import {PaymentMethodAutocomplete, type TPaymentMethodAutocompleteOption} from '@/features/PaymentMethod';

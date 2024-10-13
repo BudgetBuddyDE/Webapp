@@ -5,7 +5,8 @@ import React from 'react';
 import {useNavigate} from 'react-router-dom';
 
 import {AppConfig} from '@/app.config';
-import {ActionPaper, Image} from '@/components/Base';
+import {ActionPaper} from '@/components/Base/ActionPaper';
+import {Image} from '@/components/Base/Image';
 import {type TTableProps, Table} from '@/components/Base/Table';
 import {useStockPositions} from '@/features/Stocks/hooks';
 

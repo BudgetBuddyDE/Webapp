@@ -22,7 +22,7 @@ import React from 'react';
 import {Navigate, useNavigate, useParams} from 'react-router-dom';
 
 import {AppConfig, Feature} from '@/app.config';
-import {Card} from '@/components/Base';
+import {Card} from '@/components/Base/Card';
 import {PieChart} from '@/components/Base/Charts';
 import {BarChart, TBarChartProps} from '@/components/Base/Charts/BarChart/BarChart.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';

@@ -2,7 +2,7 @@ import {Box} from '@mui/material';
 import {isSameMonth} from 'date-fns';
 import React from 'react';
 
-import {Card} from '@/components/Base';
+import {Card} from '@/components/Base/Card';
 import {PieChart} from '@/components/Base/Charts';
 import {CircularProgress} from '@/components/Loading';
 import {SubscriptionService, useSubscriptions} from '@/features/Subscription';

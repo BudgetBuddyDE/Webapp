@@ -15,7 +15,8 @@ import {
 import {debounce} from 'lodash';
 import React from 'react';
 
-import {ActionPaper, Image} from '@/components/Base';
+import {ActionPaper} from '@/components/Base/ActionPaper';
+import {Image} from '@/components/Base/Image';
 import {CircularProgress} from '@/components/Loading';
 import {useSnackbarContext} from '@/features/Snackbar';
 

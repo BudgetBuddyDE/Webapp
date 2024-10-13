@@ -2,7 +2,7 @@ import {type TNewsletter} from '@budgetbuddyde/types';
 import {Box, List, ListItem, ListItemText, Switch} from '@mui/material';
 import React from 'react';
 
-import {Card} from '@/components/Base';
+import {Card} from '@/components/Base/Card';
 import {CircularProgress} from '@/components/Loading';
 import {useAuthContext} from '@/features/Auth';
 import {useSnackbarContext} from '@/features/Snackbar';

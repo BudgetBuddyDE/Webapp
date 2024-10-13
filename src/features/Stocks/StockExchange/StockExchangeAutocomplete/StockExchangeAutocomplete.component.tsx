@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 
-import {StyledAutocompleteOption} from '@/components/Base';
+import {StyledAutocompleteOption} from '@/components/Base/Input';
 
 import {useStockExchanges} from '../useStockExchanges.hook';
 

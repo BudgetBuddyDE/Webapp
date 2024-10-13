@@ -3,7 +3,8 @@ import {Chip, Stack, Typography, useTheme} from '@mui/material';
 import {format, isSameYear} from 'date-fns';
 import React from 'react';
 
-import {AreaGradient, Card, LineChart} from '@/components/Base';
+import {Card} from '@/components/Base/Card';
+import {AreaGradient, LineChart} from '@/components/Base/Charts';
 import {Timeframe} from '@/components/Timeframe';
 import {Formatter} from '@/services/Formatter';
 

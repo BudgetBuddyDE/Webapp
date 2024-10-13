@@ -1,6 +1,6 @@
 import {Box, Chip, List, ListItem, ListItemText, Stack, Typography} from '@mui/material';
 
-import {Card} from '@/components/Base';
+import {Card} from '@/components/Base/Card';
 import {CircularProgress} from '@/components/Loading';
 import {Formatter} from '@/services/Formatter';
 

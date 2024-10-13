@@ -2,7 +2,7 @@ import {QuestionMarkRounded} from '@mui/icons-material';
 import {Skeleton, type SxProps, type Theme, Typography} from '@mui/material';
 import React from 'react';
 
-import {Card} from '../Base';
+import {Card} from '../Base/Card';
 
 export type TStatsCardProps = {
   label: string | number;

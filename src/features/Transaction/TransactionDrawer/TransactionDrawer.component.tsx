@@ -16,7 +16,7 @@ import {
   FileUploadPreview,
   ReceiverAutocomplete,
   type TReceiverAutocompleteOption,
-} from '@/components/Base';
+} from '@/components/Base/Input';
 import {FilePreview} from '@/components/Base/Input/FileUpload/FilePreview.component';
 import {EntityDrawer, type TUseEntityDrawerState} from '@/components/Drawer/EntityDrawer';
 import {useAuthContext} from '@/features/Auth';

@@ -2,7 +2,7 @@ import {Box, Button, Stack, ToggleButton, ToggleButtonGroup} from '@mui/material
 import React from 'react';
 import {Link} from 'react-router-dom';
 
-import {Card} from '@/components/Base';
+import {Card} from '@/components/Base/Card';
 import {type TPieChartData} from '@/components/Base/Charts';
 import {PieChart} from '@/components/Base/Charts';
 import {CircularProgress} from '@/components/Loading';

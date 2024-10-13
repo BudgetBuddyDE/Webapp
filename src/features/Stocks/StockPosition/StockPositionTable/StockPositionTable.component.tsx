@@ -6,7 +6,9 @@ import React from 'react';
 import {useNavigate} from 'react-router-dom';
 
 import {AppConfig} from '@/app.config';
-import {ActionPaper, Image, Menu} from '@/components/Base';
+import {ActionPaper} from '@/components/Base/ActionPaper';
+import {Image} from '@/components/Base/Image';
+import {Menu} from '@/components/Base/Menu';
 import {SearchInput} from '@/components/Base/SearchInput';
 import {Table} from '@/components/Base/Table/Table.component';
 import {StockPositionMenu, useStockPositions} from '@/features/Stocks';

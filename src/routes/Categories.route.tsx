@@ -5,7 +5,9 @@ import {format} from 'date-fns';
 import React from 'react';
 
 import {AppConfig} from '@/app.config';
-import {ActionPaper, Linkify, Menu} from '@/components/Base';
+import {ActionPaper} from '@/components/Base/ActionPaper';
+import {Linkify} from '@/components/Base/Link';
+import {Menu} from '@/components/Base/Menu';
 import {SearchInput} from '@/components/Base/SearchInput';
 import {type ISelectionHandler} from '@/components/Base/SelectAll';
 import {Table} from '@/components/Base/Table';

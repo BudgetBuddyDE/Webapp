@@ -1,7 +1,7 @@
 import {LockRounded, RefreshRounded} from '@mui/icons-material';
 import {Button, type PaperProps, Typography} from '@mui/material';
 
-import {ActionPaper} from '@/components/Base';
+import {ActionPaper} from '@/components/Base/ActionPaper';
 import {DashboardViewIconMapping} from '@/routes/Dashboard';
 
 import {Icon} from '../../Icon/Icon.component';

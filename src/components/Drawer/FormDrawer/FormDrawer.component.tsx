@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 
-import {ActionPaper} from '@/components/Base';
+import {ActionPaper} from '@/components/Base/ActionPaper';
 import {type TFormDrawerState} from '@/components/Drawer';
 import {useKeyPress} from '@/hooks/useKeyPress';
 import {useScreenSize} from '@/hooks/useScreenSize';

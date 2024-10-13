@@ -2,7 +2,8 @@ import {PaymentsRounded} from '@mui/icons-material';
 import {Box} from '@mui/material';
 import React from 'react';
 
-import {Card, ListWithIcon} from '@/components/Base';
+import {Card} from '@/components/Base/Card';
+import {ListWithIcon} from '@/components/Base/ListWithIcon';
 import {CircularProgress} from '@/components/Loading';
 import {useSubscriptions} from '@/features/Subscription';
 import {Formatter} from '@/services/Formatter';

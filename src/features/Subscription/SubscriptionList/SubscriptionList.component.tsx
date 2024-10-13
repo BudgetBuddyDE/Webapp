@@ -4,7 +4,8 @@ import {Box, Chip, type ChipProps, IconButton} from '@mui/material';
 import {format} from 'date-fns';
 import React from 'react';
 
-import {Card, ListWithIcon} from '@/components/Base';
+import {Card} from '@/components/Base/Card';
+import {ListWithIcon} from '@/components/Base/ListWithIcon';
 import {NoResults} from '@/components/NoResults';
 
 export type TSubscriptionList = {

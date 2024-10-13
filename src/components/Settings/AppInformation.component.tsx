@@ -2,7 +2,9 @@ import {AlternateEmailRounded, AppSettingsAltRounded, CodeRounded, LanguageRound
 import {Box, Stack, Typography} from '@mui/material';
 
 import {AppConfig} from '@/app.config';
-import {Card, StyledLink} from '@/components/Base';
+import {Card} from '@/components/Base/Card';
+
+import {StyledLink} from '../Base/Link';
 
 export const AppInformation = () => {
   return (

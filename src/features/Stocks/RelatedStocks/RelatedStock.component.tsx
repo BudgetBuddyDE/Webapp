@@ -7,7 +7,9 @@ import React from 'react';
 import {useNavigate} from 'react-router-dom';
 
 import {AppConfig} from '@/app.config';
-import {ActionPaper, Card, Image} from '@/components/Base';
+import {ActionPaper} from '@/components/Base/ActionPaper';
+import {Card} from '@/components/Base/Card';
+import {Image} from '@/components/Base/Image';
 import {Formatter} from '@/services/Formatter';
 
 export type TRelatedStockProps = {

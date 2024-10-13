@@ -8,7 +8,7 @@ import React from 'react';
 import {z} from 'zod';
 
 import {AppConfig} from '@/app.config';
-import {FullScreenDialog, type TFullScreenDialogProps} from '@/components/Base';
+import {FullScreenDialog, type TFullScreenDialogProps} from '@/components/Base/FullScreenDialog';
 import {DesktopFeatureOnly} from '@/components/DesktopFeatureOnly';
 import {useAuthContext} from '@/features/Auth';
 import {CategoryService, type TCategoryDrawerValues, useCategories} from '@/features/Category';

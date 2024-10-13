@@ -10,7 +10,8 @@ import {
 import {debounce} from 'lodash';
 import React from 'react';
 
-import {Image, StyledAutocompleteOption} from '@/components/Base';
+import {Image} from '@/components/Base/Image';
+import {StyledAutocompleteOption} from '@/components/Base/Input';
 import {useSnackbarContext} from '@/features/Snackbar';
 
 import {StockService} from '../StockService';

@@ -3,7 +3,7 @@ import {Delete as DeleteIcon, Edit as EditIcon, Label as LabelIcon} from '@mui/i
 import {Box, IconButton, Tooltip, Typography} from '@mui/material';
 import React from 'react';
 
-import {ActionPaper} from '@/components/Base';
+import {ActionPaper} from '@/components/Base/ActionPaper';
 import {Icon} from '@/components/Icon/Icon.component';
 import {formatBalance} from '@/utils';
 

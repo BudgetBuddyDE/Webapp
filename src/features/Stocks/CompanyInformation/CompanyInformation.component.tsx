@@ -13,7 +13,7 @@ import {Divider, List, ListItem, ListItemIcon, ListItemText, Typography} from '@
 import {format} from 'date-fns';
 import React from 'react';
 
-import {Card} from '@/components/Base';
+import {Card} from '@/components/Base/Card';
 import {Formatter} from '@/services/Formatter';
 
 export type TCompanyInformationProps = {

@@ -1,7 +1,7 @@
 import {Typography, type TypographyProps} from '@mui/material';
 import React from 'react';
 
-import {ActionPaper, type TActionPaperProps} from '../Base';
+import {ActionPaper, type TActionPaperProps} from '../Base/ActionPaper';
 
 export type TDesktopFeatureOnlyProps = TActionPaperProps & {
   typographyProps?: TypographyProps;

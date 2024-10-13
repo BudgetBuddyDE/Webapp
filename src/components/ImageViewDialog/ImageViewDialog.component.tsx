@@ -2,7 +2,7 @@ import {Box, Dialog, DialogContent, DialogProps, Slide, Typography, alpha} from 
 import {type TransitionProps} from '@mui/material/transitions';
 import React from 'react';
 
-import {Image} from '../Base';
+import {Image} from '../Base/Image';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
