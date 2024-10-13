@@ -5,7 +5,7 @@ import {
 import React from 'react';
 import {useSearchParams} from 'react-router-dom';
 
-import {ActionPaper} from '../ActionPaper.component';
+import {ActionPaper} from '../ActionPaper/ActionPaper.component';
 import {type TPaginationState} from './Pagination.reducer';
 
 /**

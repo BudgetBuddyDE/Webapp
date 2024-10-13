@@ -1,2 +1,2 @@
-export * from './CircularProgress.component';
-export * from './FullPageLoader.component';
+export * from './CircularProgress';
+export * from './FullPageLoader';

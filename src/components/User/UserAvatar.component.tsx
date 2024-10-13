@@ -1,7 +1,7 @@
 import {Avatar as MuiAvatar, type AvatarProps as MuiAvatarProps} from '@mui/material';
 import React from 'react';
 
-import {useAuthContext} from '@/components/Auth';
+import {useAuthContext} from '@/features/Auth';
 import {pb} from '@/pocketbase';
 
 export type TUserAvatarProps = MuiAvatarProps;

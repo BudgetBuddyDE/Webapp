@@ -14,8 +14,8 @@ import React from 'react';
 
 import {ActionPaper} from '@/components/Base';
 import {type TFormDrawerState} from '@/components/Drawer';
-import {useScreenSize} from '@/hooks';
-import {useKeyPress} from '@/hooks/useKeyPress.hook.ts';
+import {useKeyPress} from '@/hooks/useKeyPress';
+import {useScreenSize} from '@/hooks/useScreenSize';
 import {drawerWidth} from '@/style/theme/theme';
 import {determineOS} from '@/utils';
 

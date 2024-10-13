@@ -13,7 +13,8 @@ import React from 'react';
 import {type DefaultValues, type FieldValues, type UseFormReturn, useForm} from 'react-hook-form';
 
 import {ActionPaper} from '@/components/Base';
-import {useKeyPress, useScreenSize} from '@/hooks';
+import {useKeyPress} from '@/hooks/useKeyPress';
+import {useScreenSize} from '@/hooks/useScreenSize';
 import {drawerWidth} from '@/style/theme/theme';
 import {determineOS} from '@/utils';
 

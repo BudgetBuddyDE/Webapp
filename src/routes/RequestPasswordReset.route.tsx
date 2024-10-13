@@ -5,11 +5,11 @@ import React from 'react';
 import {Link as RouterLink} from 'react-router-dom';
 
 import {AppConfig} from '@/app.config';
-import {AppLogo} from '@/components/AppLogo.component';
-import {useAuthContext} from '@/components/Auth';
-import {withUnauthentificatedLayout} from '@/components/Auth/Layout';
-import {Card} from '@/components/Base';
-import {useSnackbarContext} from '@/components/Snackbar';
+import {AppLogo} from '@/components/AppLogo/AppLogo.component';
+import {Card} from '@/components/Base/Card';
+import {withUnauthentificatedLayout} from '@/features/Auth';
+import {useAuthContext} from '@/features/Auth';
+import {useSnackbarContext} from '@/features/Snackbar';
 import {pb} from '@/pocketbase.ts';
 
 const RequestPasswordReset = () => {

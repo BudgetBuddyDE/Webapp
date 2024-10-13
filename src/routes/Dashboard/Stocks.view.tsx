@@ -5,11 +5,11 @@ import React from 'react';
 import {useNavigate} from 'react-router-dom';
 
 import {AppConfig, Feature} from '@/app.config';
-import {useAuthContext} from '@/components/Auth';
-import {withFeatureFlag} from '@/components/Feature/withFeatureFlag.component';
+import {withFeatureFlag} from '@/components/Feature/withFeatureFlag/withFeatureFlag.component';
 import {CircularProgress} from '@/components/Loading';
-import {MetalQuoteList} from '@/components/Metals';
-import {StatsCard} from '@/components/StatsCard.component';
+import {StatsCard} from '@/components/StatsCard/StatsCard.component';
+import {useAuthContext} from '@/features/Auth';
+import {MetalQuoteList} from '@/features/Metals';
 import {
   DividendTable,
   PortfolioDiversityChart,
@@ -18,10 +18,10 @@ import {
   useFetchStockDividends,
   useStockPositions,
   useStockWatchlist,
-} from '@/components/Stocks';
-import {StockPositionTable} from '@/components/Stocks/Position';
-import {useDocumentTitle} from '@/hooks';
-import {Formatter} from '@/services';
+} from '@/features/Stocks';
+import {StockPositionTable} from '@/features/Stocks/StockPosition';
+import {useDocumentTitle} from '@/hooks/useDocumentTitle';
+import {Formatter} from '@/services/Formatter';
 import {getSocketIOClient} from '@/utils';
 
 const StocksView = () => {

@@ -3,25 +3,25 @@ import {Grid2 as Grid, Stack} from '@mui/material';
 import React from 'react';
 
 import {AppConfig} from '@/app.config';
-import {BudgetPieChart} from '@/components/Budget';
-import {CategoryExpenseChart, UpcomingSubscriptions} from '@/components/Category';
-import {DashboardStatsWrapper} from '@/components/DashboardStatsWrapper.component';
+import {DashboardStatsWrapper} from '@/components/DashboardStatsWrapper';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {CircularProgress} from '@/components/Loading';
+import {BudgetPieChart} from '@/features/Budget';
+import {CategoryExpenseChart, UpcomingSubscriptions} from '@/features/Category';
 import {
   SubscriptionDrawer,
   SubscriptionList,
   type TSusbcriptionDrawerValues,
   useSubscriptions,
-} from '@/components/Subscription';
+} from '@/features/Subscription';
 import {
   type TTransactionDrawerValues,
   TransactionDrawer,
   TransactionList,
   TransactionService,
   useTransactions,
-} from '@/components/Transaction';
-import {useDocumentTitle} from '@/hooks';
+} from '@/features/Transaction';
+import {useDocumentTitle} from '@/hooks/useDocumentTitle';
 
 const LIST_ITEM_COUNT = 6;
 

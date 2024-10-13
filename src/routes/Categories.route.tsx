@@ -5,25 +5,26 @@ import {format} from 'date-fns';
 import React from 'react';
 
 import {AppConfig} from '@/app.config';
-import {withAuthLayout} from '@/components/Auth/Layout';
 import {ActionPaper, Linkify, Menu} from '@/components/Base';
-import {SearchInput} from '@/components/Base/Search';
-import {type ISelectionHandler} from '@/components/Base/Select';
+import {SearchInput} from '@/components/Base/SearchInput';
+import {type ISelectionHandler} from '@/components/Base/SelectAll';
 import {Table} from '@/components/Base/Table';
+import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
+import {ToggleFilterDrawerButton} from '@/components/Filter';
+import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
+import {withAuthLayout} from '@/features/Auth';
 import {
   CategoryChip,
   CategoryDrawer,
+  CategoryExpenseChart,
+  CategoryIncomeChart,
   CategoryService,
   CreateMultipleCategoriesDialog,
   type TCategoryDrawerValues,
   useCategories,
-} from '@/components/Category';
-import {CategoryExpenseChart, CategoryIncomeChart} from '@/components/Category/Chart';
-import {DeleteDialog} from '@/components/DeleteDialog.component';
-import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
-import {ToggleFilterDrawerButton} from '@/components/Filter';
-import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
-import {useSnackbarContext} from '@/components/Snackbar';
+} from '@/features/Category';
+import {DeleteDialog} from '@/features/DeleteDialog';
+import {useSnackbarContext} from '@/features/Snackbar';
 import {DescriptionTableCellStyle} from '@/style/DescriptionTableCell.style';
 import {downloadAsJson} from '@/utils';
 

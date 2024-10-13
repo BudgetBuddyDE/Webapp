@@ -2,8 +2,8 @@ import {CssBaseline, ThemeProvider} from '@mui/material';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-import {AuthProvider} from '@/components/Auth';
-import {SnackbarProvider} from '@/components/Snackbar';
+import {AuthProvider} from '@/features/Auth';
+import {SnackbarProvider} from '@/features/Snackbar/index.ts';
 import '@/style/global.css';
 
 import App from './App.tsx';

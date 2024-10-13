@@ -2,14 +2,14 @@ import {type TTransaction} from '@budgetbuddyde/types';
 import {Grid2 as Grid} from '@mui/material';
 import React from 'react';
 
-import {withAuthLayout} from '@/components/Auth/Layout';
-import {type ISelectionHandler} from '@/components/Base/Select';
-import {DeleteDialog} from '@/components/DeleteDialog.component';
+import {type ISelectionHandler} from '@/components/Base/SelectAll';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {useFilterStore} from '@/components/Filter';
-import {ImageViewDialog} from '@/components/ImageViewDialog.component';
+import {ImageViewDialog} from '@/components/ImageViewDialog/ImageViewDialog.component';
 import {AddFab, ContentGrid, FabContainer, OpenFilterDrawerFab} from '@/components/Layout';
-import {useSnackbarContext} from '@/components/Snackbar';
+import {withAuthLayout} from '@/features/Auth';
+import {DeleteDialog} from '@/features/DeleteDialog';
+import {useSnackbarContext} from '@/features/Snackbar';
 import {
   CreateMultipleTransactionsDialog,
   type TTransactionDrawerValues,
@@ -17,8 +17,8 @@ import {
   TransactionService,
   TransactionTable,
   useTransactions,
-} from '@/components/Transaction';
-import {filterTransactions} from '@/utils/filter.util';
+} from '@/features/Transaction';
+import {filterTransactions} from '@/utils';
 
 interface ITransactionsHandler {
   showCreateDialog: () => void;

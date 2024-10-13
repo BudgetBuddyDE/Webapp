@@ -2,14 +2,14 @@ import {Box, Grid2 as Grid, Typography} from '@mui/material';
 import React from 'react';
 
 import {AppConfig, Feature} from '@/app.config';
-import {useAuthContext} from '@/components/Auth';
-import {withAuthLayout} from '@/components/Auth/Layout';
-import {Card} from '@/components/Base';
+import {Card} from '@/components/Base/Card';
 import {isFeatureEnabled} from '@/components/Feature';
 import {PageHeader} from '@/components/Layout';
-import {SubscribeToNewsletters} from '@/components/Newsletter';
 import {AppInformation, EditProfile} from '@/components/Settings';
 import {UserAvatar} from '@/components/User';
+import {useAuthContext} from '@/features/Auth';
+import {withAuthLayout} from '@/features/Auth';
+import {SubscribeToNewsletters} from '@/features/Newsletter';
 
 export type TSettingsRouteProps = unknown;
 

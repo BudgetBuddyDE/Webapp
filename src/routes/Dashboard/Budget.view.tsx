@@ -2,9 +2,9 @@ import {Grid2 as Grid} from '@mui/material';
 import React from 'react';
 
 import {AppConfig} from '@/app.config';
-import {BudgetList, StatsWrapper} from '@/components/Budget';
-import {CategoryExpenseChart, CategoryIncomeChart, UpcomingSubscriptions} from '@/components/Category';
-import {useDocumentTitle} from '@/hooks';
+import {BudgetList, StatsWrapper} from '@/features/Budget';
+import {CategoryExpenseChart, CategoryIncomeChart, UpcomingSubscriptions} from '@/features/Category';
+import {useDocumentTitle} from '@/hooks/useDocumentTitle';
 
 const BudgetView = () => {
   useDocumentTitle(`${AppConfig.appName} - Budget`, true);

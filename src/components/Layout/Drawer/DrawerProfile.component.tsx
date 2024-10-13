@@ -3,9 +3,10 @@ import {Box, Button, type ButtonProps, Chip, Divider, Typography, useTheme} from
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
 
-import {useAuthContext} from '@/components/Auth';
 import {UserAvatar} from '@/components/User';
-import {useScreenSize, useWindowDimensions} from '@/hooks';
+import {useAuthContext} from '@/features/Auth';
+import {useScreenSize} from '@/hooks/useScreenSize';
+import {useWindowDimensions} from '@/hooks/useWindowDimensions';
 
 import {useDrawerStore} from './Drawer.store';
 
