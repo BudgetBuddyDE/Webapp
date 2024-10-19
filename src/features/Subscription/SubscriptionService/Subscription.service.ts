@@ -1,5 +1,6 @@
 import {
   PocketBaseCollection,
+  type TCategory,
   type TCreateSubscriptionPayload,
   type TSubscription,
   type TUpdateSubscriptionPayload,
@@ -11,6 +12,50 @@ import {z} from 'zod';
 import {pb} from '@/pocketbase';
 
 export class SubscriptionService {
+  /**
+   * Retrieves a list of upcoming subscriptions.
+   *
+   * @param subscriptions - An array of subscription objects.
+   * @param count - The number of upcoming subscriptions to retrieve.
+   * @param offset - The starting index from which to retrieve subscriptions. Defaults to 0.
+   * @returns An array of upcoming subscriptions, filtered to exclude paused subscriptions.
+   */
+  static getUpcomingSubscriptions(subscriptions: TSubscription[], count: number, offset: number = 0): TSubscription[] {
+    return subscriptions.filter(({paused}) => !paused).slice(offset, offset + count);
+  }
+
+  /**
+   * Retrieves upcoming subscription payments grouped by category.
+   *
+   * @param subscriptions - An array of subscription objects.
+   * @returns A Map where the key is the category ID and the value is an object containing the category and the total amount of upcoming payments.
+   *
+   * The function filters the subscriptions to include only those that are not paused, have an execution date later than today, and have a negative transfer amount.
+   * It then groups the filtered subscriptions by category and calculates the total amount for each category.
+   */
+  static getUpcomingSubscriptionPaymentsByCategory(
+    subscriptions: TSubscription[],
+  ): Map<TCategory['id'], {category: TCategory; total: number}> {
+    const today = new Date().getDate();
+    const grouped = new Map<TCategory['id'], {category: TCategory; total: number}>();
+    subscriptions = subscriptions.filter(
+      ({paused, execute_at, transfer_amount}) => !paused && execute_at > today && transfer_amount < 0,
+    );
+
+    for (const {
+      expand: {category},
+      transfer_amount,
+    } of subscriptions) {
+      const amount = Math.abs(transfer_amount);
+      if (grouped.has(category.id)) {
+        const curr = grouped.get(category.id);
+        grouped.set(category.id, {category: category, total: curr!.total + amount});
+      } else grouped.set(category.id, {category: category, total: amount});
+    }
+
+    return grouped;
+  }
+
   /**
    * Creates a new subscription record.
    *

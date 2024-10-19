@@ -10,14 +10,14 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
-import {DatePicker} from '@mui/x-date-pickers';
 import {RecordModel} from 'pocketbase';
 import React from 'react';
 import {z} from 'zod';
 
 import {AppConfig} from '@/app.config';
 import {FullScreenDialog, type TFullScreenDialogProps} from '@/components/Base/FullScreenDialog';
-import {ReceiverAutocomplete, type TReceiverAutocompleteOption} from '@/components/Base/Input';
+import {DatePicker, ReceiverAutocomplete, type TReceiverAutocompleteOption} from '@/components/Base/Input';
+import {DesktopFeatureOnly} from '@/components/DesktopFeatureOnly';
 import {useAuthContext} from '@/features/Auth';
 import {CategoryAutocomplete, type TCategoryAutocompleteOption} from '@/features/Category';
 import {PaymentMethodAutocomplete, type TPaymentMethodAutocompleteOption} from '@/features/PaymentMethod';
@@ -26,9 +26,8 @@ import {useKeyPress} from '@/hooks/useKeyPress';
 import {useScreenSize} from '@/hooks/useScreenSize';
 import {parseNumber} from '@/utils';
 
-import {DesktopFeatureOnly} from '../../../components/DesktopFeatureOnly/DesktopFeatureOnly.component';
-import {type TTransactionDrawerValues} from '../TransactionDrawer/TransactionDrawer.component';
-import {TransactionService} from '../TransactionService/Transaction.service';
+import {type TTransactionDrawerValues} from '../TransactionDrawer';
+import {TransactionService} from '../TransactionService';
 import {useTransactions} from '../useTransactions.hook';
 
 export type TCreateMultipleTransactionsDialogProps = Omit<TFullScreenDialogProps, 'title'>;

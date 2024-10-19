@@ -1,3 +1,4 @@
+import {type TCategory} from '@budgetbuddyde/types';
 import {PaymentsRounded} from '@mui/icons-material';
 import {Box} from '@mui/material';
 import React from 'react';
@@ -11,30 +12,18 @@ import {Formatter} from '@/services/Formatter';
 export type TUpcomingSubscriptionProps = {};
 
 export const UpcomingSubscriptions: React.FC<TUpcomingSubscriptionProps> = ({}) => {
-  const {isLoading: isLoadingSubscriptions, data: subscriptions} = useSubscriptions();
+  const {isLoading: isLoadingSubscriptions, data, getUpcomingSubscriptionPaymentsByCategory} = useSubscriptions();
 
-  const groupedPayments = React.useMemo(() => {
-    const today = new Date().getDate();
-    const upcomignSubscriptions = (subscriptions ?? []).filter(
-      ({paused, execute_at, transfer_amount}) => !paused && execute_at > today && transfer_amount < 0,
-    );
-    const grouped = new Map<string, {label: string; sum: number}>();
+  const groupedPayments: {label: TCategory['name']; total: number}[] = React.useMemo(() => {
+    const upcomingPayments = getUpcomingSubscriptionPaymentsByCategory();
 
-    for (const {
-      expand: {
-        category: {id, name},
-      },
-      transfer_amount,
-    } of upcomignSubscriptions) {
-      const amount = Math.abs(transfer_amount);
-      if (grouped.has(id)) {
-        const curr = grouped.get(id);
-        grouped.set(id, {label: name, sum: curr!.sum + amount});
-      } else grouped.set(id, {label: name, sum: amount});
+    const grouped = new Map<string, number>();
+    for (const [_, {category, total}] of upcomingPayments) {
+      grouped.set(category.name, total + (grouped.get(category.name) ?? 0));
     }
 
-    return Array.from(grouped.values());
-  }, [subscriptions]);
+    return Array.from(grouped.entries()).map(([label, total]) => ({label, total}));
+  }, [data]);
 
   return (
     <Card>
@@ -43,7 +32,7 @@ export const UpcomingSubscriptions: React.FC<TUpcomingSubscriptionProps> = ({}) 
           <Card.Title>Upcoming subscriptions</Card.Title>
           <Card.Subtitle>
             {Formatter.formatBalance(
-              groupedPayments.length > 0 ? groupedPayments.reduce((acc, curr) => acc + curr.sum, 0) : 0,
+              groupedPayments.length > 0 ? groupedPayments.reduce((acc, curr) => acc + curr.total, 0) : 0,
             )}{' '}
             grouped by category
           </Card.Subtitle>
@@ -53,12 +42,12 @@ export const UpcomingSubscriptions: React.FC<TUpcomingSubscriptionProps> = ({}) 
         {isLoadingSubscriptions ? (
           <CircularProgress />
         ) : (
-          groupedPayments.map(({label, sum}) => (
+          groupedPayments.map(({label, total}) => (
             <ListWithIcon
               key={'upc-sub-' + label.replaceAll(' ', '_').toLowerCase()}
               icon={<PaymentsRounded />}
               title={label}
-              amount={sum}
+              amount={total}
             />
           ))
         )}

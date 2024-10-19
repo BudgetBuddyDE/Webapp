@@ -7,8 +7,8 @@ import {create} from 'zustand';
 
 import {AppConfig} from '@/app.config';
 import {useAuthContext} from '@/features/Auth';
-import {SubscriptionService, useSubscriptionStore} from '@/features/Subscription';
-import {TransactionService, useTransactionStore, useTransactions} from '@/features/Transaction';
+import {useSubscriptionStore, useSubscriptions} from '@/features/Subscription';
+import {useTransactionStore, useTransactions} from '@/features/Transaction';
 import {type IBaseStore} from '@/hooks/GenericHook';
 import {pb} from '@/pocketbase.ts';
 import {Formatter} from '@/services/Formatter';
@@ -54,23 +54,17 @@ export type TDashboardStatsWrapperProps = unknown;
 export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () => {
   const {sessionUser} = useAuthContext();
   const {data: fetchedStats, setFetchedData, fetchedBy} = useDashboardStatsStore();
-  const {isLoading: isLoadingTransactions, data: transactions} = useTransactions();
-  const {isLoading: isLoadingSubscriptions, data: subscriptions} = useSubscriptionStore();
+  const {isLoading: isLoadingTransactions, getUpcoming: tra_getUpcoming} = useTransactions();
+  const {isLoading: isLoadingSubscriptions, getUpcoming: sub_getUpcoming} = useSubscriptions();
   const [loading, setLoading] = React.useState(false);
 
   const upcomingIncome: number = React.useMemo(() => {
-    return (
-      TransactionService.getUpcomingX('INCOME', transactions ?? []) +
-      SubscriptionService.getUpcomingX('INCOME', subscriptions ?? [])
-    );
-  }, [transactions, subscriptions]);
+    return tra_getUpcoming('INCOME') + sub_getUpcoming('INCOME');
+  }, [tra_getUpcoming, sub_getUpcoming]);
 
   const upcomingExpenses: number = React.useMemo(() => {
-    return (
-      TransactionService.getUpcomingX('EXPENSES', transactions ?? []) +
-      SubscriptionService.getUpcomingX('EXPENSES', subscriptions ?? [])
-    );
-  }, [transactions, subscriptions]);
+    return tra_getUpcoming('EXPENSES') + sub_getUpcoming('EXPENSES');
+  }, [tra_getUpcoming, sub_getUpcoming]);
 
   const estimatedBalance: number = React.useMemo(() => {
     const income = fetchedStats.earnings + upcomingIncome;
@@ -79,7 +73,7 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
   }, [fetchedStats, upcomingIncome, upcomingExpenses]);
 
   const stats: TStatsCardProps[] = React.useMemo(() => {
-    const cardData: TStatsCardProps[] = [
+    return [
       {
         isLoading: isLoadingTransactions || isLoadingSubscriptions || loading,
         icon: <AddRounded />,
@@ -101,9 +95,7 @@ export const DashboardStatsWrapper: React.FC<TDashboardStatsWrapperProps> = () =
         valueInformation: `Exstimated: ${Formatter.formatBalance(estimatedBalance)}`,
       },
     ];
-
-    return cardData;
-  }, [fetchedStats, loading, isLoadingTransactions, isLoadingSubscriptions, transactions, subscriptions]);
+  }, [fetchedStats, loading, isLoadingTransactions, isLoadingSubscriptions, upcomingIncome, upcomingExpenses]);
 
   const fetchData = React.useCallback(async () => {
     if (!sessionUser) return;

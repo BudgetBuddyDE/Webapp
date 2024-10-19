@@ -18,15 +18,28 @@ import {pb} from '@/pocketbase';
  */
 export class TransactionService {
   /**
-   * Retrieves the latest transactions from the given array of transactions.
+   * Retrieves the latest transactions up to a specified count, starting from a given offset.
+   * Filters out transactions that have not been processed yet.
    *
-   * @param transactions - The array of transactions to retrieve from.
+   * @param transactions - An array of transactions to filter and slice.
    * @param count - The number of latest transactions to retrieve.
-   * @returns An array of the latest transactions.
+   * @param offset - The starting index from which to retrieve transactions. Defaults to 0.
+   * @returns An array of the latest transactions up to the specified count, starting from the given offset.
    */
-  static getLatestTransactions(transactions: TTransaction[], count: number): TTransaction[] {
+  static getLatestTransactions(transactions: TTransaction[], count: number, offset: number = 0): TTransaction[] {
     const now = new Date();
-    return transactions.filter(({processed_at}) => processed_at <= now).slice(0, count);
+    return transactions.filter(({processed_at}) => processed_at <= now).slice(offset, offset + count) ?? [];
+  }
+
+  /**
+   * Filters and returns the list of transactions that have been processed and have a negative transfer amount (indicating an expense).
+   *
+   * @param transactions - An array of transactions to filter.
+   * @returns An array of transactions that have been processed and are expenses.
+   */
+  static getPaidExpenses(transactions: TTransaction[]): TTransaction[] {
+    const now = new Date();
+    return transactions.filter(t => t.processed_at <= now && t.transfer_amount < 0);
   }
 
   /**
@@ -124,20 +137,18 @@ export class TransactionService {
 
   /**
    * Calculates the total received earnings from a list of transactions.
-   * Only transactions with a positive transfer amount and processed within the current month are considered.
-   * @deprecated Use the getDashboardStats method instead.
+   * Only transactions with a positive transfer amount and processed within the current month are considered
    * @param transactions - The list of transactions to calculate the earnings from.
    * @returns The total received earnings.
    */
-  static calculateReceivedEarnings(transactions: TTransaction[]): number {
+  static getReceivedIncome(transactions: TTransaction[]): number {
     const now = new Date();
-    const num = transactions
+    return transactions
       .filter(
         ({transfer_amount, processed_at}) =>
           transfer_amount > 0 && processed_at <= now && isSameMonth(processed_at, now),
       )
       .reduce((prev, cur) => prev + cur.transfer_amount, 0);
-    return Number(num.toFixed(2));
   }
 
   /**

@@ -1,5 +1,4 @@
-import {type TSubscription, type TTransaction} from '@budgetbuddyde/types';
-import {Grid2 as Grid, Stack} from '@mui/material';
+import {Box, Grid2 as Grid, Stack} from '@mui/material';
 import React from 'react';
 
 import {AppConfig} from '@/app.config';
@@ -18,7 +17,6 @@ import {
   type TTransactionDrawerValues,
   TransactionDrawer,
   TransactionList,
-  TransactionService,
   useTransactions,
 } from '@/features/Transaction';
 import {useDocumentTitle} from '@/hooks/useDocumentTitle';
@@ -27,8 +25,8 @@ const LIST_ITEM_COUNT = 6;
 
 const DashboardView = () => {
   useDocumentTitle(`${AppConfig.appName} - Dashboard`, true);
-  const {data: transactions, isLoading: isLoadingTransactions} = useTransactions();
-  const {data: subscriptions, isLoading: loadingSubscriptions} = useSubscriptions();
+  const {isLoading: isLoadingTransactions, getLatestTransactions, getUpcomingAsTransactions} = useTransactions();
+  const {isLoading: loadingSubscriptions, getUpcomingSubscriptions} = useSubscriptions();
   const [transactionDrawer, dispatchTransactionDrawer] = React.useReducer(
     useEntityDrawer<TTransactionDrawerValues>,
     UseEntityDrawerDefaultState<TTransactionDrawerValues>(),
@@ -37,15 +35,6 @@ const DashboardView = () => {
     useEntityDrawer<TSusbcriptionDrawerValues>,
     UseEntityDrawerDefaultState<TSusbcriptionDrawerValues>(),
   );
-  const latestTransactions: TTransaction[] = React.useMemo(() => {
-    if (!transactions) return [];
-    return TransactionService.getLatestTransactions(transactions, LIST_ITEM_COUNT);
-  }, [transactions]);
-
-  const upcomingSubscriptions: TSubscription[] = React.useMemo(() => {
-    if (!subscriptions) return [];
-    return subscriptions.filter(({paused}) => !paused).slice(0, LIST_ITEM_COUNT);
-  }, [subscriptions]);
 
   const handler = {
     onAddSubscription: () => {
@@ -65,7 +54,10 @@ const DashboardView = () => {
           {loadingSubscriptions ? (
             <CircularProgress />
           ) : (
-            <SubscriptionList data={upcomingSubscriptions} onAddSubscription={handler.onAddSubscription} />
+            <SubscriptionList
+              data={getUpcomingSubscriptions(LIST_ITEM_COUNT)}
+              onAddSubscription={handler.onAddSubscription}
+            />
           )}
 
           <UpcomingSubscriptions />
@@ -86,10 +78,19 @@ const DashboardView = () => {
           <TransactionList
             title="Latest transactions"
             subtitle="What purchases did you make recently?"
-            data={latestTransactions}
+            data={getLatestTransactions(LIST_ITEM_COUNT)}
             onAddTransaction={handler.onAddTransaction}
           />
         )}
+
+        <Box sx={{mt: 2}}>
+          <TransactionList
+            title="Planned payments"
+            subtitle="What payments are upcoming?"
+            data={getUpcomingAsTransactions('EXPENSES').slice(0, LIST_ITEM_COUNT)}
+            onAddTransaction={handler.onAddTransaction}
+          />
+        </Box>
       </Grid>
 
       <TransactionDrawer
