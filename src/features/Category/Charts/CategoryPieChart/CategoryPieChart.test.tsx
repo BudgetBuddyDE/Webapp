@@ -8,7 +8,6 @@ describe('CategoryPieChart', () => {
     subtitle: 'Monthly Expenses',
     defaultTimeframe: 'MONTH',
     transactionsType: 'EXPENSE',
-    transactions: [],
   };
 
   it('renders the title and subtitle', () => {

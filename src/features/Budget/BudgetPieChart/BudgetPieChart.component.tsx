@@ -1,12 +1,11 @@
 import {Box} from '@mui/material';
-import {isSameMonth} from 'date-fns';
 import React from 'react';
 
 import {Card} from '@/components/Base/Card';
 import {PieChart} from '@/components/Base/Charts';
 import {CircularProgress} from '@/components/Loading';
-import {useSubscriptions} from '@/features/Subscription';
 import {useTransactions} from '@/features/Transaction';
+import {type TTransactionBudget} from '@/features/Transaction/Transaction.types';
 import {Formatter} from '@/services/Formatter';
 
 export type TBudgetPieChartProps = {};
@@ -21,60 +20,48 @@ export type TBudgetPieChartProps = {};
  * ```
  */
 export const BudgetPieChart: React.FC<TBudgetPieChartProps> = () => {
-  const {
-    isLoading: isLoadingTransactions,
-    data: transactions,
-    getReceivedIncome: tra_getReceivedIncome,
-    getPaidExpenses: tra_getPaidExpenses,
-    getUpcoming: tra_getUpcoming,
-  } = useTransactions();
-  const {isLoading: isLoadingSubscriptions, getUpcoming: sub_getUpcoming} = useSubscriptions();
-
-  /**
-   * current_expenses = gezahlte transaktionen
-   * future_expenses = anstehende transaktionen und ausstehende subscriptions
-   * free_amount = (paid_income + upcoming_transaction_income + upcoming_subscription_income) - (current_expenses - future_expenses)
-   */
-
-  const currentExpenses: number = React.useMemo(() => {
-    if (!transactions) return 0;
-    const paidTransactions = tra_getPaidExpenses();
-    const expenses = paidTransactions.reduce(
-      (prev, curr) => (isSameMonth(new Date(), curr.processed_at) ? prev + Math.abs(curr.transfer_amount) : prev),
-      0,
-    );
-    return expenses;
-  }, [tra_getPaidExpenses]);
-
-  const futureExpenses: number = React.useMemo(() => {
-    const upcomingTransactionExpenses = tra_getUpcoming('EXPENSES');
-    const upcomingSubscriptionExpenses = sub_getUpcoming('EXPENSES');
-    return upcomingTransactionExpenses + upcomingSubscriptionExpenses;
-  }, [tra_getUpcoming, sub_getUpcoming]);
-
-  const totalIncome: number = React.useMemo(() => {
-    return tra_getReceivedIncome() + tra_getUpcoming('INCOME') + sub_getUpcoming('INCOME');
-  }, [tra_getReceivedIncome, tra_getUpcoming, sub_getUpcoming]);
+  const {getBudget} = useTransactions();
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [data, setData] = React.useState<TTransactionBudget | null>(null);
 
   const chartData = React.useMemo(() => {
+    if (!data) return [];
     return [
       {
         id: 'current-expenses',
         label: 'Current Expenses',
-        value: currentExpenses,
+        value: data.expenses,
       },
       {
         id: 'future-expenses',
         label: 'Future Expenses',
-        value: futureExpenses,
+        value: data.upcomingExpenses,
       },
       {
         id: 'free-amount',
         label: 'Free Amount',
-        value: totalIncome - (currentExpenses + futureExpenses),
+        value: data.freeAmount,
       },
     ].filter(({value}) => value > 0);
-  }, [totalIncome, currentExpenses, futureExpenses]);
+  }, [data]);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      if (!isLoading) setIsLoading(true);
+      const now = new Date();
+      const [budget, err] = await getBudget(
+        new Date(now.getFullYear(), now.getMonth(), 1),
+        new Date(now.getFullYear(), now.getMonth() + 1, 0),
+      );
+      setIsLoading(false);
+      if (err) {
+        console.error(err);
+        return;
+      }
+      setData(budget);
+    };
+    fetchData();
+  }, []);
 
   return (
     <Card>
@@ -85,12 +72,12 @@ export const BudgetPieChart: React.FC<TBudgetPieChartProps> = () => {
         </Box>
       </Card.Header>
       <Card.Body sx={{pt: 1}}>
-        {isLoadingTransactions || isLoadingSubscriptions ? (
+        {isLoading || !data ? (
           <CircularProgress />
         ) : (
           <PieChart
             fullWidth
-            primaryText={Formatter.formatBalance(currentExpenses + futureExpenses)}
+            primaryText={Formatter.formatBalance(data!.expenses + data!.upcomingExpenses)}
             secondaryText="Expenses"
             series={[
               {

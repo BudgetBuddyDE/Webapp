@@ -1,13 +1,14 @@
-import {type TTransaction} from '@budgetbuddyde/types';
 import {Box, Button, Stack, ToggleButton, ToggleButtonGroup} from '@mui/material';
-import {isSameMonth, isSameYear} from 'date-fns';
 import React from 'react';
 import {Link} from 'react-router-dom';
 
 import {Card} from '@/components/Base/Card';
-import {PieChart, TPieChartData} from '@/components/Base/Charts';
+import {PieChart, type TPieChartData} from '@/components/Base/Charts';
 import {NoResults} from '@/components/NoResults';
 import {Formatter} from '@/services/Formatter';
+
+import {type TCategoryStats} from '../../Category.types';
+import {useCategories} from '../../useCategories.hook';
 
 export type TCategoryPieChartTimeframe = 'MONTH' | 'YTD' | 'ALL_TIME';
 
@@ -33,7 +34,6 @@ export type TCategoryPieChartProps = {
   subtitle?: string;
   defaultTimeframe?: TCategoryPieChartTimeframe;
   transactionsType: TCategoryPieChartTransactionType;
-  transactions: TTransaction[];
   withViewMore?: boolean;
 };
 
@@ -48,7 +48,6 @@ export type TCategoryPieChartProps = {
  *   subtitle="Monthly Expenses"
  *   defaultTimeframe="MONTH"
  *   transactionsType="EXPENSE"
- *   transactions={transactionData}
  * />
  * ```
  *
@@ -59,60 +58,64 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
   subtitle,
   defaultTimeframe = 'MONTH',
   transactionsType,
-  transactions,
   withViewMore = false,
 }) => {
+  const {getStats} = useCategories();
+  const [isLoading, setIsLoading] = React.useState(true);
   const [currentTimeframe, setCurrentTimeframe] = React.useState<TCategoryPieChartTimeframe>(defaultTimeframe);
-  const currentChartData: TPieChartData[] = React.useMemo(() => {
+  const [data, setData] = React.useState<Record<TCategoryPieChartTimeframe, TCategoryStats | null>>({
+    MONTH: null,
+    YTD: null,
+    ALL_TIME: null,
+  });
+
+  const getDateRange = (timeframe: TCategoryPieChartTimeframe): [Date, Date] => {
     const now = new Date();
-    const sumByCategory = new Map<string, number>();
-
-    const isValidTransaction = ({transfer_amount, processed_at}: TTransaction) => {
-      const isCorrectType = transactionsType === 'INCOME' ? transfer_amount > 0 : transfer_amount < 0;
-      const isInTimeframe = (() => {
-        switch (currentTimeframe) {
-          case 'MONTH':
-            return isSameMonth(processed_at, now);
-          case 'YTD':
-            return isSameYear(processed_at, now);
-          case 'ALL_TIME':
-            return true;
-          default:
-            return false;
-        }
-      })();
-
-      return isCorrectType && isInTimeframe;
-    };
-
-    const filteredTransactions = transactions.filter(isValidTransaction);
-
-    for (const {
-      expand: {
-        category: {name},
-      },
-      transfer_amount,
-    } of filteredTransactions) {
-      const currAmount = sumByCategory.get(name);
-      if (currAmount) {
-        sumByCategory.set(name, currAmount + Math.abs(transfer_amount));
-      } else sumByCategory.set(name, Math.abs(transfer_amount));
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    switch (timeframe) {
+      case 'ALL_TIME':
+        // Sending a startDate way back in time to get all transactions, because we wanna catch all processed transactions
+        return [new Date('1900-01-01'), now];
+      case 'YTD':
+        return [new Date(year, 0, 1), now];
+      case 'MONTH':
+        return [new Date(year, month, 1), new Date(year, month, 31)];
     }
+  };
 
-    return Array.from(sumByCategory.entries()).map(
-      ([category, amount]) =>
-        ({
-          label: category,
-          value: amount,
-        }) as TPieChartData,
-    );
-  }, [transactions, transactionsType, currentTimeframe]);
-  const hasItems: boolean = currentChartData.length > 0;
-
-  const onChangeCurrentTimeframe = React.useCallback((event: React.BaseSyntheticEvent) => {
+  const onChangeCurrentTimeframe = (event: React.BaseSyntheticEvent) => {
     setCurrentTimeframe(event.target.value);
-  }, []);
+  };
 
+  const chartData: TPieChartData[] = React.useMemo(() => {
+    if (!data[currentTimeframe]) return [];
+    const stats = data[currentTimeframe].categories;
+    return stats
+      .map(stat => ({
+        label: stat.category.name,
+        value: transactionsType === 'INCOME' ? stat.income : stat.expenses,
+      }))
+      .filter(({value}) => value > 0);
+  }, [data, currentTimeframe, transactionsType]);
+
+  const fetchData = React.useCallback(async () => {
+    if (!isLoading) setIsLoading(true);
+    const [startDate, endDate] = getDateRange(currentTimeframe);
+    const [budget, err] = await getStats(startDate, endDate);
+    setIsLoading(false);
+    if (err) {
+      console.error(err);
+      return;
+    }
+    setData(prev => ({...prev, [currentTimeframe]: budget}));
+  }, [currentTimeframe]);
+
+  React.useEffect(() => {
+    fetchData();
+  }, [currentTimeframe]);
+
+  if (isLoading) return <p>loading</p>;
   return (
     <Card>
       <Card.Header>
@@ -137,20 +140,20 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
         </Card.HeaderActions>
       </Card.Header>
       <Card.Body sx={{pt: 1}}>
-        {hasItems ? (
+        {chartData.length > 0 ? (
           <PieChart
             fullWidth
-            primaryText={Formatter.formatBalance(currentChartData.reduce((acc, curr) => acc + curr.value, 0))}
-            secondaryText="Expenses"
+            primaryText={Formatter.formatBalance(chartData.reduce((acc, curr) => acc + curr.value, 0))}
+            secondaryText={transactionsType === 'EXPENSE' ? 'Expenses' : 'Income'}
             series={[
               {
-                data: currentChartData,
+                data: chartData,
                 valueFormatter: value => Formatter.formatBalance(value.value),
               },
             ]}
           />
         ) : (
-          <NoResults text={'There are no transactions for this month!'} />
+          <NoResults text={getNoResultsMessage(currentTimeframe)} />
         )}
       </Card.Body>
       {withViewMore && (
