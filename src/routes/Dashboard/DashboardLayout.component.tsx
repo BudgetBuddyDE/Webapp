@@ -4,7 +4,8 @@ import {Outlet, useLocation, useNavigate} from 'react-router-dom';
 
 import {ActionPaper} from '@/components/Base/ActionPaper';
 import {ContentGrid} from '@/components/Layout';
-import {useAuthContext, withAuthLayout} from '@/features/Auth';
+import {useAuthContext} from '@/features/Auth';
+import {withAuthLayout} from '@/features/Auth/Layout/withAuthLayout.hoc';
 
 import {DashboardViewDescriptionMapping, DashboardViewMapping, type TDashboardView} from './index';
 

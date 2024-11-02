@@ -1,9 +1,10 @@
-import {Box, Button, Stack, ToggleButton, ToggleButtonGroup} from '@mui/material';
+import {Box, Button, Skeleton, Stack, ToggleButton, ToggleButtonGroup} from '@mui/material';
 import React from 'react';
 import {Link} from 'react-router-dom';
 
 import {Card} from '@/components/Base/Card';
 import {PieChart, type TPieChartData} from '@/components/Base/Charts';
+import {CircularProgress} from '@/components/Loading';
 import {NoResults} from '@/components/NoResults';
 import {Formatter} from '@/services/Formatter';
 
@@ -115,7 +116,6 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
     fetchData();
   }, [currentTimeframe]);
 
-  if (isLoading) return <p>loading</p>;
   return (
     <Card>
       <Card.Header>
@@ -124,23 +124,29 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
           {subtitle !== undefined && Boolean(subtitle) && <Card.Subtitle>{subtitle}</Card.Subtitle>}
         </Box>
 
-        <Card.HeaderActions sx={{display: 'flex', flexDirection: 'row'}}>
-          <ToggleButtonGroup
-            size="small"
-            color="primary"
-            value={currentTimeframe}
-            onChange={onChangeCurrentTimeframe}
-            exclusive>
-            {CATEGORY_PIE_CHART_TIMEFRAMES.map(button => (
-              <ToggleButton key={button.type} value={button.type}>
-                {button.text}
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
-        </Card.HeaderActions>
+        {isLoading ? (
+          <Skeleton variant="rounded" width={'25%'} height={30} />
+        ) : (
+          <Card.HeaderActions sx={{display: 'flex', flexDirection: 'row'}}>
+            <ToggleButtonGroup
+              size="small"
+              color="primary"
+              value={currentTimeframe}
+              onChange={onChangeCurrentTimeframe}
+              exclusive>
+              {CATEGORY_PIE_CHART_TIMEFRAMES.map(button => (
+                <ToggleButton key={button.type} value={button.type}>
+                  {button.text}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+          </Card.HeaderActions>
+        )}
       </Card.Header>
       <Card.Body sx={{pt: 1}}>
-        {chartData.length > 0 ? (
+        {isLoading ? (
+          <CircularProgress />
+        ) : chartData.length > 0 ? (
           <PieChart
             fullWidth
             primaryText={Formatter.formatBalance(chartData.reduce((acc, curr) => acc + curr.value, 0))}
@@ -156,7 +162,7 @@ export const CategoryPieChart: React.FC<TCategoryPieChartProps> = ({
           <NoResults text={getNoResultsMessage(currentTimeframe)} />
         )}
       </Card.Body>
-      {withViewMore && (
+      {!isLoading && withViewMore && (
         <Card.Footer>
           <Stack direction="row" justifyContent={'flex-end'}>
             {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}

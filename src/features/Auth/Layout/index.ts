@@ -1,3 +1,3 @@
 export * from './Auth.layout';
-export * from './withAuthLayout';
+export * from './withAuthLayout.hoc';
 export * from './Unauthentificated.layout';

@@ -6,7 +6,7 @@ import {
 } from '@mui/icons-material';
 
 import {Feature} from '@/app.config';
-import {isFeatureEnabled} from '@/components/Feature';
+import {isFeatureEnabled} from '@/components/Feature/isFeatureEnabled';
 import {DashboardViewIconMapping} from '@/routes/Dashboard';
 
 export const DrawerLinks = [
