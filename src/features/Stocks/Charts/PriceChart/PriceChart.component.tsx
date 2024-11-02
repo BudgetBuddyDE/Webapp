@@ -22,8 +22,9 @@ export type TPriceChartProps = {
 export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, company, data}) => {
   const theme = useTheme();
 
-  const oldestPrice = data.at(-1)!.price;
-  const latestPrice = data.at(0)!.price;
+  const oldestPrice = data.at(0)!.price;
+  const latestPrice = data.at(-1)!.price;
+  const priceDiff = latestPrice - oldestPrice;
 
   return (
     <Card>
@@ -44,8 +45,8 @@ export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, compa
               <Chip
                 size="small"
                 variant="outlined"
-                color={oldestPrice > latestPrice ? 'success' : 'error'}
-                label={`${Formatter.formatBalance(oldestPrice - latestPrice)}`}
+                color={latestPrice > oldestPrice ? 'success' : 'error'}
+                label={`${((priceDiff * 100) / oldestPrice).toDecimal(2)}% (${Formatter.formatBalance(priceDiff)})`}
               />
             </Stack>
             <Typography variant="caption" sx={{color: 'text.secondary'}}>
