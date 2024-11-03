@@ -7,10 +7,10 @@ import {PageHeader, type TPageHeaderProps} from '../PageHeader';
 
 export type TContentGrid = React.PropsWithChildren<TPageHeaderProps & GridProps>;
 
-export const ContentGrid: React.FC<TContentGrid> = ({title, description, children, ...gridProps}) => {
+export const ContentGrid: React.FC<TContentGrid> = ({title, description, navigateBackPath, children, ...gridProps}) => {
   return (
     <Grid container spacing={AppConfig.baseSpacing} {...gridProps}>
-      <PageHeader title={title} description={description} />
+      <PageHeader title={title} description={description} navigateBackPath={navigateBackPath} />
       {children}
     </Grid>
   );
