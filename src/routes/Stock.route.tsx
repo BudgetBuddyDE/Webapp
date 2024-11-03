@@ -1,4 +1,3 @@
-import {type TTimeframe} from '@budgetbuddyde/types';
 import {type TStockPositionWithQuote} from '@budgetbuddyde/types';
 import {ExpandMoreRounded, HelpOutlineRounded, TimelineRounded} from '@mui/icons-material';
 import {
@@ -31,6 +30,7 @@ import {ContentGrid} from '@/components/Layout';
 import {CircularProgress} from '@/components/Loading';
 import {NoResults} from '@/components/NoResults';
 import {TabPanel} from '@/components/TabPanel';
+import {useTimeframe} from '@/components/Timeframe';
 import {useAuthContext, withAuthLayout} from '@/features/Auth';
 import {DeleteDialog} from '@/features/DeleteDialog';
 import {useSnackbarContext} from '@/features/Snackbar';
@@ -73,11 +73,11 @@ interface IStockHandler {
 export const Stock = () => {
   const navigate = useNavigate();
   const params = useParams<{isin: string}>();
+  const [timeframe, setTimeframe] = useTimeframe();
   const {showSnackbar} = useSnackbarContext();
   const {sessionUser} = useAuthContext();
   const socket = getSocketIOClient();
   const [keyword, setKeyword] = React.useState('');
-  const [chartTimeframe, setChartTimeframe] = React.useState<TTimeframe>('3m');
   const [tabPane, setTabPane] = React.useState({
     profit: 0,
     financial: 0,
@@ -98,9 +98,9 @@ export const Stock = () => {
   const {
     loading: loadingQuotes,
     quotes,
-    updateQuotes,
     refresh: refreshQuotes,
-  } = useFetchStockQuotes([params.isin || ''], 'langschwarz', chartTimeframe);
+    updateQuotes,
+  } = useFetchStockQuotes([params.isin || ''], 'langschwarz', timeframe);
   const {
     isLoading: loadingStockPositions,
     data: stockPositions,
@@ -248,7 +248,7 @@ export const Stock = () => {
 
   React.useEffect(() => {
     refreshQuotes();
-  }, [chartTimeframe]);
+  }, [timeframe]);
 
   React.useEffect(() => {
     if (!params.isin || params.isin.length !== 12) return;
@@ -273,7 +273,7 @@ export const Stock = () => {
               <PriceChart
                 company={{name: stockDetails?.asset.name ?? ''}}
                 data={preparedChartData}
-                onTimeframeChange={setChartTimeframe}
+                onTimeframeChange={setTimeframe}
               />
             ) : (
               <NoResults icon={<TimelineRounded />} text="No quotes found" />
