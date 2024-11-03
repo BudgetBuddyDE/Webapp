@@ -264,7 +264,7 @@ export const Stock = () => {
       onOpenPosition={({name, logo, identifier, type}) => {
         handler.showCreateDialog({stock: {type, isin: identifier, label: name, logo}});
       }}>
-      <ContentGrid title={stockDetails?.asset.name ?? ''} description={params.isin}>
+      <ContentGrid title={stockDetails?.asset.name ?? ''} description={params.isin} navigateBackPath="/stocks">
         <Grid container size={{xs: 12, lg: 8}} spacing={AppConfig.baseSpacing}>
           <Grid size={{xs: 12}}>
             {loadingQuotes && (!quotes || quotes.length === 0) ? (
