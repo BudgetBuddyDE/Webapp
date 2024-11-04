@@ -1,20 +1,26 @@
-import {type TDividendDetails} from '@budgetbuddyde/types';
+import {type TDividendDetails, TStockPositionWithQuote} from '@budgetbuddyde/types';
 import {AccountBalanceRounded, AddRounded, PaymentsRounded, RemoveRounded} from '@mui/icons-material';
-import {Grid2 as Grid} from '@mui/material';
+import {Button, Grid2 as Grid} from '@mui/material';
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
 
 import {AppConfig, Feature} from '@/app.config';
+import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer';
 import {withFeatureFlag} from '@/components/Feature/withFeatureFlag/withFeatureFlag.component';
 import {CircularProgress} from '@/components/Loading';
 import {StatsCard} from '@/components/StatsCard/StatsCard.component';
 import {useAuthContext} from '@/features/Auth';
+import {DeleteDialog} from '@/features/DeleteDialog';
 import {MetalQuoteList} from '@/features/Metals';
+import {useSnackbarContext} from '@/features/Snackbar';
 import {
   DividendTable,
   PortfolioDiversityChart,
   StockLayout,
+  StockPositionDrawer,
+  StockService,
   StockWatchlist,
+  type TStockPositionDrawerValues,
   useFetchStockDividends,
   useStockPositions,
   useStockWatchlist,
@@ -24,18 +30,37 @@ import {useDocumentTitle} from '@/hooks/useDocumentTitle';
 import {Formatter} from '@/services/Formatter';
 import {getSocketIOClient} from '@/utils';
 
+interface IStocksHandler {
+  showCreateDialog: (payload?: Partial<TStockPositionDrawerValues>) => void;
+  showEditDialog: (stockPosition: TStockPositionWithQuote) => void;
+  onCancelDeletePosition: () => void;
+  onConfirmDeletePosition: () => void;
+}
+
 const StocksView = () => {
+  const socket = getSocketIOClient();
   useDocumentTitle(`${AppConfig.appName} - Stocks`, true);
   const navigate = useNavigate();
   const {sessionUser} = useAuthContext();
-  const socket = getSocketIOClient();
-  const {isLoading: isLoadingStockPositions, data: stockPositions, updateQuote} = useStockPositions();
+  const {showSnackbar} = useSnackbarContext();
+  const {
+    isLoading: isLoadingStockPositions,
+    data: stockPositions,
+    updateQuote,
+    refreshData: refreshStockPositions,
+  } = useStockPositions();
   const {isLoading: isLoadingWatchlist, data: watchedAssets} = useStockWatchlist();
   const {
     loading: loadingDividends,
     dividends,
     refresh: refreshDividends,
   } = useFetchStockDividends((stockPositions ?? []).map(({isin}) => isin));
+  const [stockPositionDrawer, dispatchStockPositionDrawer] = React.useReducer(
+    useEntityDrawer<TStockPositionDrawerValues>,
+    UseEntityDrawerDefaultState<TStockPositionDrawerValues>(),
+  );
+  const [showDeletePositionDialog, setShowDeletePositionDialog] = React.useState(false);
+  const [deletePosition, setDeletePosition] = React.useState<TStockPositionWithQuote | null>(null);
 
   const depotValue: number = React.useMemo(() => {
     if (!stockPositions) return 0;
@@ -77,7 +102,68 @@ const StocksView = () => {
       }, 0);
   }, [dividends, stockPositions]);
 
-  React.useLayoutEffect(() => {
+  const handler: IStocksHandler = {
+    showCreateDialog(payload) {
+      dispatchStockPositionDrawer({type: 'OPEN', drawerAction: 'CREATE', payload: payload});
+    },
+    showEditDialog({id, bought_at, buy_in, quantity, currency, isin, name, logo, expand: {exchange}}) {
+      dispatchStockPositionDrawer({
+        type: 'OPEN',
+        drawerAction: 'UPDATE',
+        payload: {
+          id,
+          bought_at,
+          currency,
+          buy_in,
+          exchange: {
+            label: exchange.name,
+            ticker: exchange.symbol,
+            value: exchange.id,
+          },
+          quantity,
+          stock: {
+            type: 'Aktie',
+            isin,
+            label: name,
+            logo,
+          },
+        },
+      });
+    },
+    onCancelDeletePosition() {
+      setDeletePosition(null);
+      setShowDeletePositionDialog(false);
+    },
+    async onConfirmDeletePosition() {
+      if (!deletePosition || !sessionUser) return;
+
+      const [position, error] = await StockService.deletePosition({id: deletePosition.id});
+      if (error) {
+        showSnackbar({
+          message: error.message,
+          action: <Button onClick={() => handler.onConfirmDeletePosition()}>Retry</Button>,
+        });
+        console.error(error);
+        return;
+      }
+      if (!position || !position.success) {
+        showSnackbar({
+          message: 'Error deleting position',
+          action: <Button onClick={() => handler.onConfirmDeletePosition()}>Retry</Button>,
+        });
+        return;
+      }
+
+      showSnackbar({message: 'Position deleted'});
+      setShowDeletePositionDialog(false);
+      setDeletePosition(null);
+      React.startTransition(() => {
+        refreshStockPositions();
+      });
+    },
+  };
+
+  React.useEffect(() => {
     if (!sessionUser || isLoadingStockPositions || !stockPositions || (stockPositions && stockPositions.length === 0))
       return;
     const subscribedAssets: {isin: string; exchange: string}[] = [
@@ -164,7 +250,15 @@ const StocksView = () => {
 
       <Grid container size={{xs: 12, md: 8}} spacing={AppConfig.baseSpacing} sx={{height: 'fit-content'}}>
         <Grid size={{xs: 12, md: 12}} order={{xs: 4}}>
-          <StockPositionTable withRedirect />
+          <StockPositionTable
+            onAddPosition={handler.showCreateDialog}
+            onEditPosition={handler.showEditDialog}
+            onDeletePosition={position => {
+              setShowDeletePositionDialog(true);
+              setDeletePosition(position);
+            }}
+            withRedirect
+          />
         </Grid>
 
         <Grid size={{xs: 12}} order={{xs: 5}}>
@@ -193,6 +287,21 @@ const StocksView = () => {
           )}
         </Grid>
       </Grid>
+
+      <StockPositionDrawer
+        {...stockPositionDrawer}
+        onClose={() => dispatchStockPositionDrawer({type: 'CLOSE'})}
+        closeOnBackdropClick
+        closeOnEscape
+      />
+
+      <DeleteDialog
+        open={showDeletePositionDialog}
+        onClose={handler.onCancelDeletePosition}
+        onCancel={handler.onCancelDeletePosition}
+        onConfirm={handler.onConfirmDeletePosition}
+        withTransition
+      />
     </StockLayout>
   );
 };
