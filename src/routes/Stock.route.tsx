@@ -78,10 +78,7 @@ export const Stock = () => {
   const {sessionUser} = useAuthContext();
   const socket = getSocketIOClient();
   const [keyword, setKeyword] = React.useState('');
-  const [tabPane, setTabPane] = React.useState({
-    profit: 0,
-    financial: 0,
-  });
+  const [tabPane, setTabPane] = React.useState({profit: 0, financial: 0});
   const {
     loading: loadingDetails,
     details: stockDetails,
@@ -219,7 +216,7 @@ export const Stock = () => {
     },
   };
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     if (!params.isin || !sessionUser || loadingStockPositions || loadingQuotes || loadingDetails) return;
     socket.connect();
 
@@ -264,7 +261,7 @@ export const Stock = () => {
       onOpenPosition={({name, logo, identifier, type}) => {
         handler.showCreateDialog({stock: {type, isin: identifier, label: name, logo}});
       }}>
-      <ContentGrid title={stockDetails?.asset.name ?? ''} description={params.isin} navigateBackPath="/stocks">
+      <ContentGrid title={stockDetails?.asset.name ?? ''} description={params.isin} withNavigateBack>
         <Grid container size={{xs: 12, lg: 8}} spacing={AppConfig.baseSpacing}>
           <Grid size={{xs: 12}}>
             {loadingQuotes && (!quotes || quotes.length === 0) ? (

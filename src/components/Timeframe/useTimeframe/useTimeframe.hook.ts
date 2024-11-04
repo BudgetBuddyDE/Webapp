@@ -44,7 +44,7 @@ export const useTimeframe = ({
       setLocalTimeframe(newTimeframe);
       const updatedParams = new URLSearchParams(searchParams);
       updatedParams.set(queryKey, newTimeframe);
-      setSearchParams(updatedParams);
+      setSearchParams(updatedParams, {replace: true});
     },
     [searchParams, setSearchParams],
   );
