@@ -24,7 +24,17 @@ const DashboardLayout: React.FC<TDashboardLayoutProps> = ({children, useOutletIn
       title={`Welcome, ${sessionUser.name ? sessionUser.name : sessionUser.username}!`}
       description={DashboardViewDescriptionMapping[DashboardViewMapping[location.pathname]]}>
       <Grid size={{xs: 12}}>
-        <ActionPaper sx={{width: 'min-content'}}>
+        <ActionPaper
+          sx={{
+            width: 'min-content',
+            maxWidth: '100%',
+            overflowX: 'scroll',
+            '::-webkit-scrollbar': {
+              display: 'none',
+            },
+            '-ms-overflow-style': 'none',
+            scrollbarWidth: 'none',
+          }}>
           <ToggleButtonGroup
             size="small"
             color="primary"
@@ -38,8 +48,8 @@ const DashboardLayout: React.FC<TDashboardLayoutProps> = ({children, useOutletIn
             {Object.entries(DashboardViewMapping).map(([path, view]: [string, TDashboardView]) => (
               <ToggleButton key={path} value={path}>
                 {/* {React.isValidElement(DashboardViewIconMapping[view]) &&
-                  // @ts-expect-error
                   React.cloneElement(DashboardViewIconMapping[view], {
+                    // @ts-expect-error
                     sx: {
                       mr: 0.5,
                     },
