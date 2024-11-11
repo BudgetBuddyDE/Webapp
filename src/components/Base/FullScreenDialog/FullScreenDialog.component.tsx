@@ -62,7 +62,7 @@ export const FullScreenDialog: React.FC<TFullScreenDialogProps> = ({
         </Toolbar>
       </AppBar>
 
-      <Box {...boxProps} sx={{p: 2, flex: 1, ...boxProps?.sx}}>
+      <Box {...boxProps} sx={{m: 3, flex: 1, ...boxProps?.sx}}>
         {dialogProps.children}
       </Box>
     </React.Fragment>
