@@ -3,7 +3,7 @@ import {type StoreApi, type UseBoundStore, create} from 'zustand';
 
 import {pb} from '@/pocketbase';
 
-export interface IGenericStore {
+export interface IGenericStore<FetchArguments> {
   isLoading: boolean;
   isFetched: boolean;
   fetchedAt: Date | null;
@@ -11,22 +11,22 @@ export interface IGenericStore {
   error: Error | null;
 
   hasError: () => boolean;
-  fetchData: () => Promise<void>;
+  fetchData: (args?: FetchArguments) => Promise<void>;
   refreshData: (updateLoadingState?: boolean) => Promise<void>;
   resetStore: () => void;
 }
 
-export type TEntityStore<T, X> = IGenericStore & {
+export type TEntityStore<T, X, FA> = IGenericStore<FA> & {
   data: T | null;
-  getData: () => T | null;
+  getData: (args?: FA) => T | null;
   set: (data: T) => void;
 } & X;
 
-export function GenerateGenericStore<T, X = {}>(
-  dataFetcherFunction: () => T | Promise<T>,
+export function GenerateGenericStore<T, X = {}, FA = {}>(
+  dataFetcherFunction: (args?: FA) => T | Promise<T>,
   additionalAttrs: X = {} as X,
-): UseBoundStore<StoreApi<TEntityStore<T, X>>> {
-  return create<TEntityStore<T, X>>((set, get) => ({
+): UseBoundStore<StoreApi<TEntityStore<T, X, FA>>> {
+  return create<TEntityStore<T, X, FA>>((set, get) => ({
     ...additionalAttrs,
     data: null,
     isLoading: false,
@@ -40,13 +40,16 @@ export function GenerateGenericStore<T, X = {}>(
     hasError: () => {
       return get().error !== null;
     },
-    fetchData: async () => {
-      if (get().isLoading) return console.log('Already fetching data! Skipping...');
+    fetchData: async args => {
+      if (get().isLoading) {
+        console.log('Already fetching data! Skipping...');
+        return;
+      }
 
       set(prev => ({...prev, isLoading: true}));
 
       try {
-        const fetchedData = await dataFetcherFunction();
+        const fetchedData = await dataFetcherFunction(args);
 
         set(prev => ({
           ...prev,
@@ -62,7 +65,10 @@ export function GenerateGenericStore<T, X = {}>(
       }
     },
     refreshData: async (updateLoadingState = false) => {
-      if (get().isLoading) return console.debug('Already fetching data! Skipping...');
+      if (get().isLoading) {
+        console.log('Already fetching data! Skipping...');
+        return;
+      }
       if (updateLoadingState) set(prev => ({...prev, isLoading: true}));
 
       try {
@@ -81,10 +87,10 @@ export function GenerateGenericStore<T, X = {}>(
         set(prev => ({...prev, error: err as Error, isLoading: false}));
       }
     },
-    getData: () => {
+    getData: args => {
       const {data, isFetched, isLoading, fetchData} = get();
       if (!isFetched && !isLoading) {
-        fetchData();
+        fetchData(args);
         return null;
       }
       return data;
