@@ -4,7 +4,7 @@ import {format} from 'date-fns';
 import {type TGenericHook} from '@/hooks/GenericHook';
 import {preparePockebaseRequestOptions} from '@/utils';
 
-import {useTransactionStore} from './Transaction.store';
+import {type TTransactionStoreFetchArgs, useTransactionStore} from './Transaction.store';
 import {
   type TTransactionBudget,
   type TTransactionStats,
@@ -23,7 +23,9 @@ interface AdditionalFuncs<T> {
   getBudget: (startDate: Date, endDate: Date) => Promise<TServiceResponse<TTransactionBudget>>;
 }
 
-export function useTransactions(): TGenericHook<TTransaction[], AdditionalFuncs<TTransaction[]>> {
+export function useTransactions(
+  args?: TTransactionStoreFetchArgs,
+): TGenericHook<TTransaction[], AdditionalFuncs<TTransaction[]>, TTransactionStoreFetchArgs> {
   const {getData, isLoading, isFetched, fetchedAt, fetchedBy, refreshData, hasError, error, resetStore} =
     useTransactionStore();
 
@@ -90,7 +92,7 @@ export function useTransactions(): TGenericHook<TTransaction[], AdditionalFuncs<
   };
 
   return {
-    data: getData(),
+    data: getData(args),
     getLatestTransactions,
     getPaidExpenses,
     getReceivedIncome,
