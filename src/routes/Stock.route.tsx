@@ -225,7 +225,7 @@ export const Stock = () => {
     socket.on(
       `stock:update:${sessionUser.id}`,
       (data: {exchange: string; isin: string; quote: {datetime: string; currency: string; price: number}}) => {
-        console.log('stock:update', data);
+        if (process.env.NODE_ENV === 'development') console.log('stock:update', data);
         updateQuote(data.exchange, data.isin, data.quote.price);
         updateQuotes(prev => {
           if (!prev) return prev;
@@ -237,9 +237,16 @@ export const Stock = () => {
       },
     );
 
-    return () => {
+    const handleBeforeUnload = () => {
       socket.emit('stock:unsubscribe', [{isin: params.isin, exchange: 'langschwarz'}], sessionUser.id);
       socket.disconnect();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      handleBeforeUnload();
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [params, sessionUser]);
 

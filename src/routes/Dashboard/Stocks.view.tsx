@@ -191,9 +191,16 @@ const StocksView = () => {
       },
     );
 
-    return () => {
+    const handleBeforeUnload = () => {
       socket.emit('stock:unsubscribe', subscribedAssets, sessionUser.id);
       socket.disconnect();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      handleBeforeUnload();
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [sessionUser, socket, stockPositions, isLoadingStockPositions]);
 
