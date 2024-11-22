@@ -4,11 +4,13 @@ import {
   type TTransaction,
   ZTransaction,
 } from '@budgetbuddyde/types';
-import {isAfter, isSameMonth, subDays} from 'date-fns';
+import {format, isAfter, isSameMonth, subDays} from 'date-fns';
 import {type RecordModel} from 'pocketbase';
 import {z} from 'zod';
 
 import {pb} from '@/pocketbase';
+
+import {TTransactionStoreFetchArgs} from '../Transaction.store';
 
 /**
  * Service for managing transactions.
@@ -93,14 +95,30 @@ export class TransactionService {
    * @returns A promise that resolves to an array of transactions.
    * @throws If there is an error parsing the retrieved records.
    */
-  static async getTransactions(): Promise<TTransaction[]> {
+  static async getTransactions(args?: TTransactionStoreFetchArgs): Promise<TTransaction[]> {
+    console.log(
+      args,
+      args
+        ? pb.filter(`processed_at >= {:startDate} && processed_at <= {:endDate}`, {
+            startDate: format(args.startDate, 'yyyy-MM-dd'),
+            endDate: format(args.endDate, 'yyyy-MM-dd'),
+          })
+        : undefined,
+    );
     const records = await pb.collection(PocketBaseCollection.TRANSACTION).getFullList({
       expand: 'category,payment_method',
       sort: '-processed_at',
+      filter: args
+        ? pb.filter(`processed_at >= {:startDate} && processed_at <= {:endDate}`, {
+            startDate: format(args.startDate, 'yyyy-MM-dd'),
+            endDate: format(args.endDate, 'yyyy-MM-dd'),
+          })
+        : undefined,
     });
 
     const parsingResult = z.array(ZTransaction).safeParse(records);
     if (!parsingResult.success) throw parsingResult.error;
+    console.log('Transactions.length', parsingResult.data.length);
     return parsingResult.data;
   }
 

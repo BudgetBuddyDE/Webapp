@@ -25,7 +25,14 @@ const LIST_ITEM_COUNT = 6;
 
 const DashboardView = () => {
   useDocumentTitle(`${AppConfig.appName} - Dashboard`, true);
-  const {isLoading: isLoadingTransactions, getLatestTransactions, getUpcomingAsTransactions} = useTransactions();
+  const {
+    isLoading: isLoadingTransactions,
+    getLatestTransactions,
+    getUpcomingAsTransactions,
+  } = useTransactions({
+    startDate: new Date('2024-01-01'),
+    endDate: new Date(),
+  });
   const {isLoading: loadingSubscriptions, getUpcomingSubscriptions} = useSubscriptions();
   const [transactionDrawer, dispatchTransactionDrawer] = React.useReducer(
     useEntityDrawer<TTransactionDrawerValues>,
