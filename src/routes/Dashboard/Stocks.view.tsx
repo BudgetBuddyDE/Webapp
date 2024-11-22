@@ -75,18 +75,32 @@ const StocksView = () => {
     return Object.entries(dividends).map(([_, dividendDetails]) => dividendDetails);
   }, [dividends]);
 
-  const unrealisedProfits: number = React.useMemo(() => {
-    if (!stockPositions) return 0;
-    return stockPositions
+  const unrealisedProfits: {free: number; profit: number} = React.useMemo(() => {
+    if (!stockPositions) return {free: 0, profit: 0};
+    let free = 0;
+    let profit = 0;
+    stockPositions
       .filter(position => position.buy_in < position.quote.price)
-      .reduce((acc, position) => acc + (position.quote.price - position.buy_in) * position.quantity, 0);
+      .forEach(position => {
+        free += position.quantity * position.quote.price;
+        profit += position.quantity * (position.quote.price - position.buy_in);
+      });
+
+    return {free, profit};
   }, [stockPositions]);
 
-  const unrealisedLosses: number = React.useMemo(() => {
-    if (!stockPositions) return 0;
-    return stockPositions
+  const unrealisedLosses: {bound: number; loss: number} = React.useMemo(() => {
+    if (!stockPositions) return {bound: 0, loss: 0};
+    let bound = 0;
+    let loss = 0;
+    stockPositions
       .filter(position => position.buy_in > position.quote.price)
-      .reduce((acc, position) => acc + Math.abs(position.quote.price - position.buy_in) * position.quantity, 0);
+      .forEach(position => {
+        bound += position.quantity * position.quote.price;
+        loss += position.quantity * Math.abs(position.quote.price - position.buy_in);
+      });
+
+    return {bound, loss};
   }, [stockPositions]);
 
   const upcomingDividends: number = React.useMemo(() => {
@@ -219,21 +233,21 @@ const StocksView = () => {
             value: Formatter.formatBalance(depotValue),
             icon: <AccountBalanceRounded />,
             isLoading: isLoadingStockPositions,
-            valueInformation: 'Current value of your depot',
+            valueInformation: `Capital gain: ${Formatter.formatBalance(unrealisedProfits.profit - unrealisedLosses.loss)}`,
           },
           {
             label: 'Unrealised profits',
-            value: Formatter.formatBalance(unrealisedProfits),
+            value: Formatter.formatBalance(unrealisedProfits.profit),
             icon: <AddRounded />,
             isLoading: isLoadingStockPositions,
-            valueInformation: `Capital gain: ${Formatter.formatBalance(unrealisedProfits - unrealisedLosses)}`,
+            valueInformation: `Free capital: ${Formatter.formatBalance(unrealisedProfits.free)}`,
           },
           {
             label: 'Unrealised losses',
-            value: Formatter.formatBalance(unrealisedLosses),
+            value: Formatter.formatBalance(unrealisedLosses.loss),
             icon: <RemoveRounded />,
             isLoading: isLoadingStockPositions,
-            valueInformation: `Capital gain: ${Formatter.formatBalance(unrealisedProfits - unrealisedLosses)}`,
+            valueInformation: `Bound capital: ${Formatter.formatBalance(unrealisedLosses.bound)}`,
           },
           {
             label: 'Upcoming dividends',
