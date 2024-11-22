@@ -97,8 +97,14 @@ export const DividendTable: React.FC<TDividendTableProps> = ({dividends, withRed
               <StockPrice price={data.dividend.price} currency={data.dividend.currency} />
             </TableCell>
             <TableCell>
-              <Typography variant="caption">{totalQuantity}x</Typography>
-              <StockPrice price={totalQuantity * data.dividend.price} currency={data.dividend.currency} />
+              <Stack>
+                <Typography variant="caption">{totalQuantity}x</Typography>
+                <StockPrice
+                  price={totalQuantity * data.dividend.price}
+                  currency={data.dividend.currency}
+                  sx={{width: 'fit-content'}}
+                />
+              </Stack>
             </TableCell>
           </TableRow>
         );
