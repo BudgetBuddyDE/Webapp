@@ -12,6 +12,7 @@ import {SearchInput} from '@/components/Base/SearchInput';
 import {type ISelectionHandler} from '@/components/Base/SelectAll';
 import {type TTableSelectionProps, Table} from '@/components/Base/Table';
 import {ToggleFilterDrawerButton, useFilterStore} from '@/components/Filter';
+import {When} from '@/components/When';
 import {useAuthContext} from '@/features/Auth';
 import {CategoryChip} from '@/features/Category';
 import {PaymentMethodChip} from '@/features/PaymentMethod';
@@ -144,13 +145,13 @@ export const TransactionTable: React.FC<TTransactionTableProps> = ({
         <React.Fragment>
           <ToggleFilterDrawerButton />
           <SearchInput placeholder="Search" onSearch={setKeyword} />
-          {onAddTransaction && (
+          <When when={onAddTransaction}>
             <IconButton color="primary" onClick={onAddTransaction}>
               <AddRounded fontSize="inherit" />
             </IconButton>
-          )}
+          </When>
 
-          {onAddMultiple && (
+          <When when={onAddMultiple}>
             <Menu
               useIconButton
               actions={[
@@ -166,7 +167,7 @@ export const TransactionTable: React.FC<TTransactionTableProps> = ({
                 },
               ]}
             />
-          )}
+          </When>
         </React.Fragment>
       }
     />
