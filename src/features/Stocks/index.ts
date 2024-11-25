@@ -17,3 +17,4 @@ export * from './StockRating';
 export * from './StockService';
 export * from './StockWatchlist';
 export * from './Stock.store';
+export * from './Financial';

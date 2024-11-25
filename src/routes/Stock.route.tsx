@@ -4,15 +4,12 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Box,
   Button,
   Divider,
   Grid2 as Grid,
   List,
   ListItem,
   ListItemText,
-  Tab,
-  Tabs,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -23,13 +20,11 @@ import {Navigate, useNavigate, useParams} from 'react-router-dom';
 import {AppConfig, Feature} from '@/app.config';
 import {Card} from '@/components/Base/Card';
 import {PieChart} from '@/components/Base/Charts';
-import {BarChart, TBarChartProps} from '@/components/Base/Charts/BarChart/BarChart.component';
 import {UseEntityDrawerDefaultState, useEntityDrawer} from '@/components/Drawer/EntityDrawer';
 import {withFeatureFlag} from '@/components/Feature/withFeatureFlag/withFeatureFlag.component';
 import {ContentGrid} from '@/components/Layout';
 import {CircularProgress} from '@/components/Loading';
 import {NoResults} from '@/components/NoResults';
-import {TabPanel} from '@/components/TabPanel';
 import {useTimeframe} from '@/components/Timeframe';
 import {useAuthContext, withAuthLayout} from '@/features/Auth';
 import {DeleteDialog} from '@/features/DeleteDialog';
@@ -37,6 +32,7 @@ import {useSnackbarContext} from '@/features/Snackbar';
 import {
   CompanyInformation,
   DividendList,
+  FinancialStatementAccordion,
   PriceChart,
   RelatedStock,
   StockLayout,
@@ -78,7 +74,7 @@ export const Stock = () => {
   const {sessionUser} = useAuthContext();
   const socket = getSocketIOClient();
   const [keyword, setKeyword] = React.useState('');
-  const [tabPane, setTabPane] = React.useState({profit: 0, financial: 0});
+
   const {
     loading: loadingDetails,
     details: stockDetails,
@@ -111,17 +107,6 @@ export const Stock = () => {
   );
   const [showDeletePositionDialog, setShowDeletePositionDialog] = React.useState(false);
   const [deletePosition, setDeletePosition] = React.useState<TStockPositionWithQuote | null>(null);
-  const barChartProps: Partial<TBarChartProps> = {
-    yAxis: [
-      {
-        valueFormatter: value => Formatter.shortenNumber(value ?? 0),
-      },
-    ],
-    height: 300,
-    margin: {left: 80, right: 20, top: 20, bottom: 20},
-    grid: {horizontal: true},
-  };
-  const barChartSeriesFormatter = (value: number | null) => Formatter.shortenNumber(value ?? 0);
 
   const preparedChartData: TPriceChartPoint[] = React.useMemo(() => {
     if (!quotes) return [];
@@ -297,193 +282,9 @@ export const Stock = () => {
             />
           </Grid>
 
-          {stockDetails && stockDetails.details.securityDetails && (
-            <Grid size={{xs: 12}}>
-              <Accordion defaultExpanded>
-                <AccordionSummary expandIcon={<ExpandMoreRounded />}>
-                  <Typography variant="subtitle1" fontWeight={'bold'}>
-                    Profit & loss statements
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{px: 0}}>
-                  <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-                    <Tabs
-                      value={tabPane.profit}
-                      onChange={(_, value) => setTabPane(prev => ({...prev, profit: value}))}
-                      sx={{mx: 2}}>
-                      <Tab label="Yearly" value={0} />
-                      <Tab label="Quarterly" value={1} />
-                    </Tabs>
-                  </Box>
-                  <TabPanel idx={0} value={tabPane.profit}>
-                    <BarChart
-                      {...barChartProps}
-                      xAxis={[
-                        {
-                          scaleType: 'band',
-                          data: stockDetails?.details.securityDetails?.annualFinancials
-                            .map(({date}) => date.getFullYear())
-                            .reverse(),
-                          valueFormatter: value => value.toString(),
-                        },
-                      ]}
-                      series={[
-                        {
-                          label: `Revenue (${stockDetails.details.securityDetails.currency})`,
-                          data: stockDetails.details.securityDetails.annualFinancials
-                            .map(({revenue}) => revenue)
-                            .reverse(),
-                          valueFormatter: barChartSeriesFormatter,
-                        },
-                        {
-                          label: `Net Profit (${stockDetails.details.securityDetails.currency})`,
-                          data: stockDetails.details.securityDetails.annualFinancials
-                            .map(({netIncome}) => netIncome)
-                            .reverse(),
-                          valueFormatter: barChartSeriesFormatter,
-                        },
-                      ]}
-                    />
-                  </TabPanel>
-                  <TabPanel idx={1} value={tabPane.profit}>
-                    <BarChart
-                      {...barChartProps}
-                      xAxis={[
-                        {
-                          scaleType: 'band',
-                          data: stockDetails?.details.securityDetails?.quarterlyFinancials
-                            .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
-                            .reverse(),
-                        },
-                      ]}
-                      series={[
-                        {
-                          label: `Revenue (${stockDetails.details.securityDetails.currency})`,
-                          data: stockDetails.details.securityDetails.quarterlyFinancials
-                            .map(({revenue}) => revenue)
-                            .reverse(),
-                          valueFormatter: barChartSeriesFormatter,
-                        },
-                        {
-                          label: `Net Profit (${stockDetails.details.securityDetails.currency})`,
-                          data: stockDetails.details.securityDetails.quarterlyFinancials
-                            .map(({netIncome}) => netIncome)
-                            .reverse(),
-                          valueFormatter: barChartSeriesFormatter,
-                        },
-                      ]}
-                    />
-                  </TabPanel>
-                </AccordionDetails>
-              </Accordion>
-
-              <Accordion>
-                <AccordionSummary expandIcon={<ExpandMoreRounded />}>
-                  <Typography variant="subtitle1" fontWeight={'bold'}>
-                    Financial Statements
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{px: 0}}>
-                  <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-                    <Tabs
-                      value={tabPane.financial}
-                      onChange={(_, value) => setTabPane(prev => ({...prev, financial: value}))}
-                      sx={{mx: 2}}>
-                      <Tab label="Yearly" value={0} />
-                      <Tab label="Quarterly" value={1} />
-                    </Tabs>
-                  </Box>
-                  <TabPanel idx={0} value={tabPane.financial}>
-                    <BarChart
-                      {...barChartProps}
-                      xAxis={[
-                        {
-                          scaleType: 'band',
-                          data: stockDetails?.details.securityDetails?.annualFinancials
-                            .map(({date}) => date.getFullYear())
-                            .reverse(),
-                          valueFormatter: value => value.toString(),
-                        },
-                      ]}
-                      series={[
-                        {
-                          label: `Revenue (${stockDetails.details.securityDetails.currency})`,
-                          data: stockDetails.details.securityDetails.annualFinancials
-                            .map(({revenue}) => revenue)
-                            .reverse(),
-                          valueFormatter: barChartSeriesFormatter,
-                        },
-                        {
-                          label: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
-                          data: stockDetails.details.securityDetails.annualFinancials
-                            .map(({grossProfit}) => grossProfit)
-                            .reverse(),
-                          valueFormatter: barChartSeriesFormatter,
-                        },
-                        {
-                          label: `EBITDA (${stockDetails.details.securityDetails.currency})`,
-                          data: stockDetails.details.securityDetails.annualFinancials
-                            .map(({ebitda}) => ebitda)
-                            .reverse(),
-                          valueFormatter: barChartSeriesFormatter,
-                        },
-                        {
-                          label: `Net Profit (${stockDetails.details.securityDetails.currency})`,
-                          data: stockDetails.details.securityDetails.annualFinancials
-                            .map(({netIncome}) => netIncome)
-                            .reverse(),
-                          valueFormatter: barChartSeriesFormatter,
-                        },
-                      ]}
-                    />
-                  </TabPanel>
-                  <TabPanel idx={1} value={tabPane.financial}>
-                    <BarChart
-                      {...barChartProps}
-                      xAxis={[
-                        {
-                          scaleType: 'band',
-                          data: stockDetails?.details.securityDetails?.quarterlyFinancials
-                            .map(({date}) => `${Formatter.formatDate().shortMonthName(date)} ${date.getFullYear()}`)
-                            .reverse(),
-                        },
-                      ]}
-                      series={[
-                        {
-                          label: `Revenue (${stockDetails.details.securityDetails.currency})`,
-                          data: stockDetails.details.securityDetails.quarterlyFinancials
-                            .map(({revenue}) => revenue)
-                            .reverse(),
-                          valueFormatter: barChartSeriesFormatter,
-                        },
-                        {
-                          label: `Gross Profit (${stockDetails.details.securityDetails.currency})`,
-                          data: stockDetails.details.securityDetails.quarterlyFinancials
-                            .map(({grossProfit}) => grossProfit)
-                            .reverse(),
-                          valueFormatter: barChartSeriesFormatter,
-                        },
-                        {
-                          label: `EBITDA (${stockDetails.details.securityDetails.currency})`,
-                          data: stockDetails.details.securityDetails.quarterlyFinancials
-                            .map(({ebitda}) => ebitda)
-                            .reverse(),
-                          valueFormatter: barChartSeriesFormatter,
-                        },
-                        {
-                          label: `Net Profit (${stockDetails.details.securityDetails.currency})`,
-                          data: stockDetails.details.securityDetails.quarterlyFinancials
-                            .map(({netIncome}) => netIncome)
-                            .reverse(),
-                          valueFormatter: barChartSeriesFormatter,
-                        },
-                      ]}
-                    />
-                  </TabPanel>
-                </AccordionDetails>
-              </Accordion>
-            </Grid>
-          )}
+          <Grid size={{xs: 12}}>
+            <FinancialStatementAccordion stockDetails={stockDetails} />
+          </Grid>
 
           <Grid container size={{xs: 12}} spacing={AppConfig.baseSpacing}>
             {loadingRelatedStocks
