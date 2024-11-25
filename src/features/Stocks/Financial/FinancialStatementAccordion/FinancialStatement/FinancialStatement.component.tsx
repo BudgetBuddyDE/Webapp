@@ -70,7 +70,7 @@ export const FinancialStatement: React.FC<TFinancialStatementProps> = ({
 
   if (chartData.length === 0) return null;
   return (
-    <Accordion defaultExpanded>
+    <Accordion>
       <AccordionSummary expandIcon={<ExpandMoreRounded />}>
         <Typography variant="subtitle1" fontWeight={'bold'}>
           Financial Statements
