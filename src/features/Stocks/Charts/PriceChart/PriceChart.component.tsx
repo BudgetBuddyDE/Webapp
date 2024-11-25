@@ -6,6 +6,7 @@ import React from 'react';
 import {Card} from '@/components/Base/Card';
 import {AreaGradient, LineChart} from '@/components/Base/Charts';
 import {Timeframe} from '@/components/Timeframe';
+import {useScreenSize} from '@/hooks/useScreenSize';
 import {Formatter} from '@/services/Formatter';
 
 export type TPriceChartPoint = {
@@ -21,6 +22,7 @@ export type TPriceChartProps = {
 
 export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, company, data}) => {
   const theme = useTheme();
+  const screenSize = useScreenSize();
 
   const oldestPrice = data.at(0)!.price;
   const latestPrice = data.at(-1)!.price;
@@ -96,7 +98,7 @@ export const PriceChart: React.FC<TPriceChartProps> = ({onTimeframeChange, compa
               baseline: 'min',
             },
           ]}
-          height={400}
+          height={screenSize === 'small' ? 250 : 400}
           margin={{left: 60, right: 0, top: 20, bottom: 30}}
           grid={{horizontal: true}}
           sx={{
